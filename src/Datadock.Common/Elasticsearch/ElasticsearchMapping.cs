@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Datadock.Common.Models;
+﻿using Datadock.Common.Models;
 using Nest;
 
 namespace Datadock.Common.Elasticsearch
@@ -16,6 +13,11 @@ namespace Datadock.Common.Elasticsearch
         public static IPromise<IMappings> UserSettingsIndexMappings(MappingsDescriptor ms)
         {
             return ms.Map<UserSettings>(m => m.AutoMap(-1));
+        }
+
+        public static IPromise<IMappings> JobsIndexMappings(MappingsDescriptor ms)
+        {
+            return ms.Map<JobInfo>(m => m.AutoMap(-1));
         }
     }
 }

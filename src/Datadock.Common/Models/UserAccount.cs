@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
-using Datadock.Common.Repositories;
 using Nest;
 
 namespace Datadock.Common.Models
 {
-    [ElasticsearchType(Name = "useraccounts", IdProperty = "UserId")]
+    [ElasticsearchType(Name = "useraccount", IdProperty = "UserId")]
     public class UserAccount
     {
         [Keyword]

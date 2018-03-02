@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  datadock.web:
+    image: datadock.web
+    build:
+      context: .
+      dockerfile: DataDock.Web/Dockerfile
+
+  datadock.worker:
+    image: datadock.worker
+    build:
+      context: .
+      dockerfile: Datadock.Worker/Dockerfile
+
+  elasticsearch:
+    image: elasticsearch
+    build:
+      context: .
+      dockerfile: Elasticsearch/Dockerfile
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana-oss:6.2.2
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200/
+    ports:
+      - "5601:5601"

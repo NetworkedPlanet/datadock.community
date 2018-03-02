@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Datadock.Common.Elasticsearch;
+using Datadock.Common.Repositories;
 using DataDock.Web.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -9,6 +12,7 @@ using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Nest;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.Elasticsearch;
@@ -39,6 +43,33 @@ namespace DataDock.Web
         {
             services.AddMvc();
             services.AddSignalR();
+            var client = new ElasticClient(new Uri("http://elasticsearch:9200"));
+            EnsureElasticsearchIndexes(client);
+            services.AddSingleton<IElasticClient>(client);
+            services.AddSingleton<IUserRepository>(new UserRepository(client));
+        }
+
+        private void EnsureElasticsearchIndexes(ElasticClient client)
+        {
+            var elasticsearchAvailable = false;
+            while (!elasticsearchAvailable)
+            {
+                Thread.Sleep(1000);
+                elasticsearchAvailable = client.Ping().IsValid;
+            }
+
+            var existsResponse = client.IndexExists("useraccounts");
+            if (!existsResponse.Exists)
+            {
+                var createIndexResponse = client.CreateIndex("useraccounts", c => c.Mappings(ElasticsearchMapping.UserAccountIndexMappings));
+            }
+
+            existsResponse = client.IndexExists("usersettings");
+            if (!existsResponse.Exists)
+            {
+                var createIndexResponse = client.CreateIndex("usersettings",
+                    c => c.Mappings(ElasticsearchMapping.UserSettingsIndexMappings));
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

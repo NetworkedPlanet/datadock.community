@@ -46,5 +46,24 @@ namespace Datadock.Common.Elasticsearch
             var response = await _client.DeleteAsync<UserAccount>(userId);
             return response.IsValid;
         }
+
+        public async Task<UserAccount> GetUserAccountAsync(string userId)
+        {
+            var response = await _client.GetAsync<UserAccount>(userId);
+            if (!response.Found) throw new UserAccountNotFoundException(userId);
+            return response.Source;
+        }
+    }
+
+    public class UserAccountNotFoundException : UserRepositoryException
+    {
+        public UserAccountNotFoundException(string userId) : base($"Could not find account record for user {userId}")
+        {
+        }
+    }
+
+    public class UserRepositoryException : DatadockException
+    {
+        public UserRepositoryException(string msg) : base(msg) { }
     }
 }

@@ -39,9 +39,15 @@ namespace Datadock.Common.Elasticsearch
             throw new JobRepositoryException($"Failed to retrieve job record for jobId {jobId}: {getResponse.DebugInformation}");
         }
 
-        public Task<bool> UpdateJobInfoAsync(JobInfo updatedJobInfo)
+        public async Task UpdateJobInfoAsync(JobInfo updatedJobInfo)
         {
-            throw new NotImplementedException();
+            updatedJobInfo.RefreshedTimestamp = DateTime.UtcNow.Ticks;
+            var updateResponse = await _client.IndexDocumentAsync(updatedJobInfo);
+            if (!updateResponse.IsValid)
+            {
+                throw new JobRepositoryException(
+                    $"Failed to update job record for jobId {updatedJobInfo.JobId}: {updateResponse.DebugInformation}");
+            }
         }
 
         public Task<IEnumerable<JobInfo>> GetJobsForUser(string userId, int skip = 0, int take = 20)
@@ -71,9 +77,23 @@ namespace Datadock.Common.Elasticsearch
                             .Query(JobStatus.Queued.ToString())
                         ))))
                 .Sort(sort => sort.Ascending(on => on.QueuedTimestamp)).Take(1));
-            if (searchResults.Documents.Any())
+            if (searchResults.Hits.Any())
             {
-                return searchResults.Documents.First();
+                // Attempt to update the job document to mark it as running
+                var hit = searchResults.Hits.First();
+                var resultVersion = hit.Version;
+                var jobInfo = hit.Source;
+
+                jobInfo.RefreshedTimestamp = DateTime.UtcNow.Ticks;
+                jobInfo.StartedAt = DateTime.UtcNow;
+                jobInfo.CurrentStatus = JobStatus.Running;
+                var indexResponse = await _client.IndexAsync(jobInfo, desc => desc
+                    .Id(jobInfo.JobId)
+                    .Version(resultVersion));
+                if (indexResponse.IsValid)
+                {
+                    return jobInfo;
+                }
             }
 
             return null;
@@ -90,3 +110,4 @@ namespace Datadock.Common.Elasticsearch
         public JobRepositoryException(string msg) : base(msg) { }
     }
 }
+

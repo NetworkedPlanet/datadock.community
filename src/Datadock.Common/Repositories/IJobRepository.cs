@@ -25,7 +25,7 @@ namespace Datadock.Common.Repositories
         /// </summary>
         /// <param name="updatedJobInfo"></param>
         /// <returns></returns>
-        Task<bool> UpdateJobInfoAsync(JobInfo updatedJobInfo);
+        Task UpdateJobInfoAsync(JobInfo updatedJobInfo);
 
         /// <summary>
         /// Retrieve all jobs created by the specified user

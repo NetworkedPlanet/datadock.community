@@ -34,5 +34,7 @@ namespace Datadock.Common.Repositories
         /// <param name="userId"></param>
         /// <returns>True if successfully deleted.</returns>
         Task<bool> DeleteUserAsync(string userId);
+
+        Task<UserAccount> GetUserAccountAsync(string userId);
     }
 }

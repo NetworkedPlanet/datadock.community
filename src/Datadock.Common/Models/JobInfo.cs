@@ -66,6 +66,11 @@ namespace Datadock.Common.Models
         public string GitRepositoryFullName { get; set; }
 
         /// <summary>
+        /// The URL to use when cloning the Git repository
+        /// </summary>
+        [Keyword(Index = false, Store=true)]
+        public string GitRepositoryUrl { get; set; }
+        /// <summary>
         /// The current status of this job
         /// </summary>
         [Number(NumberType.Integer)]

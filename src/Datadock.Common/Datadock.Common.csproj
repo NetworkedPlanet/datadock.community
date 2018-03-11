@@ -6,6 +6,13 @@
 
   <ItemGroup>
     <PackageReference Include="NEST" Version="6.0.1" />
+    <PackageReference Include="Octokit" Version="0.29.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\..\.nuget\packages\newtonsoft.json\10.0.1\lib\netstandard1.3\Newtonsoft.Json.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using Datadock.Common.Elasticsearch;
 using Datadock.Common.Models;
-using Elasticsearch.Net;
 using Moq;
 using Nest;
 using Xunit;
@@ -14,15 +12,15 @@ namespace DataDock.Common.Tests
     {
 
         [Fact]
-        public async void SubmitJobRequiresNonNullRequestInfo()
+        public async void SubmitImportJobRequiresNonNullRequestInfo()
         {
             var client = new Mock<IElasticClient>();
             var repo = new JobRepository(client.Object);
-            await Assert.ThrowsAsync<ArgumentNullException>(() => repo.SubmitJobAsync(null));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => repo.SubmitImportJobAsync(null));
         }
 
         [Fact]
-        public async void SubmitJobInsertsIntoJobsIndex()
+        public async void SubmitImportJobInsertsIntoJobsIndex()
         {
             var mockResponse = new Mock<IIndexResponse>();
             mockResponse.SetupGet(x => x.IsValid).Returns(true);
@@ -31,20 +29,15 @@ namespace DataDock.Common.Tests
                 .ReturnsAsync(mockResponse.Object).Verifiable();
             var repo = new JobRepository(client.Object);
                 
-            var jobRequest = new JobRequestInfo
+            var jobRequest = new ImportJobRequestInfo
             {
                 JobType = JobType.Import,
                 UserId = "user",
                 OwnerId = "owner",
-                RepositoryId = "repo",
-                Parameters = new Dictionary<string, string>
-                {
-                    {"param1", "value1"},
-                    {"param2", "value2"}
-                }
+                RepositoryId = "repo"
             };
 
-            var jobId = await repo.SubmitJobAsync(jobRequest);
+            var jobInfo = await repo.SubmitImportJobAsync(jobRequest);
 
             client.Verify();
         }
@@ -59,20 +52,15 @@ namespace DataDock.Common.Tests
                 .ReturnsAsync(mockResponse.Object).Verifiable();
             var repo = new JobRepository(client.Object);
 
-            var jobRequest = new JobRequestInfo
+            var jobRequest = new ImportJobRequestInfo
             {
                 JobType = JobType.Import,
                 UserId = "user",
                 OwnerId = "owner",
-                RepositoryId = "repo",
-                Parameters = new Dictionary<string, string>
-                {
-                    {"param1", "value1"},
-                    {"param2", "value2"}
-                }
+                RepositoryId = "repo"
             };
 
-            await Assert.ThrowsAsync<JobRepositoryException>(() => repo.SubmitJobAsync(jobRequest));
+            await Assert.ThrowsAsync<JobRepositoryException>(() => repo.SubmitImportJobAsync(jobRequest));
 
             client.Verify();
 

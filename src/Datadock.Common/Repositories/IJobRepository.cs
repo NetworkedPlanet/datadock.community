@@ -11,7 +11,11 @@ namespace Datadock.Common.Repositories
         /// </summary>
         /// <param name="jobDescription"></param>
         /// <returns></returns>
-        Task<string> SubmitJobAsync(JobRequestInfo jobDescription);
+        Task<JobInfo> SubmitImportJobAsync(ImportJobRequestInfo jobDescription);
+
+        Task<JobInfo> SubmitDeleteJobAsync(DeleteJobRequestInfo jobRequest);
+        Task<JobInfo> SubmitSchemaImportJobAsync(SchemaImportJobRequestInfo jobRequest);
+        Task<JobInfo> SubmitSchemaDeleteJobAsync(SchemaDeleteJobRequestInfo jobRequest);
 
         /// <summary>
         /// Retrieve the details for the specified job

@@ -192,23 +192,18 @@ namespace Datadock.Worker
 
         private async Task ProcessImportJob(JobInfo job, string targetDirectory, UserAccount userAccount, string authenticationToken)
         {
-            var datasetId = job.Parameters[JobParameters.DatasetId];
-            var datasetIri = job.Parameters[JobParameters.DatasetIri];
-            var csvFileName = job.Parameters[JobParameters.CsvFileName];
-            var overwriteExisting = bool.Parse(job.Parameters[JobParameters.OverwriteExistingData]);
-            var showOnHomePage = bool.Parse(job.Parameters[JobParameters.ShowOnHomepage]);
             // Clone the repository
             await CloneRepository(job.GitRepositoryUrl, targetDirectory, authenticationToken, userAccount);
 
             // Retrieve CSV and CSVM files to src directory in the repository
             await AddCsvFilesToRepository(targetDirectory, 
-                datasetId,
-                job.Parameters[JobParameters.CsvFileName], 
-                job.Parameters[JobParameters.CsvFileId], 
-                job.Parameters[JobParameters.CsvmFileId]);
+                job.DatasetId,
+                job.CsvFileName, 
+                job.CsvFileId, 
+                job.CsvmFileId);
 
-            var csvPath = Path.Combine(targetDirectory, "csv", datasetId, csvFileName);
-            var metaPath = Path.Combine(targetDirectory, "csv", datasetId, csvFileName + "-metadata.json");
+            var csvPath = Path.Combine(targetDirectory, "csv", job.DatasetId, job.CsvFileName);
+            var metaPath = Path.Combine(targetDirectory, "csv", job.DatasetId, job.CsvFileName+ "-metadata.json");
 
             // Parse the JSON metadata
             JObject metadataJson;
@@ -221,19 +216,17 @@ namespace Datadock.Worker
             // Run the CSV to RDF conversion
             var repositoryUri = new Uri(DataDockUrlHelper.GetRepositoryUri(job.GitRepositoryFullName));
             var publisherIri = new Uri(repositoryUri, "id/dataset/publisher");
-            var datasetUri = new Uri(job.Parameters[JobParameters.DatasetIri]);
+            var datasetUri = new Uri(job.DatasetIri);
             var datasetMetadataGraphIri = new Uri(datasetUri + "/metadata");
             var rootMetadataGraphIri = new Uri(repositoryUri, "metadata");
             var definitionsGraphIri = new Uri(repositoryUri, "definitions");
             var dateTag = DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
-            var releaseTag = MakeSafeTag(datasetId + "_" + dateTag);
-            //var repositoryTitle = repositoryInfo.Title;
-            //var repositoryDescription = repositoryInfo.Description;
+            var releaseTag = MakeSafeTag(job.DatasetId + "_" + dateTag);
             var publisher = await GetPublisherContactInfo(job.OwnerId, job.RepositoryId);
             var ntriplesDownloadLink =
                 new Uri($"https://github.com/{job.GitRepositoryFullName}/releases/download/{releaseTag}/{releaseTag}.nt.gz");
             var csvDownloadLink =
-                new Uri(repositoryUri + $"csv/{datasetId}/{csvFileName}");
+                new Uri(repositoryUri + $"csv/{job.DatasetId}/{job.CsvFileName}");
 
             IGraph datasetGraph;
             using (var csvReader = File.OpenText(csvPath))
@@ -247,7 +240,7 @@ namespace Datadock.Worker
 
             UpdateRepository(targetDirectory, datasetGraph, metadataGraph, definitionsGraph, datasetUri, repositoryUri, publisherIri,
                 "", "",
-                rootMetadataGraphIri, datasetMetadataGraphIri, definitionsGraphIri, publisher, overwriteExisting);
+                rootMetadataGraphIri, datasetMetadataGraphIri, definitionsGraphIri, publisher, job.OverwriteExistingData);
 
             var quincePath = Path.Combine(targetDirectory, "quince");
             var quinceStore = new DynamicFileStore(quincePath, QuinceCacheThreshold);
@@ -263,11 +256,11 @@ namespace Datadock.Worker
 
             // Add and Commit all changes
             if (await CommitChanges(targetDirectory,
-                $"Added {csvFileName} to dataset {datasetIri}", userAccount))
+                $"Added {job.CsvFileName} to dataset {job.DatasetIri}", userAccount))
             {
                 await PushChanges(job.GitRepositoryUrl, targetDirectory, authenticationToken);
                 await MakeRelease(datasetGraph, releaseTag, job.OwnerId, job.RepositoryId,
-                    datasetId, targetDirectory, authenticationToken);
+                    job.DatasetId, targetDirectory, authenticationToken);
             }
 
             // Update the dataset repository
@@ -277,10 +270,10 @@ namespace Datadock.Worker
                 {
                     OwnerId = job.OwnerId,
                     RepositoryId = job.GitRepositoryFullName,
-                    DatasetId = datasetId,
+                    DatasetId = job.DatasetId,
                     LastModified = DateTime.UtcNow,
                     Metadata = metadataJson,
-                    ShowOnHomePage = showOnHomePage
+                    ShowOnHomePage = job.IsPublic
                 });
             }
             catch (Exception ex)
@@ -300,14 +293,13 @@ namespace Datadock.Worker
         {
             await CloneRepository(job.GitRepositoryUrl, targetDirectory, authenticationToken, userAccount);
             var repositoryUri = new Uri(DataDockUrlHelper.GetRepositoryUri(job.GitRepositoryFullName));
-            var datasetUri = new Uri(job.Parameters[JobParameters.DatasetIri]);
-            var datasetId = job.Parameters[JobParameters.DatasetId];
+            var datasetUri = new Uri(job.DatasetIri);
             var quincePath = Path.Combine(targetDirectory, "quince");
             var quinceStore = new DynamicFileStore(quincePath, 10);
 
             DeleteDataset(quinceStore, datasetUri, repositoryUri);
 
-            DeleteCsvAndMetadata(targetDirectory, datasetId);
+            DeleteCsvAndMetadata(targetDirectory, job.DatasetId);
             GenerateRdf(quinceStore, targetDirectory, repositoryUri, null);
             GenerateHtml(quinceStore, targetDirectory, repositoryUri);
             GenerateVoidMetadata(quinceStore, targetDirectory, repositoryUri);
@@ -318,7 +310,7 @@ namespace Datadock.Worker
             }
             try
             {
-                await _datasetRepository.DeleteDatasetAsync(job.GitRepositoryFullName, datasetId);
+                await _datasetRepository.DeleteDatasetAsync(job.GitRepositoryFullName, job.DatasetId);
             }
             catch (Exception ex)
             {
@@ -327,7 +319,7 @@ namespace Datadock.Worker
             }
         }
 
-        private string PrintObjectProperties(Object obj)
+        private static string PrintObjectProperties(object obj)
         {
             var sb = new StringBuilder();
             try
@@ -351,19 +343,17 @@ namespace Datadock.Worker
 
         private async Task ProcessSchemaCreateJob(JobInfo job)
         {
-            var schemaFileId = job.Parameters[JobParameters.SchemaFileId];
-
             // Save the schema to documentDB
             try
             {
-                Log.Debug("Create schema. Schema file Id: {schemaFileId}", schemaFileId);
+                Log.Debug("Create schema. Schema file Id: {schemaFileId}", job.SchemaFileId);
                 _progressLog.UpdateStatus(JobStatus.Running, "Create schema. Job details: {0}", PrintObjectProperties(job));
                 // get schema from file store
-                if (!string.IsNullOrEmpty(schemaFileId))
+                if (!string.IsNullOrEmpty(job.SchemaFileId))
                 {
                     // Parse the JSON metadata
                     JObject schemaJson;
-                    var schemaFileStream = await _jobFileStore.GetFileAsync(schemaFileId);
+                    var schemaFileStream = await _jobFileStore.GetFileAsync(job.SchemaFileId);
                     var serializer = new JsonSerializer();
 
                     using (var sr = new StreamReader(schemaFileStream))
@@ -377,7 +367,7 @@ namespace Datadock.Worker
                             schemaJson);
 
                         Log.Debug("Create schema: OwnerId: {ownerId} RepositoryId: {repoId} SchemaFileId: {schemaFileId}",
-                            job.OwnerId, job.GitRepositoryFullName, schemaFileId);
+                            job.OwnerId, job.GitRepositoryFullName, job.SchemaFileId);
                         var schemaInfo = new SchemaInfo
                         {
                             OwnerId = job.OwnerId,
@@ -419,11 +409,10 @@ namespace Datadock.Worker
 
         private async Task ProcessSchemaDeleteJob(JobInfo job)
         {
-            var schemaId = job.Parameters[JobParameters.SchemaId];
             // Delete the schema from documentDB
             try
             {
-                await _schemaRepository.DeleteSchemaAsync(null, schemaId);
+                await _schemaRepository.DeleteSchemaAsync(null, job.SchemaId);
             }
             catch (Exception ex)
             {

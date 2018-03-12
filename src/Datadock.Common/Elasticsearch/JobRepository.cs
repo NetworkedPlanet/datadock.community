@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Datadock.Common.Models;
 using Datadock.Common.Repositories;
@@ -17,15 +16,37 @@ namespace Datadock.Common.Elasticsearch
             _client = client;
         }
 
-        public async Task<string> SubmitJobAsync(JobRequestInfo jobDescription)
+        public async Task<JobInfo> SubmitImportJobAsync(ImportJobRequestInfo jobDescription)
         {
             var jobInfo = new JobInfo(jobDescription);
+            return await SubmitJobAsync(jobInfo);
+        }
+
+        public async Task<JobInfo> SubmitDeleteJobAsync(DeleteJobRequestInfo jobRequest)
+        {
+            var jobInfo = new JobInfo(jobRequest);
+            return await SubmitJobAsync(jobInfo);
+        }
+
+        public async Task<JobInfo> SubmitSchemaImportJobAsync(SchemaImportJobRequestInfo jobRequest)
+        {
+            var jobInfo = new JobInfo(jobRequest);
+            return await SubmitJobAsync(jobInfo);
+        }
+
+        public async Task<JobInfo> SubmitSchemaDeleteJobAsync(SchemaDeleteJobRequestInfo jobRequest)
+        {
+            var jobInfo = new JobInfo(jobRequest);
+            return await SubmitJobAsync(jobInfo);
+        }
+
+        private async Task<JobInfo> SubmitJobAsync(JobInfo jobInfo) { 
             var indexResponse = await _client.IndexDocumentAsync<JobInfo>(jobInfo);
             if (!indexResponse.IsValid)
             {
                 throw new JobRepositoryException($"Failed to insert new job record: {indexResponse.DebugInformation}");
             }
-            return jobInfo.JobId;
+            return jobInfo;
         }
 
         public async Task<JobInfo> GetJobInfoAsync(string jobId)

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Nest;
 
 namespace Datadock.Common.Models
@@ -7,7 +6,7 @@ namespace Datadock.Common.Models
     [ElasticsearchType(Name="job", IdProperty = "JobId")]
     public class JobInfo
     {
-        public JobInfo(JobRequestInfo req)
+        protected JobInfo(JobRequestInfo req)
         {
             if (req == null) throw new ArgumentNullException(nameof(req));
             if (string.IsNullOrEmpty(req.UserId))
@@ -22,11 +21,35 @@ namespace Datadock.Common.Models
             OwnerId = req.OwnerId;
             RepositoryId = req.RepositoryId;
             JobType = req.JobType;
-            Parameters = req.Parameters == null
-                ? new Dictionary<string, string>()
-                : new Dictionary<string, string>(req.Parameters);
             QueuedAt = DateTime.UtcNow;
             CurrentStatus = JobStatus.Queued;
+        }
+
+        public JobInfo(ImportJobRequestInfo req) : this(req as JobRequestInfo)
+        {
+            DatasetId = req.DatasetId;
+            DatasetIri = req.DatasetIri;
+            CsvFileName = req.CsvFileName;
+            CsvFileId = req.CsvFileId;
+            CsvmFileId = req.CsvFileId;
+            IsPublic = req.IsPublic;
+            OverwriteExistingData = req.OverwriteExistingData;
+        }
+
+        public JobInfo(DeleteJobRequestInfo req) : this(req as JobRequestInfo)
+        {
+            DatasetId = req.DatasetId;
+            DatasetIri = req.DatasetIri;
+        }
+
+        public JobInfo(SchemaImportJobRequestInfo req) : this(req as JobRequestInfo)
+        {
+            SchemaFileId = req.SchemaFileId;
+        }
+
+        public JobInfo(SchemaDeleteJobRequestInfo req) : this(req as JobRequestInfo)
+        {
+            SchemaId = req.SchemaId;
         }
 
         /// <summary>
@@ -120,9 +143,71 @@ namespace Datadock.Common.Models
         public long RefreshedTimestamp { get; set; }
 
         /// <summary>
-        /// Additional job-specific parameters
+        /// The identifier assigned to the dataset being imported or deleted
         /// </summary>
-        [Object]
-        public Dictionary<string, string> Parameters { get; set; }
+        /// <remarks>Required for import and delete jobs</remarks>
+        [Keyword(Index = false, Store = true)]
+        public string DatasetId { get; set; }
+
+        /// <summary>
+        /// The IRI assigned to the dataset being imported
+        /// </summary>
+        /// <remarks>Required for import and delete jobs</remarks>
+        [Keyword(Index = false, Store = true)]
+        public string DatasetIri { get; set; }
+
+        /// <summary>
+        /// The name of the CSV file being imported
+        /// </summary>
+        /// <remarks>Required for import jobs</remarks>
+        [Keyword(Index = false, Store = true)]
+        public string CsvFileName { get; set; }
+
+        /// <summary>
+        /// The handle to use to retrieve the CSV file from the DataDock temporary file store
+        /// </summary>
+        /// <remarks>Required for import jobs</remarks>
+        [Keyword(Index = false, Store = true)]
+        public string CsvFileId { get; set; }
+
+        /// <summary>
+        /// The handle to use to retrieve the CSV metadata file from the DataDock temporary file store
+        /// </summary>
+        /// <remarks>Required for import jobs</remarks>
+        [Keyword(Index = false, Store = true)]
+        public string CsvmFileId { get; set; }
+
+        /// <summary>
+        /// Flag indicating if the imported dataset should be displayed on public pages
+        /// </summary>
+        /// <remarks>Required for import jobs. Was originally "ShowOnHomepage", but this flag also controls
+        /// whether or not a dataset appears in public search results.</remarks>
+        [Boolean(Index = false, Store = true)]
+        public bool IsPublic { get; set; }
+
+        /// <summary>
+        /// Flag indicating if the imported data overwrites any existing data (if true)
+        /// or is added to the existing data (if false)
+        /// </summary>
+        /// <remarks>Required for import jobs</remarks>
+        [Boolean(Index = false, Store = true)]
+        public bool OverwriteExistingData { get; set; }
+
+        /// <summary>
+        /// The handle to use to retrieve the schema file from the DataDock temporary file store
+        /// </summary>
+        /// <remarks>Required for schema import jobs</remarks>
+        [Keyword(Index = false, Store = true)]
+        public string SchemaFileId { get; set; }
+
+        /// <summary>
+        /// The identifier assigned to the schema being deleted
+        /// </summary>
+        /// <remarks>Required for schema delete jobs</remarks>
+        [Keyword(Index = false, Store = true)]
+        public string SchemaId { get; set; }
+
+
     }
+
 }

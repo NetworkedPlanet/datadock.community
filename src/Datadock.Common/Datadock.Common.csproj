@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="7.5.1" />
     <PackageReference Include="NEST" Version="6.0.1" />
     <PackageReference Include="Octokit" Version="0.29.0" />
   </ItemGroup>

@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\DataDock.CsvWeb\DataDock.CsvWeb.csproj" />
     <ProjectReference Include="..\Datadock.Common\Datadock.Common.csproj" />
+    <ProjectReference Include="..\DataDock.CsvWeb\DataDock.CsvWeb.csproj" />
     <PackageReference Include="DotLiquid" Version="2.0.254" />
     <PackageReference Include="dotNetRDF" Version="2.0.1" />
     <PackageReference Include="Elasticsearch.Net" Version="6.0.1" />

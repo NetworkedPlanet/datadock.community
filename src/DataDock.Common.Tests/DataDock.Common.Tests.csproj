@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\Datadock.Common\Datadock.Common.csproj" />
+    <ProjectReference Include="..\Datadock.Common\Datadock.Common.csproj" />
   </ItemGroup>
 
 </Project>

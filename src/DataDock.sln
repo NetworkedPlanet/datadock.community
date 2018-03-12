@@ -16,11 +16,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Elasticsearch", "Elasticsea
 		Elasticsearch\Dockerfile = Elasticsearch\Dockerfile
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataDock.Common.Tests", "..\DataDock.Common.Tests\DataDock.Common.Tests.csproj", "{0B7D2D22-616E-48E0-877C-AB866411F803}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IntegrationTests", "IntegrationTests", "{E88F117F-AAC8-447E-B97D-0104D07E26DA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataDock.CsvWeb", "..\DataDock.CsvWeb\DataDock.CsvWeb.csproj", "{954D8CA2-BE2A-4C75-82FD-8295E4CD3557}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataDock.Common.Tests", "DataDock.Common.Tests\DataDock.Common.Tests.csproj", "{203E241C-D2E7-4F58-8AFA-469F91F4EF04}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataDock.CsvWeb", "DataDock.CsvWeb\DataDock.CsvWeb.csproj", "{E6C98E6A-1DF7-496B-B1B4-30C2A6F68E0D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataDock.IntegrationTests", "DataDock.IntegrationTests\DataDock.IntegrationTests.csproj", "{4B837EE3-FA4A-4568-9EAA-A8207CD64CAF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,17 +46,24 @@ Global
 		{3B7619F9-2AEA-4E2D-9B48-93C1F2B5CCCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3B7619F9-2AEA-4E2D-9B48-93C1F2B5CCCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3B7619F9-2AEA-4E2D-9B48-93C1F2B5CCCB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0B7D2D22-616E-48E0-877C-AB866411F803}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0B7D2D22-616E-48E0-877C-AB866411F803}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0B7D2D22-616E-48E0-877C-AB866411F803}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0B7D2D22-616E-48E0-877C-AB866411F803}.Release|Any CPU.Build.0 = Release|Any CPU
-		{954D8CA2-BE2A-4C75-82FD-8295E4CD3557}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{954D8CA2-BE2A-4C75-82FD-8295E4CD3557}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{954D8CA2-BE2A-4C75-82FD-8295E4CD3557}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{954D8CA2-BE2A-4C75-82FD-8295E4CD3557}.Release|Any CPU.Build.0 = Release|Any CPU
+		{203E241C-D2E7-4F58-8AFA-469F91F4EF04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{203E241C-D2E7-4F58-8AFA-469F91F4EF04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{203E241C-D2E7-4F58-8AFA-469F91F4EF04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{203E241C-D2E7-4F58-8AFA-469F91F4EF04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6C98E6A-1DF7-496B-B1B4-30C2A6F68E0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6C98E6A-1DF7-496B-B1B4-30C2A6F68E0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6C98E6A-1DF7-496B-B1B4-30C2A6F68E0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6C98E6A-1DF7-496B-B1B4-30C2A6F68E0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B837EE3-FA4A-4568-9EAA-A8207CD64CAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B837EE3-FA4A-4568-9EAA-A8207CD64CAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B837EE3-FA4A-4568-9EAA-A8207CD64CAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B837EE3-FA4A-4568-9EAA-A8207CD64CAF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4B837EE3-FA4A-4568-9EAA-A8207CD64CAF} = {E88F117F-AAC8-447E-B97D-0104D07E26DA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1CDF1AC3-CA0F-4A76-AD4F-1C8439E1DE4B}

@@ -31,10 +31,16 @@ namespace DataDock.Common.Tests
                 
             var jobRequest = new ImportJobRequestInfo
             {
-                JobType = JobType.Import,
                 UserId = "user",
                 OwnerId = "owner",
-                RepositoryId = "repo"
+                RepositoryId = "repo",
+                DatasetId = "dataset",
+                DatasetIri = "https://datadock.io/owner/repo/dataset",
+                CsvFileName = "dataset.csv",
+                CsvFileId = "csvfileid",
+                CsvmFileId = "csvmfileid",
+                IsPublic = true,
+                OverwriteExistingData = false
             };
 
             var jobInfo = await repo.SubmitImportJobAsync(jobRequest);
@@ -54,10 +60,16 @@ namespace DataDock.Common.Tests
 
             var jobRequest = new ImportJobRequestInfo
             {
-                JobType = JobType.Import,
                 UserId = "user",
                 OwnerId = "owner",
-                RepositoryId = "repo"
+                RepositoryId = "repo",
+                DatasetId = "dataset",
+                DatasetIri = "https://datadock.io/owner/repo/dataset",
+                CsvFileName = "dataset.csv",
+                CsvFileId = "csvfileid",
+                CsvmFileId = "csvmfileid",
+                IsPublic = true,
+                OverwriteExistingData = false
             };
 
             await Assert.ThrowsAsync<JobRepositoryException>(() => repo.SubmitImportJobAsync(jobRequest));

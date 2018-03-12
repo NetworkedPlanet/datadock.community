@@ -7,14 +7,31 @@ namespace Datadock.Common.Repositories
     public interface IJobRepository
     {
         /// <summary>
-        /// Create a new job and add it to the queue
+        /// Create a new import job and add it to the queue
         /// </summary>
-        /// <param name="jobDescription"></param>
+        /// <param name="jobRequest"></param>
         /// <returns></returns>
-        Task<JobInfo> SubmitImportJobAsync(ImportJobRequestInfo jobDescription);
+        Task<JobInfo> SubmitImportJobAsync(ImportJobRequestInfo jobRequest);
 
+        /// <summary>
+        /// Create a new dataset delete job and add it to the queue
+        /// </summary>
+        /// <param name="jobRequest"></param>
+        /// <returns></returns>
         Task<JobInfo> SubmitDeleteJobAsync(DeleteJobRequestInfo jobRequest);
+
+        /// <summary>
+        /// Create a new schema import job and add it to the queue
+        /// </summary>
+        /// <param name="jobRequest"></param>
+        /// <returns></returns>
         Task<JobInfo> SubmitSchemaImportJobAsync(SchemaImportJobRequestInfo jobRequest);
+
+        /// <summary>
+        /// Create a new schema delete job and add it to the queue
+        /// </summary>
+        /// <param name="jobRequest"></param>
+        /// <returns></returns>
         Task<JobInfo> SubmitSchemaDeleteJobAsync(SchemaDeleteJobRequestInfo jobRequest);
 
         /// <summary>

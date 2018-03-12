@@ -1,6 +1,6 @@
 ﻿namespace Datadock.Common.Models
 {
-    public class JobRequestInfo
+    public abstract class JobRequestInfo
     {
         /// <summary>
         /// The identifier for the user who started the job
@@ -17,11 +17,7 @@
         /// </summary>
         public string RepositoryId { get; set; }
 
-        /// <summary>
-        /// The type of job
-        /// </summary>
-        public JobType JobType { get; set; }
-
+        public abstract JobType JobType { get; }
     }
 
     public class ImportJobRequestInfo : JobRequestInfo
@@ -60,6 +56,8 @@
         /// Flag indicating if the imported data should overwrite or add to any existing data in the dataset
         /// </summary>
         public bool OverwriteExistingData { get; set; }
+
+        public override JobType JobType => JobType.Import;
     }
 
     public class DeleteJobRequestInfo : JobRequestInfo
@@ -73,6 +71,7 @@
         /// The IRI of the dataset graph to be deleted
         /// </summary>
         public string DatasetIri { get; set; }
+        public override JobType JobType => JobType.Delete;
     }
 
     public class SchemaImportJobRequestInfo : JobRequestInfo
@@ -81,6 +80,7 @@
         /// The handle to use to retrieve the schema file content from the DataDock file repository
         /// </summary>
         public string SchemaFileId { get; set; }
+        public override JobType JobType => JobType.SchemaCreate;
     }
 
     public class SchemaDeleteJobRequestInfo : JobRequestInfo
@@ -89,5 +89,6 @@
         /// The identifier of the schema to be deleted
         /// </summary>
         public string SchemaId { get; set; }
+        public override JobType JobType => JobType.SchemaDelete;
     }
 }

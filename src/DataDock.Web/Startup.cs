@@ -1,8 +1,11 @@
 using Datadock.Common.Elasticsearch;
 using Datadock.Common.Repositories;
 using DataDock.Web.Auth;
+using DataDock.Web.Routing;
 using DataDock.Web.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -12,19 +15,16 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Nest;
+using Newtonsoft.Json.Linq;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.Elasticsearch;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.OAuth;
-using Newtonsoft.Json.Linq;
 
 namespace DataDock.Web
 {
@@ -33,6 +33,7 @@ namespace DataDock.Web
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
                 .WriteTo.Elasticsearch(
@@ -42,7 +43,6 @@ namespace DataDock.Web
                         AutoRegisterTemplate = true
                     })
                 .CreateLogger();
-
         }
 
         public IConfiguration Configuration { get; }
@@ -50,17 +50,18 @@ namespace DataDock.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddOptions();
+
             services.AddMvc();
             services.AddSignalR();
             var client = new ElasticClient(new Uri("http://elasticsearch:9200"));
             EnsureElasticsearchIndexes(client);
 
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie();
+            services.AddSingleton<IElasticClient>(client);
+            services.AddSingleton<IUserRepository>(new UserRepository(client));
+            services.AddScoped<DataDockCookieAuthenticationEvents>();
 
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options => { options.EventsType = typeof(DataDockCookieAuthenticationEvents); });
-
+            // services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options => { options.EventsType = typeof(DataDockCookieAuthenticationEvents); });
             services.AddAuthentication(options =>
                 {
                     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -105,9 +106,8 @@ namespace DataDock.Web
                     };
                 });
 
-            services.AddSingleton<IElasticClient>(client);
-            services.AddSingleton<IUserRepository>(new UserRepository(client));
-            services.AddScoped<DataDockCookieAuthenticationEvents>();
+            
+
         }
 
         private static void EnsureElasticsearchIndexes(IElasticClient client)
@@ -154,16 +154,10 @@ namespace DataDock.Web
             }
 
             app.UseStaticFiles();
+            app.UseAuthentication();
 
             app.UseSignalR(routes => routes.MapHub<ProgressHub>("/progress"));
-
-            app.UseAuthentication();
-            var cookiePolicyOptions = new CookiePolicyOptions
-            {
-                MinimumSameSitePolicy = SameSiteMode.Lax,
-            };
-            app.UseCookiePolicy(cookiePolicyOptions);
-
+            
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
@@ -338,35 +332,8 @@ namespace DataDock.Web
                     name: "spa-fallback",
                     defaults: new { controller = "Home", action = "Index" });
             });
+
         }
     }
 
-    public class NonDashboardConstraint : IRouteConstraint
-    {
-        public bool Match(HttpContext httpContext, IRouter route, string routeKey, RouteValueDictionary values,
-            RouteDirection routeDirection)
-        {
-            List<string> nonDashboardPages = new List<string>() { "", "about", "features", "search", "terms", "privacy", "account", "info", "proxy", "dashboard", "import", "jobs", "datasets", "library" };
-            // Get the username from the url
-            var ownerId = values["ownerId"].ToString().ToLower();
-            // Check for a match (assumes case insensitive)
-            var match = nonDashboardPages.Any(x => x.ToLower() == ownerId);
-            return !match;
-        }
-        
-    }
-
-    public class PremiumFeatureConstraint : IRouteConstraint
-    {
-        public bool Match(HttpContext httpContext, IRouter route, string routeKey, RouteValueDictionary values,
-            RouteDirection routeDirection)
-        {
-            List<string> premiumFeaturePages = new List<string>() { "webhooks", "domains", "visualizations", "validation", "analytics" };
-            // Get the username from the url
-            var repoId = values["repoId"].ToString().ToLower();
-            // Check for a match (assumes case insensitive)
-            var match = premiumFeaturePages.Any(x => x.ToLower() == repoId);
-            return !match;
-        }
-    }
 }

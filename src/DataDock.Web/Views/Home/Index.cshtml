@@ -1,10 +1,47 @@
+@using System.Globalization
+@model DataDock.Web.ViewModels.HomeViewModel
 @{
-    ViewData["Title"] = "Home Page";
+  ViewBag.Title = "DataDock";
 }
 
-<app asp-prerender-module="ClientApp/dist/main-server">Loading...</app>
+<div class="ui vertical masthead center aligned segment">
+  <div class="ui two column grid container">
+    <div class="row">
+      <div class="column">
+        <div class="ui medium image">
+          <img src="@Url.Content("~/images/datadock.png")" />
+        </div>
+      </div>
+      <div class="left aligned column">
+        <h1 class="ui header">
+          <span class="blue">Data</span><span class="green">Dock</span>
+        </h1>
+        <h2>Publish your data for free!</h2>
+        <div class="ui hidden divider"></div>
+        @Html.Partial("_HomeSignUpPartial")
 
-<script src="~/dist/vendor.js" asp-append-version="true"></script>
-@section scripts {
-    <script src="~/dist/main-client.js" asp-append-version="true"></script>
-}
+        <div class="ui hidden divider"></div>
+        <div class="ui compact menu">
+          <a class="item" href="/about">
+            <i class="info icon"></i>
+            About
+          </a>
+          <a class="item" href="/features">
+            <i class="empty star icon"></i>
+            Features
+          </a>
+          <a class="item" href="/account/signup">
+            <i class="help icon"></i>
+            Sign up
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="ui container">
+  <div class="ui hidden divider"></div>
+  <h2 class="ui centered header">Recent Datasets</h2>
+ 
+
+</div>

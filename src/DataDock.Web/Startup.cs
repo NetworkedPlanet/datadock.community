@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Datadock.Common.Elasticsearch;
 using Datadock.Common.Repositories;
+using DataDock.Web.Auth;
 using DataDock.Web.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -18,6 +15,16 @@ using Nest;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.Elasticsearch;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Security.Claims;
+using System.Threading;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Newtonsoft.Json.Linq;
 
 namespace DataDock.Web
 {
@@ -47,8 +54,60 @@ namespace DataDock.Web
             services.AddSignalR();
             var client = new ElasticClient(new Uri("http://elasticsearch:9200"));
             EnsureElasticsearchIndexes(client);
+
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie();
+
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options => { options.EventsType = typeof(DataDockCookieAuthenticationEvents); });
+
+            services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = "GitHub";
+                })
+                .AddCookie()
+                .AddOAuth("GitHub", options =>
+                {
+                    options.ClientId = Configuration["GitHub:ClientId"];
+                    options.ClientSecret = Configuration["GitHub:ClientSecret"];
+                    options.CallbackPath = new PathString("/signin-github");
+
+                    options.AuthorizationEndpoint = "https://github.com/login/oauth/authorize";
+                    options.TokenEndpoint = "https://github.com/login/oauth/access_token";
+                    options.UserInformationEndpoint = "https://api.github.com/user";
+
+                    options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
+                    options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
+                    options.ClaimActions.MapJsonKey("urn:github:login", "login");
+                    options.ClaimActions.MapJsonKey("urn:github:url", "html_url");
+                    options.ClaimActions.MapJsonKey("urn:github:avatar", "avatar_url");
+
+                    options.Events = new OAuthEvents
+                    {
+                        OnCreatingTicket = async context =>
+                        {
+                            var request =
+                                new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint);
+                            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                            request.Headers.Authorization =
+                                new AuthenticationHeaderValue("Bearer", context.AccessToken);
+
+                            var response = await context.Backchannel.SendAsync(request,
+                                HttpCompletionOption.ResponseHeadersRead, context.HttpContext.RequestAborted);
+                            response.EnsureSuccessStatusCode();
+
+                            var user = JObject.Parse(await response.Content.ReadAsStringAsync());
+
+                            context.RunClaimActions(user);
+                        }
+                    };
+                });
+
             services.AddSingleton<IElasticClient>(client);
             services.AddSingleton<IUserRepository>(new UserRepository(client));
+            services.AddScoped<DataDockCookieAuthenticationEvents>();
         }
 
         private static void EnsureElasticsearchIndexes(IElasticClient client)
@@ -97,6 +156,13 @@ namespace DataDock.Web
             app.UseStaticFiles();
 
             app.UseSignalR(routes => routes.MapHub<ProgressHub>("/progress"));
+
+            app.UseAuthentication();
+            var cookiePolicyOptions = new CookiePolicyOptions
+            {
+                MinimumSameSitePolicy = SameSiteMode.Lax,
+            };
+            app.UseCookiePolicy(cookiePolicyOptions);
 
             app.UseMvc(routes =>
             {

@@ -7,6 +7,7 @@ using Datadock.Common.Models;
 using Datadock.Common.Repositories;
 using Datadock.Common.Validators;
 using Nest;
+using Serilog;
 
 namespace Datadock.Common.Elasticsearch
 {
@@ -14,9 +15,39 @@ namespace Datadock.Common.Elasticsearch
     {
         private readonly ElasticClient _client;
 
-        public UserRepository(ElasticClient client)
+        public UserRepository(ElasticClient client, string userSettingsIndexName, string userAccountIndexName)
         {
             _client = client;
+            // Ensure the index exists
+            var indexExistsReponse = _client.IndexExists(userSettingsIndexName);
+            if (!indexExistsReponse.Exists)
+            {
+                Log.Debug("Create ES index {indexName} for type {indexType}", userSettingsIndexName, typeof(UserSettings));
+                var createIndexResponse = _client.CreateIndex(userSettingsIndexName, config =>
+                    config.Mappings(mappings => mappings.Map<UserSettings>(m => m.AutoMap(-1))));
+                if (!createIndexResponse.Acknowledged)
+                {
+                    Log.Error("Create ES index failed for {indexName}. Cause: {detail}", userSettingsIndexName, createIndexResponse.DebugInformation);
+                    throw new DatadockException(
+                        $"Could not create index {userSettingsIndexName} for UserRepository. Cause: {createIndexResponse.DebugInformation}");
+                }
+            }
+
+            // Repeat for user account index
+            indexExistsReponse = _client.IndexExists(userAccountIndexName);
+            if (!indexExistsReponse.Exists)
+            {
+                Log.Debug("Create ES index {indexName} for type {indexType}", userAccountIndexName, typeof(UserAccount));
+                var createIndexResponse = _client.CreateIndex(userAccountIndexName, config =>
+                    config.Mappings(mappings => mappings.Map<UserAccount>(m => m.AutoMap(-1))));
+                if (!createIndexResponse.Acknowledged)
+                {
+                    Log.Error("Create ES index failed for {indexName}. Cause: {detail}", userAccountIndexName, createIndexResponse.DebugInformation);
+                    throw new DatadockException(
+                        $"Could not create index {userAccountIndexName} for UserRepository. Cause: {createIndexResponse.DebugInformation}");
+                }
+            }
+
         }
 
         public async Task<UserSettings> GetUserSettingsAsync(string userId)

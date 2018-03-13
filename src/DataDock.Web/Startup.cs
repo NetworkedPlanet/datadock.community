@@ -50,15 +50,20 @@ namespace DataDock.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var esUrl = Environment.GetEnvironmentVariable("ES_URL") ?? "http://elasticsearch:9200";
+            var userSettingsIxName = Environment.GetEnvironmentVariable("USERSETTINGS_IX") ?? "usersettings";
+            var userAccountIxName = Environment.GetEnvironmentVariable("USERACCOUNT_IX") ?? "useraccount";
+            var jobsIxName = Environment.GetEnvironmentVariable("JOBS_IX") ?? "jobs";
+
             services.AddOptions();
 
             services.AddMvc();
             services.AddSignalR();
-            var client = new ElasticClient(new Uri("http://elasticsearch:9200"));
-            EnsureElasticsearchIndexes(client);
+            var client = new ElasticClient(new Uri(esUrl));
 
             services.AddSingleton<IElasticClient>(client);
-            services.AddSingleton<IUserRepository>(new UserRepository(client));
+            services.AddSingleton<IUserRepository>(new UserRepository(client, userSettingsIxName, userAccountIxName));
+            services.AddSingleton<IJobRepository>(new JobRepository(client, jobsIxName));
             services.AddScoped<DataDockCookieAuthenticationEvents>();
 
             // services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options => { options.EventsType = typeof(DataDockCookieAuthenticationEvents); });

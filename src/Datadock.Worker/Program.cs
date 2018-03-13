@@ -22,23 +22,31 @@ namespace Datadock.Worker
 
         static void Main(string[] args)
         {
+            var esUrl = Environment.GetEnvironmentVariable("ES_URL") ?? "http://elasticsearch:9200";
+            var jobsIndexName = Environment.GetEnvironmentVariable("JOBS_IX") ?? "jobs";
+            
+            Log.Information("Worker Starting");
+            Log.Information("ES_URL {esUrl}", esUrl);
+            Log.Information("JOBS_IX {jobsIx}", jobsIndexName);
+
             Task.Run(async () =>
             {
-                _client = new ElasticClient(new Uri("http://elasticsearch:9200"));
-                WaitForElasticsearch();                
+                _client = new ElasticClient(new Uri(esUrl));
+                Log.Information("Waiting for ES to respond to pings");
+                WaitForElasticsearch();
+                Log.Information("Reconfiguring logging to go to ES");
                 ConfigureLogging();
+                Log.Information("Initializing SignalR hub connection");
                 _hubConnection = await InitializeHubConnection();
-
-                var jobRepo = new JobRepository(_client);
+                Log.Information("Initializing JobsRepository: {index}", jobsIndexName);
+                var jobRepo = new JobRepository(_client, jobsIndexName);
                 while (true)
                 {
-                    Log.Information("ProgressUpdate {UserId}: {JobId}: {ProgressMessage}", "userId", "jobId", "This is a test message");
-                    await _hubConnection.SendAsync("ProgressUpdated", "userId", "jobId", "This is a test message");
                     Thread.Sleep(1000);
-
                     var job = await jobRepo.GetNextJob();
                     if (job != null)
                     {
+                        Log.Information("Found new job: {JobId} {JobType}", job.JobId, job.JobType);
                         ProcessJob(jobRepo, job);
                     }
                 }

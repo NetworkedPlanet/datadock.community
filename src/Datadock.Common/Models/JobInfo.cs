@@ -6,6 +6,12 @@ namespace Datadock.Common.Models
     [ElasticsearchType(Name="job", IdProperty = "JobId")]
     public class JobInfo
     {
+        [Obsolete("Provided for NEST deserialiation only")]
+        public JobInfo()
+        {
+
+        }
+
         protected JobInfo(JobRequestInfo req)
         {
             if (req == null) throw new ArgumentNullException(nameof(req));

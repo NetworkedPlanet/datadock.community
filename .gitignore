@@ -286,3 +286,6 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
+src/DataDock.Web/oauth.development.json
+src/DataDock.Web/oauth.production.json
+src/DataDock.Web/oauth.staging.json

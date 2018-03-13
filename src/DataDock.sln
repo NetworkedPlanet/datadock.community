@@ -22,7 +22,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataDock.Common.Tests", "Da
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataDock.CsvWeb", "DataDock.CsvWeb\DataDock.CsvWeb.csproj", "{E6C98E6A-1DF7-496B-B1B4-30C2A6F68E0D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataDock.IntegrationTests", "DataDock.IntegrationTests\DataDock.IntegrationTests.csproj", "{4B837EE3-FA4A-4568-9EAA-A8207CD64CAF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataDock.IntegrationTests", "DataDock.IntegrationTests\DataDock.IntegrationTests.csproj", "{4B837EE3-FA4A-4568-9EAA-A8207CD64CAF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

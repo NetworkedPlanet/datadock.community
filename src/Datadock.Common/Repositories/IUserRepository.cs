@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices.ComTypes;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -36,5 +37,7 @@ namespace Datadock.Common.Repositories
         Task<bool> DeleteUserAsync(string userId);
 
         Task<UserAccount> GetUserAccountAsync(string userId);
+
+        Task <bool> ValidateLastChanged(string userId, DateTime lastChanged);
     }
 }

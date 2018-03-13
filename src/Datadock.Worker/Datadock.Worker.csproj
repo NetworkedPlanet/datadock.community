@@ -7,9 +7,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Datadock.Common\Datadock.Common.csproj" />
+    <ProjectReference Include="..\DataDock.CsvWeb\DataDock.CsvWeb.csproj" />
+    <PackageReference Include="DotLiquid" Version="2.0.254" />
+    <PackageReference Include="dotNetRDF" Version="2.0.1" />
     <PackageReference Include="Elasticsearch.Net" Version="6.0.1" />
+    <PackageReference Include="MedallionShell" Version="1.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="1.0.0-preview1-final" />
     <PackageReference Include="Octokit" Version="0.29.0" />
+    <PackageReference Include="Polly" Version="5.8.0" />
     <PackageReference Include="Quince" Version="0.2.0" />
     <PackageReference Include="Serilog.Sinks.Elasticsearch" Version="6.3.0" />
   </ItemGroup>

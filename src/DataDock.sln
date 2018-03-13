@@ -3,18 +3,26 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataDock.Web", "DataDock.Web\DataDock.Web.csproj", "{79D93F37-7DDF-4D98-BA25-1C50859483B5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataDock.Web", "DataDock.Web\DataDock.Web.csproj", "{79D93F37-7DDF-4D98-BA25-1C50859483B5}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{EC63AA2D-D84B-4B08-8A3B-BA4CE82065CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datadock.Worker", "Datadock.Worker\Datadock.Worker.csproj", "{D9C1FEEF-4EAB-4451-9174-F5B96A02E322}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Datadock.Worker", "Datadock.Worker\Datadock.Worker.csproj", "{D9C1FEEF-4EAB-4451-9174-F5B96A02E322}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datadock.Common", "Datadock.Common\Datadock.Common.csproj", "{3B7619F9-2AEA-4E2D-9B48-93C1F2B5CCCB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Datadock.Common", "Datadock.Common\Datadock.Common.csproj", "{3B7619F9-2AEA-4E2D-9B48-93C1F2B5CCCB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Elasticsearch", "Elasticsearch", "{5AA83009-F0E4-4C30-9FD7-C673A86C3067}"
 	ProjectSection(SolutionItems) = preProject
 		Elasticsearch\Dockerfile = Elasticsearch\Dockerfile
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IntegrationTests", "IntegrationTests", "{E88F117F-AAC8-447E-B97D-0104D07E26DA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataDock.Common.Tests", "DataDock.Common.Tests\DataDock.Common.Tests.csproj", "{203E241C-D2E7-4F58-8AFA-469F91F4EF04}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataDock.CsvWeb", "DataDock.CsvWeb\DataDock.CsvWeb.csproj", "{E6C98E6A-1DF7-496B-B1B4-30C2A6F68E0D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataDock.IntegrationTests", "DataDock.IntegrationTests\DataDock.IntegrationTests.csproj", "{4B837EE3-FA4A-4568-9EAA-A8207CD64CAF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,9 +46,24 @@ Global
 		{3B7619F9-2AEA-4E2D-9B48-93C1F2B5CCCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3B7619F9-2AEA-4E2D-9B48-93C1F2B5CCCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3B7619F9-2AEA-4E2D-9B48-93C1F2B5CCCB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{203E241C-D2E7-4F58-8AFA-469F91F4EF04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{203E241C-D2E7-4F58-8AFA-469F91F4EF04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{203E241C-D2E7-4F58-8AFA-469F91F4EF04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{203E241C-D2E7-4F58-8AFA-469F91F4EF04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6C98E6A-1DF7-496B-B1B4-30C2A6F68E0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6C98E6A-1DF7-496B-B1B4-30C2A6F68E0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6C98E6A-1DF7-496B-B1B4-30C2A6F68E0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6C98E6A-1DF7-496B-B1B4-30C2A6F68E0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B837EE3-FA4A-4568-9EAA-A8207CD64CAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B837EE3-FA4A-4568-9EAA-A8207CD64CAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B837EE3-FA4A-4568-9EAA-A8207CD64CAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B837EE3-FA4A-4568-9EAA-A8207CD64CAF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4B837EE3-FA4A-4568-9EAA-A8207CD64CAF} = {E88F117F-AAC8-447E-B97D-0104D07E26DA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1CDF1AC3-CA0F-4A76-AD4F-1C8439E1DE4B}

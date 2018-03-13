@@ -49,7 +49,7 @@ namespace DataDock.Web
             services.AddSingleton<IUserRepository>(new UserRepository(client));
         }
 
-        private void EnsureElasticsearchIndexes(ElasticClient client)
+        private static void EnsureElasticsearchIndexes(IElasticClient client)
         {
             var elasticsearchAvailable = false;
             while (!elasticsearchAvailable)
@@ -58,17 +58,20 @@ namespace DataDock.Web
                 elasticsearchAvailable = client.Ping().IsValid;
             }
 
-            var existsResponse = client.IndexExists("useraccounts");
-            if (!existsResponse.Exists)
-            {
-                var createIndexResponse = client.CreateIndex("useraccounts", c => c.Mappings(ElasticsearchMapping.UserAccountIndexMappings));
-            }
+            EnsureIndex(client, "useraccounts", ElasticsearchMapping.UserAccountIndexMappings);
 
-            existsResponse = client.IndexExists("usersettings");
+            EnsureIndex(client, "usersettings", ElasticsearchMapping.UserSettingsIndexMappings);
+
+            // Leave this index as the last one to be created
+            EnsureIndex(client, "jobs", ElasticsearchMapping.JobsIndexMappings);
+        }
+
+        private static void EnsureIndex(IElasticClient client, string indexName, Func<MappingsDescriptor, IPromise<IMappings>> mappingsPromise)
+        {
+            var existsResponse = client.IndexExists(indexName);
             if (!existsResponse.Exists)
             {
-                var createIndexResponse = client.CreateIndex("usersettings",
-                    c => c.Mappings(ElasticsearchMapping.UserSettingsIndexMappings));
+                var createIndexResponse = client.CreateIndex(indexName, c => c.Mappings(mappingsPromise));
             }
         }
 

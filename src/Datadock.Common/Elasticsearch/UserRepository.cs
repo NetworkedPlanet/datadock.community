@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using Datadock.Common.Models;
 using Datadock.Common.Repositories;
+using Datadock.Common.Validators;
 using Nest;
 
 namespace Datadock.Common.Elasticsearch
@@ -22,12 +22,29 @@ namespace Datadock.Common.Elasticsearch
         public async Task<UserSettings> GetUserSettingsAsync(string userId)
         {
             var response = await _client.GetAsync<UserSettings>(userId);
+            if (!response.IsValid)
+            {
+                if (!response.Found) throw new UserAccountNotFoundException(userId);
+                throw new UserRepositoryException(
+                    $"Error retrieving user account for user ID {userId}. Cause: {response.DebugInformation}");
+            }
             return response.Source;
         }
 
         public async Task CreateOrUpdateUserSettingsAsync(UserSettings userSettings)
         {
-            await _client.IndexDocumentAsync(userSettings);
+            if (userSettings == null) throw new ArgumentNullException(nameof(userSettings));
+            var validator = new UserSettingsValidator();
+            var validationResults = await validator.ValidateAsync(userSettings);
+            if (!validationResults.IsValid)
+            {
+                throw new ValidationException("Invalid user settings", validationResults);
+            }
+            var updateResponse = await _client.IndexDocumentAsync(userSettings);
+            if (!updateResponse.IsValid)
+            {
+                throw new UserRepositoryException($"Error udpating user settings for user ID {userSettings.UserId}");
+            }
         }
 
         public async Task<UserAccount> CreateUserAsync(string userId, IEnumerable<Claim> claims)
@@ -46,5 +63,13 @@ namespace Datadock.Common.Elasticsearch
             var response = await _client.DeleteAsync<UserAccount>(userId);
             return response.IsValid;
         }
+
+        public async Task<UserAccount> GetUserAccountAsync(string userId)
+        {
+            var response = await _client.GetAsync<UserAccount>(userId);
+            if (!response.Found) throw new UserAccountNotFoundException(userId);
+            return response.Source;
+        }
+
     }
 }

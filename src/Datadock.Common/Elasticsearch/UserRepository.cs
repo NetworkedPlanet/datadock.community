@@ -71,5 +71,9 @@ namespace Datadock.Common.Elasticsearch
             return response.Source;
         }
 
+        public async Task<bool> ValidateLastChanged(string userId, DateTime lastChanged)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

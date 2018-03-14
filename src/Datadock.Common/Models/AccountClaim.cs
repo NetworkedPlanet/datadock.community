@@ -38,10 +38,10 @@ namespace Datadock.Common.Models
         }
 
         [Keyword]
-        public string Type { get; }
+        public string Type { get; set; }
 
         [Keyword]
-        public string Value { get; }
+        public string Value { get; set; }
 
         public Claim AsClaim()
         {

@@ -10,12 +10,20 @@ Click here to learn more. https://go.microsoft.com/fwlink/?LinkId=518007
 var gulp = require("gulp"),
     rimraf = require("rimraf"),
     concat = require("gulp-concat"),
+    merge = require('merge-stream'),
     cssmin = require("gulp-cssmin"),
     uglify = require("gulp-uglify");
 
 
 var paths = {
     webroot: "./wwwroot/"
+};
+
+// Dependency Dirs
+var nm = {
+    "jquery": {
+        "dist/*": ""
+    }
 };
 
 paths.js = paths.webroot + "js/**/*.js";
@@ -50,6 +58,22 @@ gulp.task("min:css", function () {
 });
 
 gulp.task("min", ["min:js", "min:css"]);
+
+gulp.task("node_modules_copy", function () {
+
+    var streams = [];
+
+    for (var prop in nm) {
+        console.log("Prepping Scripts for: " + prop);
+        for (var itemProp in nm[prop]) {
+            streams.push(gulp.src("node_modules/" + prop + "/" + itemProp)
+                .pipe(gulp.dest("wwwroot/vendor/" + prop + "/" + nm[prop][itemProp])));
+        }
+    }
+
+    return merge(streams);
+
+});
 
 gulp.task('default', function () {
     // place code for your default task here

@@ -14,13 +14,7 @@
       <a class="item" href="/@userId/account"><i class="user icon"></i> Account</a>
     </div>
   </div>
-  <div class="item">
-    @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "" }))
-    {
-      @Html.AntiForgeryToken()
-      <a href="javascript:document.getElementById('logoutForm').submit()">Log off</a>
-    }
-  </div>
+  <a asp-action="LogOff" asp-controller="Account" class="item" id="logoffLink" asp-route-returnUrl="@returnUrl">Log Off</a>
 }
 else
 {

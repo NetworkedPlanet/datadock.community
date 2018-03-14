@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace DataDock.Web.Controllers
 {
-    [Authorize]
+    [Authorize(Policy = "DataDockUser")]
     public class DashboardController : Controller
     {
         public async Task<IActionResult> Index()

@@ -73,7 +73,11 @@ namespace DataDock.Web
                     options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     options.DefaultChallengeScheme = "GitHub";
                 })
-                .AddCookie()
+                .AddCookie(options => {
+                    options.LoginPath = "/Account/Unauthorized/";
+                    options.LogoutPath = new PathString("/Account/Logoff/");
+                    options.AccessDeniedPath = "/Account/Forbidden/";
+                })
                 .AddOAuth("GitHub", options =>
                 {
                     options.ClientId = Configuration["GitHub:ClientId"];
@@ -111,8 +115,10 @@ namespace DataDock.Web
                     };
                 });
 
-            
-
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("DataDockUser", policy => policy.RequireClaim("urn:github:login"));
+            });
         }
 
         private static void EnsureElasticsearchIndexes(IElasticClient client)

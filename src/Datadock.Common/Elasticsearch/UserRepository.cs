@@ -39,7 +39,7 @@ namespace Datadock.Common.Elasticsearch
             {
                 Log.Debug("Create ES index {indexName} for type {indexType}", userAccountIndexName, typeof(UserAccount));
                 var createIndexResponse = _client.CreateIndex(userAccountIndexName, config =>
-                    config.Mappings(mappings => mappings.Map<UserAccount>(m => m.AutoMap(-1))));
+                    config.Mappings(mappings => mappings.Map<UserAccount>(m => m.AutoMap())));
                 if (!createIndexResponse.Acknowledged)
                 {
                     Log.Error("Create ES index failed for {indexName}. Cause: {detail}", userAccountIndexName, createIndexResponse.DebugInformation);
@@ -47,6 +47,9 @@ namespace Datadock.Common.Elasticsearch
                         $"Could not create index {userAccountIndexName} for UserRepository. Cause: {createIndexResponse.DebugInformation}");
                 }
             }
+            // Set default indexes for repository types
+            _client.ConnectionSettings.DefaultIndices[typeof(UserAccount)] = userAccountIndexName;
+            _client.ConnectionSettings.DefaultIndices[typeof(UserSettings)] = userSettingsIndexName;
 
         }
 
@@ -83,11 +86,12 @@ namespace Datadock.Common.Elasticsearch
             var user = new UserAccount
             {
                 UserId = userId,
-                Claims = claims.Select(c=>new AccountClaim(c)).ToList()
+                AccountClaims = claims.Select(c=>new AccountClaim(c)).ToList()
             };
              await _client.IndexDocumentAsync(user);
             return user;
         }
+
 
         public async Task<bool> DeleteUserAsync(string userId)
         {
@@ -101,6 +105,7 @@ namespace Datadock.Common.Elasticsearch
             if (!response.Found) throw new UserAccountNotFoundException(userId);
             return response.Source;
         }
+
 
         public async Task<bool> ValidateLastChanged(string userId, DateTime lastChanged)
         {

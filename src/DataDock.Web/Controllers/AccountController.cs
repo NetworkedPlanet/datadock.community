@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,9 +15,10 @@ namespace DataDock.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult LogOff(string returnUrl = "/")
+        public async Task<IActionResult> LogOff(string returnUrl = "/")
         {
-            throw new NotImplementedException();
+            await HttpContext.SignOutAsync();
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpGet]

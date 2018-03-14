@@ -88,10 +88,24 @@ namespace Datadock.Common.Elasticsearch
                 UserId = userId,
                 AccountClaims = claims.Select(c=>new AccountClaim(c)).ToList()
             };
-             await _client.IndexDocumentAsync(user);
+            var existsResponse = await _client.DocumentExistsAsync<UserAccount>(user);
+            if (existsResponse.Exists) throw new UserAccountExistsException(userId);
+            await _client.IndexDocumentAsync(user);
             return user;
         }
 
+        public async Task<UserAccount> UpdateUserAsync(string userId, IEnumerable<Claim> claims)
+        {
+            var user = new UserAccount
+            {
+                UserId = userId,
+                AccountClaims = claims.Select(c => new AccountClaim(c)).ToList()
+            };
+            var existsResponse = await _client.DocumentExistsAsync<UserAccount>(user);
+            if (!existsResponse.Exists) throw new UserAccountNotFoundException(userId);
+            await _client.IndexDocumentAsync(user);
+            return user;
+        }
 
         public async Task<bool> DeleteUserAsync(string userId)
         {

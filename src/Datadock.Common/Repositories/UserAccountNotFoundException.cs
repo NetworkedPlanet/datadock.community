@@ -1,6 +1,4 @@
-﻿using Datadock.Common.Repositories;
-
-namespace Datadock.Common.Elasticsearch
+﻿namespace Datadock.Common.Repositories
 {
     public class UserAccountNotFoundException : UserRepositoryException
     {

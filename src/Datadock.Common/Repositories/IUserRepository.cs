@@ -30,6 +30,14 @@ namespace Datadock.Common.Repositories
         Task<UserAccount> CreateUserAsync(string userId, IEnumerable<Claim> accountClaims);
 
         /// <summary>
+        /// Update an existing user account
+        /// </summary>
+        /// <param name="userId">The ID of the user account to be updated</param>
+        /// <param name="updatedClaims">The new claims to assign to the account. These *overwrite* all existing claims for the account</param>
+        /// <returns></returns>
+        Task<UserAccount> UpdateUserAsync(string userId, IEnumerable<Claim> updatedClaims);
+
+        /// <summary>
         /// Remove the settings for the specified user
         /// </summary>
         /// <param name="userId"></param>

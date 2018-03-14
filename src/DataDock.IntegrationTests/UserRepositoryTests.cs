@@ -12,7 +12,7 @@ namespace DataDock.IntegrationTests
     public class UserRepositoryTests : IClassFixture<ElasticsearchFixture>
     {
         private readonly ElasticsearchFixture _esFixture;
-        private UserRepository _userRepository;
+        private readonly UserRepository _userRepository;
 
         public UserRepositoryTests(ElasticsearchFixture fixture)
         {
@@ -48,5 +48,33 @@ namespace DataDock.IntegrationTests
                 Assert.Contains(userAccount.Claims, c => c.Type.Equals(claim.Type) && c.Value.Equals(claim.Value));
             }
         }
+
+        [Fact]
+        public async void UpdateExistingUserAccount()
+        {
+            var initialAccountClaims = new List<Claim>()
+            {
+                new Claim(ClaimTypes.Email, "test1@example.org"),
+                new Claim(ClaimTypes.Name, "Test User Name"),
+                new Claim(DataDockClaimTypes.GitHubAccessToken, "some_access_token_value")
+            };
+            var updatedAccountClaims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Email, "updated@example.org"),
+                new Claim(ClaimTypes.Name, "Updated User Name"),
+                new Claim(DataDockClaimTypes.GitHubAccessToken, "some_access_token_value")
+            };
+            var userAccount = await _userRepository.CreateUserAsync("update1", initialAccountClaims);
+            var updatedAccount = await _userRepository.UpdateUserAsync("update1", updatedAccountClaims);
+            var retrievedAccount = await _userRepository.GetUserAccountAsync("update1");
+            Assert.Equal("update1", retrievedAccount.UserId);
+            Assert.Equal(3, retrievedAccount.Claims.Count());
+            foreach (var claim in updatedAccountClaims)
+            {
+                Assert.Contains(retrievedAccount.AccountClaims, c => c.Type.Equals(claim.Type) && c.Value.Equals(claim.Value));
+                Assert.Contains(retrievedAccount.Claims, c => c.Type.Equals(claim.Type) && c.Value.Equals(claim.Value));
+            }
+        }
+
     }
 }

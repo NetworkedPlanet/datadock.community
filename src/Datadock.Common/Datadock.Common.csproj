@@ -12,13 +12,4 @@
     <PackageReference Include="Serilog" Version="2.6.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\..\.nuget\packages\newtonsoft.json\10.0.1\lib\netstandard1.3\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="Serilog">
-      <HintPath>..\..\..\..\.nuget\packages\serilog\2.6.0\lib\netstandard1.3\Serilog.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
 </Project>

@@ -11,7 +11,7 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.Elasticsearch;
 
-namespace Datadock.Worker
+namespace DataDock.Worker
 {
     class Program
     {

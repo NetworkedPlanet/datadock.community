@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace Datadock.Worker
+namespace DataDock.Worker
 {
     /// <summary>
     /// Recursively deletes a directory and its contents

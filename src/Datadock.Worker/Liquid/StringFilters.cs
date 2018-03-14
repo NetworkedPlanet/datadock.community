@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Datadock.Worker.Liquid
+namespace DataDock.Worker.Liquid
 {
     public static class StringFilters
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using Datadock.Common.Models;
 
-namespace Datadock.Worker
+namespace DataDock.Worker
 {
     public interface IProgressLog
     {

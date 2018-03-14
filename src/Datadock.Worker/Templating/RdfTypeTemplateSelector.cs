@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using VDS.RDF;
 
-namespace Datadock.Worker.Templating
+namespace DataDock.Worker.Templating
 {
     public class RdfTypeTemplateSelector : ITemplateSelector
     {

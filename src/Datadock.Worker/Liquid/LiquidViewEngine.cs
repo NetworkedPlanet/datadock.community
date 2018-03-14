@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Datadock.Worker.Templating;
+using DataDock.Worker.Templating;
 using DotLiquid;
 using NetworkedPlanet.Quince;
 using VDS.RDF;
 
-namespace Datadock.Worker.Liquid
+namespace DataDock.Worker.Liquid
 {
     public class LiquidViewEngine:IViewEngine
     {

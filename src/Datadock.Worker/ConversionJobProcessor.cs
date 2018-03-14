@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using Datadock.Common;
 using Datadock.Common.Models;
 using Datadock.Common.Repositories;
-using Datadock.Worker.Templating;
+using DataDock.Worker.Templating;
 using DataDock.Common;
 using DataDock.CsvWeb.Metadata;
 using DataDock.CsvWeb.Parsing;
@@ -30,7 +30,7 @@ using VDS.RDF.Writing;
 using FileMode = System.IO.FileMode;
 using Graph = VDS.RDF.Graph;
 
-namespace Datadock.Worker
+namespace DataDock.Worker
 {
     public class ConversionJobProcessor : IProgress<int>
     {

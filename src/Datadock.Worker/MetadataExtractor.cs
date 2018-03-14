@@ -4,7 +4,7 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using VDS.RDF;
 
-namespace Datadock.Worker
+namespace DataDock.Worker
 {
     // TODO: It would be better to simply do standard JSON-LD processing and then drop triples with predicates in the CSVW namespace - requires some JSON-LD support in dotNetRDF.
     /// <summary>

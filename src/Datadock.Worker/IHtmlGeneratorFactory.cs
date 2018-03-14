@@ -1,6 +1,6 @@
 ﻿using NetworkedPlanet.Quince;
 
-namespace Datadock.Worker
+namespace DataDock.Worker
 {
     public interface IHtmlGeneratorFactory
     {

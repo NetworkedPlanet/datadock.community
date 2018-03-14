@@ -11,7 +11,7 @@ services:
     image: datadock.worker
     build:
       context: .
-      dockerfile: Datadock.Worker/Dockerfile
+      dockerfile: DataDock.Worker/Dockerfile
 
   elasticsearch:
     image: elasticsearch

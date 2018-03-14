@@ -4,7 +4,7 @@ using DotLiquid;
 using NetworkedPlanet.Quince;
 using VDS.RDF;
 
-namespace Datadock.Worker.Liquid
+namespace DataDock.Worker.Liquid
 {
     public class TripleDrop : Drop
     {

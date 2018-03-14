@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Datadock.Worker.Liquid
+namespace DataDock.Worker.Liquid
 {
     public static class CollectionFilters
     {

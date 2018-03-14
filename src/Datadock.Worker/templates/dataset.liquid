@@ -1,0 +1,165 @@
+﻿<html>
+	{% assign title = triples | where:"predicate", dcterms.title | first -%}
+
+	<head>
+		<meta  http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>
+			{% if title -%}
+				{{title.object}}
+			{% else -%}
+				{{subject}}
+			{% endif -%}
+		</title>
+
+		<!-- Bootstrap CSS, Theme and JS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+		<!-- DataDock Theme Extensions -->
+		<link rel="stylesheet" href="http://datadock.io/static/css/datadock.css" />
+
+		<link rel="alternate" type="application/n-quads" href="{{nquads}}"/>
+
+	</head>
+
+	<body>
+		<div class="container">
+			
+			<header>
+				<h1>
+					{% if title -%}
+						{{title.object}}
+					{% else -%}
+						{{subject}}
+					{% endif -%}
+				</h1>
+			</header>
+
+			<table class="table table-condensed table-bordered">
+				<tr>
+					<td>Description:</td>
+					<td>
+						{%assign description = triples | where:"predicate", dcterms.description | first %}
+						{% if description.object %}
+							{{description.object | newline_to_br }}
+						{% else %}
+							Not specified.
+						{% endif %}
+					</td>
+				</tr>
+				<tr>
+					<td>Modified:</td>
+					<td>
+						{%assign modified = triples | where:"predicate", dcterms.modified | first -%}
+						{% if modified.object %}
+							{{modified.object}}
+						{% else %}
+							Not specified.
+						{% endif %}
+					</td>
+				</tr>
+				<tr>
+					<td>License:</td>
+					<td>
+						{% assign license = triples | where:"predicate", dcterms.license | first %}
+						{% if license.object %}
+							{% case license.object %}
+								{% when "https://creativecommons.org/publicdomain/zero/1.0/" %}
+									<a href="https://creativecommons.org/publicdomain/zero/1.0/">CC-0 (Public Domain)</a>
+								{% when "https://creativecommons.org/licenses/by/4.0/" %}
+									<a href="https://creativecommons.org/licenses/by/4.0/">CC-BY (Attribution Required)</a>
+								{% when "https://creativecommons.org/licenses/by-sa/4.0/" %}
+									<a href="https://creativecommons.org/licenses/by-sa/4.0/">CC-BY-SA (Attribution Required, Sharealike)</a>
+								{% when "http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" %}
+									<a href="http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/">Open Government License (Attribution Required)</a>
+								{% else %}
+									<a href="{{license.object}}">{{license.object}}</a>
+							{% endcase %}
+						{% else %}
+							Not specified.
+						{% endif %}
+					</td>
+				</tr>
+				<tr>
+					<td>Triple Count:</td>
+					<td>
+						{% assign triple_count = triples | where:"predicate", void.triples | first %}
+						{% if triple_count.object %}
+							{{triple_count.object}}
+						{% else %}
+							Not specified.
+						{% endif %}
+					</td>
+				</tr>
+				{% assign keywords = triples | where:"predicate", dcat.keyword -%}
+				{% if keywords.size > 0 -%}
+					<tr>
+						<td>Keywords:</td>
+						<td>
+							{% for keyword in keywords %}
+								<a href="http://datadock.io/search?tag={{keyword.object|urlencode}}" class="btn btn-primary">{{keyword.object}}</a>
+							{% endfor %}
+						</td>
+					</tr>
+				{% endif -%}
+				{% assign downloads = triples | where:"predicate", void.dataDump -%}
+				{% if downloads.size > 0 -%}
+					<tr>
+						<td>Download:</td>
+						<td>
+							{% for download in downloads %}
+								<a href="{{download.object}}">{{download.object|split:"/"|last}}</a><br/>
+							{% endfor %}
+						</td>
+					</tr>
+				{% endif -%}
+			</table>
+							
+			<table class="table table-condensed table-bordered" resource="{{subject}}">
+				{% for triple in triples %}
+					<tr>
+						<td>
+							{% if triple.predicate_is_uri %}
+								<a href="{{triple.predicate}}">{{triple.predicate|unescape_data_string|split:"/"|last|split:"#"|last|escape}}</a>
+							{% else %}
+								{{triple.predicate}}
+							{% endif %}
+						</td>
+						<td>
+							{% if triple.object_is_uri -%}
+								<a property="{{triple.predicate}}" href="{{triple.object}}">{{triple.object|escape}}</a>
+							{% else %}
+								<span property="{{triple.predicate}}" {% if triple.object_datatype %}datatype="{{triple.object_datatype}}"{% endif %}>
+								{{ triple.object | newline_to_br }}
+								</span>
+								{% if triple.object_language %} ({{ triple.object_language}}) {% endif %}
+							{% endif %}
+						</td>
+					</tr>
+				{% endfor %}
+			</table>
+
+			{% if nquads -%}
+				<div class="container">
+					<div class="row">
+						<p class="pull-right">Download the data on this page as RDF: <a href="{{nquads}}">NQuads</a></p>
+					</div>
+				</div>
+			{% endif -%}
+
+
+
+			<footer class="container">
+				<div class="row">
+					<p class="text-muted" style="text-align:center">
+						Page generated for resource {{subject}} by <a href="http://datadock.io/">DataDock</a><br/>
+						A service provided by <a href="http://networkedplanet.com/">NetworkedPlanet Ltd</a>.
+					</p>
+				</div>
+			</footer>
+		</div>
+	</body>
+</html>

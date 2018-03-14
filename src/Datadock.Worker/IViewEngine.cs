@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using Datadock.Worker.Templating;
+using DataDock.Worker.Templating;
 using NetworkedPlanet.Quince;
 using VDS.RDF;
 
-namespace Datadock.Worker
+namespace DataDock.Worker
 {
     public interface IViewEngine
     {

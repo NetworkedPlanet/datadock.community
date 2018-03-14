@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using VDS.RDF;
 
-namespace Datadock.Worker.Templating
+namespace DataDock.Worker.Templating
 {
     public interface ITemplateSelector
     {

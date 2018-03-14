@@ -7,7 +7,7 @@ using NetworkedPlanet.Quince;
 using VDS.RDF;
 using VDS.RDF.Writing.Formatting;
 
-namespace Datadock.Worker
+namespace DataDock.Worker
 {
     public class RdfFileGenerator : ITripleCollectionHandler
     {

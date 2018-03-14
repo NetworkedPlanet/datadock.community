@@ -19,4 +19,9 @@
     <PackageReference Include="Serilog.Sinks.Elasticsearch" Version="6.3.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="templates\*.*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>

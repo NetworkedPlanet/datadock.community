@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataDock.Web", "DataDock.We
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{EC63AA2D-D84B-4B08-8A3B-BA4CE82065CA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Datadock.Worker", "Datadock.Worker\Datadock.Worker.csproj", "{D9C1FEEF-4EAB-4451-9174-F5B96A02E322}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataDock.Worker", "Datadock.Worker\DataDock.Worker.csproj", "{D9C1FEEF-4EAB-4451-9174-F5B96A02E322}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Datadock.Common", "Datadock.Common\Datadock.Common.csproj", "{3B7619F9-2AEA-4E2D-9B48-93C1F2B5CCCB}"
 EndProject
@@ -23,6 +23,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataDock.CsvWeb", "DataDock.CsvWeb\DataDock.CsvWeb.csproj", "{E6C98E6A-1DF7-496B-B1B4-30C2A6F68E0D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataDock.IntegrationTests", "DataDock.IntegrationTests\DataDock.IntegrationTests.csproj", "{4B837EE3-FA4A-4568-9EAA-A8207CD64CAF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataDock.Worker.Tests", "DataDock.Worker.Tests\DataDock.Worker.Tests.csproj", "{D16830CE-4C96-41C3-B5C9-FF12E4DDD0F7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -58,6 +60,10 @@ Global
 		{4B837EE3-FA4A-4568-9EAA-A8207CD64CAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4B837EE3-FA4A-4568-9EAA-A8207CD64CAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4B837EE3-FA4A-4568-9EAA-A8207CD64CAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D16830CE-4C96-41C3-B5C9-FF12E4DDD0F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D16830CE-4C96-41C3-B5C9-FF12E4DDD0F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D16830CE-4C96-41C3-B5C9-FF12E4DDD0F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D16830CE-4C96-41C3-B5C9-FF12E4DDD0F7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

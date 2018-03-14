@@ -1,4 +1,29 @@
-﻿
-@*
-    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@{
+  var userId = User.Identity.Name;
+  var returnUrl = "";
+
+}
+@if (User.Identity.IsAuthenticated)
+{
+  <div class="item">
+    <div class="header">@userId</div>
+    <div class="menu">
+      <a class="item" href="/@userId"><i class="dashboard icon"></i> Dashboard</a>
+      <a class="item" href="/@userId/import"><i class="upload icon"></i> Add Data</a>
+      <a class="item" href="/@userId/account"><i class="user icon"></i> Account</a>
+    </div>
+  </div>
+  <div class="item">
+    @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "" }))
+    {
+      @Html.AntiForgeryToken()
+      <a href="javascript:document.getElementById('logoutForm').submit()">Log off</a>
+    }
+  </div>
+}
+else
+{
+
+  <a asp-action="SignUp" asp-controller="Account" class="item" id="registerLink">Sign Up</a>
+  <a asp-action="Login" asp-controller="Account" class="item" id="loginLink" asp-route-returnUrl="@returnUrl">Log In</a>
+}

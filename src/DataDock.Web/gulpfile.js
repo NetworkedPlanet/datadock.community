@@ -1,4 +1,4 @@
-﻿/// <binding BeforeBuild='clean, min' />
+﻿/// <binding BeforeBuild='clean, min, node_modules_copy' Clean='clean' />
 /*
 This file is the main entry point for defining Gulp tasks and using Gulp plugins.
 Click here to learn more. https://go.microsoft.com/fwlink/?LinkId=518007

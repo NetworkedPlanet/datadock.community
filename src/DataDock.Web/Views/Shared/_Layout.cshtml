@@ -14,6 +14,16 @@
   <meta name="format-detection" content="telephone=no">
 
   <!-- TODO INCLUDE BUNDLES -->
+  <environment include="Development">
+    <link rel="stylesheet" href="~/semantic-ui/dist/semantic.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+  </environment>
+  <environment include="Staging, Production">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.0/semantic.min.css"
+          asp-fallback-href="~/semantic-ui/dist/semantic.min.css"
+          asp-fallback-test-class="transition" asp-fallback-test-property="animation-iteration-count" asp-fallback-test-value="1" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+  </environment>
 
 
   <script type='text/javascript'>

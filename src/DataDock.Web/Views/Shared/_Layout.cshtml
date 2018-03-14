@@ -62,7 +62,7 @@
         <a class="toc item">
           <i class="sidebar icon"></i>
         </a>
-        <a class="header item" href="/" title="DataDock homepage"><img src="@Url.Content("~/Content/logo/DataDock_Colour_400.png")" class="ui image logo" data-pin-nopin="true" /></a>
+        <a class="header item" href="/" title="DataDock homepage"><img src="@Url.Content("~/images/DataDock_Colour_400.png")" class="ui image logo" data-pin-nopin="true" /></a>
         <a class="item" href="/about" title="About DataDock">About</a>
         <a class="item" href="/features" title="DataDock Features">Features</a>
         <a href="http://networkedplanet.com/datadock" class="item">Help</a>
@@ -110,10 +110,7 @@
             </ul>
           </div>
           <div class="ten wide column">
-            <img src="@Url.Content("~/Content/logo/NetworkedPlanet_White_250.png")" class="ui image" alt="Networked Planet logo" />
-            <p style="margin-left: 1em;">
-              &copy; @DateTime.Now.Year &nbsp;<a href="http://www.networkedplanet.com" title="NetworkedPlanet Homepage">NetworkedPlanet</a>
-            </p>
+            
             @if (ViewBag?.BuildLabel != null)
             {
               <div class="inverted">Build: @ViewBag.BuildLabel</div>
@@ -127,7 +124,23 @@
 
 
 
-  <!-- TODO: INCLUDE SCRIPTS BUNDLES -->
+<environment names="Development">
+  <script src="~/vendor/jquery/jquery.js"></script>
+  <script src="~/semantic-ui/dist/semantic.js"></script>
+  <script src="~/js/site.js" asp-append-version="true"></script>
+</environment>
+<environment names="Staging,Production">
+  <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.2.1.min.js"
+          asp-fallback-src="~/vendor/jquery/jquery.min.js"
+          asp-fallback-test="window.jQuery">        
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/3.2.1/semantic.min.js"
+          asp-fallback-src="~/semantic/dist/semantic.min.js"
+          asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.site">
+
+  </script>
+  <script src="~/js/site.min.js" asp-append-version="true"></script>
+</environment>
 
   @RenderSection("scripts", required: false)
   <script type="text/javascript" src="~/Scripts/cookiebar/cookiebar-latest.min.js?noGeoIp=1&remember=365&theme=altblack&top=1&privacyPage=%2Fprivacy"></script>

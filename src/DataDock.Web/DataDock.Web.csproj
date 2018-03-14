@@ -34,7 +34,6 @@
   <ItemGroup>
     <Folder Include="Pages\" />
     <Folder Include="wwwroot\images\" />
-    <Folder Include="wwwroot\js\" />
   </ItemGroup>
 
   <Target Name="DebugRunWebpack" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('wwwroot\dist') ">

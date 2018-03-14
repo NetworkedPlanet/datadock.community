@@ -24,7 +24,11 @@
 
   <ItemGroup>
     <!-- Files not to publish (note that the 'dist' subfolders are re-added below) -->
+    <Compile Remove="wwwroot\images\NewFolder\**" />
     <Content Remove="ClientApp\**" />
+    <Content Remove="wwwroot\images\NewFolder\**" />
+    <EmbeddedResource Remove="wwwroot\images\NewFolder\**" />
+    <None Remove="wwwroot\images\NewFolder\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -32,10 +36,48 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="lib\" />
     <Folder Include="Pages\" />
-    <Folder Include="wwwroot\css\" />
-    <Folder Include="wwwroot\images\" />
-    <Folder Include="wwwroot\js\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\vendor\cookiebar\browsers\chrome.png" />
+    <None Include="wwwroot\vendor\cookiebar\browsers\firefox.png" />
+    <None Include="wwwroot\vendor\cookiebar\browsers\ie.png" />
+    <None Include="wwwroot\vendor\cookiebar\browsers\opera.png" />
+    <None Include="wwwroot\vendor\cookiebar\browsers\safari.png" />
+    <None Include="wwwroot\vendor\cookiebar\cookiebar-altblack.css" />
+    <None Include="wwwroot\vendor\cookiebar\cookiebar-altblack.min.css" />
+    <None Include="wwwroot\vendor\cookiebar\cookiebar-flying.css" />
+    <None Include="wwwroot\vendor\cookiebar\cookiebar-flying.min.css" />
+    <None Include="wwwroot\vendor\cookiebar\cookiebar-grey.css" />
+    <None Include="wwwroot\vendor\cookiebar\cookiebar-grey.min.css" />
+    <None Include="wwwroot\vendor\cookiebar\cookiebar-latest.js" />
+    <None Include="wwwroot\vendor\cookiebar\cookiebar-latest.min.js" />
+    <None Include="wwwroot\vendor\cookiebar\cookiebar-white.css" />
+    <None Include="wwwroot\vendor\cookiebar\cookiebar-white.min.css" />
+    <None Include="wwwroot\vendor\cookiebar\cookiebar.css" />
+    <None Include="wwwroot\vendor\cookiebar\cookiebar.min.css" />
+    <None Include="wwwroot\vendor\cookiebar\lang\ca.html" />
+    <None Include="wwwroot\vendor\cookiebar\lang\cs.html" />
+    <None Include="wwwroot\vendor\cookiebar\lang\da.html" />
+    <None Include="wwwroot\vendor\cookiebar\lang\de.html" />
+    <None Include="wwwroot\vendor\cookiebar\lang\en.html" />
+    <None Include="wwwroot\vendor\cookiebar\lang\es.html" />
+    <None Include="wwwroot\vendor\cookiebar\lang\fr.html" />
+    <None Include="wwwroot\vendor\cookiebar\lang\hu.html" />
+    <None Include="wwwroot\vendor\cookiebar\lang\it.html" />
+    <None Include="wwwroot\vendor\cookiebar\lang\nl.html" />
+    <None Include="wwwroot\vendor\cookiebar\lang\pl.html" />
+    <None Include="wwwroot\vendor\cookiebar\lang\pt.html" />
+    <None Include="wwwroot\vendor\cookiebar\lang\ro.html" />
+    <None Include="wwwroot\vendor\cookiebar\lang\se.html" />
+    <None Include="wwwroot\vendor\cookiebar\lang\sk.html" />
+    <None Include="wwwroot\vendor\cookiebar\lang\sl.html" />
+    <None Include="wwwroot\vendor\cookiebar\logo.png" />
+    <None Include="wwwroot\vendor\cookiebar\logo_big.png" />
+    <None Include="wwwroot\vendor\cookiebar\logo_icon.png" />
+    <None Include="wwwroot\vendor\cookiebar\x.png" />
   </ItemGroup>
 
   <Target Name="DebugRunWebpack" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('wwwroot\dist') ">

@@ -14,6 +14,7 @@ namespace DataDock.Web.Controllers
         public async Task<IActionResult> Index()
         {
             var user = User.Identity;
+            
             var userViewModel = new UserViewModel();
             await userViewModel.Populate(user as ClaimsIdentity);
 

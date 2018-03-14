@@ -14,6 +14,16 @@
   <meta name="format-detection" content="telephone=no">
 
   <!-- TODO INCLUDE BUNDLES -->
+  <environment include="Development">
+    <link rel="stylesheet" href="~/semantic-ui/dist/semantic.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+  </environment>
+  <environment include="Staging, Production">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.0/semantic.min.css"
+          asp-fallback-href="~/semantic-ui/dist/semantic.min.css"
+          asp-fallback-test-class="transition" asp-fallback-test-property="animation-iteration-count" asp-fallback-test-value="1" />
+    <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
+  </environment>
 
 
   <script type='text/javascript'>
@@ -52,7 +62,7 @@
         <a class="toc item">
           <i class="sidebar icon"></i>
         </a>
-        <a class="header item" href="/" title="DataDock homepage"><img src="@Url.Content("~/Content/logo/DataDock_Colour_400.png")" class="ui image logo" data-pin-nopin="true" /></a>
+        <a class="header item" href="/" title="DataDock homepage"><img src="@Url.Content("~/images/DataDock_Colour_400.png")" class="ui image logo" data-pin-nopin="true" /></a>
         <a class="item" href="/about" title="About DataDock">About</a>
         <a class="item" href="/features" title="DataDock Features">Features</a>
         <a href="http://networkedplanet.com/datadock" class="item">Help</a>
@@ -67,13 +77,7 @@
 
     <section id="content">
       
-      <environment include="Development,Staging">
-        <div class="ui container">
-          <strong>HostingEnvironment.EnvironmentName is Staging or Development</strong>
-        </div>
-      </environment>
-      
-      <div class="ui container">
+     <div class="ui container">
         @RenderBody()
       </div>
     </section>
@@ -100,10 +104,7 @@
             </ul>
           </div>
           <div class="ten wide column">
-            <img src="@Url.Content("~/Content/logo/NetworkedPlanet_White_250.png")" class="ui image" alt="Networked Planet logo" />
-            <p style="margin-left: 1em;">
-              &copy; @DateTime.Now.Year &nbsp;<a href="http://www.networkedplanet.com" title="NetworkedPlanet Homepage">NetworkedPlanet</a>
-            </p>
+            
             @if (ViewBag?.BuildLabel != null)
             {
               <div class="inverted">Build: @ViewBag.BuildLabel</div>
@@ -117,35 +118,52 @@
 
 
 
-  <!-- TODO: INCLUDE SCRIPTS BUNDLES -->
-
-  @RenderSection("scripts", required: false)
-  <script type="text/javascript" src="~/Scripts/cookiebar/cookiebar-latest.min.js?noGeoIp=1&remember=365&theme=altblack&top=1&privacyPage=%2Fprivacy"></script>
-
-  <script>
-    $(document)
-            .ready(function() {
-
-                // create sidebar and attach to menu open
-                $('.ui.sidebar').sidebar('attach events', '.toc.item');
-                $('.ui.accordion').accordion();
-                // load any partial views
-                $('.load-async').each(function(index, item) {
-                    var i = $(item);
-                    var url = i.data('url');
-                    if (url && url.length > 0) {
-                        i.load(url, function(response, status, xhr) {
-                            if (status === 'error') {
-                                var msg = "Sorry but there was an error: ";
-                                i.getElementById("asyncerror").html( msg + xhr.status + " " + xhr.statusText );
-                            }
-                        });
-                    }
-                });
-
-            });
+<environment names="Development">
+  <script src="~/vendor/jquery/jquery.js"></script>
+  <script src="~/semantic-ui/dist/semantic.js"></script>
+  <script src="~/js/site.js" asp-append-version="true"></script>
+</environment>
+<environment names="Staging,Production">
+  <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.2.1.min.js"
+          asp-fallback-src="~/vendor/jquery/jquery.min.js"
+          asp-fallback-test="window.jQuery">        
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/3.2.1/semantic.min.js"
+          asp-fallback-src="~/semantic/dist/semantic.min.js"
+          asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.site">
 
   </script>
+  <script src="~/js/site.min.js" asp-append-version="true"></script>
+</environment>
+
+  @RenderSection("scripts", required: false)
+  
+<script>
+  $(document)
+    .ready(function() {
+
+      // create sidebar and attach to menu open
+      $('.ui.sidebar').sidebar('attach events', '.toc.item');
+      $('.ui.accordion').accordion();
+      // load any partial views
+      $('.load-async').each(function(index, item) {
+        var i = $(item);
+        var url = i.data('url');
+        if (url && url.length > 0) {
+          i.load(url, function(response, status, xhr) {
+            if (status === 'error') {
+              var msg = "Sorry but there was an error: ";
+              i.getElementById("asyncerror").html( msg + xhr.status + " " + xhr.statusText );
+            }
+          });
+        }
+      });
+
+    });
+
+</script>
+
+<script type="text/javascript" src="~/vendor/cookiebar/cookiebar-latest.min.js?noGeoIp=1&remember=365&theme=altblack&top=1&privacyPage=%2Fprivacy"></script>
 
   <script>
     var cookie = document.cookie.match(/(;)?cookiebar=([^;]*);?/);
@@ -162,9 +180,6 @@
               ga('send', 'pageview');
         }
     }
-
-
-
   </script>
 </body>
 </html>

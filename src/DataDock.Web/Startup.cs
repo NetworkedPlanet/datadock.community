@@ -92,6 +92,7 @@ namespace DataDock.Web
 
                     options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
                     options.ClaimActions.MapJsonKey(ClaimTypes.Name, "login");
+                    options.ClaimActions.MapJsonKey(DataDockClaimTypes.GitHubId, "id");
                     options.ClaimActions.MapJsonKey(DataDockClaimTypes.GitHubLogin, "login");
                     options.ClaimActions.MapJsonKey(DataDockClaimTypes.GitHubName, "name");
                     options.ClaimActions.MapJsonKey(DataDockClaimTypes.GitHubUrl, "html_url");
@@ -114,6 +115,30 @@ namespace DataDock.Web
                             var user = JObject.Parse(await response.Content.ReadAsStringAsync());
 
                             context.RunClaimActions(user);
+
+                            // check if authorized user exists in DataDock
+                            
+                            var login = user["login"];
+                            if (login != null)
+                            {
+                                var userRepository = context.HttpContext.RequestServices.GetService<IUserRepository>();
+                                try
+                                {
+                                    var existingAccount = await userRepository.GetUserAccountAsync(login.ToString());
+                                    // additional datadock identity
+                                    var datadockIdentity = new ClaimsIdentity();
+                                    datadockIdentity.AddClaim(new Claim(DataDockClaimTypes.DataDockUserId, login.ToString()));
+                                    context.Principal.AddIdentity(datadockIdentity);
+                                }
+                                catch (UserAccountNotFoundException notFound)
+                                {
+                                    // user not found
+                                }
+                            }
+                        },
+                        OnTicketReceived = async context =>
+                        {
+                            var stophere = "stop";
                         }
                     };
                 });
@@ -121,11 +146,10 @@ namespace DataDock.Web
             var admins = Configuration["Admin:Logins"]?.Split(",");
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("DataDockNewUser", policy => policy.RequireClaim(DataDockClaimTypes.GitHubLogin));
-                options.AddPolicy("DataDockUser", policy => policy.RequireClaim(DataDockClaimTypes.DataDockUserId));
+                options.AddPolicy("User", policy => policy.RequireClaim(DataDockClaimTypes.DataDockUserId));
                 if (admins != null)
                 {
-                    options.AddPolicy("DataDockAdmin", policy => policy.RequireClaim(DataDockClaimTypes.GitHubLogin, admins));
+                    options.AddPolicy("Admin", policy => policy.RequireClaim(DataDockClaimTypes.GitHubLogin, admins));
                 }
                 
             });

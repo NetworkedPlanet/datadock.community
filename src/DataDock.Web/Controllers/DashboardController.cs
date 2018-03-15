@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace DataDock.Web.Controllers
 {
-    [Authorize(Policy = "DataDockUser")]
+    [Authorize(Policy = "User")]
     [ServiceFilter(typeof(AuthorizeFilter))]
     public class DashboardController : Controller
     {

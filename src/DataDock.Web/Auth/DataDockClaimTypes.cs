@@ -8,6 +8,8 @@
 
         public static string GitHubLogin => "urn:github:login";
 
+        public static string GitHubId => "urn:github:id";
+
         public static string GitHubName => "urn:github:name";
 
         public static string GitHubUrl => "urn:github:url";

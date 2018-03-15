@@ -61,6 +61,8 @@ namespace DataDock.Web
             services.AddSignalR();
             var client = new ElasticClient(new Uri(esUrl));
 
+            services.AddScoped<AuthorizeFilter>();
+
             services.AddSingleton<IElasticClient>(client);
             services.AddSingleton<IUserRepository>(new UserRepository(client, userSettingsIxName, userAccountIxName));
             services.AddSingleton<IJobRepository>(new JobRepository(client, jobsIxName));
@@ -89,10 +91,11 @@ namespace DataDock.Web
                     options.UserInformationEndpoint = "https://api.github.com/user";
 
                     options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
-                    options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
-                    options.ClaimActions.MapJsonKey("urn:github:login", "login");
-                    options.ClaimActions.MapJsonKey("urn:github:url", "html_url");
-                    options.ClaimActions.MapJsonKey("urn:github:avatar", "avatar_url");
+                    options.ClaimActions.MapJsonKey(ClaimTypes.Name, "login");
+                    options.ClaimActions.MapJsonKey(DataDockClaimTypes.GitHubLogin, "login");
+                    options.ClaimActions.MapJsonKey(DataDockClaimTypes.GitHubName, "name");
+                    options.ClaimActions.MapJsonKey(DataDockClaimTypes.GitHubUrl, "html_url");
+                    options.ClaimActions.MapJsonKey(DataDockClaimTypes.GitHubAvatar, "avatar_url");
 
                     options.Events = new OAuthEvents
                     {
@@ -115,9 +118,16 @@ namespace DataDock.Web
                     };
                 });
 
+            var admins = Configuration["Admin:Logins"]?.Split(",");
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("DataDockUser", policy => policy.RequireClaim("urn:github:login"));
+                options.AddPolicy("DataDockNewUser", policy => policy.RequireClaim(DataDockClaimTypes.GitHubLogin));
+                options.AddPolicy("DataDockUser", policy => policy.RequireClaim(DataDockClaimTypes.DataDockUserId));
+                if (admins != null)
+                {
+                    options.AddPolicy("DataDockAdmin", policy => policy.RequireClaim(DataDockClaimTypes.GitHubLogin, admins));
+                }
+                
             });
         }
 
@@ -165,8 +175,9 @@ namespace DataDock.Web
             }
 
             app.UseStaticFiles();
-            app.UseAuthentication();
 
+            app.UseAuthentication();
+            
             app.UseSignalR(routes => routes.MapHub<ProgressHub>("/progress"));
             
             app.UseMvc(routes =>
@@ -335,6 +346,10 @@ namespace DataDock.Web
                     defaults: new { controller = "Repository", action = "DeleteDataset" },
                     constraints: new { ownerId = new NonDashboardConstraint(), repoId = new PremiumFeatureConstraint() }
                 );
+                routes.MapRoute(
+                    name: "SignUp",
+                    template: "account/signup",
+                    defaults: new { controller = "Account", action = "SignUp" });
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");

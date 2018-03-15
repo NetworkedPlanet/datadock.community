@@ -1,12 +1,14 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using DataDock.Web.Auth;
 using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 
 namespace DataDock.Web.Controllers
 {
     [Authorize(Policy = "DataDockUser")]
+    [ServiceFilter(typeof(AuthorizeFilter))]
     public class DashboardController : Controller
     {
         public async Task<IActionResult> Index()

@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Authorization;
 namespace DataDock.Web.Controllers
 {
     [Authorize(Policy = "User")]
-    [ServiceFilter(typeof(AuthorizeFilter))]
     public class DashboardController : Controller
     {
         public async Task<IActionResult> Index()

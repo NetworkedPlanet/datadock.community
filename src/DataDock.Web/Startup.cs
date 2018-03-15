@@ -20,7 +20,6 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.Elasticsearch;
 using System;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
@@ -58,10 +57,16 @@ namespace DataDock.Web
             services.AddOptions();
 
             services.AddMvc();
+            services.AddRouting(options =>
+            {
+                options.LowercaseUrls = true;
+            });
+
+
             services.AddSignalR();
             var client = new ElasticClient(new Uri(esUrl));
 
-            services.AddScoped<AuthorizeFilter>();
+            services.AddScoped<AccountExistsFilter>();
 
             services.AddSingleton<IElasticClient>(client);
             services.AddSingleton<IUserRepository>(new UserRepository(client, userSettingsIxName, userAccountIxName));
@@ -76,9 +81,9 @@ namespace DataDock.Web
                     options.DefaultChallengeScheme = "GitHub";
                 })
                 .AddCookie(options => {
-                    options.LoginPath = "/Account/Unauthorized/";
-                    options.LogoutPath = new PathString("/Account/Logoff/");
-                    options.AccessDeniedPath = "/Account/Forbidden/";
+                    options.LoginPath = "/account/login/";
+                    options.LogoutPath = new PathString("/account/logoff/");
+                    options.AccessDeniedPath = "/account/forbidden/";
                 })
                 .AddOAuth("GitHub", options =>
                 {
@@ -117,7 +122,6 @@ namespace DataDock.Web
                             context.RunClaimActions(user);
 
                             // check if authorized user exists in DataDock
-                            
                             var login = user["login"];
                             if (login != null)
                             {
@@ -129,16 +133,14 @@ namespace DataDock.Web
                                     var datadockIdentity = new ClaimsIdentity();
                                     datadockIdentity.AddClaim(new Claim(DataDockClaimTypes.DataDockUserId, login.ToString()));
                                     context.Principal.AddIdentity(datadockIdentity);
+
+                                    // todo: check last updated to see if the user avatar or similar require updating
                                 }
                                 catch (UserAccountNotFoundException notFound)
                                 {
-                                    // user not found
+                                    // user not found. no action required
                                 }
                             }
-                        },
-                        OnTicketReceived = async context =>
-                        {
-                            var stophere = "stop";
                         }
                     };
                 });

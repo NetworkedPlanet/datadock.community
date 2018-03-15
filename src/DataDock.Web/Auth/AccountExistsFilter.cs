@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace DataDock.Web.Auth
 {
-    public class AuthorizeFilter : IActionFilter
+    public class AccountExistsFilter : IActionFilter
     {
         public void OnActionExecuting(ActionExecutingContext context)
         {

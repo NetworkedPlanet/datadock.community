@@ -36,6 +36,13 @@ namespace DataDock.Web.Controllers
         }
 
         [HttpGet]
+        public IActionResult Forbidden(string returnUrl = "/")
+        {
+            Log.Warning("User '{0}' has attempted to access forbidden page {1}", User?.Identity?.Name, returnUrl);
+            return View("Forbidden");
+        }
+
+        [HttpGet]
         [Authorize]
         public async Task<IActionResult> SignUp()
         {
@@ -103,7 +110,7 @@ namespace DataDock.Web.Controllers
  
         [HttpGet]
         [Authorize]
-        [ServiceFilter(typeof(AuthorizeFilter))]
+        [Authorize(Policy = "User")]
         public IActionResult Settings(string returnUrl = "/")
         {
             var claims = User.Claims.ToList();
@@ -111,7 +118,7 @@ namespace DataDock.Web.Controllers
         }
 
         [HttpGet]
-        [ServiceFilter(typeof(AuthorizeFilter))]
+        [Authorize(Policy = "User")]
         public IActionResult Welcome(string returnUrl = "/")
         {
             var claims = User.Claims.ToList();

@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Datadock.Common.Repositories;
 using DataDock.Web.Auth;
+using DataDock.Web.Models;
 using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -61,9 +62,6 @@ namespace DataDock.Web.Controllers
             {
                 try
                 {
-                    // add new claim
-                    var identity = User.Identity as ClaimsIdentity;
-                    identity?.AddClaim(new Claim(DataDockClaimTypes.DataDockUserId, User.Identity.Name));
                     // create user
                     var newUser = await _userRepository.CreateUserAsync(User.Identity.Name, User.Claims);
                     if (newUser == null)
@@ -71,6 +69,11 @@ namespace DataDock.Web.Controllers
                         Log.Error("Creation of new user account returned null");
                         return RedirectToAction("Error", "Home");
                     }
+                    // add new claim
+                    var datadockIdentity = new ClaimsIdentity();
+                    datadockIdentity.AddClaim(new Claim(DataDockClaimTypes.DataDockUserId, User.Identity.Name));
+                    User.AddIdentity(datadockIdentity);
+
                     return RedirectToAction("Welcome");
                 }
                 catch (UserAccountExistsException existsEx)
@@ -80,19 +83,11 @@ namespace DataDock.Web.Controllers
                     if (existingUser.Claims.FirstOrDefault(c => c.Type.Equals(DataDockClaimTypes.DataDockUserId)) ==
                         null)
                     {
-                        // add claim
-                        Log.Warning("Adding DataDock user Id to claims account");
-                        var identity = User.Identity as ClaimsIdentity;
-                        identity?.AddClaim(new Claim(DataDockClaimTypes.DataDockUserId, User.Identity.Name));
-                        try
-                        {
-                            var updatedUser = await _userRepository.UpdateUserAsync(User.Identity.Name, User.Claims);
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e);
-                            throw;
-                        }
+                        // add new claim
+                        var datadockIdentity = new ClaimsIdentity();
+                        datadockIdentity.AddClaim(new Claim(DataDockClaimTypes.DataDockUserId, User.Identity.Name));
+                        User.AddIdentity(datadockIdentity);
+
                     }
                     return RedirectToAction("Settings");
                 }
@@ -111,17 +106,105 @@ namespace DataDock.Web.Controllers
         [HttpGet]
         [Authorize]
         [Authorize(Policy = "User")]
-        public IActionResult Settings(string returnUrl = "/")
+        public async Task<IActionResult> Settings(string returnUrl = "/")
         {
-            var claims = User.Claims.ToList();
-            return View("Settings");
+            try
+            {
+                var userSettings = await _userRepository.GetUserSettingsAsync(User.Identity.Name);
+                var usvm = new UserSettingsViewModel(userSettings);
+                return View(usvm);
+            }
+            catch (UserAccountNotFoundException notFoundEx)
+            {
+                var newSettings = new UserSettingsViewModel();
+                return View(newSettings);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        [HttpPost]
+        [Authorize(Policy = "User")]
+        public async Task<IActionResult> Settings(UserSettingsViewModel usvm)
+        {
+            try
+            {
+                var userSettings = usvm.AsUserSettings();
+                userSettings.LastModified = DateTime.UtcNow;
+                userSettings.LastModifiedBy = User.Identity.Name;
+                await _userRepository.CreateOrUpdateUserSettingsAsync(userSettings);
+                TempData["message"] = ManageMessageId.ChangeSettingSuccess;
+                return View(usvm);
+            }
+            catch (UserAccountNotFoundException notFoundEx)
+            {
+                var newSettings = new UserSettingsViewModel();
+                return View(newSettings);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        [HttpGet]
+        [Authorize(Policy = "User")]
+        public async Task<IActionResult> Delete(string returnUrl = "")
+        {
+            try
+            {
+                // check user exists
+                var userAccount = await _userRepository.GetUserAccountAsync(User.Identity.Name);
+                var davm = new DeleteAccountViewModel();
+                return View(davm);
+            }
+            catch (Exception e)
+            {
+                // todo handle user not found
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        [HttpPost]
+        [Authorize(Policy = "User")]
+        public async Task<IActionResult> Delete(DeleteAccountViewModel davm)
+        {
+            try
+            {
+                if (ModelState.IsValid && davm.Confirm)
+                {
+                    var deleted = await _userRepository.DeleteUserAsync(User.Identity.Name);
+                    if (deleted)
+                    {
+                        await HttpContext.SignOutAsync();
+                        return RedirectToAction("Index", "Home");
+                    }
+
+                    // error
+                    ViewBag.Message =
+                        "Unable to delete account at this time, if the problem persists please open a ticket with support.";
+                    return View("Delete");
+                }
+
+                return View("Delete");
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         [HttpGet]
         [Authorize(Policy = "User")]
         public IActionResult Welcome(string returnUrl = "/")
         {
-            var claims = User.Claims.ToList();
             return View("Welcome");
         }
     }

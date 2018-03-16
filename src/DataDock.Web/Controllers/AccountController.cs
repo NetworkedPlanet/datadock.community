@@ -125,7 +125,7 @@ namespace DataDock.Web.Controllers
             }
             catch (UserAccountNotFoundException notFoundEx)
             {
-                var newSettings = new UserSettingsViewModel();
+                var newSettings = new UserSettingsViewModel {UserId = User.Identity.Name};
                 return View(newSettings);
             }
             catch (Exception e)
@@ -142,23 +142,38 @@ namespace DataDock.Web.Controllers
         {
             try
             {
+                usvm.LastModified = DateTime.UtcNow;
+                usvm.LastModifiedBy = User.Identity.Name;
                 var userSettings = usvm.AsUserSettings();
-                userSettings.LastModified = DateTime.UtcNow;
-                userSettings.LastModifiedBy = User.Identity.Name;
                 await _userRepository.CreateOrUpdateUserSettingsAsync(userSettings);
-                TempData["message"] = ManageMessageId.ChangeSettingSuccess;
+
+                ViewBag.StatusMessage = GetSettingsStatusMessage(ManageMessageId.ChangeSettingSuccess);
+                
                 return View(usvm);
-            }
-            catch (UserAccountNotFoundException notFoundEx)
-            {
-                var newSettings = new UserSettingsViewModel();
-                return View(newSettings);
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                throw;
+                Log.Error(e, "An error occurred loading user settings for '{0}'", User.Identity.Name);
+                ViewBag.StatusMessage = GetSettingsStatusMessage(ManageMessageId.Error);
+                return View(new UserSettingsViewModel { UserId = User.Identity.Name });
             }
+        }
+
+        public string GetSettingsStatusMessage(ManageMessageId? message = null)
+        {
+            if (message == null)
+            {
+                // check in TempData if a message isn't directly supplied
+                message = TempData["message"] as ManageMessageId?;
+            }
+            var statusMessage = message == ManageMessageId.ChangeSettingSuccess
+                ? @"The settings have been successfully updated."
+                : message == ManageMessageId.Error
+                    ? @"An error has occurred."
+                    : message == ManageMessageId.TokenResetError ?
+                        @"Unable to reset token." :
+                        @"";
+            return statusMessage;
         }
 
         [HttpGet]

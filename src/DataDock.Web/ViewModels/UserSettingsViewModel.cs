@@ -1,12 +1,15 @@
 ﻿using Datadock.Common.Models;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
 
 namespace DataDock.Web.ViewModels
 {
     public class UserSettingsViewModel
     {
+        [HiddenInput]
         public string UserId { get; set; }
+
         /// <summary>
         /// Happy to receive emails from NetworkedPlanet
         /// </summary>

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace DataDock.Web.Controllers
 {
@@ -35,7 +36,7 @@ namespace DataDock.Web.Controllers
             return View("AccountDeleted");
         }
 
-        public IActionResult SignUpCancelled()
+        public async Task<IActionResult> SignUpCancelled()
         {
             return View("SignUpCancelled");
         }

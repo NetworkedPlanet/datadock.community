@@ -7,13 +7,10 @@ namespace DataDock.Web.Auth
     {
         public void OnActionExecuting(ActionExecutingContext context)
         {
-            if (context.HttpContext.User != null)
+            var user = context.HttpContext.User;
+            if (user?.Identity.Name != null && user.Identity.IsAuthenticated && !user.ClaimExists(DataDockClaimTypes.DataDockUserId))
             {
-                var user = context.HttpContext.User;
-                if (user.Identity.Name != null && user.Identity.IsAuthenticated && !user.ClaimExists(DataDockClaimTypes.DataDockUserId))
-                {
-                    context.Result = new RedirectToRouteResult("SignUp", null);
-                }
+                context.Result = new RedirectToRouteResult("SignUp", null);
             }
         }
 

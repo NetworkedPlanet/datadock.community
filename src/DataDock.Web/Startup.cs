@@ -20,6 +20,7 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.Elasticsearch;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
@@ -94,6 +95,10 @@ namespace DataDock.Web
                     options.AuthorizationEndpoint = "https://github.com/login/oauth/authorize";
                     options.TokenEndpoint = "https://github.com/login/oauth/access_token";
                     options.UserInformationEndpoint = "https://api.github.com/user";
+
+                    options.Scope.Clear();
+                    options.Scope.Add("read:org");
+                    options.Scope.Add("public_repo");
 
                     options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
                     options.ClaimActions.MapJsonKey(ClaimTypes.Name, "login");

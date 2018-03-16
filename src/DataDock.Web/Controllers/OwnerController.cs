@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using DataDock.Web.Auth;
 
 namespace DataDock.Web.Controllers
 {
-    [Authorize(Policy = "User")]
+    [Authorize]
+    [ServiceFilter(typeof(AccountExistsFilter))]
     public class OwnerController : Controller
     {
         public async Task<IActionResult> Index()

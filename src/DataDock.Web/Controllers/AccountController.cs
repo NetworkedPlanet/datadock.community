@@ -7,6 +7,7 @@ using DataDock.Web.Auth;
 using DataDock.Web.Models;
 using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
@@ -32,7 +33,7 @@ namespace DataDock.Web.Controllers
         [Authorize]
         public async Task<IActionResult> LogOff(string returnUrl = "/")
         {
-            await HttpContext.SignOutAsync();
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Index", "Home");
         }
 
@@ -52,6 +53,14 @@ namespace DataDock.Web.Controllers
                 return RedirectToAction("Settings");
             }
             return View("SignUp");
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Cancel()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("SignUpCancelled", "Info");
         }
 
         [HttpPost]
@@ -105,7 +114,7 @@ namespace DataDock.Web.Controllers
  
         [HttpGet]
         [Authorize]
-        [Authorize(Policy = "User")]
+        [ServiceFilter(typeof(AccountExistsFilter))]
         public async Task<IActionResult> Settings(string returnUrl = "/")
         {
             try
@@ -127,7 +136,8 @@ namespace DataDock.Web.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "User")]
+        [Authorize]
+        [ServiceFilter(typeof(AccountExistsFilter))]
         public async Task<IActionResult> Settings(UserSettingsViewModel usvm)
         {
             try
@@ -152,7 +162,8 @@ namespace DataDock.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "User")]
+        [Authorize]
+        [ServiceFilter(typeof(AccountExistsFilter))]
         public async Task<IActionResult> Delete(string returnUrl = "")
         {
             try
@@ -171,7 +182,8 @@ namespace DataDock.Web.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "User")]
+        [Authorize]
+        [ServiceFilter(typeof(AccountExistsFilter))]
         public async Task<IActionResult> Delete(DeleteAccountViewModel davm)
         {
             try
@@ -181,7 +193,7 @@ namespace DataDock.Web.Controllers
                     var deleted = await _userRepository.DeleteUserAsync(User.Identity.Name);
                     if (deleted)
                     {
-                        await HttpContext.SignOutAsync();
+                        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
                         return RedirectToAction("Index", "Home");
                     }
 
@@ -202,7 +214,8 @@ namespace DataDock.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "User")]
+        [Authorize]
+        [ServiceFilter(typeof(AccountExistsFilter))]
         public IActionResult Welcome(string returnUrl = "/")
         {
             return View("Welcome");

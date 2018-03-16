@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 
 namespace DataDock.Web.Controllers
 {
@@ -37,6 +34,11 @@ namespace DataDock.Web.Controllers
         public IActionResult AccountDeleted()
         {
             return View("AccountDeleted");
+        }
+
+        public async Task<IActionResult> SignUpCancelled()
+        {
+            return View("SignUpCancelled");
         }
     }
 }

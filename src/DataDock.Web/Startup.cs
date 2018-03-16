@@ -20,7 +20,7 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.Elasticsearch;
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
@@ -58,8 +58,16 @@ namespace DataDock.Web
             services.AddOptions();
 
             services.AddMvc();
+            services.AddRouting(options =>
+            {
+                options.LowercaseUrls = true;
+            });
+
+
             services.AddSignalR();
             var client = new ElasticClient(new Uri(esUrl));
+
+            services.AddScoped<AccountExistsFilter>();
 
             services.AddSingleton<IElasticClient>(client);
             services.AddSingleton<IUserRepository>(new UserRepository(client, userSettingsIxName, userAccountIxName));
@@ -74,9 +82,9 @@ namespace DataDock.Web
                     options.DefaultChallengeScheme = "GitHub";
                 })
                 .AddCookie(options => {
-                    options.LoginPath = "/Account/Unauthorized/";
-                    options.LogoutPath = new PathString("/Account/Logoff/");
-                    options.AccessDeniedPath = "/Account/Forbidden/";
+                    options.LoginPath = "/account/login/";
+                    options.LogoutPath = new PathString("/account/logoff/");
+                    options.AccessDeniedPath = "/account/forbidden/";
                 })
                 .AddOAuth("GitHub", options =>
                 {
@@ -88,11 +96,17 @@ namespace DataDock.Web
                     options.TokenEndpoint = "https://github.com/login/oauth/access_token";
                     options.UserInformationEndpoint = "https://api.github.com/user";
 
+                    options.Scope.Clear();
+                    options.Scope.Add("read:org");
+                    options.Scope.Add("public_repo");
+
                     options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
-                    options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
-                    options.ClaimActions.MapJsonKey("urn:github:login", "login");
-                    options.ClaimActions.MapJsonKey("urn:github:url", "html_url");
-                    options.ClaimActions.MapJsonKey("urn:github:avatar", "avatar_url");
+                    options.ClaimActions.MapJsonKey(ClaimTypes.Name, "login");
+                    options.ClaimActions.MapJsonKey(DataDockClaimTypes.GitHubId, "id");
+                    options.ClaimActions.MapJsonKey(DataDockClaimTypes.GitHubLogin, "login");
+                    options.ClaimActions.MapJsonKey(DataDockClaimTypes.GitHubName, "name");
+                    options.ClaimActions.MapJsonKey(DataDockClaimTypes.GitHubUrl, "html_url");
+                    options.ClaimActions.MapJsonKey(DataDockClaimTypes.GitHubAvatar, "avatar_url");
 
                     options.Events = new OAuthEvents
                     {
@@ -111,13 +125,40 @@ namespace DataDock.Web
                             var user = JObject.Parse(await response.Content.ReadAsStringAsync());
 
                             context.RunClaimActions(user);
+
+                            // check if authorized user exists in DataDock
+                            var login = user["login"];
+                            if (login != null)
+                            {
+                                var userRepository = context.HttpContext.RequestServices.GetService<IUserRepository>();
+                                try
+                                {
+                                    var existingAccount = await userRepository.GetUserAccountAsync(login.ToString());
+                                    // additional datadock identity
+                                    var datadockIdentity = new ClaimsIdentity();
+                                    datadockIdentity.AddClaim(new Claim(DataDockClaimTypes.DataDockUserId, login.ToString()));
+                                    context.Principal.AddIdentity(datadockIdentity);
+
+                                    // todo: check last updated to see if the user avatar or similar require updating
+                                }
+                                catch (UserAccountNotFoundException notFound)
+                                {
+                                    // user not found. no action required
+                                }
+                            }
                         }
                     };
                 });
 
+            var admins = Configuration["Admin:Logins"]?.Split(",");
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("DataDockUser", policy => policy.RequireClaim("urn:github:login"));
+                options.AddPolicy("User", policy => policy.RequireClaim(DataDockClaimTypes.DataDockUserId));
+                if (admins != null)
+                {
+                    options.AddPolicy("Admin", policy => policy.RequireClaim(DataDockClaimTypes.GitHubLogin, admins));
+                }
+                
             });
         }
 
@@ -165,8 +206,9 @@ namespace DataDock.Web
             }
 
             app.UseStaticFiles();
-            app.UseAuthentication();
 
+            app.UseAuthentication();
+            
             app.UseSignalR(routes => routes.MapHub<ProgressHub>("/progress"));
             
             app.UseMvc(routes =>
@@ -335,6 +377,10 @@ namespace DataDock.Web
                     defaults: new { controller = "Repository", action = "DeleteDataset" },
                     constraints: new { ownerId = new NonDashboardConstraint(), repoId = new PremiumFeatureConstraint() }
                 );
+                routes.MapRoute(
+                    name: "SignUp",
+                    template: "account/signup",
+                    defaults: new { controller = "Account", action = "SignUp" });
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");

@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Datadock.Common.Elasticsearch;
 using Datadock.Common.Models;
 using Datadock.Common.Repositories;
-using Elasticsearch.Net;
 using Microsoft.AspNetCore.SignalR.Client;
 using Nest;
 using Serilog;
@@ -16,9 +15,7 @@ namespace DataDock.Worker
     class Program
     {
         private static readonly AutoResetEvent WaitHandle = new AutoResetEvent(false);
-        private static Task[] _processingTasks;
         private static ElasticClient _client;
-        private static HubConnection _hubConnection;
 
         static void Main(string[] args)
         {
@@ -37,7 +34,7 @@ namespace DataDock.Worker
                 Log.Information("Reconfiguring logging to go to ES");
                 ConfigureLogging();
                 Log.Information("Initializing SignalR hub connection");
-                _hubConnection = await InitializeHubConnection();
+                await InitializeHubConnection();
                 Log.Information("Initializing JobsRepository: {index}", jobsIndexName);
                 var jobRepo = new JobRepository(_client, jobsIndexName);
                 while (true)
@@ -88,7 +85,7 @@ namespace DataDock.Worker
         {
             Log.Warning(exc, "SignalR hub connection was lost. Reconnecting in 3 seconds");
             Thread.Sleep(3000);
-            _hubConnection = InitializeHubConnection().Result;
+            InitializeHubConnection().RunSynchronously();
         }
 
         private static void ConfigureLogging()

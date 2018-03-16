@@ -11,7 +11,7 @@ namespace DataDock.Web.Routing
         public bool Match(HttpContext httpContext, IRouter route, string routeKey, RouteValueDictionary values,
             RouteDirection routeDirection)
         {
-            List<string> nonDashboardPages = new List<string>() { "", "about", "features", "search", "terms", "privacy", "account", "info", "proxy", "dashboard", "import", "jobs", "datasets", "library" };
+            List<string> nonDashboardPages = new List<string>() { "", "search", "account", "manage", "info", "proxy", "dashboard", "import", "jobs", "datasets", "library" };
             // Get the username from the url
             var ownerId = values["ownerId"].ToString().ToLower();
             // Check for a match (assumes case insensitive)

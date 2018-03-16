@@ -1,4 +1,3 @@
-@using System.Globalization
 @model DataDock.Web.ViewModels.UserViewModel
 @{
   ViewBag.Title = "DataDock";
@@ -38,20 +37,6 @@
       </div>
     </div>
   </div>
-</div>
-<div class="ui container">
-  @if (User.Identity.IsAuthenticated)
-  {
-    <div class="row">
-      <div class="col-md-2">
-        <img src="@Model.GitHubAvatar" alt="" class="img-thumbnail" />
-      </div>
-      <div class="col-md-10">
-        <h4>@Model.GitHubName</h4>
-        <p><i class="fab fa-github"></i><a href="@Model.GitHubUrl">@Model.GitHubLogin</a></p>
-      </div>
-    </div>
-  }
 </div>
 <div class="ui container">
   <div class="ui hidden divider"></div>

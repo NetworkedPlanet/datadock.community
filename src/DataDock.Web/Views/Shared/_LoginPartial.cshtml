@@ -11,7 +11,7 @@
     <div class="menu">
       <a class="item" href="/@userId"><i class="dashboard icon"></i> Dashboard</a>
       <a class="item" href="/@userId/import"><i class="upload icon"></i> Add Data</a>
-      <a class="item" href="/@userId/account"><i class="user icon"></i> Account</a>
+      <a asp-controller="Account" asp-action="Settings" class="item"><i class="user icon"></i> Account</a>
     </div>
   </div>
   <a asp-action="LogOff" asp-controller="Account" class="item" id="logoffLink" asp-route-returnUrl="@returnUrl">Log Off</a>
@@ -19,6 +19,5 @@
 else
 {
 
-  <a asp-action="SignUp" asp-controller="Account" class="item" id="registerLink">Sign Up</a>
-  <a asp-action="Login" asp-controller="Account" class="item" id="loginLink" asp-route-returnUrl="@returnUrl">Log In</a>
+  <a asp-action="Login" asp-controller="Account" class="item" id="loginLink" asp-route-returnUrl="@returnUrl">Log In With GitHub</a>
 }

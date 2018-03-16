@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using DataDock.Web.Auth;
 using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,10 +14,13 @@ namespace DataDock.Web.Controllers
     {
         public async Task<IActionResult> Index()
         {
-            var user = User.Identity;
-            
+            if (User.Identity.IsAuthenticated && !User.ClaimExists(DataDockClaimTypes.DataDockUserId))
+            {
+                return RedirectToAction("SignUp", "Account");
+            }
+
             var userViewModel = new UserViewModel();
-            await userViewModel.Populate(user as ClaimsIdentity);
+            await userViewModel.Populate(User.Identity as ClaimsIdentity);
 
             return View(userViewModel);
         }

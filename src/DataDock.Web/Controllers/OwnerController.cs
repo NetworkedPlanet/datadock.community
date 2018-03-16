@@ -1,28 +1,24 @@
-using System.Security.Claims;
+﻿using DataDock.Web.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using DataDock.Web.Auth;
-using DataDock.Web.ViewModels;
-using Microsoft.AspNetCore.Authorization;
 
 namespace DataDock.Web.Controllers
 {
     [Authorize]
     [ServiceFilter(typeof(AccountExistsFilter))]
-    public class DashboardController : Controller
+    public class OwnerController : Controller
     {
         public async Task<IActionResult> Index()
         {
+            var user = User.Identity;
+
             var userViewModel = new UserViewModel();
-            if (User.Identity.IsAuthenticated)
-            {
-                var user = User.Identity;
-                await userViewModel.Populate(user as ClaimsIdentity);
-            }
+            await userViewModel.Populate(user as ClaimsIdentity);
 
             return View(userViewModel);
-
         }
-        
     }
 }

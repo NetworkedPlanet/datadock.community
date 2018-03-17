@@ -12,13 +12,13 @@ namespace DataDock.Worker.Processors
     public class DeleteDatasetProcessor : IDataDockProcessor
     {
         private readonly IProgressLog _progressLog;
-        private readonly ConversionJobProcessorConfiguration _configuration;
+        private readonly WorkerConfiguration _configuration;
         private readonly GitCommandProcessor _git;
         private readonly IDatasetRepository _datasetRepository;
         private readonly IQuinceStoreFactory _quinceStoreFactory;
         private readonly IHtmlGeneratorFactory _htmlGeneratorFactory;
 
-        public DeleteDatasetProcessor(ConversionJobProcessorConfiguration configuration,
+        public DeleteDatasetProcessor(WorkerConfiguration configuration,
             IProgressLog progressLog, GitCommandProcessor gitProcessor,
             IDatasetRepository datasetRepository,
             IQuinceStoreFactory quinceStoreFactory,
@@ -69,7 +69,7 @@ namespace DataDock.Worker.Processors
             catch (Exception ex)
             {
                 Log.Error(ex, "Failed to remove dataset record.");
-                throw new ConversionJobProcessorException(ex, "Failed to remove dataset record. Your repository is updated but the dataset may still show in the main lodlab portal");
+                throw new WorkerException(ex, "Failed to remove dataset record. Your repository is updated but the dataset may still show in the main lodlab portal");
             }
 
         }

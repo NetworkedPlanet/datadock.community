@@ -8,10 +8,10 @@ namespace DataDock.Worker.Processors
 {
     public abstract class BaseJobProcessor : IDataDockProcessor
     {
-        public ConversionJobProcessorConfiguration Configuration { get; }
+        public WorkerConfiguration Configuration { get; }
         public IProgressLog ProgressLog { get; }
 
-        public BaseJobProcessor(ConversionJobProcessorConfiguration configuration, IProgressLog progressLog)
+        public BaseJobProcessor(WorkerConfiguration configuration, IProgressLog progressLog)
         {
             Configuration = configuration;
             ProgressLog = progressLog;

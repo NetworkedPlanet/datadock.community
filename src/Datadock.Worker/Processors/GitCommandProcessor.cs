@@ -3,29 +3,35 @@ using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Datadock.Common;
 using Datadock.Common.Models;
 using Medallion.Shell;
 using NetworkedPlanet.Quince.Git;
+using Octokit;
 using Serilog;
+using VDS.RDF;
+using VDS.RDF.Writing;
 
 namespace DataDock.Worker.Processors
 {
     public class GitCommandProcessor
     {
-        public ConversionJobProcessorConfiguration Configuration { get; }
+        public WorkerConfiguration Configuration { get; }
         public IProgressLog ProgressLog { get; }
+        private IGitHubClientFactory _gitHubClientFactory;
 
-        public GitCommandProcessor(ConversionJobProcessorConfiguration configuration, IProgressLog progressLog)
+        public GitCommandProcessor(WorkerConfiguration configuration, IProgressLog progressLog, IGitHubClientFactory gitHubClientFactory)
         {
             Configuration = configuration;
             ProgressLog = progressLog;
+            _gitHubClientFactory = gitHubClientFactory;
         }
 
         public async Task CloneRepository(string repository, string targetDirectory, string authenticationToken, UserAccount userAccount)
         {
             if (!await EnsureRepository(repository, targetDirectory, authenticationToken, userAccount))
             {
-                throw new ConversionJobProcessorException("Failed to validate remote repository {0}. Please check that the repository exists and that you have write access to it.", repository);
+                throw new WorkerException("Failed to validate remote repository {0}. Please check that the repository exists and that you have write access to it.", repository);
             }
 
             var cloneWrapper = new GitWrapper(Configuration.RepoBaseDir, Configuration.GitPath);
@@ -41,7 +47,7 @@ namespace DataDock.Worker.Processors
                 if (!cloneResult.Success)
                 {
                     LogCommandError(cloneResult, $"Clone of repository {repository} failed.");
-                    throw new ConversionJobProcessorException("Clone of repository {0} failed.", repository);
+                    throw new WorkerException("Clone of repository {0} failed.", repository);
                 }
                 var repoDir = Path.Combine(Configuration.RepoBaseDir, targetDirectory);
                 var branchWrapper = new GitWrapper(repoDir, Configuration.GitPath);
@@ -49,7 +55,7 @@ namespace DataDock.Worker.Processors
                 if (!branchResult.Success)
                 {
                     LogCommandError(cloneResult, $"Failed to create a new gh-pages branch in the repository {repository}.");
-                    throw new ConversionJobProcessorException("Failed to create a gh-pages branch in the repository {0}", repository);
+                    throw new WorkerException("Failed to create a gh-pages branch in the repository {0}", repository);
                 }
                 await PushChanges(repository, repoDir, authenticationToken, true);
             }
@@ -127,12 +133,12 @@ namespace DataDock.Worker.Processors
             var configResult = await git.SetUserName(nameClaim.Value);
             if (!configResult.Success)
             {
-                throw new ConversionJobProcessorException("Commit failed: Could not configure git user name");
+                throw new WorkerException("Commit failed: Could not configure git user name");
             }
             configResult = await git.SetUserEmail(emailClaim.Value);
             if (!configResult.Success)
             {
-                throw new ConversionJobProcessorException("Commit failed: Could not configure git user email");
+                throw new WorkerException("Commit failed: Could not configure git user email");
             }
 
             var addResult = await git.AddAll();
@@ -147,7 +153,7 @@ namespace DataDock.Worker.Processors
                 {
                     ProgressLog.Info("git-add command error output: {0}", addResult.StandardError);
                 }
-                throw new ConversionJobProcessorException("Commit failed: Failed to add modified files to local git working tree.");
+                throw new WorkerException("Commit failed: Failed to add modified files to local git working tree.");
             }
 
             var statusResult = await git.Status();
@@ -162,7 +168,7 @@ namespace DataDock.Worker.Processors
                 {
                     ProgressLog.Info("git-status command error output: {0}", statusResult.CommandResult.StandardError);
                 }
-                throw new ConversionJobProcessorException("Commit failed: Could not determine current state of local git working tree.");
+                throw new WorkerException("Commit failed: Could not determine current state of local git working tree.");
             }
 
             // Commit only if there are some changes
@@ -181,7 +187,7 @@ namespace DataDock.Worker.Processors
                     {
                         ProgressLog.Info("git-commit command error output: {0}", commitResult.StandardError);
                     }
-                    throw new ConversionJobProcessorException("Commit failed: Git commit failed.");
+                    throw new WorkerException("Commit failed: Git commit failed.");
                 }
             }
             else
@@ -202,18 +208,66 @@ namespace DataDock.Worker.Processors
                 if (!pushResult.Success)
                 {
                     ProgressLog.Error("Failed to push to remote repository.");
-                    throw new ConversionJobProcessorException("Failed to push to remote repository.");
+                    throw new WorkerException("Failed to push to remote repository.");
                 }
             }
-            catch (ConversionJobProcessorException)
+            catch (WorkerException)
             {
                 throw;
             }
             catch (Exception ex)
             {
                 ProgressLog.Exception(ex, "Failed to push gh-pages branch to GitHub.");
-                throw new ConversionJobProcessorException(ex, "Failed to push to remote repository.");
+                throw new WorkerException(ex, "Failed to push to remote repository.");
             }
+        }
+
+        public async Task<ReleaseInfo> MakeRelease(IGraph dataGraph, string releaseTag, string owner, string repositoryId, string datasetId, string repositoryDirectory, string authenticationToken)
+        {
+            var releaseInfo = new ReleaseInfo(releaseTag);
+            var ntriplesDumpFileName = Path.Combine(repositoryDirectory, releaseTag + ".nt.gz");
+            ProgressLog.Info("Generating gzipped NTriples data dump");
+            var writer = new GZippedNTriplesWriter();
+            writer.Save(dataGraph, ntriplesDumpFileName);
+
+            // Make a release
+            try
+            {
+                ProgressLog.Info("Generating a new release of dataset {0}", datasetId);
+                if (authenticationToken == null) throw new WorkerException("No valid GitHub access token found for your account.");
+                var client = _gitHubClientFactory.GetClient(authenticationToken);
+                var releaseClient = client.Repository.Release;
+                var newRelease = new NewRelease(releaseTag) { TargetCommitish = "gh-pages" };
+                var release = await releaseClient.Create(owner, repositoryId, newRelease);
+
+                // Attach data dump file(s) to release
+                try
+                {
+                    ProgressLog.Info("Uploading data dump files to GitHub release");
+                    using (var zipFileStream = File.OpenRead(ntriplesDumpFileName))
+                    {
+                        var upload = new ReleaseAssetUpload(Path.GetFileName(ntriplesDumpFileName), "application/gzip",
+                            zipFileStream, null);
+                        var releaseAsset = await releaseClient.UploadAsset(release, upload);
+                        releaseInfo.DownloadLinks.Add(releaseAsset.BrowserDownloadUrl);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Failed to attach dump files to GitHub release");
+                    throw new WorkerException(ex, "Failed to attach dump files to GitHub release");
+                }
+            }
+            catch (WorkerException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Failed to create a new GitHub release");
+                throw new WorkerException(ex, "Failed to create a new GitHub release");
+            }
+            return releaseInfo;
         }
 
         private void LogCommandError(CommandResult commandResult, string errorMessage)

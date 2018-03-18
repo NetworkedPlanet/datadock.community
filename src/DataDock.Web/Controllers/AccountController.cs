@@ -48,10 +48,49 @@ namespace DataDock.Web.Controllers
         [Authorize]
         public async Task<IActionResult> SignUp()
         {
+            Log.Debug("User: {0}. Identities: {1}. Claims Total: {2}", User.Identity.Name, User.Identities.Count(), User.Claims.Count());
+
             if (User.ClaimExists(DataDockClaimTypes.DataDockUserId))
             {
                 return RedirectToAction("Settings");
             }
+
+            try
+            {
+                // check for user in datadock just in case of login  / claims problems
+                var datadockUser = await _userRepository.GetUserAccountAsync(User.Identity.Name);
+                if (datadockUser != null)
+                {
+                    // add identity to context User
+                    // new datadock identity inc claim
+                    var datadockIdentity = new ClaimsIdentity();
+                    datadockIdentity.AddClaim(new Claim(DataDockClaimTypes.DataDockUserId, User.Identity.Name));
+                    User.AddIdentity(datadockIdentity);
+                    if (datadockUser.Claims.FirstOrDefault(c => c.Type.Equals(DataDockClaimTypes.DataDockUserId)) ==
+                        null)
+                    {
+                        // update datadock user account if required
+                        await _userRepository.UpdateUserAsync(User.Identity.Name, User.Claims);
+
+                    }
+
+                    // logout and back in to persist new claims
+                    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                    return Challenge(new AuthenticationProperties() {RedirectUri = "account/settings"});
+                }
+
+            }
+            catch (UserAccountNotFoundException noUserException)
+            {
+                return View("SignUp");
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Error creating user account", ex);
+                Console.WriteLine(ex);
+                throw;
+            }
+
             return View("SignUp");
         }
 
@@ -71,34 +110,42 @@ namespace DataDock.Web.Controllers
             {
                 try
                 {
-                    // create user
+                    // new datadock identity inc claim
+                    var datadockIdentity = new ClaimsIdentity();
+                    datadockIdentity.AddClaim(new Claim(DataDockClaimTypes.DataDockUserId, User.Identity.Name));
+                    User.AddIdentity(datadockIdentity);
+
+                    // create user in datadock
                     var newUser = await _userRepository.CreateUserAsync(User.Identity.Name, User.Claims);
                     if (newUser == null)
                     {
                         Log.Error("Creation of new user account returned null");
                         return RedirectToAction("Error", "Home");
                     }
-                    // add new claim
-                    var datadockIdentity = new ClaimsIdentity();
-                    datadockIdentity.AddClaim(new Claim(DataDockClaimTypes.DataDockUserId, User.Identity.Name));
-                    User.AddIdentity(datadockIdentity);
 
-                    return RedirectToAction("Welcome");
+                    // logout and back in to persist new claims
+                    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                    return Challenge(new AuthenticationProperties() { RedirectUri = "account/welcome" });
                 }
                 catch (UserAccountExistsException existsEx)
                 {
-                    Log.Warning("User account already exists");
-                    var existingUser = await _userRepository.GetUserAccountAsync(User.Identity.Name);
-                    if (existingUser.Claims.FirstOrDefault(c => c.Type.Equals(DataDockClaimTypes.DataDockUserId)) ==
+                    Log.Warning("User account {0} already exists. Identities: {1}. Claims Total: {2}", User.Identity.Name, User.Identities.Count(), User.Claims.Count());
+                    var datadockUser = await _userRepository.GetUserAccountAsync(User.Identity.Name);
+                    if (datadockUser.Claims.FirstOrDefault(c => c.Type.Equals(DataDockClaimTypes.DataDockUserId)) ==
                         null)
                     {
-                        // add new claim
+                        // new datadock identity inc claim
                         var datadockIdentity = new ClaimsIdentity();
                         datadockIdentity.AddClaim(new Claim(DataDockClaimTypes.DataDockUserId, User.Identity.Name));
                         User.AddIdentity(datadockIdentity);
-
+                        await _userRepository.UpdateUserAsync(User.Identity.Name, User.Claims);
+                        // logout and back in to persist new claims
+                        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                        return Challenge(new AuthenticationProperties() { RedirectUri = "account/settings" });
                     }
+
                     return RedirectToAction("Settings");
+
                 }
                 catch (Exception ex)
                 {

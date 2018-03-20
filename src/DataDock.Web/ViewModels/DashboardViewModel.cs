@@ -4,11 +4,8 @@
     {
         public string SelectedOwnerId { get; set; }
         public string SelectedRepoId { get; set; }
-        
-        public DashboardViewModel()
-        {
-        }
 
+        public string Area { get; set; }
         
     }
 }

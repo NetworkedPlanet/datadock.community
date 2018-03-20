@@ -1,10 +1,10 @@
 ﻿@model DataDock.Web.ViewModels.DashboardViewModel
 @{
-  ViewData["Title"] = "Owner Homepage";
+  ViewData["Title"] = Model.SelectedOwnerId + " Dashboard";
 }
 
 <div class="ui container">
-  @await Component.InvokeAsync("DashboardMenuPrivate", new { selectedOwnerId = Model.SelectedOwnerId, selectedRepoId = Model.SelectedRepoId })
+  @await Component.InvokeAsync("DashboardMenuPrivate", new { selectedOwnerId = Model.SelectedOwnerId, selectedRepoId = Model.SelectedRepoId, area = Model.Area })
   <div class="ui divider"></div>
 </div>
 

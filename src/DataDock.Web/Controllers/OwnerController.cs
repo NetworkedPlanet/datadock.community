@@ -1,5 +1,4 @@
 ﻿using DataDock.Web.Auth;
-using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -12,24 +11,38 @@ namespace DataDock.Web.Controllers
     {
         public async Task<IActionResult> Index(string ownerId = "")
         {
-            // dash view model
-            var dvm = new DashboardViewModel
-            {
-                SelectedOwnerId = RequestedOwnerId,
-                SelectedRepoId = RequestedRepoId
-            };
-            return View(dvm);
+            this.DashboardViewModel.Area = "summary";
+            return View(this.DashboardViewModel);
+        }
+
+        public async Task<IActionResult> Repositories(string ownerId = "")
+        {
+            this.DashboardViewModel.Area = "repositories";
+            return View(this.DashboardViewModel);
+        }
+
+        public async Task<IActionResult> Datasets(string ownerId = "")
+        {
+            this.DashboardViewModel.Area = "datasets";
+            return View(this.DashboardViewModel);
+        }
+
+        public async Task<IActionResult> Library(string ownerId = "")
+        {
+            this.DashboardViewModel.Area = "library";
+            return View(this.DashboardViewModel);
         }
 
         public async Task<IActionResult> Jobs(string ownerId = "")
         {
-            // dash view model
-            var dvm = new DashboardViewModel
-            {
-                SelectedOwnerId = RequestedOwnerId,
-                SelectedRepoId = RequestedRepoId
-            };
-            return View(dvm);
+            this.DashboardViewModel.Area = "jobs";
+            return View(this.DashboardViewModel);
+        }
+
+        public async Task<IActionResult> Settings(string ownerId = "")
+        {
+            this.DashboardViewModel.Area = "settings";
+            return View(this.DashboardViewModel);
         }
     }
 }

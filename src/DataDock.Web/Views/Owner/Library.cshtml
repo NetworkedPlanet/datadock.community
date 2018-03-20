@@ -1,6 +1,6 @@
 ﻿@model DataDock.Web.ViewModels.DashboardViewModel
 @{
-  ViewData["Title"] = Model.SelectedOwnerId + " Jobs";
+  ViewData["Title"] = Model.SelectedOwnerId + " Template Library";
 }
 
 <div class="ui container">
@@ -8,7 +8,6 @@
   <div class="ui divider"></div>
 </div>
 
-
 <div class="ui container">
-  @await Component.InvokeAsync("JobHistory", new { selectedOwnerId = Model.SelectedOwnerId, selectedRepoId = Model.SelectedRepoId })
+  template library page
 </div>

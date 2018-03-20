@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DataDock.Web.ViewModels;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace DataDock.Web.Controllers
@@ -7,6 +8,8 @@ namespace DataDock.Web.Controllers
     {
         public string RequestedOwnerId { get; set; }
         public string RequestedRepoId { get; set; }
+
+        public DashboardViewModel DashboardViewModel { get; set; }
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
@@ -24,6 +27,13 @@ namespace DataDock.Web.Controllers
             const string rkey = "repoId";
             var repoId = context.ActionArguments.ContainsKey(rkey) ? context.ActionArguments[rkey] : "";
             RequestedRepoId = repoId.ToString();
+
+            var dvm = new DashboardViewModel
+            {
+                SelectedOwnerId = RequestedOwnerId,
+                SelectedRepoId = RequestedRepoId
+            };
+            DashboardViewModel = dvm;
         }
         
     }

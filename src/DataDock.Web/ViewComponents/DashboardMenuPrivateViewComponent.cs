@@ -10,7 +10,7 @@ namespace DataDock.Web.ViewComponents
     [ViewComponent(Name = "DashboardMenuPrivate")]
     public class DashboardMenuPrivateViewComponent : ViewComponent
     {
-        public async Task<IViewComponentResult> InvokeAsync(string selectedOwnerId, string selectedRepoId)
+        public async Task<IViewComponentResult> InvokeAsync(string selectedOwnerId, string selectedRepoId, string area)
         {
             if (!User.Identity.IsAuthenticated) return View("Blank");
             
@@ -23,7 +23,8 @@ namespace DataDock.Web.ViewComponents
             {
                 SelectedOwnerId = selectedOwnerId,
                 SelectedRepoId = selectedRepoId,
-                UserViewModel = uvm
+                UserViewModel = uvm,
+                ActiveArea = area
             };
             dvm.Owners.Add(uvm.UserOwner);
             dvm.Owners.AddRange(uvm.Organisations);

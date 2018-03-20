@@ -3,6 +3,10 @@
   ViewData["Title"] = "Owner Homepage";
 }
 
+<div class="ui container">
+  @await Component.InvokeAsync("DashboardMenuPrivate", new { currentPage = "" })
+  <div class="ui divider"></div>
+</div>
 
 
 <div class="ui container">

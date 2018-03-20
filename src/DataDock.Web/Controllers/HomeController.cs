@@ -21,7 +21,7 @@ namespace DataDock.Web.Controllers
             }
 
             var userViewModel = new UserViewModel();
-            await userViewModel.Populate(User.Identity as ClaimsIdentity);
+            userViewModel.Populate(User.Identity as ClaimsIdentity);
 
             return View(userViewModel);
         }

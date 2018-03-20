@@ -27,6 +27,8 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Datadock.Common.Models;
+using Microsoft.EntityFrameworkCore.Storage;
+using Octokit;
 
 namespace DataDock.Web
 {
@@ -132,9 +134,11 @@ namespace DataDock.Web
 
                             context.RunClaimActions(user);
                             context.Identity.AddClaim(new Claim(DataDockClaimTypes.GitHubAccessToken, context.AccessToken));
+                            
 
                             // check if authorized user exists in DataDock
                             var login = user["login"];
+                            await AddOrganizationClaims(context, login.ToString());
                             await EnsureUser(context, login.ToString());
                         }
                     };
@@ -152,10 +156,6 @@ namespace DataDock.Web
             });
         }
 
-        //private static async Task CreatingGitHubAuthTicket(OAuthCreatingTicketContext context)
-        //{
-        //}
-
         private async Task EnsureUser(OAuthCreatingTicketContext context, string login)
         {
             if (string.IsNullOrEmpty(login)) return;
@@ -171,6 +171,27 @@ namespace DataDock.Web
             catch (UserAccountNotFoundException notFound)
             {
                 // user not found. no action required
+            }
+        }
+
+        private async Task AddOrganizationClaims(OAuthCreatingTicketContext context, string login)
+        {
+            if (string.IsNullOrEmpty(login)) return;
+            var gitHubApiService = context.HttpContext.RequestServices.GetService<IGitHubApiService>();
+            if (gitHubApiService == null)
+            {
+                Log.Error("Unable to instantiate the GitHub API service");
+                return;
+            }
+
+            var orgs = await gitHubApiService.GetOrganizationsForUserAsync(login, context.Identity);
+            if (orgs != null)
+            {
+                foreach (Organization org in orgs)
+                {
+                    var json = JObject.FromObject(new {ownerId = org.Login, avatarUrl = org.AvatarUrl});
+                    context.Identity.AddClaim(new Claim(DataDockClaimTypes.GitHubUserOrganization, json.ToString()));
+                }
             }
         }
 

@@ -16,7 +16,7 @@ namespace DataDock.Web.Controllers
             var user = User.Identity;
 
             var userViewModel = new UserViewModel();
-            await userViewModel.Populate(user as ClaimsIdentity);
+            userViewModel.Populate(user as ClaimsIdentity);
 
             return View(userViewModel);
         }

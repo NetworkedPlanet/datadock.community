@@ -17,7 +17,7 @@ namespace DataDock.Web.Controllers
             if (User.Identity.IsAuthenticated)
             {
                 var user = User.Identity;
-                await userViewModel.Populate(user as ClaimsIdentity);
+                userViewModel.Populate(user as ClaimsIdentity);
             }
 
             return View(userViewModel);

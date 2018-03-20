@@ -45,7 +45,30 @@ namespace DataDock.Web.Services
         
         public async Task<List<Organization>> GetOrganizationsForUserAsync(string userName, ClaimsIdentity identity)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(userName)) throw new ArgumentException("userName parameter is null or empty");
+            if (identity == null) throw new ArgumentNullException();
+            var orgList = new List<Organization>();
+            try
+            {
+                var ghClient = _gitHubClientFactory.CreateClient(identity);
+
+                var orgs = await ghClient.Organization.GetAllForCurrent();
+                if (orgs == null || !orgs.Any())
+                {
+                    Log.Warning("GetOrganizationsForUserAsync: No organizations returned for user '{0}'", userName);
+                    return orgList;
+                }
+                Log.Debug("GetOrganizationsForUserAsync: {0} organizations found for user '{1}'", orgs.Count(), userName);
+
+                orgList = orgs.ToList();
+                return orgList;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "GetOrganizationsForUserAsync: Error retrieving organization list for user {0}.", userName);
+                Log.Error(ex.ToString());
+                return null;
+            }
         }
 
         public async Task<bool> UserIsAuthorizedForOrganization(string userName, ClaimsIdentity identity, string ownerId)

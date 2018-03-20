@@ -1,14 +1,10 @@
-﻿using System;
+﻿using Datadock.Common.Models;
+using DataDock.Web.Models;
+using Newtonsoft.Json;
+using Octokit;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Octokit;
-using Octokit.Internal;
 
 namespace DataDock.Web.ViewModels
 {
@@ -24,7 +20,20 @@ namespace DataDock.Web.ViewModels
 
         public IReadOnlyList<Repository> Repositories { get; set; }
 
-        public async Task Populate(ClaimsIdentity identity)
+        public Owner UserOwner { get; set; }
+
+        public List<Owner> Organisations { get; set; }
+
+        public string RequestedOwnerId { get; set; }
+
+        public string RequestedRepoId { get; set; }
+
+        public UserViewModel()
+        {
+            this.Organisations = new List<Owner>();
+        }
+
+        public void Populate(ClaimsIdentity identity)
         {
             if (identity.IsAuthenticated)
             {
@@ -33,11 +42,18 @@ namespace DataDock.Web.ViewModels
                 GitHubUrl = identity.FindFirst(c => c.Type == "urn:github:url")?.Value;
                 GitHubAvatar = identity.FindFirst(c => c.Type == "urn:github:avatar")?.Value;
 
-                //string accessToken = await HttpContext.GetTokenAsync("access_token");
+                UserOwner = new Owner
+                {
+                    OwnerId = GitHubLogin,
+                    AvatarUrl = GitHubAvatar
+                };
 
-                //var github = new GitHubClient(new ProductHeaderValue("AspNetCoreGitHubAuth"),
-                //    new InMemoryCredentialStore(new Credentials(accessToken)));
-                //Repositories = await github.Repository.GetAllForCurrent();
+                foreach (var orgClaim in identity.Claims.Where(c =>
+                    c.Type.Equals((DataDockClaimTypes.GitHubUserOrganization))))
+                {
+                    Organisations.Add(JsonConvert.DeserializeObject<Owner>(orgClaim.Value));
+                }
+                
             }
         }
     }

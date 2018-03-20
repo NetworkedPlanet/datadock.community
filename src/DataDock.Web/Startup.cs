@@ -25,6 +25,10 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading;
+using System.Threading.Tasks;
+using Datadock.Common.Models;
+using Microsoft.EntityFrameworkCore.Storage;
+using Octokit;
 
 namespace DataDock.Web
 {
@@ -73,6 +77,10 @@ namespace DataDock.Web
             services.AddSingleton<IUserRepository>(new UserRepository(client, userSettingsIxName, userAccountIxName));
             services.AddSingleton<IJobRepository>(new JobRepository(client, jobsIxName));
             services.AddScoped<DataDockCookieAuthenticationEvents>();
+
+            var gitHubClientHeader = Configuration["DataDock:GitHubClientHeader"];
+            services.AddSingleton<IGitHubClientFactory>(new GitHubClientFactory(gitHubClientHeader));
+            services.AddTransient<IGitHubApiService, GitHubApiService>();
 
             // services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options => { options.EventsType = typeof(DataDockCookieAuthenticationEvents); });
             services.AddAuthentication(options =>
@@ -125,27 +133,13 @@ namespace DataDock.Web
                             var user = JObject.Parse(await response.Content.ReadAsStringAsync());
 
                             context.RunClaimActions(user);
+                            context.Identity.AddClaim(new Claim(DataDockClaimTypes.GitHubAccessToken, context.AccessToken));
+                            
 
                             // check if authorized user exists in DataDock
                             var login = user["login"];
-                            if (login != null)
-                            {
-                                var userRepository = context.HttpContext.RequestServices.GetService<IUserRepository>();
-                                try
-                                {
-                                    var existingAccount = await userRepository.GetUserAccountAsync(login.ToString());
-                                    // additional datadock identity
-                                    var datadockIdentity = new ClaimsIdentity();
-                                    datadockIdentity.AddClaim(new Claim(DataDockClaimTypes.DataDockUserId, login.ToString()));
-                                    context.Principal.AddIdentity(datadockIdentity);
-
-                                    // todo: check last updated to see if the user avatar or similar require updating
-                                }
-                                catch (UserAccountNotFoundException notFound)
-                                {
-                                    // user not found. no action required
-                                }
-                            }
+                            await AddOrganizationClaims(context, login.ToString());
+                            await EnsureUser(context, login.ToString());
                         }
                     };
                 });
@@ -160,6 +154,45 @@ namespace DataDock.Web
                 }
                 
             });
+        }
+
+        private async Task EnsureUser(OAuthCreatingTicketContext context, string login)
+        {
+            if (string.IsNullOrEmpty(login)) return;
+            var userRepository = context.HttpContext.RequestServices.GetService<IUserRepository>();
+            try
+            {
+                var existingAccount = await userRepository.GetUserAccountAsync(login.ToString());
+                if (existingAccount != null)
+                {
+                    context.Identity.AddClaim(new Claim(DataDockClaimTypes.DataDockUserId, login));
+                }
+            }
+            catch (UserAccountNotFoundException notFound)
+            {
+                // user not found. no action required
+            }
+        }
+
+        private async Task AddOrganizationClaims(OAuthCreatingTicketContext context, string login)
+        {
+            if (string.IsNullOrEmpty(login)) return;
+            var gitHubApiService = context.HttpContext.RequestServices.GetService<IGitHubApiService>();
+            if (gitHubApiService == null)
+            {
+                Log.Error("Unable to instantiate the GitHub API service");
+                return;
+            }
+
+            var orgs = await gitHubApiService.GetOrganizationsForUserAsync(login, context.Identity);
+            if (orgs != null)
+            {
+                foreach (Organization org in orgs)
+                {
+                    var json = JObject.FromObject(new {ownerId = org.Login, avatarUrl = org.AvatarUrl});
+                    context.Identity.AddClaim(new Claim(DataDockClaimTypes.GitHubUserOrganization, json.ToString()));
+                }
+            }
         }
 
         private static void EnsureElasticsearchIndexes(IElasticClient client)

@@ -23,11 +23,7 @@ namespace DataDock.Web.ViewModels
         public Owner UserOwner { get; set; }
 
         public List<Owner> Organisations { get; set; }
-
-        public string RequestedOwnerId { get; set; }
-
-        public string RequestedRepoId { get; set; }
-
+        
         public UserViewModel()
         {
             this.Organisations = new List<Owner>();

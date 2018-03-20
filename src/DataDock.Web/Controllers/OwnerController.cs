@@ -1,9 +1,8 @@
-﻿using DataDock.Web.ViewModels;
+﻿using DataDock.Web.Auth;
+using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using System.Threading.Tasks;
-using DataDock.Web.Auth;
 
 namespace DataDock.Web.Controllers
 {
@@ -13,26 +12,24 @@ namespace DataDock.Web.Controllers
     {
         public async Task<IActionResult> Index(string ownerId = "")
         {
-            var user = User.Identity;
-
-            var userViewModel = new UserViewModel();
-            userViewModel.Populate(user as ClaimsIdentity);
-            userViewModel.RequestedOwnerId = RequestedOwnerId;
-            userViewModel.RequestedRepoId = RequestedRepoId;
-
-            return View(userViewModel);
+            // dash view model
+            var dvm = new DashboardViewModel
+            {
+                SelectedOwnerId = RequestedOwnerId,
+                SelectedRepoId = RequestedRepoId
+            };
+            return View(dvm);
         }
 
         public async Task<IActionResult> Jobs(string ownerId = "")
         {
-            var user = User.Identity;
-
-            var userViewModel = new UserViewModel();
-            userViewModel.Populate(user as ClaimsIdentity);
-            userViewModel.RequestedOwnerId = RequestedOwnerId;
-            userViewModel.RequestedRepoId = RequestedRepoId;
-
-            return View(userViewModel);
+            // dash view model
+            var dvm = new DashboardViewModel
+            {
+                SelectedOwnerId = RequestedOwnerId,
+                SelectedRepoId = RequestedRepoId
+            };
+            return View(dvm);
         }
     }
 }

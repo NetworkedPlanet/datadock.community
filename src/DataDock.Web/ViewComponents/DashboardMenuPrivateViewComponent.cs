@@ -19,10 +19,11 @@ namespace DataDock.Web.ViewComponents
             uvm.Populate(User.Identity as ClaimsIdentity);
                 
             // dash view model
-            var dvm = new DashboardMenuPrivateViewModel
+            var dvm = new DashboardMenuViewModel
             {
                 SelectedOwnerId = selectedOwnerId,
-                SelectedRepoId = selectedRepoId
+                SelectedRepoId = selectedRepoId,
+                UserViewModel = uvm
             };
             dvm.Owners.Add(uvm.UserOwner);
             dvm.Owners.AddRange(uvm.Organisations);

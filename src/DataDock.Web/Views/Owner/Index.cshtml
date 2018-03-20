@@ -1,40 +1,13 @@
-﻿@model DataDock.Web.ViewModels.UserViewModel
+﻿@model DataDock.Web.ViewModels.DashboardViewModel
 @{
   ViewData["Title"] = "Owner Homepage";
 }
 
 <div class="ui container">
-  @await Component.InvokeAsync("DashboardMenuPrivate", new { selectedOwnerId = Model.RequestedOwnerId, selectedRepoId = Model.RequestedRepoId })
+  @await Component.InvokeAsync("DashboardMenuPrivate", new { selectedOwnerId = Model.SelectedOwnerId, selectedRepoId = Model.SelectedRepoId })
   <div class="ui divider"></div>
 </div>
 
-
 <div class="ui container">
-  @if (User.Identity.IsAuthenticated)
-  {
-    <div class="row">
-      <div class="col-md-2">
-        <img src="@Model.GitHubAvatar" alt="" class="img-thumbnail" />
-      </div>
-      <div class="col-md-10">
-        <h4>@Model.GitHubName</h4>
-        <p><i class="fab fa-github"></i><a href="@Model.GitHubUrl">@Model.GitHubLogin</a></p>
-      </div>
-    </div>
-    <div class="ui items">
-      @foreach (var org in Model.Organisations)
-      {
-        <div class="item">
-          <a class="ui tiny image"><img src="@org.AvatarUrl" /></a>
-          <div class="content">
-            <a class="header" href="#">@org.OwnerId</a>
-            <div class="description">
-              
-            </div>
-          </div>
-        </div>
-      }
-    </div>
-  }
+  summary page
 </div>
-

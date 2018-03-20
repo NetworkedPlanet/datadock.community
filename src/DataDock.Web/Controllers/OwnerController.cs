@@ -9,14 +9,16 @@ namespace DataDock.Web.Controllers
 {
     [Authorize]
     [ServiceFilter(typeof(AccountExistsFilter))]
-    public class OwnerController : Controller
+    public class OwnerController : DashboardBaseController
     {
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string ownerId = "")
         {
             var user = User.Identity;
 
             var userViewModel = new UserViewModel();
             userViewModel.Populate(user as ClaimsIdentity);
+            userViewModel.RequestedOwnerId = RequestedOwnerId;
+            userViewModel.RequestedRepoId = RequestedRepoId;
 
             return View(userViewModel);
         }

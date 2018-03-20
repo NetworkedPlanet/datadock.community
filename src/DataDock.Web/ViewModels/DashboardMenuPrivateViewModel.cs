@@ -30,7 +30,8 @@ namespace DataDock.Web.ViewModels
         /// <returns></returns>
         public string GetDashContext()
         {
-            return string.IsNullOrEmpty(SelectedRepoId) ? SelectedOwnerId : string.Format("{0}/{1}", SelectedOwnerId, SelectedRepoId);
+            var dashContext = string.IsNullOrEmpty(SelectedRepoId) ? SelectedOwnerId : string.Format("{0}/{1}", SelectedOwnerId, SelectedRepoId);
+            return dashContext.ToLower();
         }
 
         /// <summary>

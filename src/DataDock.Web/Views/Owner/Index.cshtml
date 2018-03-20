@@ -4,7 +4,7 @@
 }
 
 <div class="ui container">
-  @await Component.InvokeAsync("DashboardMenuPrivate", new { currentPage = "" })
+  @await Component.InvokeAsync("DashboardMenuPrivate", new { selectedOwnerId = Model.RequestedOwnerId, selectedRepoId = Model.RequestedRepoId })
   <div class="ui divider"></div>
 </div>
 

@@ -1,17 +1,10 @@
-﻿using System;
+﻿using Datadock.Common.Models;
+using DataDock.Web.Models;
+using Newtonsoft.Json;
+using Octokit;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using Datadock.Common.Models;
-using DataDock.Web.Models;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Newtonsoft.Json;
-using Octokit;
-using Octokit.Internal;
 
 namespace DataDock.Web.ViewModels
 {
@@ -27,7 +20,13 @@ namespace DataDock.Web.ViewModels
 
         public IReadOnlyList<Repository> Repositories { get; set; }
 
+        public Owner UserOwner { get; set; }
+
         public List<Owner> Organisations { get; set; }
+
+        public string RequestedOwnerId { get; set; }
+
+        public string RequestedRepoId { get; set; }
 
         public UserViewModel()
         {
@@ -42,6 +41,12 @@ namespace DataDock.Web.ViewModels
                 GitHubLogin = identity.FindFirst(c => c.Type == "urn:github:login")?.Value;
                 GitHubUrl = identity.FindFirst(c => c.Type == "urn:github:url")?.Value;
                 GitHubAvatar = identity.FindFirst(c => c.Type == "urn:github:avatar")?.Value;
+
+                UserOwner = new Owner
+                {
+                    OwnerId = GitHubLogin,
+                    AvatarUrl = GitHubAvatar
+                };
 
                 foreach (var orgClaim in identity.Claims.Where(c =>
                     c.Type.Equals((DataDockClaimTypes.GitHubUserOrganization))))

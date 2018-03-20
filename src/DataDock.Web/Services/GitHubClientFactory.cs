@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Datadock.Common.Models;
+﻿using Datadock.Common.Models;
 using Octokit;
 using Serilog;
+using System;
+using System.Linq;
+using System.Security.Claims;
 
 namespace DataDock.Web.Services
 {
@@ -51,5 +49,6 @@ namespace DataDock.Web.Services
             }
 
         }
+
     }
 }

@@ -22,5 +22,17 @@ namespace DataDock.Web.Controllers
 
             return View(userViewModel);
         }
+
+        public async Task<IActionResult> Jobs(string ownerId = "")
+        {
+            var user = User.Identity;
+
+            var userViewModel = new UserViewModel();
+            userViewModel.Populate(user as ClaimsIdentity);
+            userViewModel.RequestedOwnerId = RequestedOwnerId;
+            userViewModel.RequestedRepoId = RequestedRepoId;
+
+            return View(userViewModel);
+        }
     }
 }

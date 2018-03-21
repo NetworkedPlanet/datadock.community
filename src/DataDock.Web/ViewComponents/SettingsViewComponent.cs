@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Datadock.Common.Repositories;
 using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Serilog;
 
 namespace DataDock.Web.ViewComponents
@@ -25,14 +26,26 @@ namespace DataDock.Web.ViewComponents
 
             try
             {
+                var loadSettings = true;
+                // Validation
+                if (TempData["ModelState"] is ModelStateDictionary modelState)
+                {
+                    if (!modelState.IsValid)
+                    {
+                        // display errors
+                        loadSettings = false;
+                    }
+                }
                 if (string.IsNullOrEmpty(selectedRepoId))
                 {
-                    var osvm = await GetOwnerSettingsViewModel(selectedOwnerId);
+                    var osvm = loadSettings ? await GetOwnerSettingsViewModel(selectedOwnerId) : TempData["ViewModel"];
                     return View("Owner", osvm);
                 }
 
-                var rsvm = await GetRepoSettingsViewModel(selectedOwnerId, selectedRepoId);
+                var rsvm = loadSettings ? await GetRepoSettingsViewModel(selectedOwnerId, selectedRepoId) : TempData["ViewModel"];
                 return View("Repo", rsvm);
+
+
             }
             catch (Exception e)
             {

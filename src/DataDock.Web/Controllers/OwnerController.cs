@@ -1,14 +1,25 @@
-﻿using DataDock.Web.Auth;
+﻿using System;
+using DataDock.Web.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Datadock.Common.Repositories;
+using DataDock.Web.Models;
 using DataDock.Web.ViewModels;
+using Serilog;
 
 namespace DataDock.Web.Controllers
 {
     
     public class OwnerController : DashboardBaseController
     {
+        private readonly IOwnerSettingsRepository _ownerSettingsRepository;
+
+        public OwnerController(IOwnerSettingsRepository ownerSettingsRepository)
+        {
+            _ownerSettingsRepository = ownerSettingsRepository;
+        }
+
         /// <summary>
         /// User or Org summary of data uploads
         /// Viewable by public and other DataDock users as well as authorized users
@@ -107,6 +118,7 @@ namespace DataDock.Web.Controllers
         [ServiceFilter(typeof(OwnerAdminAuthFilter))]
         public async Task<IActionResult> Settings(string ownerId = "")
         {
+            ViewBag.StatusMessage = GetSettingsStatusMessage();
             this.DashboardViewModel.Area = "settings";
             DashboardViewModel.Title = string.Format("{0} Settings", DashboardViewModel.SelectedOwnerId);
             return View("Settings", this.DashboardViewModel);
@@ -118,6 +130,32 @@ namespace DataDock.Web.Controllers
         [ServiceFilter(typeof(OwnerAdminAuthFilter))]
         public async Task<IActionResult> Settings(string ownerId, OwnerSettingsViewModel settingsViewModel)
         {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    settingsViewModel.LastModified = DateTime.UtcNow;
+                    settingsViewModel.LastModifiedBy = User.Identity.Name;
+                    var ownerSettings = settingsViewModel.AsOwnerSettings();
+                    await _ownerSettingsRepository.CreateOrUpdateOwnerSettingsAsync(ownerSettings);
+                    ViewBag.StatusMessage = GetSettingsStatusMessage(ManageMessageId.ChangeSettingSuccess);
+                    TempData["ModelState"] = null;
+                }
+                catch (Exception e)
+                {
+                    ViewBag.StatusMessage = GetSettingsStatusMessage(ManageMessageId.Error);
+                    Log.Error(e, "Error updating owner settings for '{0}'", ownerId);
+                    throw;
+                }
+            }
+            else
+            {
+                // pass errors to the ViewComponent
+                ViewBag.StatusMessage = GetSettingsStatusMessage(ManageMessageId.ValidationError);
+                TempData["ModelState"] = ModelState;
+                TempData["ViewModel"] = settingsViewModel;
+            }
+
             this.DashboardViewModel.Area = "settings";
             DashboardViewModel.Title = string.Format("{0} Settings", DashboardViewModel.SelectedOwnerId);
             return View("Settings", this.DashboardViewModel);

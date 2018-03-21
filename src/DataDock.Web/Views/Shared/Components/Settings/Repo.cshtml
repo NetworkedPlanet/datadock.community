@@ -1,14 +1,5 @@
 ﻿@model DataDock.Web.ViewModels.RepoSettingsViewModel
   
-<h2>Settings for @Model.RepoId Repository</h2>
-
-@if (!string.IsNullOrEmpty(ViewBag.StatusMessage))
-{
-  <div class="ui container">
-    <div class="ui info message"><i class="info icon"></i>@Html.Raw(@ViewBag.StatusMessage)</div>
-  </div>
-}
-
   <div class="ui container">
 
     @Html.HiddenFor(m => m.OwnerId)

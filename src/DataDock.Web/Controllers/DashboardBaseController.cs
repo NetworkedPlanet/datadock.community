@@ -1,4 +1,5 @@
-﻿using DataDock.Web.ViewModels;
+﻿using DataDock.Web.Models;
+using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -35,6 +36,25 @@ namespace DataDock.Web.Controllers
             };
             DashboardViewModel = dvm;
         }
-        
+
+
+        public string GetSettingsStatusMessage(ManageMessageId? message = null)
+        {
+            if (message == null)
+            {
+                // check in TempData if a message isn't directly supplied
+                message = TempData["message"] as ManageMessageId?;
+            }
+            var statusMessage = message == ManageMessageId.ChangeSettingSuccess
+                ? @"The settings have been successfully updated."
+                : message == ManageMessageId.ValidationError
+                    ? @"There is a problem with missing or invalid information on this form."
+                : message == ManageMessageId.Error
+                    ? @"An error has occurred."
+                    : message == ManageMessageId.TokenResetError ?
+                        @"Unable to reset token." :
+                        @"";
+            return statusMessage;
+        }
     }
 }

@@ -1,8 +1,12 @@
-﻿using DataDock.Web.Auth;
+﻿using System;
+using DataDock.Web.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Datadock.Common.Repositories;
+using DataDock.Web.Models;
 using DataDock.Web.ViewModels;
+using Serilog;
 
 namespace DataDock.Web.Controllers
 {
@@ -10,6 +14,13 @@ namespace DataDock.Web.Controllers
     [ServiceFilter(typeof(AccountExistsFilter))]
     public class RepositoryController : DashboardBaseController
     {
+        private readonly IRepoSettingsRepository _repoSettingsRepository;
+
+        public RepositoryController(IRepoSettingsRepository repoSettingsRepository)
+        {
+            _repoSettingsRepository = repoSettingsRepository;
+        }
+
         /// <summary>
         /// User or Org summary of data uploads to a partcular repo
         /// Viewable by public and other DataDock users as well as authorized users
@@ -112,6 +123,32 @@ namespace DataDock.Web.Controllers
         [ServiceFilter(typeof(OwnerAdminAuthFilter))]
         public async Task<IActionResult> Settings(string ownerId, string repoId, RepoSettingsViewModel settingsViewModel)
         {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    settingsViewModel.LastModified = DateTime.UtcNow;
+                    settingsViewModel.LastModifiedBy = User.Identity.Name;
+                    var repoSettings = settingsViewModel.AsRepoSettings();
+                    await _repoSettingsRepository.CreateOrUpdateRepoSettingsAsync(repoSettings);
+                    ViewBag.StatusMessage = GetSettingsStatusMessage(ManageMessageId.ChangeSettingSuccess);
+                    TempData["ModelState"] = null;
+                }
+                catch (Exception e)
+                {
+                    ViewBag.StatusMessage = GetSettingsStatusMessage(ManageMessageId.Error);
+                    Log.Error(e, "Error updating repo settings for '{0}/{1}'", ownerId, repoId);
+                    throw;
+                }
+            }
+            else
+            {
+                // pass errors to the ViewComponent
+                ViewBag.StatusMessage = GetSettingsStatusMessage(ManageMessageId.ValidationError);
+                TempData["ModelState"] = ModelState;
+                TempData["ViewModel"] = settingsViewModel;
+            }
+            
             this.DashboardViewModel.Area = "settings";
             DashboardViewModel.Title = string.Format("{0} Settings", DashboardViewModel.SelectedOwnerId, DashboardViewModel.SelectedRepoId);
             return View("Settings", this.DashboardViewModel);

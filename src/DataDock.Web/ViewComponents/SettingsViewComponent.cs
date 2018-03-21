@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Datadock.Common.Repositories;
+﻿using Datadock.Common.Repositories;
 using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Serilog;
+using System;
+using System.Threading.Tasks;
 
 namespace DataDock.Web.ViewComponents
 {

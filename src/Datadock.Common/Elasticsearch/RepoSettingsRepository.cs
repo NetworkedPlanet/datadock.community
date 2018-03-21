@@ -4,6 +4,7 @@ using Nest;
 using Serilog;
 using System;
 using System.Threading.Tasks;
+using Datadock.Common.Validators;
 
 namespace Datadock.Common.Elasticsearch
 {
@@ -46,7 +47,18 @@ namespace Datadock.Common.Elasticsearch
 
         public async Task CreateOrUpdateRepoSettingsAsync(RepoSettings settings)
         {
-            throw new NotImplementedException();
+            if (settings == null) throw new ArgumentNullException(nameof(settings));
+            var validator = new RepoSettingsValidator();
+            var validationResults = await validator.ValidateAsync(settings);
+            if (!validationResults.IsValid)
+            {
+                throw new ValidationException("Invalid repo settings", validationResults);
+            }
+            var updateResponse = await _client.IndexDocumentAsync(settings);
+            if (!updateResponse.IsValid)
+            {
+                throw new OwnerSettingsRepositoryException($"Error updating repo settings for owner/repo ID {settings.RepositoryId}");
+            }
         }
     }
 }

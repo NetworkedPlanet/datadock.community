@@ -4,6 +4,7 @@ using Nest;
 using Serilog;
 using System;
 using System.Threading.Tasks;
+using Datadock.Common.Validators;
 
 namespace Datadock.Common.Elasticsearch
 {
@@ -32,12 +33,30 @@ namespace Datadock.Common.Elasticsearch
 
         public async Task<OwnerSettings> GetOwnerSettingsAsync(string ownerId)
         {
-            throw new NotImplementedException();
+            var response = await _client.GetAsync<OwnerSettings>(ownerId);
+            if (!response.IsValid)
+            {
+                if (!response.Found) throw new OwnerSettingsNotFoundException(ownerId);
+                throw new OwnerSettingsRepositoryException(
+                    $"Error retrieving owner settings for owner ID {ownerId}. Cause: {response.DebugInformation}");
+            }
+            return response.Source;
         }
 
         public async Task CreateOrUpdateOwnerSettingsAsync(OwnerSettings ownerSettings)
         {
-            throw new NotImplementedException();
+            if (ownerSettings == null) throw new ArgumentNullException(nameof(ownerSettings));
+            var validator = new OwnerSettingsValidator();
+            var validationResults = await validator.ValidateAsync(ownerSettings);
+            if (!validationResults.IsValid)
+            {
+                throw new ValidationException("Invalid owner settings", validationResults);
+            }
+            var updateResponse = await _client.IndexDocumentAsync(ownerSettings);
+            if (!updateResponse.IsValid)
+            {
+                throw new OwnerSettingsRepositoryException($"Error udpating owner settings for owner ID {ownerSettings.OwnerId}");
+            }
         }
     }
 }

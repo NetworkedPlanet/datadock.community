@@ -1,6 +1,6 @@
 ﻿@model DataDock.Web.ViewModels.DashboardViewModel
 @{
-  ViewData["Title"] = Model.SelectedOwnerId + " Dashboard";
+  ViewData["Title"] = Model.SelectedOwnerId + " Datasets";
 }
 
 <div class="ui container">
@@ -8,6 +8,7 @@
   <div class="ui divider"></div>
 </div>
 
+
 <div class="ui container">
-  summary page
+  @await Component.InvokeAsync("Datasets", new { selectedOwnerId = Model.SelectedOwnerId, selectedRepoId = Model.SelectedRepoId })
 </div>

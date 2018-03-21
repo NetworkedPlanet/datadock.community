@@ -1,6 +1,9 @@
 ﻿using System;
 using DataDock.Web.Models;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Security.Principal;
 
 namespace DataDock.Web.ViewModels
 {
@@ -8,18 +11,19 @@ namespace DataDock.Web.ViewModels
     /// The dashboard menu displays a dropdown list of owners that the user has access rights to (set during login in claims)
     /// It also displays links to repositories / datasets / templates / add data and settings for that owner
     /// </summary>
-    public class DashboardMenuPrivateViewModel
+    public class DashboardMenuViewModel
     {
         public string SelectedOwnerId { get; set; }
-        public string SelectedOwnerAvatarUrl { get; set; }
-        
         public string SelectedRepoId { get; set; }
 
+        public string SelectedOwnerAvatarUrl { get; set; }
         public string ActiveArea { get; set; }
 
         public List<Owner> Owners { get; set; }
 
-        public DashboardMenuPrivateViewModel()
+        public UserViewModel UserViewModel { get; set; }
+
+        public DashboardMenuViewModel()
         {
             Owners = new List<Owner>();
         }
@@ -31,7 +35,7 @@ namespace DataDock.Web.ViewModels
         public string GetDashContext()
         {
             var dashContext = string.IsNullOrEmpty(SelectedRepoId) ? SelectedOwnerId : string.Format("{0}/{1}", SelectedOwnerId, SelectedRepoId);
-            return dashContext.ToLower();
+            return "/" + dashContext.ToLower();
         }
 
         /// <summary>

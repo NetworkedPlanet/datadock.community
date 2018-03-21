@@ -76,6 +76,7 @@ namespace DataDock.Web
             services.AddSingleton<IElasticClient>(client);
             services.AddSingleton<IUserRepository>(new UserRepository(client, userSettingsIxName, userAccountIxName));
             services.AddSingleton<IJobRepository>(new JobRepository(client, jobsIxName));
+            
             services.AddScoped<DataDockCookieAuthenticationEvents>();
 
             var gitHubClientHeader = Configuration["DataDock:GitHubClientHeader"];

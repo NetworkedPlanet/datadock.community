@@ -1,0 +1,34 @@
+﻿@model List<DataDock.Web.ViewModels.JobHistoryViewModel>
+
+<div>Owner Job List</div>
+@if (Model != null)
+{
+    
+  <div class="ui segments">
+    @foreach (var job in Model)
+    {
+      <div class="ui attached @job.StatusClass message" id="@job.JobId">
+        <div class="ui header">@job.JobType - <span class="job-status"> @job.CurrentStatus </span></div>
+        <div class="content">
+          <p>
+            <strong>@job.DatasetIri</strong>
+          </p>
+          <div class="meta">
+            @if (job.CompletedAt != null)
+            {
+              <span>Completed At: @job.CompletedAt</span>
+            }
+            else
+            {
+              <span>Started At: @job.StartedAt</span>
+            }
+          </div>
+        </div>
+        <div class="processing-messages hidden"></div>
+        <div class="extra content log-link">
+          TODO: FullJobLink
+        </div>
+      </div>
+    }
+  </div>
+}

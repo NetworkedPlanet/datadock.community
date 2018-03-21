@@ -33,6 +33,12 @@ namespace DataDock.Web.Controllers
             return View(this.DashboardViewModel);
         }
 
+        public async Task<IActionResult> Import(string ownerId = "")
+        {
+            this.DashboardViewModel.Area = "import";
+            return View(this.DashboardViewModel);
+        }
+
         public async Task<IActionResult> Jobs(string ownerId = "")
         {
             this.DashboardViewModel.Area = "jobs";

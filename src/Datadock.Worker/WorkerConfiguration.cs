@@ -1,7 +1,17 @@
-﻿namespace DataDock.Worker
+﻿using Serilog;
+
+namespace DataDock.Worker
 {
-    public class WorkerConfiguration
+    public class WorkerConfiguration : ApplicationConfiguration
     {
+        public WorkerConfiguration(string esUrl, string jobsIndex, string userIndex, string ownerSettingsIndex,
+            string repoSettingsIndex, string datasetIndex, string schemaIndex, string gitPath, string repoBaseDir) :
+            base(esUrl, jobsIndex, userIndex, ownerSettingsIndex, repoSettingsIndex, datasetIndex, schemaIndex)
+        {
+            GitPath = gitPath;
+            RepoBaseDir = repoBaseDir;
+        }
+
         /// <summary>
         /// The path to the Git executable
         /// </summary>
@@ -12,5 +22,26 @@
         /// </summary>
         public string RepoBaseDir { get; set; }
 
+        public new static WorkerConfiguration FromEnvironment()
+        {
+            Log.Information("Retreiving application configuration from environment variables");
+            return new WorkerConfiguration(
+                GetEnvVar("ES_URL", "http://elasticsearch:9200"),
+                GetEnvVar("JOBS_IX", "jobs"),
+                GetEnvVar("USER_IX", "users"),
+                GetEnvVar("OWNERSETTINGS_IX", "ownersettings"),
+                GetEnvVar("REPOSETTINGS_IX", "reposettings"),
+                GetEnvVar("DATASET_IX", "datasets"),
+                GetEnvVar("SCHEMA_IX", "schemas"),
+                GetEnvVar("GIT_PATH", ""),
+                GetEnvVar("REPO_BASE_DIR", "repositories"));
+        }
+
+        public override void LogSettings()
+        {
+            base.LogSettings();
+            Log.Information("Configured Git Path {GitPath}", GitPath);
+            Log.Information("Configured Repository Base Directory {RepoBaseDir}", RepoBaseDir);
+        }
     }
 }

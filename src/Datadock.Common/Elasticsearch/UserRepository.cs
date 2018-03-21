@@ -13,9 +13,9 @@ namespace Datadock.Common.Elasticsearch
 {
     public class UserRepository : IUserRepository
     {
-        private readonly ElasticClient _client;
+        private readonly IElasticClient _client;
 
-        public UserRepository(ElasticClient client, string userSettingsIndexName, string userAccountIndexName)
+        public UserRepository(IElasticClient client, string userSettingsIndexName, string userAccountIndexName)
         {
             _client = client;
             // Ensure the index exists

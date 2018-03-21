@@ -5,6 +5,7 @@ using Datadock.Common.Elasticsearch;
 using Datadock.Common.Models;
 using Datadock.Common.Repositories;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.DependencyInjection;
 using Nest;
 using Serilog;
 using Serilog.Events;
@@ -19,35 +20,13 @@ namespace DataDock.Worker
 
         static void Main(string[] args)
         {
-            var esUrl = Environment.GetEnvironmentVariable("ES_URL") ?? "http://elasticsearch:9200";
-            var jobsIndexName = Environment.GetEnvironmentVariable("JOBS_IX") ?? "jobs";
-            
             Log.Information("Worker Starting");
-            Log.Information("ES_URL {esUrl}", esUrl);
-            Log.Information("JOBS_IX {jobsIx}", jobsIndexName);
+            var config = WorkerConfiguration.FromEnvironment();
+            config.LogSettings();
+            var serviceCollection = new ServiceCollection();
+            var application = new Application(serviceCollection, config);
 
-            Task.Run(async () =>
-            {
-                _client = new ElasticClient(new Uri(esUrl));
-                Log.Information("Waiting for ES to respond to pings");
-                WaitForElasticsearch();
-                Log.Information("Reconfiguring logging to go to ES");
-                ConfigureLogging();
-                Log.Information("Initializing SignalR hub connection");
-                await InitializeHubConnection();
-                Log.Information("Initializing JobsRepository: {index}", jobsIndexName);
-                var jobRepo = new JobRepository(_client, jobsIndexName);
-                while (true)
-                {
-                    Thread.Sleep(1000);
-                    var job = await jobRepo.GetNextJob();
-                    if (job != null)
-                    {
-                        Log.Information("Found new job: {JobId} {JobType}", job.JobId, job.JobType);
-                        ProcessJob(jobRepo, job);
-                    }
-                }
-            });
+            Task.Run(application.Run);
 
             Console.CancelKeyPress += (o, e) =>
             {
@@ -58,35 +37,6 @@ namespace DataDock.Worker
             WaitHandle.WaitOne();
         }
 
-        private static async Task<HubConnection> InitializeHubConnection()
-        {
-            var hubConnection = new HubConnectionBuilder().WithUrl("http://datadock.web/progress").Build();
-            hubConnection.Closed += OnHubConnectionLost;
-            var connectionStarted = false;
-            while (!connectionStarted)
-            {
-                try
-                {
-                    await hubConnection.StartAsync();
-                    connectionStarted = true;
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex, "signalr connection failed");
-                    Console.WriteLine("Error connecting to Signalr Hub: " + ex);
-                    Thread.Sleep(3000);
-                }
-            }
-
-            return hubConnection;
-        }
-
-        private static void OnHubConnectionLost(Exception exc)
-        {
-            Log.Warning(exc, "SignalR hub connection was lost. Reconnecting in 3 seconds");
-            Thread.Sleep(3000);
-            InitializeHubConnection().RunSynchronously();
-        }
 
         private static void ConfigureLogging()
         {

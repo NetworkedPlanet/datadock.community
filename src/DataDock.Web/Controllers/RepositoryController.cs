@@ -1,16 +1,108 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using DataDock.Web.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace DataDock.Web.Controllers
 {
+    [Authorize]
+    [ServiceFilter(typeof(AccountExistsFilter))]
     public class RepositoryController : DashboardBaseController
     {
-        public IActionResult Index()
+        /// <summary>
+        /// User or Org summary of data uploads to a partcular repo
+        /// Viewable by public and other DataDock users as well as authorized users
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="repoId"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> Index(string ownerId, string repoId)
         {
-            return View();
+            this.DashboardViewModel.Area = "summary";
+            DashboardViewModel.Title = string.Format("{0} > {1} Summary", DashboardViewModel.SelectedOwnerId, DashboardViewModel.SelectedRepoId);
+            return View("Dashboard/Index", this.DashboardViewModel);
+        }
+
+        /// <summary>
+        /// User or Org dataset uploads to a partcular repo
+        /// Viewable by public and other DataDock users as well as authorized users
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="repoId"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> Datasets(string ownerId, string repoId)
+        {
+            this.DashboardViewModel.Area = "datasets";
+            DashboardViewModel.Title = string.Format("{0} > {1} Datasets", DashboardViewModel.SelectedOwnerId, DashboardViewModel.SelectedRepoId);
+            return View("Dashboard/Datasets", this.DashboardViewModel);
+        }
+
+        /// <summary>
+        /// User or Org template library for a partcular repo
+        /// Viewable by authorized users only
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="repoId"></param>
+        /// <returns></returns>
+        [Authorize]
+        [ServiceFilter(typeof(AccountExistsFilter))]
+        [ServiceFilter(typeof(OwnerAdminAuthFilter))]
+        public async Task<IActionResult> Library(string ownerId, string repoId)
+        {
+            this.DashboardViewModel.Area = "library";
+            DashboardViewModel.Title = string.Format("{0} > {1} Template Library", DashboardViewModel.SelectedOwnerId, DashboardViewModel.SelectedRepoId);
+            return View("Dashboard/Library", this.DashboardViewModel);
+        }
+
+        /// <summary>
+        /// Add data to an org or user github to a partcular repo
+        /// Viewable by authorized users only
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="repoId"></param>
+        /// <returns></returns>
+        [Authorize]
+        [ServiceFilter(typeof(AccountExistsFilter))]
+        [ServiceFilter(typeof(OwnerAdminAuthFilter))]
+        public async Task<IActionResult> Import(string ownerId, string repoId)
+        {
+            this.DashboardViewModel.Area = "import";
+            DashboardViewModel.Title = string.Format("{0} > {1} Add Data", DashboardViewModel.SelectedOwnerId, DashboardViewModel.SelectedRepoId);
+            return View("Dashboard/Import", this.DashboardViewModel);
+        }
+
+        /// <summary>
+        /// job history list for a partcular repo
+        /// Viewable by authorized users only
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="repoId"></param>
+        /// <returns></returns>
+        [Authorize]
+        [ServiceFilter(typeof(AccountExistsFilter))]
+        [ServiceFilter(typeof(OwnerAdminAuthFilter))]
+        public async Task<IActionResult> Jobs(string ownerId, string repoId)
+        {
+            this.DashboardViewModel.Area = "jobs";
+            DashboardViewModel.Title = string.Format("{0} > {1} Job History", DashboardViewModel.SelectedOwnerId, DashboardViewModel.SelectedRepoId);
+            return View("Dashboard/Jobs", this.DashboardViewModel);
+        }
+
+        /// <summary>
+        /// org/user settings for a partcular repo
+        /// Viewable by authorized users only
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="repoId"></param>
+        /// <returns></returns>
+        [Authorize]
+        [ServiceFilter(typeof(AccountExistsFilter))]
+        [ServiceFilter(typeof(OwnerAdminAuthFilter))]
+        public async Task<IActionResult> Settings(string ownerId, string repoId)
+        {
+            this.DashboardViewModel.Area = "settings";
+            DashboardViewModel.Title = string.Format("{0} > {1} Settings", DashboardViewModel.SelectedOwnerId, DashboardViewModel.SelectedRepoId);
+            return View("Dashboard/Settings", this.DashboardViewModel);
         }
     }
 }

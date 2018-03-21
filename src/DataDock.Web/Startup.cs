@@ -72,6 +72,7 @@ namespace DataDock.Web
             var client = new ElasticClient(new Uri(esUrl));
 
             services.AddScoped<AccountExistsFilter>();
+            services.AddScoped<OwnerAdminAuthFilter>();
 
             services.AddSingleton<IElasticClient>(client);
             services.AddSingleton<IUserRepository>(new UserRepository(client, userSettingsIxName, userAccountIxName));

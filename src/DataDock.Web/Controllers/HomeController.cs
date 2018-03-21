@@ -26,7 +26,6 @@ namespace DataDock.Web.Controllers
             return View(userViewModel);
         }
 
-
         public IActionResult Error()
         {
             ViewData["RequestId"] = Activity.Current?.Id ?? HttpContext.TraceIdentifier;

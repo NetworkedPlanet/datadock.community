@@ -1,4 +1,5 @@
 using Datadock.Common.Elasticsearch;
+using Datadock.Common.Models;
 using Datadock.Common.Repositories;
 using DataDock.Web.Auth;
 using DataDock.Web.Routing;
@@ -16,15 +17,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Nest;
 using Newtonsoft.Json.Linq;
+using Octokit;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.Elasticsearch;
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace DataDock.Web
 {
@@ -54,6 +56,8 @@ namespace DataDock.Web
             var userSettingsIxName = Environment.GetEnvironmentVariable("USERSETTINGS_IX") ?? "usersettings";
             var userAccountIxName = Environment.GetEnvironmentVariable("USERACCOUNT_IX") ?? "useraccount";
             var jobsIxName = Environment.GetEnvironmentVariable("JOBS_IX") ?? "jobs";
+            var ownerSettingsIxName = Environment.GetEnvironmentVariable("OWNERSETTINGS_IX") ?? "ownersettings";
+            var repoSettingsIxName = Environment.GetEnvironmentVariable("REPOSETTINGS_IX") ?? "reposettings";
 
             services.AddOptions();
 
@@ -68,11 +72,19 @@ namespace DataDock.Web
             var client = new ElasticClient(new Uri(esUrl));
 
             services.AddScoped<AccountExistsFilter>();
+            services.AddScoped<OwnerAdminAuthFilter>();
 
             services.AddSingleton<IElasticClient>(client);
             services.AddSingleton<IUserRepository>(new UserRepository(client, userSettingsIxName, userAccountIxName));
             services.AddSingleton<IJobRepository>(new JobRepository(client, jobsIxName));
+            services.AddSingleton<IOwnerSettingsRepository>(new OwnerSettingsRepository(client, ownerSettingsIxName));
+            services.AddSingleton<IRepoSettingsRepository>(new RepoSettingsRepository(client, repoSettingsIxName));
+
             services.AddScoped<DataDockCookieAuthenticationEvents>();
+
+            var gitHubClientHeader = Configuration["DataDock:GitHubClientHeader"];
+            services.AddSingleton<IGitHubClientFactory>(new GitHubClientFactory(gitHubClientHeader));
+            services.AddTransient<IGitHubApiService, GitHubApiService>();
 
             // services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options => { options.EventsType = typeof(DataDockCookieAuthenticationEvents); });
             services.AddAuthentication(options =>
@@ -125,27 +137,13 @@ namespace DataDock.Web
                             var user = JObject.Parse(await response.Content.ReadAsStringAsync());
 
                             context.RunClaimActions(user);
+                            context.Identity.AddClaim(new Claim(DataDockClaimTypes.GitHubAccessToken, context.AccessToken));
+                            
 
                             // check if authorized user exists in DataDock
                             var login = user["login"];
-                            if (login != null)
-                            {
-                                var userRepository = context.HttpContext.RequestServices.GetService<IUserRepository>();
-                                try
-                                {
-                                    var existingAccount = await userRepository.GetUserAccountAsync(login.ToString());
-                                    // additional datadock identity
-                                    var datadockIdentity = new ClaimsIdentity();
-                                    datadockIdentity.AddClaim(new Claim(DataDockClaimTypes.DataDockUserId, login.ToString()));
-                                    context.Principal.AddIdentity(datadockIdentity);
-
-                                    // todo: check last updated to see if the user avatar or similar require updating
-                                }
-                                catch (UserAccountNotFoundException notFound)
-                                {
-                                    // user not found. no action required
-                                }
-                            }
+                            await AddOrganizationClaims(context, login.ToString());
+                            await EnsureUser(context, login.ToString());
                         }
                     };
                 });
@@ -160,6 +158,45 @@ namespace DataDock.Web
                 }
                 
             });
+        }
+
+        private async Task EnsureUser(OAuthCreatingTicketContext context, string login)
+        {
+            if (string.IsNullOrEmpty(login)) return;
+            var userRepository = context.HttpContext.RequestServices.GetService<IUserRepository>();
+            try
+            {
+                var existingAccount = await userRepository.GetUserAccountAsync(login.ToString());
+                if (existingAccount != null)
+                {
+                    context.Identity.AddClaim(new Claim(DataDockClaimTypes.DataDockUserId, login));
+                }
+            }
+            catch (UserAccountNotFoundException notFound)
+            {
+                // user not found. no action required
+            }
+        }
+
+        private async Task AddOrganizationClaims(OAuthCreatingTicketContext context, string login)
+        {
+            if (string.IsNullOrEmpty(login)) return;
+            var gitHubApiService = context.HttpContext.RequestServices.GetService<IGitHubApiService>();
+            if (gitHubApiService == null)
+            {
+                Log.Error("Unable to instantiate the GitHub API service");
+                return;
+            }
+
+            var orgs = await gitHubApiService.GetOrganizationsForUserAsync(login, context.Identity);
+            if (orgs != null)
+            {
+                foreach (Organization org in orgs)
+                {
+                    var json = JObject.FromObject(new {ownerId = org.Login, avatarUrl = org.AvatarUrl});
+                    context.Identity.AddClaim(new Claim(DataDockClaimTypes.GitHubUserOrganization, json.ToString()));
+                }
+            }
         }
 
         private static void EnsureElasticsearchIndexes(IElasticClient client)

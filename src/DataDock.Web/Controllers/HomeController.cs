@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Datadock.Common.Models;
 using DataDock.Web.Auth;
 using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -20,11 +21,10 @@ namespace DataDock.Web.Controllers
             }
 
             var userViewModel = new UserViewModel();
-            await userViewModel.Populate(User.Identity as ClaimsIdentity);
+            userViewModel.Populate(User.Identity as ClaimsIdentity);
 
             return View(userViewModel);
         }
-
 
         public IActionResult Error()
         {

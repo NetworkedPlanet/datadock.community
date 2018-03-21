@@ -1,0 +1,13 @@
+﻿@model DataDock.Web.ViewModels.DashboardViewModel
+@{
+  ViewData["Title"] = Model.SelectedOwnerId + " Template Library";
+}
+
+<div class="ui container">
+  @await Component.InvokeAsync("DashboardMenu", new { selectedOwnerId = Model.SelectedOwnerId, selectedRepoId = Model.SelectedRepoId, area = Model.Area })
+  <div class="ui divider"></div>
+</div>
+
+<div class="ui container">
+  template library page
+</div>

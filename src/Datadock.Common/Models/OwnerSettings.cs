@@ -1,7 +1,9 @@
 ﻿using System;
+using Nest;
 
 namespace Datadock.Common.Models
 {
+    [ElasticsearchType(Name = "ownersettings", IdProperty = "OwnerId")]
     public class OwnerSettings
     {
         public string OwnerId { get; set; }
@@ -34,6 +36,14 @@ namespace Datadock.Common.Models
         public bool DisplayGitHubAvatar { get; set; }
 
         public bool DisplayGitHubDescription { get; set; }
+
+        public bool DisplayDataDockLink { get; set; }
+
+        public bool DisplayGitHubLocation { get; set; }
+
+        public bool DisplayGitHubBlogUrl { get; set; }
+
+        public string SearchButtons { get; set; }
 
     }
 }

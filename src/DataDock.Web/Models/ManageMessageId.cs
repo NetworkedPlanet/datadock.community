@@ -5,6 +5,7 @@
         ChangeSettingSuccess,
         TokenResetError,
         AccountDeleted,
+        ValidationError,
         Error
     }
 }

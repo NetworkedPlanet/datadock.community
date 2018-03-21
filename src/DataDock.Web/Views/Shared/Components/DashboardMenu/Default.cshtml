@@ -1,0 +1,52 @@
+﻿@model DataDock.Web.ViewModels.DashboardMenuViewModel
+
+<div class="ui pointing menu">
+  <!-- user / org drop down selector -->
+  <div class="item">
+    <div class="ui simple dropdown">
+      <div class="text">
+        <img class="ui avatar image" src="@Model.SelectedOwnerAvatarUrl">
+        @Model.SelectedOwnerId
+      </div>
+      <i class="dropdown icon"></i>
+      <div class="menu">
+
+        @foreach (var owner in Model.Owners)
+        {
+          <a class="item no-underline" href="/@owner.OwnerId" title="Go to @owner.OwnerId dashboard">
+            @if (!string.IsNullOrEmpty(owner.AvatarUrl))
+            {
+              <img class="ui avatar image" src="@owner.AvatarUrl" alt="@owner.OwnerId" />
+            }
+            else
+            {
+              <i class="large disk outline icon"></i>
+            }
+            @owner.OwnerId
+          </a>
+        }
+      </div>
+
+    </div><!-- simple dropdown -->
+  </div><!-- end user / org menu item -->
+  <!-- repo list menu item-->
+  <!--<a class="item @Model.AreaIsActive("repos")" href="@Model.GetDashContext()/repositories" title="Repositories"><i class="cubes icon"></i> Repositories</a>-->
+  <!-- end repo list menu item-->
+  <!-- datasets list menu item-->
+  <a class="item @Model.AreaIsActive("datasets")" href="@Model.GetDashContext()/datasets" title="Datasets"><i class="cubes icon"></i> Datasets</a>
+  <!-- end datasets list menu item-->
+  <!-- templates library menu item-->
+  <a class="item @Model.AreaIsActive("library")" href="@Model.GetDashContext()/library" title="Templates"><i class="book icon"></i> Template Library</a>
+  <!-- end template library menu item-->
+  <!-- add data menu item-->
+  <a class="item @Model.AreaIsActive("import")" href="@Model.GetDashContext()/import" title="Add Data"><i class="upload icon"></i> Add Data</a>
+  <!-- end add data menu item-->
+  <!-- datasets list menu item-->
+  <a class="item @Model.AreaIsActive("jobs")" href="@Model.GetDashContext()/jobs" title="Jobs"><i class="history icon"></i> Job History</a>
+  <!-- end datasets list menu item-->
+  <!-- settings menu item-->
+  <a class="item @Model.AreaIsActive("settings")" href="@Model.GetDashContext()/settings" title="Settings"><i class="cogs icon"></i> Settings</a>
+  <!-- end settings menu item-->
+
+
+</div><!-- menu -->

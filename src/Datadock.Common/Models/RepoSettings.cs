@@ -1,13 +1,17 @@
 ﻿using System;
+using Nest;
 
 namespace Datadock.Common.Models
 {
+    [ElasticsearchType(Name = "reposettings", IdProperty = "RepositoryId")]
     public class RepoSettings
     {
         /// <summary>
         /// The repository owner
         /// </summary>
         public string OwnerId { get; set; }
+
+        public bool OwnerIsOrg { get; set; }
 
         /// <summary>
         /// The DataDock repository ID ({owner-name}/{repo-name})
@@ -45,6 +49,8 @@ namespace Datadock.Common.Models
         /// UserId of the person who last changed the settings
         /// </summary>
         public string LastModifiedBy { get; set; }
+
+        public string SearchButtons { get; set; }
 
     }
 }

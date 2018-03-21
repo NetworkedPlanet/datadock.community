@@ -50,6 +50,7 @@ namespace Datadock.Common.Elasticsearch
             // Set default indexes for repository types
             _client.ConnectionSettings.DefaultIndices[typeof(UserAccount)] = userAccountIndexName;
             _client.ConnectionSettings.DefaultIndices[typeof(UserSettings)] = userSettingsIndexName;
+            
 
         }
 

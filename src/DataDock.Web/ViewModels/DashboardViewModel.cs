@@ -6,6 +6,6 @@
         public string SelectedRepoId { get; set; }
 
         public string Area { get; set; }
-        
+        public string Title { get; set; }   
     }
 }

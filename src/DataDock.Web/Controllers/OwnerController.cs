@@ -12,43 +12,50 @@ namespace DataDock.Web.Controllers
         public async Task<IActionResult> Index(string ownerId = "")
         {
             this.DashboardViewModel.Area = "summary";
-            return View(this.DashboardViewModel);
+             DashboardViewModel.Title = string.Format("{0} Summary", DashboardViewModel.SelectedOwnerId);
+            return View("Dashboard/Index", this.DashboardViewModel);
         }
 
         public async Task<IActionResult> Repositories(string ownerId = "")
         {
             this.DashboardViewModel.Area = "repositories";
-            return View(this.DashboardViewModel);
+            DashboardViewModel.Title = string.Format("{0} Repos", DashboardViewModel.SelectedOwnerId);
+            return View("Dashboard/Repositories", this.DashboardViewModel);
         }
 
         public async Task<IActionResult> Datasets(string ownerId = "")
         {
             this.DashboardViewModel.Area = "datasets";
-            return View(this.DashboardViewModel);
+            DashboardViewModel.Title = string.Format("{0} Datasets", DashboardViewModel.SelectedOwnerId);
+            return View("Dashboard/Datasets", this.DashboardViewModel);
         }
 
         public async Task<IActionResult> Library(string ownerId = "")
         {
             this.DashboardViewModel.Area = "library";
-            return View(this.DashboardViewModel);
+            DashboardViewModel.Title = string.Format("{0} Template Library", DashboardViewModel.SelectedOwnerId);
+            return View("Dashboard/Library", this.DashboardViewModel);
         }
 
         public async Task<IActionResult> Import(string ownerId = "")
         {
             this.DashboardViewModel.Area = "import";
-            return View(this.DashboardViewModel);
+            DashboardViewModel.Title = string.Format("{0} Add Data", DashboardViewModel.SelectedOwnerId);
+            return View("Dashboard/Import", this.DashboardViewModel);
         }
 
         public async Task<IActionResult> Jobs(string ownerId = "")
         {
             this.DashboardViewModel.Area = "jobs";
-            return View(this.DashboardViewModel);
+            DashboardViewModel.Title = string.Format("{0} Job History", DashboardViewModel.SelectedOwnerId);
+            return View("Dashboard/Jobs", this.DashboardViewModel);
         }
 
         public async Task<IActionResult> Settings(string ownerId = "")
         {
             this.DashboardViewModel.Area = "settings";
-            return View(this.DashboardViewModel);
+            DashboardViewModel.Title = string.Format("{0} Settings", DashboardViewModel.SelectedOwnerId);
+            return View("Dashboard/Settings", this.DashboardViewModel);
         }
     }
 }

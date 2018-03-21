@@ -31,12 +31,7 @@ namespace DataDock.Web.ViewComponents
                     return View("Owner", osvm);
                 }
 
-                var rsvm = new RepoSettingsViewModel
-                {
-                    OwnerId = selectedOwnerId,
-                    RepoId = selectedRepoId,
-                    OwnerRepositoryId = string.Format("{0}/{1}", selectedOwnerId, selectedRepoId)
-                };
+                var rsvm = await GetRepoSettingsViewModel(selectedOwnerId, selectedRepoId);
                 return View("Repo", rsvm);
             }
             catch (Exception e)
@@ -59,6 +54,32 @@ namespace DataDock.Web.ViewComponents
             {
                 Log.Debug("No owner settings found for owner '{0}'", ownerId);
                 return new OwnerSettingsViewModel {OwnerId = ownerId};
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Error retrieving owner settings with owner id '{0}'", ownerId);
+                throw;
+            }
+        }
+
+        private async Task<RepoSettingsViewModel> GetRepoSettingsViewModel(string ownerId, string repoId)
+        {
+            if (string.IsNullOrEmpty(ownerId)) throw new ArgumentNullException();
+            if (string.IsNullOrEmpty(repoId)) throw new ArgumentNullException();
+
+            var ownerRepoId = string.Format("{0}/{1}", ownerId, repoId);
+
+            if (string.IsNullOrEmpty(ownerRepoId)) return null;
+            try
+            {
+                var rs = await _repoSettingsRepository.GetRepoSettingsAsync(ownerRepoId);
+                var rsvm = new RepoSettingsViewModel(rs);
+                return rsvm;
+            }
+            catch (RepoSettingsNotFoundException notFound)
+            {
+                Log.Debug("No repo settings found for repo '{0}'", ownerRepoId);
+                return new RepoSettingsViewModel { OwnerId = ownerId, RepoId = repoId, OwnerRepositoryId = ownerRepoId };
             }
             catch (Exception e)
             {

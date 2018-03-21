@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Datadock.Common.Models;
 using System.Threading.Tasks;
-using Datadock.Common.Models;
 
 namespace Datadock.Common.Repositories
 {
     public interface IRepoSettingsRepository
     {
-        Task<RepoSettings> GetRepoSettingsAsync(string ownerId, string repoId);
+        Task<RepoSettings> GetRepoSettingsAsync(string ownerRepoId);
         Task CreateOrUpdateRepoSettingsAsync(RepoSettings settings);
     }
 }

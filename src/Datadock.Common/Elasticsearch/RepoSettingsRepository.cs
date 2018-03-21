@@ -32,9 +32,16 @@ namespace Datadock.Common.Elasticsearch
             _client.ConnectionSettings.DefaultIndices[typeof(RepoSettings)] = indexName;
         }
 
-        public async Task<RepoSettings> GetRepoSettingsAsync(string ownerId, string repoId)
+        public async Task<RepoSettings> GetRepoSettingsAsync(string ownerRepoId)
         {
-            throw new NotImplementedException();
+            var response = await _client.GetAsync<RepoSettings>(ownerRepoId);
+            if (!response.IsValid)
+            {
+                if (!response.Found) throw new RepoSettingsNotFoundException(ownerRepoId);
+                throw new RepoSettingsRepositoryException(
+                    $"Error retrieving repository settings for repo ID {ownerRepoId}. Cause: {response.DebugInformation}");
+            }
+            return response.Source;
         }
 
         public async Task CreateOrUpdateRepoSettingsAsync(RepoSettings settings)

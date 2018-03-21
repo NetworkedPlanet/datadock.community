@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Datadock.Common.Repositories;
+using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DataDock.Web.ViewComponents
@@ -21,11 +22,27 @@ namespace DataDock.Web.ViewComponents
         {
             if (string.IsNullOrEmpty(selectedOwnerId)) return View("Empty");
 
-            if (string.IsNullOrEmpty(selectedRepoId))
+            try
             {
-                return View("Owner");
+                if (string.IsNullOrEmpty(selectedRepoId))
+                {
+                    var osvm = new OwnerSettingsViewModel {OwnerId = selectedOwnerId};
+                    return View("Owner", osvm);
+                }
+
+                var rsvm = new RepoSettingsViewModel
+                {
+                    OwnerId = selectedOwnerId,
+                    RepoId = selectedRepoId,
+                    OwnerRepositoryId = string.Format("{0}/{1}", selectedOwnerId, selectedRepoId)
+                };
+                return View("Repo", rsvm);
             }
-            return View("Repo");
+            catch (Exception e)
+            {
+                return View("Error", e);
+            }
+           
         }
     }
 }

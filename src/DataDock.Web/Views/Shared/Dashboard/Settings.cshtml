@@ -9,5 +9,16 @@
 </div>
 
 <div class="ui container">
-  @await Component.InvokeAsync("Settings", new { selectedOwnerId = Model.SelectedOwnerId, selectedRepoId = Model.SelectedRepoId})
+  <!-- todo returnUrl / cancel button -->
+  <form asp-action="Settings" asp-controller="Owner" class="ui form">
+    @await Component.InvokeAsync("Settings", new {selectedOwnerId = Model.SelectedOwnerId, selectedRepoId = Model.SelectedRepoId})
+  
+    <div class="ui center aligned container">
+      <input type="submit" class="ui primary button large" value="Save" />
+      <div class="ui hidden divider"></div>
+
+    </div>
+
+  </form>
+
 </div>

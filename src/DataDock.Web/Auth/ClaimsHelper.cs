@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Datadock.Common.Models;
 using DataDock.Web.Models;
 using System.Linq;
@@ -28,17 +29,25 @@ namespace DataDock.Web.Auth
             return null;
         }
 
-        public List<Owner> GetOrgOwnersFromClaims(ClaimsIdentity identity)
+        public static IEnumerable<Owner> GetOrgOwnersFromClaims(ClaimsIdentity identity)
         {
-            if (identity == null) return null;
-            var ghOrgClaims = identity.Claims.Where(c => c.Type.Equals(DataDockClaimTypes.GitHubUserOrganization));
-            var orgOwners = new List<Owner>();
-            if (ghOrgClaims == null) return new List<Owner>();
-            foreach (var claim in ghOrgClaims)
-            {
-                orgOwners.Add(JsonConvert.DeserializeObject<Owner>(claim.Value));
-            }
-            return orgOwners;
+            var ghOrgClaims = identity?.Claims.Where(c => c.Type.Equals(DataDockClaimTypes.GitHubUserOrganization));
+            return ghOrgClaims?.Select(claim => JsonConvert.DeserializeObject<Owner>(claim.Value)).ToList();
+        }
+
+        /// <summary>
+        /// In order to have edit access to an owner (user or org) or its child repos, the owner must exist as a claim in the authorized identity
+        /// </summary>
+        /// <param name="identity"></param>
+        /// <param name="ownerId"></param>
+        /// <returns></returns>
+        public static bool OwnerExistsInUserClaims(ClaimsIdentity identity, string ownerId)
+        {
+            var userClaim = identity?.Claims.FirstOrDefault(c =>
+                c.Type.Equals(DataDockClaimTypes.GitHubLogin) && c.Value != null && c.Value.Equals(ownerId, StringComparison.InvariantCultureIgnoreCase));
+            if (userClaim != null) return true;
+            var ownerOrg = GetOrgOwnersFromClaims(identity)?.FirstOrDefault(o => o.OwnerId.Equals(ownerId, StringComparison.InvariantCultureIgnoreCase));
+            return ownerOrg != null;
         }
     }
 }

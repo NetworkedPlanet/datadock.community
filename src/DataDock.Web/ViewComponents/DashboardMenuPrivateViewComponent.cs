@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Security.Claims;
 using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +29,7 @@ namespace DataDock.Web.ViewComponents
             };
             dvm.Owners.Add(uvm.UserOwner);
             dvm.Owners.AddRange(uvm.Organisations);
-            dvm.SelectedOwnerAvatarUrl = dvm.Owners.FirstOrDefault(o => o.OwnerId.Equals(selectedOwnerId))?.AvatarUrl;
+            dvm.SelectedOwnerAvatarUrl = dvm.Owners.FirstOrDefault(o => o.OwnerId.Equals(selectedOwnerId, StringComparison.InvariantCultureIgnoreCase))?.AvatarUrl;
             return View(dvm);
 
         }

@@ -9,6 +9,8 @@ namespace Datadock.Common.Models
         /// </summary>
         public string OwnerId { get; set; }
 
+        public bool OwnerIsOrg { get; set; }
+
         /// <summary>
         /// The DataDock repository ID ({owner-name}/{repo-name})
         /// </summary>
@@ -45,6 +47,8 @@ namespace Datadock.Common.Models
         /// UserId of the person who last changed the settings
         /// </summary>
         public string LastModifiedBy { get; set; }
+
+        public string SearchButtons { get; set; }
 
     }
 }

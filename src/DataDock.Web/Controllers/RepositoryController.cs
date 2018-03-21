@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using DataDock.Web.ViewModels;
 
 namespace DataDock.Web.Controllers
 {
@@ -102,7 +103,18 @@ namespace DataDock.Web.Controllers
         {
             this.DashboardViewModel.Area = "settings";
             DashboardViewModel.Title = string.Format("{0} > {1} Settings", DashboardViewModel.SelectedOwnerId, DashboardViewModel.SelectedRepoId);
-            return View("Dashboard/Settings", this.DashboardViewModel);
+            return View("Settings", this.DashboardViewModel);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ServiceFilter(typeof(AccountExistsFilter))]
+        [ServiceFilter(typeof(OwnerAdminAuthFilter))]
+        public async Task<IActionResult> Settings(string ownerId, string repoId, RepoSettingsViewModel settingsViewModel)
+        {
+            this.DashboardViewModel.Area = "settings";
+            DashboardViewModel.Title = string.Format("{0} Settings", DashboardViewModel.SelectedOwnerId, DashboardViewModel.SelectedRepoId);
+            return View("Settings", this.DashboardViewModel);
         }
     }
 }

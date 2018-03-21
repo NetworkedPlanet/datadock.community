@@ -4,6 +4,7 @@ using Nest;
 using Serilog;
 using System;
 using System.Threading.Tasks;
+using Datadock.Common.Validators;
 
 namespace Datadock.Common.Elasticsearch
 {
@@ -20,7 +21,7 @@ namespace Datadock.Common.Elasticsearch
             {
                 Log.Debug("Create ES index {indexName} for type {indexType}", indexName, typeof(JobInfo));
                var createIndexResponse =  _client.CreateIndex(indexName, config =>
-                    config.Mappings(mappings => mappings.Map<JobInfo>(m => m.AutoMap(-1))));
+                    config.Mappings(mappings => mappings.Map<RepoSettings>(m => m.AutoMap(-1))));
                 if (!createIndexResponse.Acknowledged)
                 {
                     Log.Error("Create ES index failed for {indexName}. Cause: {detail}", indexName, createIndexResponse.DebugInformation);
@@ -28,16 +29,36 @@ namespace Datadock.Common.Elasticsearch
                         $"Could not create index {indexName} for repo settings repository. Cause: {createIndexResponse.DebugInformation}");
                 }
             }
+
+            _client.ConnectionSettings.DefaultIndices[typeof(RepoSettings)] = indexName;
         }
 
-        public async Task<RepoSettings> GetRepoSettingsAsync(string ownerId, string repoId)
+        public async Task<RepoSettings> GetRepoSettingsAsync(string ownerRepoId)
         {
-            throw new NotImplementedException();
+            var response = await _client.GetAsync<RepoSettings>(ownerRepoId);
+            if (!response.IsValid)
+            {
+                if (!response.Found) throw new RepoSettingsNotFoundException(ownerRepoId);
+                throw new RepoSettingsRepositoryException(
+                    $"Error retrieving repository settings for repo ID {ownerRepoId}. Cause: {response.DebugInformation}");
+            }
+            return response.Source;
         }
 
         public async Task CreateOrUpdateRepoSettingsAsync(RepoSettings settings)
         {
-            throw new NotImplementedException();
+            if (settings == null) throw new ArgumentNullException(nameof(settings));
+            var validator = new RepoSettingsValidator();
+            var validationResults = await validator.ValidateAsync(settings);
+            if (!validationResults.IsValid)
+            {
+                throw new ValidationException("Invalid repo settings", validationResults);
+            }
+            var updateResponse = await _client.IndexDocumentAsync(settings);
+            if (!updateResponse.IsValid)
+            {
+                throw new OwnerSettingsRepositoryException($"Error updating repo settings for owner/repo ID {settings.RepositoryId}");
+            }
         }
     }
 }

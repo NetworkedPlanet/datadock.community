@@ -1,7 +1,9 @@
 ﻿using System;
+using Nest;
 
 namespace Datadock.Common.Models
 {
+    [ElasticsearchType(Name = "ownersettings", IdProperty = "OwnerId")]
     public class OwnerSettings
     {
         public string OwnerId { get; set; }

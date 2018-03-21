@@ -25,7 +25,7 @@ namespace DataDock.Web.ViewModels
             LastModified = repoSettings.LastModified;
         }
 
-        public RepoSettings AsOwnerSettings()
+        public RepoSettings AsRepoSettings()
         {
             return new RepoSettings()
             {

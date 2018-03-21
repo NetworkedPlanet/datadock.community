@@ -8,11 +8,21 @@
   <div class="ui divider"></div>
 </div>
 
+
+<h2>Settings for @Model.SelectedRepoId Repository</h2>
+
+
+@if (!string.IsNullOrEmpty(ViewBag.StatusMessage))
+{
+  <div class="ui container">
+    <div class="ui info message"><i class="info icon"></i>@Html.Raw(@ViewBag.StatusMessage)</div>
+  </div>
+}
+
 <div class="ui container">
-  <!-- todo returnUrl / cancel button -->
   <form asp-action="Settings" asp-controller="Repository" class="ui form">
-    @await Component.InvokeAsync("Settings", new {selectedOwnerId = Model.SelectedOwnerId, selectedRepoId = Model.SelectedRepoId})
-  
+    @await Component.InvokeAsync("Settings", new { selectedOwnerId = Model.SelectedOwnerId, selectedRepoId = Model.SelectedRepoId })
+
     <div class="ui center aligned container">
       <input type="submit" class="ui primary button large" value="Save" />
       <div class="ui hidden divider"></div>

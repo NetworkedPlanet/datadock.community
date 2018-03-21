@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Datadock.Common.Repositories;
 using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 namespace DataDock.Web.ViewComponents
 {
@@ -26,7 +27,7 @@ namespace DataDock.Web.ViewComponents
             {
                 if (string.IsNullOrEmpty(selectedRepoId))
                 {
-                    var osvm = new OwnerSettingsViewModel {OwnerId = selectedOwnerId};
+                    var osvm = await GetOwnerSettingsViewModel(selectedOwnerId);
                     return View("Owner", osvm);
                 }
 
@@ -43,6 +44,27 @@ namespace DataDock.Web.ViewComponents
                 return View("Error", e);
             }
            
+        }
+
+        private async Task<OwnerSettingsViewModel> GetOwnerSettingsViewModel(string ownerId)
+        {
+            if (string.IsNullOrEmpty(ownerId)) return null;
+            try
+            {
+                var os = await _ownerSettingsRepository.GetOwnerSettingsAsync(ownerId);
+                var osvm = new OwnerSettingsViewModel(os);
+                return osvm;
+            }
+            catch (OwnerSettingsNotFoundException notFound)
+            {
+                Log.Debug("No owner settings found for owner '{0}'", ownerId);
+                return new OwnerSettingsViewModel {OwnerId = ownerId};
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Error retrieving owner settings with owner id '{0}'", ownerId);
+                throw;
+            }
         }
     }
 }

@@ -20,7 +20,7 @@ namespace Datadock.Common.Elasticsearch
             {
                 Log.Debug("Create ES index {indexName} for type {indexType}", indexName, typeof(JobInfo));
                var createIndexResponse =  _client.CreateIndex(indexName, config =>
-                    config.Mappings(mappings => mappings.Map<JobInfo>(m => m.AutoMap(-1))));
+                    config.Mappings(mappings => mappings.Map<RepoSettings>(m => m.AutoMap(-1))));
                 if (!createIndexResponse.Acknowledged)
                 {
                     Log.Error("Create ES index failed for {indexName}. Cause: {detail}", indexName, createIndexResponse.DebugInformation);
@@ -28,6 +28,8 @@ namespace Datadock.Common.Elasticsearch
                         $"Could not create index {indexName} for repo settings repository. Cause: {createIndexResponse.DebugInformation}");
                 }
             }
+
+            _client.ConnectionSettings.DefaultIndices[typeof(RepoSettings)] = indexName;
         }
 
         public async Task<RepoSettings> GetRepoSettingsAsync(string ownerId, string repoId)

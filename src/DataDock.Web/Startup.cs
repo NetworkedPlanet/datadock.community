@@ -1,4 +1,5 @@
 using Datadock.Common.Elasticsearch;
+using Datadock.Common.Models;
 using Datadock.Common.Repositories;
 using DataDock.Web.Auth;
 using DataDock.Web.Routing;
@@ -16,19 +17,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Nest;
 using Newtonsoft.Json.Linq;
+using Octokit;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.Elasticsearch;
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Datadock.Common.Models;
-using Microsoft.EntityFrameworkCore.Storage;
-using Octokit;
 
 namespace DataDock.Web
 {

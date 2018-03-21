@@ -35,5 +35,13 @@ namespace Datadock.Common.Models
 
         public bool DisplayGitHubDescription { get; set; }
 
+        public bool DisplayDataDockLink { get; set; }
+
+        public bool DisplayGitHubLocation { get; set; }
+
+        public bool DisplayGitHubBlogUrl { get; set; }
+
+        public string SearchButtons { get; set; }
+
     }
 }

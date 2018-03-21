@@ -9,5 +9,5 @@
 </div>
 
 <div class="ui container">
-  settings page
+  @await Component.InvokeAsync("Settings", new { selectedOwnerId = Model.SelectedOwnerId, selectedRepoId = Model.SelectedRepoId})
 </div>

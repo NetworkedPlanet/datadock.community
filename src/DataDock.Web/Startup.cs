@@ -58,6 +58,8 @@ namespace DataDock.Web
             var userSettingsIxName = Environment.GetEnvironmentVariable("USERSETTINGS_IX") ?? "usersettings";
             var userAccountIxName = Environment.GetEnvironmentVariable("USERACCOUNT_IX") ?? "useraccount";
             var jobsIxName = Environment.GetEnvironmentVariable("JOBS_IX") ?? "jobs";
+            var ownerSettingsIxName = Environment.GetEnvironmentVariable("OWNERSETTINGS_IX") ?? "ownersettings";
+            var repoSettingsIxName = Environment.GetEnvironmentVariable("REPOSETTINGS_IX") ?? "reposettings";
 
             services.AddOptions();
 
@@ -77,7 +79,9 @@ namespace DataDock.Web
             services.AddSingleton<IElasticClient>(client);
             services.AddSingleton<IUserRepository>(new UserRepository(client, userSettingsIxName, userAccountIxName));
             services.AddSingleton<IJobRepository>(new JobRepository(client, jobsIxName));
-            
+            services.AddSingleton<IOwnerSettingsRepository>(new OwnerSettingsRepository(client, ownerSettingsIxName));
+            services.AddSingleton<IRepoSettingsRepository>(new RepoSettingsRepository(client, repoSettingsIxName));
+
             services.AddScoped<DataDockCookieAuthenticationEvents>();
 
             var gitHubClientHeader = Configuration["DataDock:GitHubClientHeader"];

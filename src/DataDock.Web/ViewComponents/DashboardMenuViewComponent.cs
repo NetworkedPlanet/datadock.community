@@ -4,16 +4,27 @@ using System.Security.Claims;
 using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using DataDock.Web.Models;
+using DataDock.Web.Auth;
 
 namespace DataDock.Web.ViewComponents
 {
-    [ViewComponent(Name = "DashboardMenuPrivate")]
-    public class DashboardMenuPrivateViewComponent : ViewComponent
+    [ViewComponent(Name = "DashboardMenu")]
+    public class DashboardMenuViewComponent : ViewComponent
     {
         public async Task<IViewComponentResult> InvokeAsync(string selectedOwnerId, string selectedRepoId, string area)
         {
-            if (!User.Identity.IsAuthenticated) return View("Blank");
+            if (User?.Identity == null || !User.Identity.IsAuthenticated || !ClaimsHelper.OwnerExistsInUserClaims(User.Identity as ClaimsIdentity, selectedOwnerId))
+            {
+                // dash view model
+                var publicDash = new DashboardMenuViewModel
+                {
+                    SelectedOwnerId = selectedOwnerId,
+                    SelectedRepoId = selectedRepoId,
+                    ActiveArea = area
+                };
+                // TODO: avatar URL cannot be retrieved from claims, so needs to be retrieved from data storage / cache
+                return View("Public", publicDash);
+            }
             
             // user view model
             var uvm = new UserViewModel();

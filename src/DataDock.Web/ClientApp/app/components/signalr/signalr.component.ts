@@ -3,10 +3,10 @@ import { Observable } from 'rxjs/Observable';
 import { HubConnection } from '@aspnet/signalr';
 
 @Component({
-    selector: 'home',
-    templateUrl: './home.component.html'
+    selector: 'signalr',
+    templateUrl: './signalr.component.html'
 })
-export class HomeComponent {
+export class SignalrComponent {
     private _hubConnection: HubConnection;
     messages: string[] = [];
     ngOnInit() {

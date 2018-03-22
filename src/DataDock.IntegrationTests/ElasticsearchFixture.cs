@@ -13,6 +13,7 @@ namespace DataDock.IntegrationTests
         public string UserSettingsIndexName { get; }
 
         public string JobsIndexName { get; }
+        public string SchemasIndexName { get; }
 
         public ElasticClient Client { get; }
 
@@ -24,6 +25,7 @@ namespace DataDock.IntegrationTests
             UserAccountsIndexName = "test_useracccounts" + indexSuffix;
             UserSettingsIndexName = "test_usersettings" + indexSuffix;
             JobsIndexName = "test_jobs" + indexSuffix;
+            SchemasIndexName = "test_schemas" + indexSuffix;
 
             Client.ConnectionSettings.DefaultIndices[typeof(JobInfo)] = JobsIndexName;
         }
@@ -33,6 +35,7 @@ namespace DataDock.IntegrationTests
             if (Client.IndexExists(UserAccountsIndexName).Exists) Client.DeleteIndex(UserAccountsIndexName);
             if (Client.IndexExists(UserSettingsIndexName).Exists) Client.DeleteIndex(UserSettingsIndexName);
             if (Client.IndexExists(JobsIndexName).Exists) Client.DeleteIndex(JobsIndexName);
+            //if (Client.IndexExists(SchemasIndexName).Exists) Client.DeleteIndex(SchemasIndexName);
         }
     }
 }

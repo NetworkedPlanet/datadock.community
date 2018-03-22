@@ -11,12 +11,12 @@ namespace DataDock.Worker.Processors
         public WorkerConfiguration Configuration { get; }
         public IProgressLog ProgressLog { get; }
 
-        public BaseJobProcessor(WorkerConfiguration configuration, IProgressLog progressLog)
+        protected BaseJobProcessor(WorkerConfiguration configuration, IProgressLog progressLog)
         {
             Configuration = configuration;
             ProgressLog = progressLog;
         }
 
-        public abstract Task ProcessJob(JobInfo jobInfo, UserAccount userInfo);
+        public abstract Task ProcessJob(JobInfo jobInfo, UserAccount userInfo, IProgressLog progressLog);
     }
 }

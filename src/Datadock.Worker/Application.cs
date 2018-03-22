@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Datadock.Common.Elasticsearch;
@@ -21,12 +20,9 @@ namespace DataDock.Worker
     {
         private IServiceProvider Services { get; }
 
-        public Application(ServiceCollection serviceCollection, ApplicationConfiguration config)
+        public Application(IServiceProvider services)
         {
-            var client = GetElasticClient(serviceCollection);
-            ConfigureLogging(client.ConnectionSettings.ConnectionPool);
-            ConfigureServices(serviceCollection, client, config);
-            Services = serviceCollection.BuildServiceProvider();
+            Services = services;
         }
 
         public async Task Run()
@@ -41,12 +37,12 @@ namespace DataDock.Worker
                 if (job != null)
                 {
                     Log.Information("Found new job: {JobId} {JobType}", job.JobId, job.JobType);
-                    await ProcessJob(jobRepo, job);
+                    await ProcessJob(job);
                 }
             }
         }
 
-        private async Task ProcessJob(IJobRepository jobRepository, JobInfo jobInfo)
+        private async Task ProcessJob(JobInfo jobInfo)
         {
             try
             {
@@ -68,7 +64,12 @@ namespace DataDock.Worker
                     case JobType.SchemaDelete:
                         processor = Services.GetRequiredService<DeleteSchemaProcessor>();
                         break;
+                    default:
+                        throw new WorkerException($"Could not process job of type {jobInfo.JobType}");
                 }
+
+                var progressLog = Services.GetRequiredService<IProgressLogFactory>().MakeProgressLogForJob(jobInfo);
+                await processor.ProcessJob(jobInfo, userAccount, progressLog);
             }
             catch (Exception ex)
             {
@@ -76,57 +77,6 @@ namespace DataDock.Worker
             }
         }
 
-        private static IElasticClient GetElasticClient(IServiceCollection services)
-        {
-            var esUrl = Environment.GetEnvironmentVariable("ES_URL") ?? "http://elasticsearch:9200";
-            var client = new ElasticClient(new Uri(esUrl));
-            
-            Log.Information("Waiting for ES to respond to pings");
-            WaitForElasticsearch(client);
-            services.AddSingleton<IElasticClient>(client);
-            return client;
-        }
-
-        private static void WaitForElasticsearch(IElasticClient client)
-        {
-            var elasticsearchConnected = false;
-            while (!elasticsearchConnected)
-            {
-                var response = client.Ping();
-                if (response.IsValid)
-                {
-                    Log.Information("Elasticsearch is Running!");
-                    elasticsearchConnected = true;
-                }
-                else
-                {
-                    Log.Information("Elasticsearch is starting");
-                }
-                Thread.Sleep(1000);
-            }
-
-        }
-
-        private static void ConfigureServices(IServiceCollection services, IElasticClient elasticClient, ApplicationConfiguration config)
-        {
-            services.AddSingleton<IJobRepository>(new JobRepository(elasticClient, config.JobsIndexName));
-            services.AddSingleton<IUserRepository>(new UserRepository(elasticClient, "obsolete", config.UserIndexName));
-            services.AddScoped<IProgressLog>(sp => { return new ProgressLog()})
-        }
-
-        private static void ConfigureLogging(IConnectionPool clientConnectionPool)
-        {
-            Log.Logger = new LoggerConfiguration().Enrich.FromLogContext()
-                .MinimumLevel.Debug()
-                .WriteTo.Elasticsearch().WriteTo.Elasticsearch(
-                    new ElasticsearchSinkOptions(clientConnectionPool)
-                    {
-                        MinimumLogEventLevel = LogEventLevel.Debug,
-                        AutoRegisterTemplate = true
-                    })
-                .CreateLogger();
-
-        }
 
         private static async Task<HubConnection> InitializeHubConnection()
         {

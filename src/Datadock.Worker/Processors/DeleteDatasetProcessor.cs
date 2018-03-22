@@ -11,7 +11,6 @@ namespace DataDock.Worker.Processors
 {
     public class DeleteDatasetProcessor : IDataDockProcessor
     {
-        private readonly IProgressLog _progressLog;
         private readonly WorkerConfiguration _configuration;
         private readonly GitCommandProcessor _git;
         private readonly IDatasetRepository _datasetRepository;
@@ -19,20 +18,19 @@ namespace DataDock.Worker.Processors
         private readonly IHtmlGeneratorFactory _htmlGeneratorFactory;
 
         public DeleteDatasetProcessor(WorkerConfiguration configuration,
-            IProgressLog progressLog, GitCommandProcessor gitProcessor,
+            GitCommandProcessor gitProcessor,
             IDatasetRepository datasetRepository,
             IQuinceStoreFactory quinceStoreFactory,
             IHtmlGeneratorFactory htmlGeneratorFactory)
         {
             _configuration = configuration;
-            _progressLog = progressLog;
             _git = gitProcessor;
             _datasetRepository = datasetRepository;
             _quinceStoreFactory = quinceStoreFactory;
             _htmlGeneratorFactory = htmlGeneratorFactory;
         }
 
-        public async Task ProcessJob(JobInfo jobInfo, UserAccount userAccount)
+        public async Task ProcessJob(JobInfo jobInfo, UserAccount userAccount, IProgressLog progressLog)
         {
             var authenticationClaim =
                 userAccount.Claims.FirstOrDefault(c => c.Type.Equals(DataDockClaimTypes.GitHubAccessToken));
@@ -40,7 +38,7 @@ namespace DataDock.Worker.Processors
             if (string.IsNullOrEmpty(authenticationToken))
             {
                 Log.Error("No authentication token found for user {userId}", userAccount.UserId);
-                _progressLog.Error("Could not find a valid GitHub access token for this user account. Please check your account settings.");
+                progressLog.Error("Could not find a valid GitHub access token for this user account. Please check your account settings.");
             }
 
             var targetDirectory = Path.Combine(_configuration.RepoBaseDir, jobInfo.JobId);
@@ -51,14 +49,13 @@ namespace DataDock.Worker.Processors
 
             var repositoryIri = new Uri(DataDockUrlHelper.GetRepositoryUri(jobInfo.GitRepositoryFullName));
             var datasetIri = new Uri(jobInfo.DatasetIri);
-            var ddRepository = new DataDockRepository(targetDirectory, repositoryIri, _progressLog, _quinceStoreFactory, _htmlGeneratorFactory);
+            var ddRepository = new DataDockRepository(targetDirectory, repositoryIri, progressLog, _quinceStoreFactory, _htmlGeneratorFactory);
 
-            DeleteCsvAndMetadata(targetDirectory, jobInfo.DatasetId);
+            DeleteCsvAndMetadata(targetDirectory, jobInfo.DatasetId, progressLog);
             ddRepository.DeleteDataset(datasetIri);
             ddRepository.Publish();
 
-            if (await _git.CommitChanges(targetDirectory,
-                $"Deleted dataset {datasetIri}", userAccount))
+            if (await _git.CommitChanges(targetDirectory, $"Deleted dataset {datasetIri}", userAccount))
             {
                 await _git.PushChanges(jobInfo.GitRepositoryUrl, targetDirectory, authenticationToken);
             }
@@ -75,18 +72,18 @@ namespace DataDock.Worker.Processors
         }
 
 
-        private void DeleteCsvAndMetadata(string baseDirectory, string datasetId)
+        private void DeleteCsvAndMetadata(string baseDirectory, string datasetId, IProgressLog progressLog)
         {
             Log.Information("DeleteCsvAndMetadata: {baseDirectory}, {datasetId}", baseDirectory, datasetId);
             try
             {
-                _progressLog.Info("Deleting source CSV and CSV metadata files");
+                progressLog.Info("Deleting source CSV and CSV metadata files");
                 var csvPath = Path.Combine(baseDirectory, "csv", datasetId);
                 Directory.Delete(csvPath, true);
             }
             catch (Exception ex)
             {
-                _progressLog.Exception(ex, "Error deleting source CSV and CSV metadata files");
+                progressLog.Exception(ex, "Error deleting source CSV and CSV metadata files");
                 throw;
             }
         }

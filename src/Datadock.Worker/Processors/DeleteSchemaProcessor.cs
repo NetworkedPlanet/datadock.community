@@ -9,26 +9,24 @@ namespace DataDock.Worker.Processors
     public class DeleteSchemaProcessor : IDataDockProcessor
     {
         private readonly ISchemaRepository _schemaRepository;
-        private readonly IProgressLog _progressLog;
 
-        public DeleteSchemaProcessor(ISchemaRepository schemaRepository, IProgressLog progressLog)
+        public DeleteSchemaProcessor(ISchemaRepository schemaRepository)
         {
             _schemaRepository = schemaRepository;
-            _progressLog = progressLog;
         }
 
-        public async Task ProcessJob(JobInfo job, UserAccount userAccount)
+        public async Task ProcessJob(JobInfo job, UserAccount userAccount, IProgressLog progressLog)
         {
             // Delete the schema from documentDB
             try
             {
-                _progressLog.UpdateStatus(JobStatus.Running, $"Deleting schema {job.SchemaId}");
+                progressLog.UpdateStatus(JobStatus.Running, $"Deleting schema {job.SchemaId}");
                 await _schemaRepository.DeleteSchemaAsync(null, job.SchemaId);
-                _progressLog.UpdateStatus(JobStatus.Running, "Schema deleted successfully");
+                progressLog.UpdateStatus(JobStatus.Running, "Schema deleted successfully");
             }
             catch (Exception ex)
             {
-                _progressLog.Error("Failed to remove schema record");
+                progressLog.Error("Failed to remove schema record");
                 Log.Error(ex, "Failed to remove schema record");
                 throw new WorkerException(ex, "Failed to delete schema record.");
             }

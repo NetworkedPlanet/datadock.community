@@ -5,11 +5,13 @@ namespace DataDock.Worker
     public class WorkerConfiguration : ApplicationConfiguration
     {
         public WorkerConfiguration(string esUrl, string jobsIndex, string userIndex, string ownerSettingsIndex,
-            string repoSettingsIndex, string datasetIndex, string schemaIndex, string gitPath, string repoBaseDir) :
+            string repoSettingsIndex, string datasetIndex, string schemaIndex, 
+            string gitPath, string repoBaseDir, string gitHubProductHeader) :
             base(esUrl, jobsIndex, userIndex, ownerSettingsIndex, repoSettingsIndex, datasetIndex, schemaIndex)
         {
             GitPath = gitPath;
             RepoBaseDir = repoBaseDir;
+            GitHubProductHeader = gitHubProductHeader;
         }
 
         /// <summary>
@@ -21,6 +23,11 @@ namespace DataDock.Worker
         /// The path to the directory to use for cloning user repositories
         /// </summary>
         public string RepoBaseDir { get; set; }
+
+        /// <summary>
+        /// The header value that identifies the DataDock GitHub integration to be inserted into Octokit requests
+        /// </summary>
+        public string GitHubProductHeader { get; set; }
 
         public new static WorkerConfiguration FromEnvironment()
         {
@@ -34,7 +41,8 @@ namespace DataDock.Worker
                 GetEnvVar("DATASET_IX", "datasets"),
                 GetEnvVar("SCHEMA_IX", "schemas"),
                 GetEnvVar("GIT_PATH", ""),
-                GetEnvVar("REPO_BASE_DIR", "repositories"));
+                GetEnvVar("REPO_BASE_DIR", "repositories"),
+                GetEnvVar("GITHUB_HEADER", ""));
         }
 
         public override void LogSettings()

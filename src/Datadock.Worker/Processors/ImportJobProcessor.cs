@@ -25,13 +25,13 @@ namespace DataDock.Worker.Processors
         private readonly IOwnerSettingsRepository _ownerSettingsRepository;
         private readonly IRepoSettingsRepository _repoSettingsRepository;
         private readonly IFileStore _jobFileStore;
-        private readonly IProgressLog _progressLog;
+        private IProgressLog _progressLog;
         private readonly IQuinceStoreFactory _quinceStoreFactory;
         private readonly IHtmlGeneratorFactory _htmlGeneratorFactory;
         private const int CsvConversionReportInterval = 250;
 
         public ImportJobProcessor(WorkerConfiguration configuration,
-            IProgressLog progressLog, GitCommandProcessor gitProcessor,
+            GitCommandProcessor gitProcessor,
             IDatasetRepository datasetRepository,
             IFileStore jobFileStore,
             IOwnerSettingsRepository ownerSettingsRepository,
@@ -40,7 +40,6 @@ namespace DataDock.Worker.Processors
             IHtmlGeneratorFactory htmlGeneratorFactory)
         {
             _configuration = configuration;
-            _progressLog = progressLog;
             _git = gitProcessor;
             _datasetRepository = datasetRepository;
             _ownerSettingsRepository = ownerSettingsRepository;
@@ -50,8 +49,9 @@ namespace DataDock.Worker.Processors
             _htmlGeneratorFactory = htmlGeneratorFactory;
         }
 
-        public async Task ProcessJob(JobInfo job, UserAccount userAccount)
+        public async Task ProcessJob(JobInfo job, UserAccount userAccount, IProgressLog progressLog)
         {
+            _progressLog = progressLog;
             var authenticationClaim =
                 userAccount.Claims.FirstOrDefault(c => c.Type.Equals(DataDockClaimTypes.GitHubAccessToken));
             var authenticationToken = authenticationClaim?.Value;
@@ -193,7 +193,7 @@ namespace DataDock.Worker.Processors
             {
                 _progressLog.Info("Attempting to retrieve publisher contact information from repository settings");
                 // get repoSettings
-                var repoSettings = await _repoSettingsRepository.GetRepoSettingsAsync(ownerId, repoId);
+                var repoSettings = await _repoSettingsRepository.GetRepoSettingsAsync(ownerId + "/" + repoId);
                 if (repoSettings?.DefaultPublisher != null)
                 {
                     _progressLog.Info("Returning publisher from repository settings");

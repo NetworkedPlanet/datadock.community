@@ -13,17 +13,17 @@ namespace DataDock.Worker.Processors
     {
         private readonly ISchemaRepository _schemaRepository;
         private readonly IFileStore _jobFileStore;
-        private readonly IProgressLog _progressLog;
+        private IProgressLog _progressLog;
 
         public ImportSchemaProcessor(ISchemaRepository schemaRepository, IFileStore jobFileStore, IProgressLog progressLog)
         {
             _schemaRepository = schemaRepository;
             _jobFileStore = jobFileStore;
-            _progressLog = progressLog;
         }
 
-        public async Task ProcessJob(JobInfo job, UserAccount userAccount)
+        public async Task ProcessJob(JobInfo job, UserAccount userAccount, IProgressLog progressLog)
         {
+            _progressLog = progressLog;
             // Save the schema to documentDB
             try
             {

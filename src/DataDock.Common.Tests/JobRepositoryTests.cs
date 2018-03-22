@@ -22,7 +22,7 @@ namespace DataDock.Common.Tests
             client.Setup(x => x.IndexExists(It.IsAny<Indices>(), null)).Returns(notExists.Object);
             client.Setup(x => x.CreateIndex("jobs", It.IsAny<Func<CreateIndexDescriptor, ICreateIndexRequest>>()))
                 .Returns(indexCreated.Object).Verifiable();
-            var repo = new JobRepository(client.Object, "jobs");
+            var repo = new JobRepository(client.Object, new ApplicationConfiguration(null, "jobs", null, null, null, null, null, null));
             client.Verify();
         }
 
@@ -31,7 +31,7 @@ namespace DataDock.Common.Tests
         {
             var client = new Mock<IElasticClient>();
             AssertIndexExists(client, "jobs");
-            var repo = new JobRepository(client.Object, "jobs");
+            var repo = new JobRepository(client.Object, new ApplicationConfiguration(null, "jobs", null, null, null, null, null, null));
             await Assert.ThrowsAsync<ArgumentNullException>(() => repo.SubmitImportJobAsync(null));
         }
 
@@ -44,7 +44,7 @@ namespace DataDock.Common.Tests
             AssertIndexExists(client, "jobs");
             client.Setup(x => x.IndexDocumentAsync<JobInfo>(It.IsAny<JobInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(mockResponse.Object).Verifiable();
-            var repo = new JobRepository(client.Object, "jobs");
+            var repo = new JobRepository(client.Object, new ApplicationConfiguration(null, "jobs", null, null, null, null, null, null));
                 
             var jobRequest = new ImportJobRequestInfo
             {
@@ -74,7 +74,7 @@ namespace DataDock.Common.Tests
             AssertIndexExists(client, "jobs");
             client.Setup(x => x.IndexDocumentAsync<JobInfo>(It.IsAny<JobInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(mockResponse.Object).Verifiable();
-            var repo = new JobRepository(client.Object, "jobs");
+            var repo = new JobRepository(client.Object, new ApplicationConfiguration(null, "jobs", null, null, null, null, null, null));
 
             var jobRequest = new ImportJobRequestInfo
             {

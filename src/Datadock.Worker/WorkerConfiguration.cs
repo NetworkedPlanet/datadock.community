@@ -1,13 +1,14 @@
-﻿using Serilog;
+﻿using DataDock.Common;
+using Serilog;
 
 namespace DataDock.Worker
 {
     public class WorkerConfiguration : ApplicationConfiguration
     {
         public WorkerConfiguration(string esUrl, string jobsIndex, string userIndex, string ownerSettingsIndex,
-            string repoSettingsIndex, string datasetIndex, string schemaIndex, 
+            string repoSettingsIndex, string datasetIndex, string schemaIndex, string fileStorePath,
             string gitPath, string repoBaseDir, string gitHubProductHeader) :
-            base(esUrl, jobsIndex, userIndex, ownerSettingsIndex, repoSettingsIndex, datasetIndex, schemaIndex)
+            base(esUrl, jobsIndex, userIndex, ownerSettingsIndex, repoSettingsIndex, datasetIndex, schemaIndex, fileStorePath)
         {
             GitPath = gitPath;
             RepoBaseDir = repoBaseDir;
@@ -40,6 +41,7 @@ namespace DataDock.Worker
                 GetEnvVar("REPOSETTINGS_IX", "reposettings"),
                 GetEnvVar("DATASET_IX", "datasets"),
                 GetEnvVar("SCHEMA_IX", "schemas"),
+                GetEnvVar("FILE_STORE_PATH", "files"),
                 GetEnvVar("GIT_PATH", ""),
                 GetEnvVar("REPO_BASE_DIR", "repositories"),
                 GetEnvVar("GITHUB_HEADER", ""));

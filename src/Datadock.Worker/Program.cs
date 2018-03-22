@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Datadock.Common;
 using Datadock.Common.Elasticsearch;
 using Datadock.Common.Repositories;
+using DataDock.Common;
 using Elasticsearch.Net;
 using Microsoft.Extensions.DependencyInjection;
 using Nest;
@@ -80,11 +81,13 @@ namespace DataDock.Worker
         private static void ConfigureServices(IServiceCollection serviceCollection, IElasticClient elasticClient,
             WorkerConfiguration config)
         {
-            serviceCollection.AddSingleton<IJobRepository>(new JobRepository(elasticClient, config.JobsIndexName));
-            serviceCollection.AddSingleton<IUserRepository>(new UserRepository(elasticClient, "obsolete",
-                config.UserIndexName));
-            serviceCollection.AddSingleton<IOwnerSettingsRepository>(
-                new OwnerSettingsRepository(elasticClient, config.OwnerSettingsIndexName));
+            serviceCollection.AddSingleton(config);
+            serviceCollection.AddSingleton<ApplicationConfiguration>(config);
+            serviceCollection.AddScoped<IFileStore, DirectoryFileStore>();
+
+            serviceCollection.AddSingleton<IJobRepository, JobRepository>();
+            serviceCollection.AddSingleton<IUserRepository, UserRepository>();
+            serviceCollection.AddSingleton<IOwnerSettingsRepository,OwnerSettingsRepository>();
             serviceCollection.AddSingleton<IRepoSettingsRepository>(
                 new RepoSettingsRepository(elasticClient, config.RepoSettingsIndexName));
             serviceCollection.AddSingleton<ISchemaRepository>(
@@ -94,7 +97,6 @@ namespace DataDock.Worker
                 new GitHubClientFactory(config.GitHubProductHeader));
             serviceCollection.AddSingleton<IQuinceStoreFactory>(new DefaultQuinceStoreFactory());
             serviceCollection.AddTransient<IHtmlGeneratorFactory, HtmlFileGeneratorFactory>();
-            serviceCollection.AddSingleton(config);
         }
 
         private static void ConfigureLogging(IConnectionPool clientConnectionPool)

@@ -30,7 +30,15 @@
     </div><!-- simple dropdown -->
   </div><!-- end user / org menu item -->
   <!-- repo list menu item-->
-  <!--<a class="item @Model.AreaIsActive("repos")" href="@Model.GetDashContext()/repositories" title="Repositories"><i class="cubes icon"></i> Repositories</a>-->
+  @if (!string.IsNullOrEmpty(Model.SelectedRepoId))
+  {
+    <a class="item @Model.AreaIsActive("repos")" href="@Model.GetDashContext()/" title="@Model.SelectedRepoId"><i class="cubes icon"></i> @Model.SelectedRepoId</a>
+  }
+  else
+  {
+    <a class="item @Model.AreaIsActive("repos")" href="@Model.GetDashContext()/repositories" title="Repositories"><i class="cubes icon"></i> Repositories</a>
+  }
+
   <!-- end repo list menu item-->
   <!-- datasets list menu item-->
   <a class="item @Model.AreaIsActive("datasets")" href="@Model.GetDashContext()/datasets" title="Datasets"><i class="cubes icon"></i> Datasets</a>

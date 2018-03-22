@@ -1,0 +1,23 @@
+<div class="ui top attached steps">
+    <a class="step no-underline" id="step1" [ngClass]="{'active': activeStep === 'choose'}" (click)="restart()">
+        <i class="search icon"></i>
+        <div class="content">
+            <div class="title">Choose</div>
+            <div class="description">Choose your CSV spreadsheet</div>
+        </div>
+    </a>
+    <div class="step" id="step2" [ngClass]="{'active': activeStep === 'define' && !isUploading}">
+        <i class="write icon"></i>
+        <div class="content">
+            <div class="title">Define</div>
+            <div class="description">Enter license and other details</div>
+        </div>
+    </div>
+    <div class="step" id="step3" [ngClass]="{'active': activeStep === 'define' && isUploading}">
+        <i class="cloud upload icon"></i>
+        <div class="content">
+            <div class="title">Upload</div>
+            <div class="description">Upload to your data portal</div>
+        </div>
+    </div>
+</div>

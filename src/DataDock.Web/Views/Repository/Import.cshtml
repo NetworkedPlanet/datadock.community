@@ -1,0 +1,14 @@
+﻿@model DataDock.Web.ViewModels.DashboardViewModel
+@{
+  Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+  Model.Title = Model.Title + " Add Data";
+}
+
+<app asp-prerender-module="ClientApp/dist/main-server" asp-prerender-data='new {
+            OwnerId = @Model.SelectedOwnerId, RepoId = @Model.SelectedRepoId
+        }'>Loading...</app>
+
+<script src="~/dist/vendor.js" asp-append-version="true"></script>
+@section scripts {
+  <script src="~/dist/main-client.js" asp-append-version="true"></script>
+}

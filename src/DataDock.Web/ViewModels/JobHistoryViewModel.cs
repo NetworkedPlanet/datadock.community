@@ -3,7 +3,7 @@ using System;
 
 namespace DataDock.Web.ViewModels
 {
-    public class JobHistoryViewModel
+    public class JobHistoryViewModel : DashboardViewModel
     {
         private readonly JobInfo _jobInfo;
 

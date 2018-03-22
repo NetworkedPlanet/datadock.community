@@ -2,7 +2,7 @@
 
 namespace DataDock.Web.ViewModels
 {
-    public class SignUpViewModel
+    public class SignUpViewModel : BaseLayoutViewModel
     {
         [Display(Name = "Mailing List")]
         public bool MailingList { get; set; }

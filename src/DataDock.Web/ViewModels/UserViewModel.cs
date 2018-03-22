@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace DataDock.Web.ViewModels
 {
-    public class UserViewModel
+    public class UserViewModel : BaseLayoutViewModel
     {
         public string GitHubAvatar { get; set; }
 

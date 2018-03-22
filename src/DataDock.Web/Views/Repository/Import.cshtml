@@ -1,6 +1,7 @@
 ﻿@model DataDock.Web.ViewModels.DashboardViewModel
 @{
-  ViewData["Title"] = "Home Page";
+  Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+  Model.Title = Model.Title + " Add Data";
 }
 
 <app asp-prerender-module="ClientApp/dist/main-server" asp-prerender-data='new {

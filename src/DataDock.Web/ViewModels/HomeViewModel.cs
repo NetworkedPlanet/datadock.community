@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DataDock.Web.ViewModels
+namespace DataDock.Web.ViewModels 
 {
-    public class HomeViewModel
+    public class HomeViewModel : BaseLayoutViewModel
     {
         public IReadOnlyList<DatasetViewModel> RecentDatasets { get; }
 

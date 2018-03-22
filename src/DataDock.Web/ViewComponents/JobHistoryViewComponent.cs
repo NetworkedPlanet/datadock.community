@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using DataDock.Web.ViewModels;
@@ -20,15 +21,23 @@ namespace DataDock.Web.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync(string selectedOwnerId, string selectedRepoId)
         {
-            if (string.IsNullOrEmpty(selectedOwnerId)) return View("Empty");
-
-            if (string.IsNullOrEmpty(selectedRepoId))
+            try
             {
-                var jobList = await GetOwnerJobHistory(selectedOwnerId);
-                return View(jobList);
+                if (string.IsNullOrEmpty(selectedOwnerId)) return View("Empty");
+
+                if (string.IsNullOrEmpty(selectedRepoId))
+                {
+                    var jobList = await GetOwnerJobHistory(selectedOwnerId);
+                    return View(jobList);
+                }
+                var repoJobList = await GetRepoJobHistory(selectedOwnerId, selectedRepoId);
+                return View(repoJobList);
             }
-            var repoJobList = await GetRepoJobHistory(selectedOwnerId, selectedRepoId);
-            return View(repoJobList);
+            catch (Exception e)
+            {
+                return View("Error", e);
+            }
+            
         }
 
         private async Task<List<JobHistoryViewModel>> GetOwnerJobHistory(string selectedOwnerId)

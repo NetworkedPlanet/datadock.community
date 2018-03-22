@@ -1,9 +1,6 @@
-﻿using System;
-using DataDock.Web.Models;
+﻿using DataDock.Web.Models;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Security.Principal;
 
 namespace DataDock.Web.ViewModels
 {

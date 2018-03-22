@@ -23,11 +23,20 @@ import { CounterComponent } from './components/counter/counter.component';
         HttpModule,
         FormsModule,
         RouterModule.forRoot([
-            { path: '', redirectTo: 'home', pathMatch: 'full' },
-            { path: 'home', component: HomeComponent },
-            { path: 'counter', component: CounterComponent },
-            { path: 'fetch-data', component: FetchDataComponent },
-            { path: '**', redirectTo: 'home' }
+            {
+                path: ':ownerId',
+                children: [
+                    {
+                        path: ':repoId',
+                        children: [
+                            { path: 'import', component: CounterComponent },
+                            { path: 'import/:schemaId', component: CounterComponent },
+                            { path: 'define', component: FetchDataComponent }
+                        ]
+                    }
+                ]
+            },
+            { path: '**', component: HomeComponent }
         ])
     ]
 })

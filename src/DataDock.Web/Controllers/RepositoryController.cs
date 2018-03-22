@@ -80,7 +80,7 @@ namespace DataDock.Web.Controllers
         {
             this.DashboardViewModel.Area = "import";
             DashboardViewModel.Title = string.Format("{0} > {1} Add Data", DashboardViewModel.SelectedOwnerId, DashboardViewModel.SelectedRepoId);
-            return View("Dashboard/Import", this.DashboardViewModel);
+            return View("Import", this.DashboardViewModel);
         }
 
         /// <summary>

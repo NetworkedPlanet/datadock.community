@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DataDock.Web.ViewModels
 {
-    public class SettingsViewModel
+    public class SettingsViewModel : DashboardViewModel
     {
         public string OwnerId { get; set; }
         public bool OwnerIsOrg { get; set; }

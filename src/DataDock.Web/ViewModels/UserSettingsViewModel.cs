@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DataDock.Web.ViewModels
 {
-    public class UserSettingsViewModel
+    public class UserSettingsViewModel : DashboardViewModel
     {
         [HiddenInput]
         public string UserId { get; set; }

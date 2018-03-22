@@ -1,0 +1,50 @@
+<div class="ui container" *ngIf="repoUriCheck">
+
+  <dd-steps [activeStep]="'choose'" [isUploading]="false" [restartLink]="restartLink"></dd-steps>
+
+  <div class="ui attached segment">
+    <div class="messages" *ngIf="error != ''">
+      <div class="ui red message">
+        <i class="warning sign icon"></i>
+        <span innerHTML="{{error}}"></span>
+      </div>
+      <div class="ui center aligned container">
+        <div class="ui buttons" *ngIf="showTemplateErrorButtons">
+          <button class="ui button" (click)="backToLibrary()">return to the template library</button>
+          <div class="or"></div>
+          <button class="ui positive button" (click)="continue()">continue without the template</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="ui form" [ngClass]="{loading: isLoading}" >
+      <div class="ui text container add-data">
+        <div class="ui hidden divider"></div>
+        <div>
+          <div class="ui fluid action input">
+            <input type="text" readonly  (click)="uploader.click()" placeholder="{{uploadText}}">
+            <input id="upload" type="file" (change)="fileChangeEvent($event)"  accept=".csv" #uploader />
+            <div class="ui icon button" (click)="uploader.click()">
+              <i class="cloud upload icon"></i>
+            </div>
+          </div>
+        </div>
+        <div class="ui hidden divider"></div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="ui bottom attached primary message">
+    <p>Not sure what to upload? <a href="/help" target="_blank">Read this before you publish</a>.</p>
+  </div>
+
+</div>
+<div class="ui text container" *ngIf="!repoUriCheck">
+  <div class="messages">
+    <div class="ui red message">
+      <i class="warning sign icon"></i>
+      <span>There is a problem matching your selected repository to the import page requested, please <a href="/import" title="select a repository">try again</a>. If the problem persists please contact support. </span>
+    </div>
+  </div>
+</div>

@@ -5,5 +5,5 @@ import { Component } from '@angular/core';
     templateUrl: './file.component.html'
 })
 export class FileComponent {
-    
+
 }

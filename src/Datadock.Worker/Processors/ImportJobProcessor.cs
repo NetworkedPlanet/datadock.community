@@ -30,7 +30,8 @@ namespace DataDock.Worker.Processors
         private readonly IHtmlGeneratorFactory _htmlGeneratorFactory;
         private const int CsvConversionReportInterval = 250;
 
-        public ImportJobProcessor(WorkerConfiguration configuration,
+        public ImportJobProcessor(
+            WorkerConfiguration configuration,
             GitCommandProcessor gitProcessor,
             IDatasetRepository datasetRepository,
             IFileStore jobFileStore,

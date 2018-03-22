@@ -85,6 +85,7 @@ namespace DataDock.Worker
             serviceCollection.AddSingleton<ApplicationConfiguration>(config);
             serviceCollection.AddScoped<IFileStore, DirectoryFileStore>();
 
+            serviceCollection.AddSingleton<IDatasetRepository, DatasetRepository>();
             serviceCollection.AddSingleton<IJobRepository, JobRepository>();
             serviceCollection.AddSingleton<IUserRepository, UserRepository>();
             serviceCollection.AddSingleton<IOwnerSettingsRepository,OwnerSettingsRepository>();

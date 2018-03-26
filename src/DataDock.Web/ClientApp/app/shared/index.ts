@@ -10,4 +10,4 @@ export * from './metadata-viewmodel';
 export * from './dashboard-model';
 export * from './repository-info';
 export * from './viewmodel-helper.service';
-export * from './import-helper.service';
+export * from './app.service';

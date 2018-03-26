@@ -3,8 +3,9 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { PapaParseService } from 'ngx-papaparse';
 
 import { FormManager, CsvFile } from '../../shared';
-import { ImportHelperService, ViewModelHelperService, SchemaHelperService, SchemaService } from '../../shared';
+import { ViewModelHelperService, SchemaHelperService, SchemaService } from '../../shared';
 import { Response } from "@angular/http";
+import { AppService } from '../../shared/app.service';
 
 @Component({
   selector: 'dd-file',
@@ -33,7 +34,7 @@ export class FileComponent implements OnInit, OnDestroy  {
       private router: Router,
       private route: ActivatedRoute,
       private papa: PapaParseService,
-      private importAppHelper: ImportHelperService,
+      private appService: AppService,
       private ss: SchemaService,
       private shs: SchemaHelperService,
       private vmhs: ViewModelHelperService,
@@ -51,35 +52,13 @@ export class FileComponent implements OnInit, OnDestroy  {
           this.ownerId = params['ownerId'];
           this.repoId = params['repoId'];
           this.schemaId = params['schemaId'];
-          this.checkUrlToSuppliedTarget();
-          // get schema title from model
-          let schemaTitle = this.importAppHelper.dashboardViewModel.schemaTitle;
-          if(schemaTitle) {
-            this.uploadText = 'Select CSV file for use with template "' + schemaTitle + '"';
-          }
-
+          // todo get schema title from model
       });
   }
 
     ngOnDestroy() {
         this.sub.unsubscribe();
     }
-
-    checkUrlToSuppliedTarget() {
-      // build repository full name from the parameters in the URL
-      if (this.importAppHelper && this.importAppHelper.targetRepository) {
-        let urlRepoId = `${this.ownerId}/${this.repoId}`;
-        if ( urlRepoId !== this.importAppHelper.targetRepository.repositoryId) {
-          this.repoUriCheck = false;
-        } else {
-          this.repoUriCheck = true;
-          this.restartLink = this.importAppHelper.restartImportRelativeUrl;
-        }
-      } else {
-        this.repoUriCheck = false;
-      }
-    }
-
 
   fileChangeEvent(fileInput: any) {
     this.isLoading = true;
@@ -113,13 +92,13 @@ export class FileComponent implements OnInit, OnDestroy  {
 
     let csvFile: CsvFile = new CsvFile();
     csvFile.initialise(results, file);
-    this.importAppHelper.setSource(csvFile, this.ownerId, this.repoId, this.schemaId);
+    this.appService.setSource(csvFile, this.ownerId, this.repoId, this.schemaId);
     this.processFileInfoViewModelAndRedirect();
   }
 
   processFileInfoViewModelAndRedirect() {
     try {
-      let csvFile = this.importAppHelper.csvFile;
+      let csvFile = this.appService.csvFile;
       let dataSlice = csvFile.getDataSlice();
 
       if (this.ownerId && this.schemaId) {
@@ -178,14 +157,14 @@ export class FileComponent implements OnInit, OnDestroy  {
 
   continue() {
     // build without schema
-    let csvFile = this.importAppHelper.csvFile;
+    let csvFile = this.appService.csvFile;
     let dataSlice = csvFile.getDataSlice();
     this.shs.hasSchema = false;
     this.buildAndRedirect(csvFile, dataSlice);
   }
 
   buildAndRedirect(csvFile: CsvFile, dataSlice: Array<any>) {
-    let viewModel = this.vmhs.buildMetadataViewModel(this.importAppHelper.prefix, csvFile.filename, csvFile.columnSet, dataSlice);
+    let viewModel = this.vmhs.buildMetadataViewModel(this.appService.prefix, csvFile.filename, csvFile.columnSet, dataSlice);
     if (IN_DEBUG) {
       console.log('view model building complete', viewModel);
     }

@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { ImportHelperService } from '../../shared';
+import { AppService } from '../../shared/app.service';
 
 @Component({
     selector: 'dd-data-preview',
@@ -20,7 +20,7 @@ export class PreviewComponent implements OnInit {
     printRows: number;
     printPlural: string;
 
-    constructor(private ihs: ImportHelperService) {
+    constructor(private ihs: AppService) {
         this.loading = true;
         this.maxRows = 100;
         this.printRows = 0;

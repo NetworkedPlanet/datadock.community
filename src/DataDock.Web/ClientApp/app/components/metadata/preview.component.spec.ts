@@ -5,8 +5,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { PreviewComponent } from './preview.component';
 import { CsvFile } from '../../shared';
-import { ImportHelperService } from '../../shared/import-helper.service';
-import { MockImportHelperService } from '../../testing/mocks/import-helper.service.mock';
+import { AppService } from '../../shared/app.service';
+import { MockAppService } from '../../testing/mocks/app.service.mock';
 
 describe('Metadata: Preview Component', () => {
 
@@ -19,13 +19,13 @@ describe('Metadata: Preview Component', () => {
             imports: [RouterTestingModule, ReactiveFormsModule, HttpModule],
             declarations: [PreviewComponent],
             providers: [
-                {provide: ImportHelperService, useClass: MockImportHelperService},
+                {provide: AppService, useClass: MockAppService},
                 provideRoutes([])
             ]}
         ).compileComponents();
     });
 
-    it('form manager should have a file set', inject([ImportHelperService], (ihs: ImportHelperService) => {
+    it('form manager should have a file set', inject([AppService], (ihs: AppService) => {
         let fileStub = new CsvFile();
         fileStub.filename = 'test.csv';
         fileStub.data = [

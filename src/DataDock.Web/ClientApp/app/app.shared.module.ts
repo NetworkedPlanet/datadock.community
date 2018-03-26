@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { RouterModule } from '@angular/router';
 import { PapaParseModule } from 'ngx-papaparse';
@@ -27,30 +27,19 @@ import { ApiService } from './shared/api.service';
 import { UserService } from './shared/user.service';
 import { FormManager } from './shared/form-manager';
 import { ViewModelHelperService } from './shared/viewmodel-helper.service';
-import { ImportHelperService } from './shared/import-helper.service';
+import { AppService } from './shared/app.service';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { BrowserModule } from '@angular/platform-browser';
 
 
 @NgModule({
-    declarations: [
-        AppComponent,
-        CallbackPipe,
-        FileComponent,
-        TabsComponent,
-        MetadataComponent,
-        DatasetComponent,
-        ColumnDefinitionsComponent,
-        AdvancedComponent,
-        PreviewComponent,
-        FormFieldComponent,
-        DeveloperComponent,
-        BrowserWarningsComponent,
-        NotFoundComponent,
-        StepsComponent
-    ],
     imports: [
+        BrowserModule,
+        BrowserAnimationsModule,
         CommonModule,
         HttpModule,
         FormsModule,
+        ReactiveFormsModule,
         PapaParseModule,
         TagInputModule,
         RouterModule.forRoot([
@@ -70,8 +59,24 @@ import { ImportHelperService } from './shared/import-helper.service';
             { path: '**', component: FileComponent }
         ])
     ],
+    declarations: [
+        AppComponent,
+        CallbackPipe,
+        FileComponent,
+        TabsComponent,
+        MetadataComponent,
+        DatasetComponent,
+        ColumnDefinitionsComponent,
+        AdvancedComponent,
+        PreviewComponent,
+        FormFieldComponent,
+        DeveloperComponent,
+        BrowserWarningsComponent,
+        NotFoundComponent,
+        StepsComponent
+    ],
     providers: [
-        ImportHelperService,
+        AppService,
         ViewModelHelperService,
         FormManager,
         UserService,

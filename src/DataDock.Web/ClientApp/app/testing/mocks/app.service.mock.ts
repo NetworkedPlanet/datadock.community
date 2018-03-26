@@ -2,7 +2,7 @@ import { CsvFile } from '../../shared/csv-file';
 import { RepositoryInfo } from '../../shared/repository-info';
 import { DashboardModel } from '../../shared/dashboard-model';
 
-export class MockImportHelperService {
+export class MockAppService {
 
     DATADOCK_URL = 'http://datadock.io/';
     public dashboardViewModel: DashboardModel;

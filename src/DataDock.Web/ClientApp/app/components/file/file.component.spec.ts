@@ -14,11 +14,11 @@ import { SchemaService } from '../../shared/schema.service';
 import { SchemaHelperService } from '../../shared/schema-helper.service';
 import { ViewModelHelperService } from '../../shared/viewmodel-helper.service';
 import { DatatypeService } from '../../shared/datatype.service';
-import { ImportHelperService } from '../../shared/import-helper.service';
-import { MockImportHelperService } from '../../testing/mocks/import-helper.service.mock';
 import { MockSchemaService } from '../../testing/mocks/schema.service.mock';
 import { MockSchemaHelperService } from '../../testing/mocks/schema-helper.service.mock';
 import { DashboardModel } from '../../shared/dashboard-model';
+import { AppService } from '../../shared/app.service';
+import { MockAppService } from '../../testing/mocks/app.service.mock';
 
 describe('File Component', () => {
 
@@ -33,7 +33,7 @@ describe('File Component', () => {
         declarations: [FileComponent, StepsComponent],
         providers: [
             {provide: FormManager, useClass: MockFormManager},
-            {provide: ImportHelperService, useClass: MockImportHelperWithRepoSuccess},
+            {provide: AppService, useClass: MockAppServiceWithRepoSuccess},
             provideRoutes([]),
             {
                 provide: ActivatedRoute,
@@ -59,7 +59,7 @@ describe('File Component', () => {
         expect(x).toBeTruthy();
     });
 
-    it('should display error when file size is too big.', inject([ImportHelperService], (ihs: ImportHelperService) => {
+    it('should display error when file size is too big.', inject([AppService], (ihs: AppService) => {
         let fileInputStub = {
             target: {
                 files: [
@@ -85,7 +85,7 @@ describe('File Component', () => {
     }));
 
 
-    class MockImportHelperWithRepoSuccess extends MockImportHelperService {
+    class MockAppServiceWithRepoSuccess extends MockAppService {
         constructor() {
             super();
             let testRepo = new RepositoryInfo({
@@ -139,7 +139,7 @@ describe('File Component Fail', () => {
             declarations: [FileComponent, StepsComponent],
             providers: [
                 {provide: FormManager, useClass: MockFormManager},
-                {provide: ImportHelperService, useClass: MockImportHelperWithRepoFail},
+                {provide: AppService, useClass: MockAppServiceWithRepoFail},
                 provideRoutes([]),
                 {
                     provide: ActivatedRoute,
@@ -171,7 +171,7 @@ describe('File Component Fail', () => {
         expect(x.innerHTML).toContain('There is a problem matching your selected repository to the import page requested');
     });
 
-    class MockImportHelperWithRepoFail extends MockImportHelperService {
+    class MockAppServiceWithRepoFail extends MockAppService {
         constructor() {
             super();
             let testRepo = new RepositoryInfo({

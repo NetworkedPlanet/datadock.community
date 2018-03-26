@@ -3,7 +3,8 @@ import { Router } from '@angular/router';
 import { FormGroup, FormControl, FormArray } from '@angular/forms';
 
 import { FormField } from '../../shared/form-field/form-field';
-import { ImportHelperService, FormManager, SchemaHelperService } from '../../shared';
+import { FormManager, SchemaHelperService } from '../../shared';
+import { AppService } from '../../shared/app.service';
 
 @Component({
     selector: 'dd-metadata',
@@ -34,7 +35,7 @@ export class MetadataComponent implements OnInit {
     saveAsSchema: boolean;
     schemaTitle: string;
 
-    constructor(private router: Router, private ihs: ImportHelperService,
+    constructor(private router: Router, private app: AppService,
                 private fm: FormManager, private shs: SchemaHelperService) {
 
         this.developerMode = IN_DEBUG;
@@ -69,7 +70,7 @@ export class MetadataComponent implements OnInit {
 
             this.form.valueChanges.subscribe((event) => this.displayValidationMessages());
             this.displayValidationMessages();
-            this.restartLink = this.ihs.restartImportRelativeUrl;
+            this.restartLink = this.app.restartImportRelativeUrl;
 
             if (this.shs.hasSchema) {
                 this.schemaTitle = this.shs.schemaTitle;
@@ -200,7 +201,7 @@ export class MetadataComponent implements OnInit {
                 this.results = res;
                 if (res) {
                     if (res.status === 200) {
-                        window.location.href = this.ihs.redirectToJobsRelativeUrl;
+                        window.location.href = this.app.redirectToJobsRelativeUrl;
                     }
                 }
             },

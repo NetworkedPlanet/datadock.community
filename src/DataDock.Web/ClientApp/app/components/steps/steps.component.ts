@@ -1,6 +1,6 @@
 import { Component, Input, OnChanges, SimpleChange } from '@angular/core';
 import { Router } from '@angular/router';
-import { ImportHelperService } from '../../shared';
+import { AppService } from '../../shared/app.service';
 
 @Component({
     selector: 'dd-steps',
@@ -15,7 +15,7 @@ export class StepsComponent implements OnChanges {
 
     @Input() restartLink: string;
 
-    constructor(private router: Router, private ihs: ImportHelperService) {
+    constructor(private router: Router, private ihs: AppService) {
         this.isUploading = false;
         this.activeStep = '';
     }

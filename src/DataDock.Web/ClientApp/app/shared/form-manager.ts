@@ -6,8 +6,8 @@ import {
 import { Subject } from 'rxjs';
 import { MetadataViewModel, ViewModelSection } from './metadata-viewmodel';
 import { CustomValidators } from './form-field/custom-validators';
-import { ImportHelperService } from './import-helper.service';
 import { ApiService } from './api.service';
+import { AppService } from './app.service';
 
 /*
 
@@ -41,7 +41,7 @@ export class FormManager {
   public saveAsSchema: boolean;
 
   constructor(
-      private importAppHelper: ImportHelperService,
+      private appService: AppService,
       private fb: FormBuilder,
       private api: ApiService) {
     // initialise
@@ -110,7 +110,7 @@ export class FormManager {
 
   getColumnTitle(columnName: string): string {
     let title = '';
-    for (let c of this.importAppHelper.csvFile.columnSet) {
+    for (let c of this.appService.csvFile.columnSet) {
       if (c.name === columnName) {
         title = c.title;
       }
@@ -327,12 +327,12 @@ export class FormManager {
     let formData = new FormData();
     // console.log('appending data to formData ' + this.csvFile.filename);
     // console.log(this.csvFile);
-    formData.append('file', this.importAppHelper.csvFile.file, this.importAppHelper.csvFile.filename);
+    formData.append('file', this.appService.csvFile.file, this.appService.csvFile.filename);
     formData.append('metadata', JSON.stringify(metadata));
     if (IN_DEBUG) {
-      console.log('appending target repo to formData', this.importAppHelper.targetRepository);
+      // console.log('appending target repo to formData', this.appService.targetRepository);
     }
-    formData.append('targetRepository', JSON.stringify(this.importAppHelper.targetRepository));
+    //formData.append('targetRepository', JSON.stringify(this.appService.targetRepository));
     formData.append('showOnHomePage', JSON.stringify(this.showOnHomePage));
     formData.append('saveAsSchema', JSON.stringify(this.saveAsSchema));
     if (IN_DEBUG) {
@@ -349,7 +349,7 @@ export class FormManager {
     let metadata = {};
     // base metadata info
     metadata['@context'] = 'http://www.w3.org/ns/csvw';
-    metadata['url'] = this.importAppHelper.getCsvFileUri();
+    metadata['url'] = this.appService.getCsvFileUri();
 
     let baseSection = this.mainForm.value['base'];
     if (baseSection && baseSection instanceof Array) {
@@ -377,11 +377,11 @@ export class FormManager {
       metadata['aboutUrl'] = advancedFields['identifier'];
     }
 
-    if (this.importAppHelper.csvFile.columnSet.length < 1) {
+    if (this.appService.csvFile.columnSet.length < 1) {
       // todo - add a warning
     }
 
-    let cols = this.importAppHelper.csvFile.columnSet;
+    let cols = this.appService.csvFile.columnSet;
     for (let i = 0; i < cols.length; i++) {
       let c = cols[i];
       if (c) {

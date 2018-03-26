@@ -8,12 +8,9 @@ A helper service for data sharing across the whole import
 application's components and services
  */
 @Injectable()
-export class ImportHelperService {
+export class AppService {
 
     DATADOCK_URL = 'http://datadock.io/';
-
-    public dashboardViewModel: DashboardModel;
-    public targetRepository: RepositoryInfo;
 
     public ownerId: string;
     public repoId: string;
@@ -30,21 +27,6 @@ export class ImportHelperService {
         this.ownerId = '';
         this.repoId = '';
         this.schemaId = '';
-    }
-
-    public setDashboardModel(dashModel: DashboardModel): void {
-        this.dashboardViewModel = dashModel;
-    }
-
-    public setTargetRepository(targetRepo: RepositoryInfo): void {
-        if (targetRepo) {
-            this.targetRepository = targetRepo;
-            if (targetRepo.repositoryId) {
-                this.prefix = `${this.DATADOCK_URL}${targetRepo.repositoryId}/`;
-                this.restartImportRelativeUrl = `/${targetRepo.repositoryId}/import`;
-                this.redirectToJobsRelativeUrl = `/${targetRepo.repositoryId}/jobs`;
-            }
-        }
     }
 
     public setSource(file: CsvFile, ownerId: string, repoId: string, schemaId: string): void {

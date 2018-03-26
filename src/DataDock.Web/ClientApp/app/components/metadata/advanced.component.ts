@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { FormManager, ViewModelSection } from '../shared';
+import { FormManager, ViewModelSection } from '../../shared';
 
 
 @Component({

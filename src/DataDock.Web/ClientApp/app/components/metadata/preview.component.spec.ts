@@ -4,9 +4,9 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { PreviewComponent } from './preview.component';
-import { CsvFile } from '../shared';
-import { ImportHelperService } from '../shared/import-helper.service';
-import { MockImportHelperService } from '../testing/mocks/import-helper.service.mock';
+import { CsvFile } from '../../shared';
+import { ImportHelperService } from '../../shared/import-helper.service';
+import { MockImportHelperService } from '../../testing/mocks/import-helper.service.mock';
 
 describe('Metadata: Preview Component', () => {
 

@@ -5,20 +5,20 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
 import { FileComponent } from './file.component';
-import { FormManager } from '../shared/form-manager';
-import { MockFormManager } from '../testing/mocks/form-manager.mock';
+import { FormManager } from '../../shared/form-manager';
+import { MockFormManager } from '../../testing/mocks/form-manager.mock';
 import { StepsComponent } from '../steps/steps.component';
 import { Observable } from 'rxjs';
-import { RepositoryInfo } from '../shared/repository-info';
-import { SchemaService } from '../shared/schema.service';
-import { SchemaHelperService } from '../shared/schema-helper.service';
-import { ViewModelHelperService } from '../shared/viewmodel-helper.service';
-import { DatatypeService } from '../shared/datatype.service';
-import { ImportHelperService } from '../shared/import-helper.service';
-import { MockImportHelperService } from '../testing/mocks/import-helper.service.mock';
-import { MockSchemaService } from '../testing/mocks/schema.service.mock';
-import { MockSchemaHelperService } from '../testing/mocks/schema-helper.service.mock';
-import { DashboardModel } from '../shared/dashboard-model';
+import { RepositoryInfo } from '../../shared/repository-info';
+import { SchemaService } from '../../shared/schema.service';
+import { SchemaHelperService } from '../../shared/schema-helper.service';
+import { ViewModelHelperService } from '../../shared/viewmodel-helper.service';
+import { DatatypeService } from '../../shared/datatype.service';
+import { ImportHelperService } from '../../shared/import-helper.service';
+import { MockImportHelperService } from '../../testing/mocks/import-helper.service.mock';
+import { MockSchemaService } from '../../testing/mocks/schema.service.mock';
+import { MockSchemaHelperService } from '../../testing/mocks/schema-helper.service.mock';
+import { DashboardModel } from '../../shared/dashboard-model';
 
 describe('File Component', () => {
 

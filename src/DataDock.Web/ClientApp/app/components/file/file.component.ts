@@ -2,8 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { PapaParseService } from 'ngx-papaparse';
 
-import { FormManager, CsvFile } from '../shared';
-import { ImportHelperService, ViewModelHelperService, SchemaHelperService, SchemaService } from '../shared';
+import { FormManager, CsvFile } from '../../shared';
+import { ImportHelperService, ViewModelHelperService, SchemaHelperService, SchemaService } from '../../shared';
 import { Response } from "@angular/http";
 
 @Component({

@@ -1,6 +1,6 @@
 import { Component, Input, OnChanges, SimpleChange } from '@angular/core';
 import { Router } from '@angular/router';
-import { ImportHelperService } from '../shared';
+import { ImportHelperService } from '../../shared';
 
 @Component({
     selector: 'dd-steps',

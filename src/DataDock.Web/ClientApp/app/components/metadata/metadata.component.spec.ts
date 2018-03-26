@@ -5,7 +5,6 @@ import { FormsModule, ReactiveFormsModule, FormGroup } from '@angular/forms';
 
 import { provideRoutes } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { TagInputModule } from 'ng2-tag-input';
 
 
 import { MetadataComponent } from './metadata.component';
@@ -15,10 +14,11 @@ import { AdvancedComponent } from './advanced.component';
 import { PreviewComponent } from './preview.component';
 import { DeveloperComponent } from '../developer/developer.component';
 
-import { FormManager } from '../shared/form-manager';
-import { FormFieldComponent } from '../shared/form-field';
-import { MockFormManager } from '../testing/mocks';
-import { DatatypeService } from '../shared/datatype.service';
+import { FormManager } from '../../shared/form-manager';
+import { FormFieldComponent } from '../../shared/form-field';
+import { MockFormManager } from '../../testing/mocks';
+import { DatatypeService } from '../../shared/datatype.service';
+import { TagInputModule } from 'ngx-chips';
 
 describe('MetadataComponent', () => {
 

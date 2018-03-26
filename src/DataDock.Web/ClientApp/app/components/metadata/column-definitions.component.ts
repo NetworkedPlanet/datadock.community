@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { FormManager, ViewModelSection } from '../shared';
+import { FormManager, ViewModelSection } from '../../shared';
 
 @Component({
     selector: 'dd-column-definitions',

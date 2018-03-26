@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormGroup, FormControl, FormArray } from '@angular/forms';
 
-import { FormField } from '../shared/form-field/form-field';
-import { ImportHelperService, FormManager, SchemaHelperService } from '../shared';
+import { FormField } from '../../shared/form-field/form-field';
+import { ImportHelperService, FormManager, SchemaHelperService } from '../../shared';
 
 @Component({
     selector: 'dd-metadata',

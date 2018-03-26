@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { ImportHelperService } from '../shared';
+import { ImportHelperService } from '../../shared';
 
 @Component({
     selector: 'dd-data-preview',

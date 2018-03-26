@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { FormManager } from '../shared/form-manager';
-import { MetadataViewModel } from '../shared/metadata-viewmodel';
+import { FormManager } from '../../shared/form-manager';
+import { MetadataViewModel } from '../../shared/metadata-viewmodel';
 
 @Component({
     selector: 'dd-dev',

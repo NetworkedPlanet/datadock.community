@@ -3,12 +3,12 @@ import { TestBed, inject, ComponentFixture } from '@angular/core/testing';
 import { StepsComponent } from './steps.component';
 import { Observable } from 'rxjs';
 import { ActivatedRoute, provideRoutes } from '@angular/router';
-import { RepositoryInfo } from '../shared/repository-info';
+import { RepositoryInfo } from '../../shared/repository-info';
 import { HttpModule } from '@angular/http';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
-import { MockImportHelperService } from '../testing/mocks/import-helper.service.mock';
-import { ImportHelperService } from '../shared/import-helper.service';
+import { MockImportHelperService } from '../../testing/mocks/import-helper.service.mock';
+import { ImportHelperService } from '../../shared/import-helper.service';
 
 describe('Steps Component', () => {
 

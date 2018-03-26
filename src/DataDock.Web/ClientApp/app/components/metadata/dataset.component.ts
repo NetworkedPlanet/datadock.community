@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { FormManager, ViewModelSection } from '../shared';
+import { FormManager, ViewModelSection } from '../../shared';
 import { OPTIONS_LICENSES } from './options-licenses';
 
 

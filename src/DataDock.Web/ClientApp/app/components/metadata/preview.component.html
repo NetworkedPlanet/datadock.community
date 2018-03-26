@@ -1,0 +1,21 @@
+<div class="ui container data-preview" style="overflow-x: scroll;">
+ <div class="ui info message">
+  <p>The file contains {{originRows}} row{{originPlural}} of data, previewing {{printRows}} row{{printPlural}} of data below: </p>
+ </div>
+ <table class="ui celled striped compact table">
+  <thead>
+  <tr>
+   <th *ngFor="let heading of headerRow">
+    {{heading}}
+   </th>
+  </tr>
+  </thead>
+  <tbody>
+   <tr *ngFor="let row of dataRows">
+    <td *ngFor="let item of row" class="top aligned preview">
+     {{item}}
+    </td>
+   </tr>
+  </tbody>
+ </table>
+</div>

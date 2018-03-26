@@ -1,0 +1,19 @@
+<div class="ui info large message">
+    <i class="unhide sign icon"></i> Does the list below show your spreadsheet's column headings? If not, check your file and start again.
+</div>
+<table class="ui celled table">
+    <thead>
+    <tr>
+        <th *ngFor="let th of fm.getViewModelTableHeaders(sectionName)">
+            {{th}}
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let columnName of fm.getColumnsList(sectionName)">
+        <td *ngFor="let fieldName of fm.getCollectionControls(sectionName, columnName)">
+            <dd-form-field [field]="fm.getField(fieldName)"></dd-form-field>
+        </td>
+    </tr>
+    </tbody>
+</table>

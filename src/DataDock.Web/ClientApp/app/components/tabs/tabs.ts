@@ -1,4 +1,4 @@
-import { Enum } from '../shared/enum';
+import { Enum } from '../../shared/enum';
 export class TabsEnum extends Enum<string> {
     public static readonly BASIC = new Enum('BASIC');
     public static readonly DATATYPES = new Enum('DATATYPES');

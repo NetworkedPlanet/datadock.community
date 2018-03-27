@@ -201,7 +201,7 @@ export class MetadataComponent implements OnInit {
                 this.results = res;
                 if (res) {
                     if (res.status === 200) {
-                        window.location.href = this.app.redirectToJobsRelativeUrl;
+                        // window.location.href = this.app.redirectToJobsRelativeUrl;
                     }
                 }
             },

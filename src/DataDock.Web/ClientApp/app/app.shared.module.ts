@@ -17,7 +17,6 @@ import { PreviewComponent } from './components/metadata/preview.component';
 import { FormFieldComponent } from './shared/form-field/form-field.component';
 import { DeveloperComponent } from './components/developer/developer.component';
 import { NotFoundComponent } from './components/not-found/not-found.component';
-import { BrowserWarningsComponent } from './components/browser-warnings/browser-warnings.component';
 import { TabsComponent } from './components/tabs/tabs.component';
 import { SchemaHelperService } from './shared/schema-helper.service';
 import { SchemaService } from './shared/schema.service';
@@ -28,14 +27,10 @@ import { UserService } from './shared/user.service';
 import { FormManager } from './shared/form-manager';
 import { ViewModelHelperService } from './shared/viewmodel-helper.service';
 import { AppService } from './shared/app.service';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { BrowserModule } from '@angular/platform-browser';
 
 
 @NgModule({
     imports: [
-        BrowserModule,
-        BrowserAnimationsModule,
         CommonModule,
         HttpModule,
         FormsModule,
@@ -71,7 +66,6 @@ import { BrowserModule } from '@angular/platform-browser';
         PreviewComponent,
         FormFieldComponent,
         DeveloperComponent,
-        BrowserWarningsComponent,
         NotFoundComponent,
         StepsComponent
     ],

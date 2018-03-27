@@ -4,9 +4,7 @@
   Model.Title = Model.Title + " Add Data";
 }
 
-<app asp-prerender-module="ClientApp/dist/main-server" asp-prerender-data='new {
-            OwnerId = @Model.SelectedOwnerId, RepoId = @Model.SelectedRepoId
-        }'>Loading...</app>
+<app asp-prerender-module="ClientApp/dist/main-server">Loading...</app>
 
 <script src="~/dist/vendor.js" asp-append-version="true"></script>
 @section scripts {

@@ -152,7 +152,7 @@ export class FileComponent implements OnInit, OnDestroy  {
 
   backToLibrary() {
     let libUrl = `/${this.ownerId}/library`;
-    window.location.href = libUrl;
+    //  window.location.href = libUrl;
   }
 
   continue() {

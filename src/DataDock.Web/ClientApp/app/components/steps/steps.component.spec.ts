@@ -7,8 +7,8 @@ import { RepositoryInfo } from '../../shared/repository-info';
 import { HttpModule } from '@angular/http';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
-import { MockImportHelperService } from '../../testing/mocks/import-helper.service.mock';
-import { ImportHelperService } from '../../shared/import-helper.service';
+import { MockAppService } from '../../testing/mocks/app.service.mock';
+import { AppService } from '../../shared/app.service';
 
 describe('Steps Component', () => {
 
@@ -31,7 +31,7 @@ describe('Steps Component', () => {
                         params: Observable.of({ownerId: 'test-user', repoId: 'test-repo'})
                     }
                 },
-                {provide: ImportHelperService, useClass: MockImportHelperWithRepoSuccess},
+                {provide: AppService, useClass: MockAppService},
             ]
         })
             .compileComponents();
@@ -80,7 +80,7 @@ describe('Steps Component', () => {
     class StepsTestComponent {
     }
 
-    class MockImportHelperWithRepoSuccess extends MockImportHelperService {
+    class MockAppServiceWithRepoSuccess extends MockAppService {
         constructor() {
             super();
             let testRepo = new RepositoryInfo({

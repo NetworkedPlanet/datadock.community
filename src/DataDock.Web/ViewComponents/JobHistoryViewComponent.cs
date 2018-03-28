@@ -13,10 +13,10 @@ namespace DataDock.Web.ViewComponents
     [ViewComponent(Name = "JobHistory")]
     public class JobHistoryViewComponent : ViewComponent
     {
-        private readonly IJobStore _jobRepository;
-        public JobHistoryViewComponent(IJobStore jobRepository)
+        private readonly IJobStore _jobStore;
+        public JobHistoryViewComponent(IJobStore jobStore)
         {
-            _jobRepository = jobRepository;
+            _jobStore = jobStore;
         }
 
         public async Task<IViewComponentResult> InvokeAsync(string selectedOwnerId, string selectedRepoId)
@@ -42,14 +42,14 @@ namespace DataDock.Web.ViewComponents
 
         private async Task<List<JobHistoryViewModel>> GetOwnerJobHistory(string selectedOwnerId)
         {
-            var jobs = await _jobRepository.GetJobsForOwner(selectedOwnerId);
+            var jobs = await _jobStore.GetJobsForOwner(selectedOwnerId);
             var jobHistoriesHistoryViewModels = jobs.Select(j => new JobHistoryViewModel(j)).ToList();
             return jobHistoriesHistoryViewModels;
         }
 
         private async Task<List<JobHistoryViewModel>> GetRepoJobHistory(string selectedOwnerId, string selectedRepoId)
         {
-            var jobs = await _jobRepository.GetJobsForRepository(selectedOwnerId, selectedRepoId);
+            var jobs = await _jobStore.GetJobsForRepository(selectedOwnerId, selectedRepoId);
             var jobHistoriesHistoryViewModels = jobs.Select(j => new JobHistoryViewModel(j)).ToList();
             return jobHistoriesHistoryViewModels;
         }

@@ -36,6 +36,9 @@ namespace Datadock.Common.Elasticsearch
                         $"Could not create index {indexName} for JobStore. Cause: {createIndexResponse.DebugInformation}");
                 }
             }
+
+            _client.ConnectionSettings.DefaultIndices[typeof(JobInfo)] = indexName;
+
         }
 
         public async Task<JobInfo> SubmitImportJobAsync(ImportJobRequestInfo jobDescription)

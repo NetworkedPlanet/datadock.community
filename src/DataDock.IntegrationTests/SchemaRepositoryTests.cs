@@ -19,7 +19,7 @@ namespace DataDock.IntegrationTests
         public SchemaRepositoryTests(ElasticsearchFixture fixture)
         {
             _fixture = fixture;
-            _repo = new SchemaStore(fixture.Client, fixture.SchemasIndexName);
+            _repo = new SchemaStore(fixture.Client, fixture.Configuration);
         }
 
         [Fact]
@@ -56,7 +56,7 @@ namespace DataDock.IntegrationTests
         public SchemaStore Store { get; }
         public SchemaRepositoryFixture() : base()
         {
-            Store = new SchemaStore(Client, SchemasIndexName);
+            Store = new SchemaStore(Client, Configuration);
             InitializeRepository().Wait();
             Thread.Sleep(1000);
         }

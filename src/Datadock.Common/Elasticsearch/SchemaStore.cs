@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Datadock.Common.Models;
 using Datadock.Common.Stores;
+using DataDock.Common;
 using Nest;
 using Serilog;
 
@@ -14,8 +15,9 @@ namespace Datadock.Common.Elasticsearch
     public class SchemaStore : ISchemaStore
     {
         private readonly IElasticClient _client;
-        public SchemaStore(IElasticClient client, string indexName)
+        public SchemaStore(IElasticClient client, ApplicationConfiguration config)
         {
+            var indexName = config.SchemaIndexName;
             Log.Debug("Create SchemaStore. Index={indexName}", indexName);
             _client = client;
             // Ensure the index exists
@@ -23,8 +25,8 @@ namespace Datadock.Common.Elasticsearch
             if (!indexExistsReponse.Exists)
             {
                 Log.Debug("Create ES index {indexName} for type {indexType}", indexName, typeof(SchemaInfo));
-                var createIndexResponse = _client.CreateIndex(indexName, config =>
-                    config.Mappings(mappings => mappings.Map<SchemaInfo>(m => m.AutoMap(-1))));
+                var createIndexResponse = _client.CreateIndex(indexName,
+                    c => c.Mappings(mappings => mappings.Map<SchemaInfo>(m => m.AutoMap(-1))));
                 if (!createIndexResponse.Acknowledged)
                 {
                     Log.Error("Create ES index failed for {indexName}. Cause: {detail}", indexName, createIndexResponse.DebugInformation);

@@ -89,8 +89,7 @@ namespace DataDock.Worker
             serviceCollection.AddSingleton<IJobStore, JobStore>();
             serviceCollection.AddSingleton<IUserStore, UserStore>();
             serviceCollection.AddSingleton<IOwnerSettingsStore,OwnerSettingsStore>();
-            serviceCollection.AddSingleton<IRepoSettingsStore>(
-                new RepoSettingsStore(elasticClient, config.RepoSettingsIndexName));
+            serviceCollection.AddSingleton<IRepoSettingsStore,RepoSettingsStore>();
             serviceCollection.AddSingleton<ISchemaStore>(
                 new SchemaStore(elasticClient, config.SchemaIndexName));
             serviceCollection.AddSingleton<IProgressLogFactory, SignalrProgressLogFactory>();

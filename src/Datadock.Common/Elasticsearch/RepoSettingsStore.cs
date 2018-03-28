@@ -5,14 +5,16 @@ using System;
 using System.Threading.Tasks;
 using Datadock.Common.Stores;
 using Datadock.Common.Validators;
+using DataDock.Common;
 
 namespace Datadock.Common.Elasticsearch
 {
     public class RepoSettingsStore : IRepoSettingsStore
     {
         private readonly IElasticClient _client;
-        public RepoSettingsStore(IElasticClient client, string indexName)
+        public RepoSettingsStore(IElasticClient client, ApplicationConfiguration config)
         {
+            var indexName = config.RepoSettingsIndexName;
             Log.Debug("Create RepoSettingsStore. Index={indexName}", indexName);
             _client = client;
             // Ensure the index exists
@@ -20,8 +22,8 @@ namespace Datadock.Common.Elasticsearch
             if (!indexExistsReponse.Exists)
             {
                 Log.Debug("Create ES index {indexName} for type {indexType}", indexName, typeof(JobInfo));
-               var createIndexResponse =  _client.CreateIndex(indexName, config =>
-                    config.Mappings(mappings => mappings.Map<RepoSettings>(m => m.AutoMap(-1))));
+               var createIndexResponse =  _client.CreateIndex(indexName, c =>
+                    c.Mappings(mappings => mappings.Map<RepoSettings>(m => m.AutoMap(-1))));
                 if (!createIndexResponse.Acknowledged)
                 {
                     Log.Error("Create ES index failed for {indexName}. Cause: {detail}", indexName, createIndexResponse.DebugInformation);

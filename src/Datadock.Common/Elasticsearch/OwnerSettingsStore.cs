@@ -41,7 +41,7 @@ namespace Datadock.Common.Elasticsearch
             if (!response.IsValid)
             {
                 if (!response.Found) throw new OwnerSettingsNotFoundException(ownerId);
-                throw new OwnerSettingsRepositoryException(
+                throw new OwnerSettingsStoreException(
                     $"Error retrieving owner settings for owner ID {ownerId}. Cause: {response.DebugInformation}");
             }
             return response.Source;
@@ -59,7 +59,7 @@ namespace Datadock.Common.Elasticsearch
             var updateResponse = await _client.IndexDocumentAsync(ownerSettings);
             if (!updateResponse.IsValid)
             {
-                throw new OwnerSettingsRepositoryException($"Error udpating owner settings for owner ID {ownerSettings.OwnerId}");
+                throw new OwnerSettingsStoreException($"Error udpating owner settings for owner ID {ownerSettings.OwnerId}");
             }
         }
     }

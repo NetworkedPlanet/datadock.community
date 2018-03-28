@@ -66,7 +66,7 @@ namespace Datadock.Common.Elasticsearch
             var indexResponse = await _client.IndexDocumentAsync<JobInfo>(jobInfo);
             if (!indexResponse.IsValid)
             {
-                throw new JobRepositoryException($"Failed to insert new job record: {indexResponse.DebugInformation}");
+                throw new JobStoreException($"Failed to insert new job record: {indexResponse.DebugInformation}");
             }
             return jobInfo;
         }
@@ -79,7 +79,7 @@ namespace Datadock.Common.Elasticsearch
             {
                 throw new JobNotFoundException(jobId);
             }
-            throw new JobRepositoryException($"Failed to retrieve job record for jobId {jobId}: {getResponse.DebugInformation}");
+            throw new JobStoreException($"Failed to retrieve job record for jobId {jobId}: {getResponse.DebugInformation}");
         }
 
         public async Task UpdateJobInfoAsync(JobInfo updatedJobInfo)
@@ -88,7 +88,7 @@ namespace Datadock.Common.Elasticsearch
             var updateResponse = await _client.IndexDocumentAsync(updatedJobInfo);
             if (!updateResponse.IsValid)
             {
-                throw new JobRepositoryException(
+                throw new JobStoreException(
                     $"Failed to update job record for jobId {updatedJobInfo.JobId}: {updateResponse.DebugInformation}");
             }
         }

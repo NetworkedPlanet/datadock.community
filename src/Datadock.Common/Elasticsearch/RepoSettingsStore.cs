@@ -39,7 +39,7 @@ namespace Datadock.Common.Elasticsearch
             if (!response.IsValid)
             {
                 if (!response.Found) throw new RepoSettingsNotFoundException(ownerRepoId);
-                throw new RepoSettingsRepositoryException(
+                throw new RepoSettingsStoreException(
                     $"Error retrieving repository settings for repo ID {ownerRepoId}. Cause: {response.DebugInformation}");
             }
             return response.Source;
@@ -57,7 +57,7 @@ namespace Datadock.Common.Elasticsearch
             var updateResponse = await _client.IndexDocumentAsync(settings);
             if (!updateResponse.IsValid)
             {
-                throw new OwnerSettingsRepositoryException($"Error updating repo settings for owner/repo ID {settings.RepositoryId}");
+                throw new OwnerSettingsStoreException($"Error updating repo settings for owner/repo ID {settings.RepositoryId}");
             }
         }
     }

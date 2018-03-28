@@ -90,7 +90,7 @@ namespace DataDock.Common.Tests
                 OverwriteExistingData = false
             };
 
-            await Assert.ThrowsAsync<JobRepositoryException>(() => jobStore.SubmitImportJobAsync(jobRequest));
+            await Assert.ThrowsAsync<JobStoreException>(() => jobStore.SubmitImportJobAsync(jobRequest));
 
             client.Verify();
         }

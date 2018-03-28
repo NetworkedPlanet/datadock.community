@@ -19,5 +19,15 @@ namespace Datadock.Common.Elasticsearch
         {
             return ms.Map<JobInfo>(m => m.AutoMap(-1));
         }
+
+        public static IPromise<IMappings> OwnerSettingsIndexMappings(MappingsDescriptor ms)
+        {
+            return ms.Map<OwnerSettings>(m => m.AutoMap(-1));
+        }
+
+        public static IPromise<IMappings> RepoSettingsIndexMappings(MappingsDescriptor ms)
+        {
+            return ms.Map<RepoSettings>(m => m.AutoMap(-1));
+        }
     }
 }

@@ -22,8 +22,8 @@ namespace Datadock.Common.Elasticsearch
             if (!indexExistsReponse.Exists)
             {
                 Log.Debug("Create ES index {indexName} for type {indexType}", indexName, typeof(JobInfo));
-               var createIndexResponse =  _client.CreateIndex(indexName, c =>
-                    c.Mappings(mappings => mappings.Map<RepoSettings>(m => m.AutoMap(-1))));
+                var createIndexResponse = _client.CreateIndex(indexName,
+                    c => c.Mappings(mappings => mappings.Map<RepoSettings>(m => m.AutoMap(-1))));
                 if (!createIndexResponse.Acknowledged)
                 {
                     Log.Error("Create ES index failed for {indexName}. Cause: {detail}", indexName, createIndexResponse.DebugInformation);

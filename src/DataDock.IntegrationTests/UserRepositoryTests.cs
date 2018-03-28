@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Text;
 using Datadock.Common.Elasticsearch;
 using Datadock.Common.Models;
-using DataDock.Common;
 using Xunit;
 
 namespace DataDock.IntegrationTests
@@ -17,9 +14,7 @@ namespace DataDock.IntegrationTests
         public UserRepositoryTests(ElasticsearchFixture fixture)
         {
             var esFixture = fixture;
-            var config = new ApplicationConfiguration(null, null, esFixture.UserAccountsIndexName, null, null, null,
-                null, null);
-            _userStore = new UserStore(esFixture.Client, config);
+            _userStore = new UserStore(esFixture.Client, fixture.Configuration);
         }
 
         [Fact]
@@ -66,8 +61,8 @@ namespace DataDock.IntegrationTests
                 new Claim(ClaimTypes.Name, "Updated User Name"),
                 new Claim(DataDockClaimTypes.GitHubAccessToken, "some_access_token_value")
             };
-            var userAccount = await _userStore.CreateUserAsync("update1", initialAccountClaims);
-            var updatedAccount = await _userStore.UpdateUserAsync("update1", updatedAccountClaims);
+            await _userStore.CreateUserAsync("update1", initialAccountClaims);
+            await _userStore.UpdateUserAsync("update1", updatedAccountClaims);
             var retrievedAccount = await _userStore.GetUserAccountAsync("update1");
             Assert.Equal("update1", retrievedAccount.UserId);
             Assert.Equal(3, retrievedAccount.Claims.Count());

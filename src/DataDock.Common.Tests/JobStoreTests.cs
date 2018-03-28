@@ -22,6 +22,11 @@ namespace DataDock.Common.Tests
             client.Setup(x => x.IndexExists(It.IsAny<Indices>(), null)).Returns(notExists.Object);
             client.Setup(x => x.CreateIndex("jobs", It.IsAny<Func<CreateIndexDescriptor, ICreateIndexRequest>>()))
                 .Returns(indexCreated.Object).Verifiable();
+            var indexDict = new FluentDictionary<Type, string>();
+            var connectionSettings = new Mock<IConnectionSettingsValues>();
+            connectionSettings.Setup(x => x.DefaultIndices).Returns(indexDict).Verifiable();
+            client.SetupGet(x => x.ConnectionSettings).Returns(connectionSettings.Object).Verifiable();
+
             var jobStore = new JobStore(client.Object, new ApplicationConfiguration(null, "jobs", null, null, null, null, null, null));
             client.Verify();
         }
@@ -102,6 +107,10 @@ namespace DataDock.Common.Tests
 
             client.Setup(x => x.IndexExists(It.IsAny<Indices>(), null))
                 .Returns(indexExistsResult.Object);
+            var connectionSettings = new Mock<IConnectionSettingsValues>();
+            var indexDict = new FluentDictionary<Type, string>();
+            connectionSettings.Setup(x=>x.DefaultIndices).Returns(indexDict).Verifiable();
+            client.SetupGet(x => x.ConnectionSettings).Returns(connectionSettings.Object).Verifiable();
         }
     }
 }

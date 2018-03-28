@@ -89,13 +89,11 @@ namespace DataDock.Worker
             serviceCollection.AddSingleton<IJobStore, JobStore>();
             serviceCollection.AddSingleton<IUserStore, UserStore>();
             serviceCollection.AddSingleton<IOwnerSettingsStore,OwnerSettingsStore>();
-            serviceCollection.AddSingleton<IRepoSettingsStore,RepoSettingsStore>();
-            serviceCollection.AddSingleton<ISchemaStore>(
-                new SchemaStore(elasticClient, config.SchemaIndexName));
+            serviceCollection.AddSingleton<IRepoSettingsStore, RepoSettingsStore>();
+            serviceCollection.AddSingleton<ISchemaStore, SchemaStore>();
             serviceCollection.AddSingleton<IProgressLogFactory, SignalrProgressLogFactory>();
-            serviceCollection.AddSingleton<IGitHubClientFactory>(
-                new GitHubClientFactory(config.GitHubProductHeader));
-            serviceCollection.AddSingleton<IQuinceStoreFactory>(new DefaultQuinceStoreFactory());
+            serviceCollection.AddSingleton<IGitHubClientFactory>(new GitHubClientFactory(config.GitHubProductHeader));
+            serviceCollection.AddSingleton<IQuinceStoreFactory, DefaultQuinceStoreFactory>();
             serviceCollection.AddTransient<IHtmlGeneratorFactory, HtmlFileGeneratorFactory>();
         }
 

@@ -17,9 +17,7 @@ namespace DataDock.IntegrationTests
         public JobStoreTests(ElasticsearchFixture esFixture)
         {
             _fixture = esFixture;
-            var config =
-                new ApplicationConfiguration(null, esFixture.JobsIndexName, null, null, null, null, null, null);
-            _repo = new JobStore(esFixture.Client, config);
+            _repo = new JobStore(_fixture.Client, _fixture.Configuration);
         }
 
         public void Dispose()

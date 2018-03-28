@@ -83,7 +83,12 @@ namespace DataDock.Web.Controllers
             }
             catch (UserAccountNotFoundException noUserException)
             {
-                return View("SignUp");
+                var viewModel = new SignUpViewModel
+                {
+                    Title = "DataDock New User",
+                    Heading = "Sign Up to DataDock"
+                };
+                return View("SignUp", viewModel);
             }
             catch (Exception ex)
             {
@@ -281,7 +286,7 @@ namespace DataDock.Web.Controllers
         [ServiceFilter(typeof(AccountExistsFilter))]
         public IActionResult Welcome(string returnUrl = "/")
         {
-            return View("Welcome");
+            return View("Welcome", new BaseLayoutViewModel{Title = "Welcome to DataDock"});
         }
     }
 }

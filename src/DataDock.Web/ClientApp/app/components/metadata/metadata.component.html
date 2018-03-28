@@ -1,0 +1,85 @@
+<div class="ui container">
+
+    <dd-steps [activeStep]="'define'" [isUploading]="isUploading" [restartLink]="restartLink"></dd-steps>
+
+    <!-- Warnings / Validation Messages -->
+    <div class="ui attached segment"  *ngIf="errors.length > 0 || warnings.length > 0">
+        <div class="ui negative message" *ngIf="errors.length > 0">
+            <ul class="validation">
+                <li *ngFor="let error of errors"><span innerHTML="{{error}}"></span></li>
+            </ul>
+        </div>
+        <div class="ui warning message" *ngIf="warnings.length > 0">
+            <ul>
+                <li *ngFor="let warning of warnings"><span innerHTML="{{warning}}"></span></li>
+            </ul>
+        </div>
+
+    </div>
+    <div class="ui attached segment">
+        <!-- Tabs -->
+        <div class="ui stackable two column grid container" *ngIf="!isLoading">
+            <div class="four wide column">
+                <dd-tabs (tabChange)="getTabChange($event)"></dd-tabs>
+
+                <div *ngIf="schemaTitle">
+                    <div class="ui hidden divider"></div>
+                    <div class="ui primary message"><i class="book icon"></i> Using template "{{schemaTitle}}"</div>
+                </div>
+            </div>
+            <div class="twelve wide stretched column">
+                <div class="ui container">
+                    <form [formGroup]="form" class="ui small form" [ngClass]="{loading: isLoading}" >
+                        <div *ngIf="viewTab === 'dataset-info'">
+                            <dd-dataset-info [sectionName]="datasetInfo"></dd-dataset-info>
+                        </div>
+                        <div *ngIf="viewTab === 'column-definitions'">
+                            <dd-column-definitions [sectionName]="colDef"></dd-column-definitions>
+                        </div>
+                        <div *ngIf="viewTab === 'column-definitions-advanced'">
+                            <dd-advanced [sectionName]="colDefAdvanced"></dd-advanced>
+                        </div>
+                        <div *ngIf="viewTab === 'data-preview'">
+                            <dd-data-preview></dd-data-preview>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Warnings and upload button -->
+    <div class="ui bottom attached segment">
+        <div class="ui center aligned container" *ngIf="!isLoading">
+            <div class="ui text center aligned container" *ngIf="!isLoading">
+                <div class="ui checkbox">
+                    <input type="checkbox" [(ngModel)]="showOnHomePage" name="display" (change)="setDatasetDisplay()" >
+                    <label>Include my published dataset on DataDock homepage and search</label>
+                </div>
+            </div>
+            <div class="ui hidden divider"></div>
+            <div class="ui text center aligned container" *ngIf="!isLoading">
+                <div class="ui checkbox">
+                    <input type="checkbox" [(ngModel)]="saveAsSchema" name="display" (change)="setSaveSchema()" >
+                    <label>Save this information as a template for future imports</label>
+                </div>
+            </div>
+            <div class="ui hidden divider"></div>
+            <div *ngIf="!form.valid" style="padding-bottom: 1em;">
+                <div class="ui negative compact message">
+                    <i class="warning icon"></i> You must complete all required fields before you can upload your data
+                </div>
+            </div>
+            <div class="ui buttons">
+                <button (click)="save()" class="ui primary button large" [disabled]="!form.valid">Publish Data</button>
+            </div>
+
+        </div>
+        <div *ngIf="isLoading" class="ui center aligned container">
+            <img src="/Content/images/cube.gif" />
+        </div>
+    </div>
+    <div *ngIf="developerMode">
+        <dd-dev></dd-dev>
+    </div>
+</div>

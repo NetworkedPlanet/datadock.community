@@ -1,0 +1,6 @@
+<div class="ui vertical pointing menu">
+    <a class="item" [ngClass]="{active: activeTab === 'dataset-info'}" (click)="changeTab('dataset-info')">Dataset Details</a>
+    <a class="item" [ngClass]="{active: activeTab === 'column-definitions'}" (click)="changeTab('column-definitions')">Column Definitions</a>
+    <a class="item" [ngClass]="{active: activeTab === 'column-definitions-advanced'}" (click)="changeTab('column-definitions-advanced')">Advanced</a>
+    <a class="item" [ngClass]="{active: activeTab === 'data-preview'}" (click)="changeTab('data-preview')">Data Preview</a>
+</div>

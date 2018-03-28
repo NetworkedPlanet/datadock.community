@@ -1,0 +1,9 @@
+<table class="ui celled table">
+    <tbody>
+    <tr *ngFor="let fieldName of fm.getControls(sectionName)">
+        <td>
+            <dd-form-field [field]="fm.getField(fieldName)"></dd-form-field>
+        </td>
+    </tr>
+    </tbody>
+</table>

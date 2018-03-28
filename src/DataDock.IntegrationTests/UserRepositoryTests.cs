@@ -5,19 +5,21 @@ using System.Security.Claims;
 using System.Text;
 using Datadock.Common.Elasticsearch;
 using Datadock.Common.Models;
+using DataDock.Common;
 using Xunit;
 
 namespace DataDock.IntegrationTests
 {
     public class UserRepositoryTests : IClassFixture<ElasticsearchFixture>
     {
-        private readonly ElasticsearchFixture _esFixture;
         private readonly UserRepository _userRepository;
 
         public UserRepositoryTests(ElasticsearchFixture fixture)
         {
-            _esFixture = fixture;
-            _userRepository = new UserRepository(_esFixture.Client, _esFixture.UserSettingsIndexName, _esFixture.UserAccountsIndexName);
+            var esFixture = fixture;
+            var config = new ApplicationConfiguration(null, null, esFixture.UserAccountsIndexName, null, null, null,
+                null, null);
+            _userRepository = new UserRepository(esFixture.Client, config);
         }
 
         [Fact]

@@ -5,14 +5,16 @@ using Serilog;
 using System;
 using System.Threading.Tasks;
 using Datadock.Common.Validators;
+using DataDock.Common;
 
 namespace Datadock.Common.Elasticsearch
 {
     public class OwnerSettingsRepository : IOwnerSettingsRepository
     {
         private readonly IElasticClient _client;
-        public OwnerSettingsRepository(IElasticClient client, string indexName)
+        public OwnerSettingsRepository(IElasticClient client, ApplicationConfiguration config)
         {
+            var indexName = config.OwnerSettingsIndexName;
             Log.Debug("Create OwnerSettingsRepository. Index={indexName}", indexName);
             _client = client;
             // Ensure the index exists
@@ -20,8 +22,8 @@ namespace Datadock.Common.Elasticsearch
             if (!indexExistsReponse.Exists)
             {
                 Log.Debug("Create ES index {indexName} for type {indexType}", indexName, typeof(JobInfo));
-               var createIndexResponse =  _client.CreateIndex(indexName, config =>
-                    config.Mappings(mappings => mappings.Map<OwnerSettings>(m => m.AutoMap(-1))));
+                var createIndexResponse = _client.CreateIndex(indexName,
+                    c => c.Mappings(mappings => mappings.Map<OwnerSettings>(m => m.AutoMap(-1))));
                 if (!createIndexResponse.Acknowledged)
                 {
                     Log.Error("Create ES index failed for {indexName}. Cause: {detail}", indexName, createIndexResponse.DebugInformation);

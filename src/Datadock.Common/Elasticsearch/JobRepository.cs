@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Datadock.Common.Models;
 using Datadock.Common.Repositories;
+using DataDock.Common;
 using Nest;
 using Serilog;
 
@@ -16,8 +17,9 @@ namespace Datadock.Common.Elasticsearch
     public class JobRepository : IJobRepository
     {
         private readonly IElasticClient _client;
-        public JobRepository(IElasticClient client, string indexName)
+        public JobRepository(IElasticClient client, ApplicationConfiguration config)
         {
+            var indexName = config.JobsIndexName;
             Log.Debug("Create JobRepository. Index={indexName}", indexName);
             _client = client;
             // Ensure the index exists
@@ -25,8 +27,8 @@ namespace Datadock.Common.Elasticsearch
             if (!indexExistsReponse.Exists)
             {
                 Log.Debug("Create ES index {indexName} for type {indexType}", indexName, typeof(JobInfo));
-               var createIndexResponse =  _client.CreateIndex(indexName, config =>
-                    config.Mappings(mappings => mappings.Map<JobInfo>(m => m.AutoMap(-1))));
+                var createIndexResponse = _client.CreateIndex(indexName, c => c.Mappings(
+                    mappings => mappings.Map<JobInfo>(m => m.AutoMap(-1))));
                 if (!createIndexResponse.Acknowledged)
                 {
                     Log.Error("Create ES index failed for {indexName}. Cause: {detail}", indexName, createIndexResponse.DebugInformation);

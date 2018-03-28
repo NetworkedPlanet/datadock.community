@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Datadock.Common.Elasticsearch;
 using Datadock.Common.Models;
+using DataDock.Common;
 using Nest;
 using Xunit;
 
@@ -10,13 +11,15 @@ namespace DataDock.IntegrationTests
 {
     public class JobRepositoryTests : IClassFixture<ElasticsearchFixture>, IDisposable
     {
-        private JobRepository _repo;
-        private ElasticsearchFixture _fixture;
+        private readonly JobRepository _repo;
+        private readonly ElasticsearchFixture _fixture;
 
         public JobRepositoryTests(ElasticsearchFixture esFixture)
         {
             _fixture = esFixture;
-            _repo = new JobRepository(esFixture.Client, esFixture.JobsIndexName);
+            var config =
+                new ApplicationConfiguration(null, esFixture.JobsIndexName, null, null, null, null, null, null);
+            _repo = new JobRepository(esFixture.Client, config);
         }
 
         public void Dispose()

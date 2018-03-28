@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Datadock.Common.Models;
 using Datadock.Common.Repositories;
 using Datadock.Common.Validators;
+using DataDock.Common;
 using Nest;
 using Serilog;
 
@@ -13,18 +14,20 @@ namespace Datadock.Common.Elasticsearch
 {
     public class UserRepository : IUserRepository
     {
-        private readonly ElasticClient _client;
+        private readonly IElasticClient _client;
 
-        public UserRepository(ElasticClient client, string userSettingsIndexName, string userAccountIndexName)
+        public UserRepository(IElasticClient client,ApplicationConfiguration config)
         {
+            var userSettingsIndexName = "obsolete";
+            var userAccountIndexName = config.UserIndexName;
             _client = client;
             // Ensure the index exists
             var indexExistsReponse = _client.IndexExists(userSettingsIndexName);
             if (!indexExistsReponse.Exists)
             {
                 Log.Debug("Create ES index {indexName} for type {indexType}", userSettingsIndexName, typeof(UserSettings));
-                var createIndexResponse = _client.CreateIndex(userSettingsIndexName, config =>
-                    config.Mappings(mappings => mappings.Map<UserSettings>(m => m.AutoMap(-1))));
+                var createIndexResponse = _client.CreateIndex(userSettingsIndexName,
+                    c => c.Mappings(mappings => mappings.Map<UserSettings>(m => m.AutoMap(-1))));
                 if (!createIndexResponse.Acknowledged)
                 {
                     Log.Error("Create ES index failed for {indexName}. Cause: {detail}", userSettingsIndexName, createIndexResponse.DebugInformation);
@@ -38,8 +41,8 @@ namespace Datadock.Common.Elasticsearch
             if (!indexExistsReponse.Exists)
             {
                 Log.Debug("Create ES index {indexName} for type {indexType}", userAccountIndexName, typeof(UserAccount));
-                var createIndexResponse = _client.CreateIndex(userAccountIndexName, config =>
-                    config.Mappings(mappings => mappings.Map<UserAccount>(m => m.AutoMap())));
+                var createIndexResponse = _client.CreateIndex(userAccountIndexName,
+                    c => c.Mappings(mappings => mappings.Map<UserAccount>(m => m.AutoMap())));
                 if (!createIndexResponse.Acknowledged)
                 {
                     Log.Error("Create ES index failed for {indexName}. Cause: {detail}", userAccountIndexName, createIndexResponse.DebugInformation);
@@ -120,7 +123,6 @@ namespace Datadock.Common.Elasticsearch
             if (!response.Found) throw new UserAccountNotFoundException(userId);
             return response.Source;
         }
-
 
         public async Task<bool> ValidateLastChanged(string userId, DateTime lastChanged)
         {

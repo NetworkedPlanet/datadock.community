@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Datadock.Common;
 using Datadock.Common.Elasticsearch;
-using Datadock.Common.Models;
 using Datadock.Common.Repositories;
-using Microsoft.AspNetCore.SignalR.Client;
+using DataDock.Common;
+using Elasticsearch.Net;
+using Microsoft.Extensions.DependencyInjection;
 using Nest;
 using Serilog;
 using Serilog.Events;
@@ -12,42 +14,21 @@ using Serilog.Sinks.Elasticsearch;
 
 namespace DataDock.Worker
 {
-    class Program
+    internal class Program
     {
         private static readonly AutoResetEvent WaitHandle = new AutoResetEvent(false);
-        private static ElasticClient _client;
 
         static void Main(string[] args)
         {
-            var esUrl = Environment.GetEnvironmentVariable("ES_URL") ?? "http://elasticsearch:9200";
-            var jobsIndexName = Environment.GetEnvironmentVariable("JOBS_IX") ?? "jobs";
-            
             Log.Information("Worker Starting");
-            Log.Information("ES_URL {esUrl}", esUrl);
-            Log.Information("JOBS_IX {jobsIx}", jobsIndexName);
+            var config = WorkerConfiguration.FromEnvironment();
+            config.LogSettings();
+            var serviceCollection = new ServiceCollection();
+            ConfigureServices(serviceCollection, config);
+            var services = serviceCollection.BuildServiceProvider();
+            var application = new Application(services);
 
-            Task.Run(async () =>
-            {
-                _client = new ElasticClient(new Uri(esUrl));
-                Log.Information("Waiting for ES to respond to pings");
-                WaitForElasticsearch();
-                Log.Information("Reconfiguring logging to go to ES");
-                ConfigureLogging();
-                Log.Information("Initializing SignalR hub connection");
-                await InitializeHubConnection();
-                Log.Information("Initializing JobsRepository: {index}", jobsIndexName);
-                var jobRepo = new JobRepository(_client, jobsIndexName);
-                while (true)
-                {
-                    Thread.Sleep(1000);
-                    var job = await jobRepo.GetNextJob();
-                    if (job != null)
-                    {
-                        Log.Information("Found new job: {JobId} {JobType}", job.JobId, job.JobType);
-                        ProcessJob(jobRepo, job);
-                    }
-                }
-            });
+            Task.Run(application.Run);
 
             Console.CancelKeyPress += (o, e) =>
             {
@@ -58,77 +39,79 @@ namespace DataDock.Worker
             WaitHandle.WaitOne();
         }
 
-        private static async Task<HubConnection> InitializeHubConnection()
+        private static void ConfigureServices(IServiceCollection serviceCollection, WorkerConfiguration config)
         {
-            var hubConnection = new HubConnectionBuilder().WithUrl("http://datadock.web/progress").Build();
-            hubConnection.Closed += OnHubConnectionLost;
-            var connectionStarted = false;
-            while (!connectionStarted)
+            var client = RegisterElasticClient(serviceCollection, config);
+            ConfigureLogging(client.ConnectionSettings.ConnectionPool);
+            ConfigureServices(serviceCollection, client, config);
+        }
+
+
+        private static IElasticClient RegisterElasticClient(IServiceCollection serviceCollection, ApplicationConfiguration config)
+        {
+            Log.Information("Attempting to connect to Elasticsearch at {esUrl}", config.ElasticsearchUrl);
+            var client = new ElasticClient(new Uri(config.ElasticsearchUrl));
+            WaitForElasticsearch(client);
+            serviceCollection.AddSingleton<IElasticClient>(client);
+            return client;
+        }
+
+        private static void WaitForElasticsearch(IElasticClient client)
+        {
+            Log.Information("Waiting for ES to respond to pings");
+            var elasticsearchConnected = false;
+            while (!elasticsearchConnected)
             {
-                try
+                var response = client.Ping();
+                if (response.IsValid)
                 {
-                    await hubConnection.StartAsync();
-                    connectionStarted = true;
+                    Log.Information("Elasticsearch is Running!");
+                    elasticsearchConnected = true;
                 }
-                catch (Exception ex)
+                else
                 {
-                    Log.Error(ex, "signalr connection failed");
-                    Console.WriteLine("Error connecting to Signalr Hub: " + ex);
-                    Thread.Sleep(3000);
+                    Log.Information("Elasticsearch is starting");
                 }
+
+                Thread.Sleep(1000);
             }
 
-            return hubConnection;
         }
 
-        private static void OnHubConnectionLost(Exception exc)
+        private static void ConfigureServices(IServiceCollection serviceCollection, IElasticClient elasticClient,
+            WorkerConfiguration config)
         {
-            Log.Warning(exc, "SignalR hub connection was lost. Reconnecting in 3 seconds");
-            Thread.Sleep(3000);
-            InitializeHubConnection().RunSynchronously();
+            serviceCollection.AddSingleton(config);
+            serviceCollection.AddSingleton<ApplicationConfiguration>(config);
+            serviceCollection.AddScoped<IFileStore, DirectoryFileStore>();
+
+            serviceCollection.AddSingleton<IDatasetRepository, DatasetRepository>();
+            serviceCollection.AddSingleton<IJobRepository, JobRepository>();
+            serviceCollection.AddSingleton<IUserRepository, UserRepository>();
+            serviceCollection.AddSingleton<IOwnerSettingsRepository,OwnerSettingsRepository>();
+            serviceCollection.AddSingleton<IRepoSettingsRepository>(
+                new RepoSettingsRepository(elasticClient, config.RepoSettingsIndexName));
+            serviceCollection.AddSingleton<ISchemaRepository>(
+                new SchemaRepository(elasticClient, config.SchemaIndexName));
+            serviceCollection.AddSingleton<IProgressLogFactory, SignalrProgressLogFactory>();
+            serviceCollection.AddSingleton<IGitHubClientFactory>(
+                new GitHubClientFactory(config.GitHubProductHeader));
+            serviceCollection.AddSingleton<IQuinceStoreFactory>(new DefaultQuinceStoreFactory());
+            serviceCollection.AddTransient<IHtmlGeneratorFactory, HtmlFileGeneratorFactory>();
         }
 
-        private static void ConfigureLogging()
+        private static void ConfigureLogging(IConnectionPool clientConnectionPool)
         {
             Log.Logger = new LoggerConfiguration().Enrich.FromLogContext()
                 .MinimumLevel.Debug()
                 .WriteTo.Elasticsearch().WriteTo.Elasticsearch(
-                    new ElasticsearchSinkOptions(new Uri("http://elasticsearch:9200"))
+                    new ElasticsearchSinkOptions(clientConnectionPool)
                     {
                         MinimumLogEventLevel = LogEventLevel.Debug,
                         AutoRegisterTemplate = true
                     })
                 .CreateLogger();
-        }
-
-        private static void WaitForElasticsearch()
-        {
-            var elasticsearchConnected = false;
-            while (!elasticsearchConnected)
-            {
-                var response = _client.Ping();
-                if (response.IsValid)
-                {
-                    Console.WriteLine("Elasticsearch is Running!");
-                    elasticsearchConnected = true;
-                }
-                else
-                {
-                    Console.WriteLine("Elasticsearch is starting");
-                }
-                Thread.Sleep(1000);
-            }
-
-        }
-        private static async void ProcessJob(IJobRepository jobRepo, JobInfo job)
-        {
-            Log.Information("Start working on job {jobId}", job.JobId);
-            
-            Thread.Sleep(5000);
-            job.RefreshedTimestamp = DateTime.UtcNow.Ticks;
-            await jobRepo.UpdateJobInfoAsync(job);
 
         }
     }
-
 }

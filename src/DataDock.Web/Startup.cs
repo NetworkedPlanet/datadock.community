@@ -27,6 +27,7 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using DataDock.Common;
 
 namespace DataDock.Web
 {
@@ -52,13 +53,7 @@ namespace DataDock.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var esUrl = Environment.GetEnvironmentVariable("ES_URL") ?? "http://elasticsearch:9200";
-            var userSettingsIxName = Environment.GetEnvironmentVariable("USERSETTINGS_IX") ?? "usersettings";
-            var userAccountIxName = Environment.GetEnvironmentVariable("USERACCOUNT_IX") ?? "useraccount";
-            var jobsIxName = Environment.GetEnvironmentVariable("JOBS_IX") ?? "jobs";
-            var ownerSettingsIxName = Environment.GetEnvironmentVariable("OWNERSETTINGS_IX") ?? "ownersettings";
-            var repoSettingsIxName = Environment.GetEnvironmentVariable("REPOSETTINGS_IX") ?? "reposettings";
-
+            var config = ApplicationConfiguration.FromEnvironment();
             services.AddOptions();
 
             services.AddMvc();
@@ -71,19 +66,21 @@ namespace DataDock.Web
 
 
             services.AddSignalR();
-            var client = new ElasticClient(new Uri(esUrl));
+            var client = new ElasticClient(new Uri(config.ElasticsearchUrl));
 
             services.AddScoped<AccountExistsFilter>();
             services.AddScoped<OwnerAdminAuthFilter>();
 
+            services.AddSingleton(config);
             services.AddSingleton<IElasticClient>(client);
-            services.AddSingleton<IUserRepository>(new UserRepository(client, userSettingsIxName, userAccountIxName));
-            services.AddSingleton<IJobRepository>(new JobRepository(client, jobsIxName));
-            services.AddSingleton<IOwnerSettingsRepository>(new OwnerSettingsRepository(client, ownerSettingsIxName));
-            services.AddSingleton<IRepoSettingsRepository>(new RepoSettingsRepository(client, repoSettingsIxName));
+            services.AddSingleton<IUserRepository, UserRepository>();
+            services.AddSingleton<IJobRepository, JobRepository>();
+            services.AddSingleton<IOwnerSettingsRepository, OwnerSettingsRepository>();
+            services.AddSingleton<IRepoSettingsRepository, RepoSettingsRepository>();
 
             services.AddScoped<DataDockCookieAuthenticationEvents>();
 
+            // TODO: This should come from environment variables, not config
             var gitHubClientHeader = Configuration["DataDock:GitHubClientHeader"];
             services.AddSingleton<IGitHubClientFactory>(new GitHubClientFactory(gitHubClientHeader));
             services.AddTransient<IGitHubApiService, GitHubApiService>();

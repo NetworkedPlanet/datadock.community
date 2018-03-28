@@ -13,7 +13,7 @@ namespace Datadock.Common.Repositories
         /// <param name="skip">The number of results to skip</param>
         /// <param name="take">The number of results to return</param>
         /// <returns>A list of <see cref="SchemaInfo"/> instances ordered by last modified date (most recent first)</returns>
-        IReadOnlyList<SchemaInfo> GetSchemasByOwnerList(string[] ownerIds, int skip, int take);
+        IReadOnlyCollection<SchemaInfo> GetSchemasByOwnerList(string[] ownerIds, int skip, int take);
 
         /// <summary>
         /// Get a list of schemas for the supplied repositories
@@ -22,7 +22,7 @@ namespace Datadock.Common.Repositories
         /// <param name="skip">The number of results to skip</param>
         /// <param name="take">The number of results to return</param>
         /// <returns>A list of <see cref="SchemaInfo"/> instances ordered by last modified date (most recent first)</returns>
-        IReadOnlyList<SchemaInfo> GetSchemasByRepositoryList(string[] repositoryIds, int skip, int take);
+        IReadOnlyCollection<SchemaInfo> GetSchemasByRepositoryList(string[] repositoryIds, int skip, int take);
 
         /// <summary>
         /// Get a specific schema by Id
@@ -30,7 +30,7 @@ namespace Datadock.Common.Repositories
         /// <param name="ownerId"></param>
         /// <param name="schemaId"></param>
         /// <returns></returns>
-        SchemaInfo GetSchemaInfo(string ownerId, string schemaId);
+        Task<SchemaInfo> GetSchemaInfoAsync(string ownerId, string schemaId);
 
         /// <summary>
         /// Create a new record for a schema
@@ -44,7 +44,7 @@ namespace Datadock.Common.Repositories
         /// </summary>
         /// <param name="ownerId"></param>
         /// <returns>true if successful</returns>
-        Task<bool> DeleteSchemaRecordsForOwnerAsync(string ownerId);
+        Task DeleteSchemaRecordsForOwnerAsync(string ownerId);
 
         /// <summary>
         /// Delete a specific schema

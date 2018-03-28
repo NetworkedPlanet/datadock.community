@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
-using Datadock.Common.Models;
 using FluentAssertions;
+using Moq;
 using NetworkedPlanet.Quince;
 using VDS.RDF;
 using Xunit;
@@ -10,14 +10,6 @@ namespace DataDock.Worker.Tests
 {
     public class CsvConverionSpec
     {
-        private readonly ContactInfo _publisher = new ContactInfo
-        {
-            Type = "http://xmlns.com/foaf/0.1/Organization",
-            Email = "contact@networkedplanet.com",
-            Label = "NetworkedPlanet",
-            Website = "http://networkedplanet.com/"
-        };
-
         [Fact]
         public void CanGenerateRdfFromRepository()
         {
@@ -32,27 +24,20 @@ namespace DataDock.Worker.Tests
             {
                 parser.Parse(reader, t => repo.Assert(t.Subject, t.Predicate, t.Object, t.GraphUri), defaultGraph);
             }
+
             repo.Flush();
+            var mockQuinceFactory = new Mock<IQuinceStoreFactory>();
+            mockQuinceFactory.Setup(x => x.MakeQuinceStore(It.IsAny<string>())).Returns(repo);
+            var mockHtmlGeneratorFactory = new Mock<IHtmlGeneratorFactory>();
 
-            var conversionProcessor =
-                new ConversionJobProcessor(
-                    new ConversionJobProcessorConfiguration {GitPath = "git", RepoBaseDir = "tmp//generate"}, null, null,
-                    null, null, null, null, null, null, new MockProgressLog());
-            conversionProcessor.GenerateRdf(repo, tmpDir, new Uri("http://example.org/"),
-                new Uri[] {new Uri("http://example.org/g/g1")});
+            var ddRepository = new DataDockRepository(tmpDir, new Uri("http://example.org/"), new MockProgressLog(),
+                mockQuinceFactory.Object, mockHtmlGeneratorFactory.Object);
+            ddRepository.GenerateRdf(new[] {new Uri("http://example.org/g/g1")});
 
-            var expectFile = new FileInfo(Path.Combine(tmpDir, "data","resource", "s", "s0.nq"));
+            var expectFile = new FileInfo(Path.Combine(tmpDir, "data", "resource", "s", "s0.nq"));
             expectFile.Exists.Should().BeTrue();
-            var unexpectFile = new FileInfo(Path.Combine(tmpDir, "data","resource", "s", "s1.rdf"));
+            var unexpectFile = new FileInfo(Path.Combine(tmpDir, "data", "resource", "s", "s1.rdf"));
             unexpectFile.Exists.Should().BeFalse();
-
-#if GENERATE_RDFXML
-            expectFile = new FileInfo(Path.Combine(tmpDir, "data", "s", "s0.rdf"));
-            expectFile.Exists.Should().BeTrue();
-            unexpectFile = new FileInfo(Path.Combine(tmpDir, "data", "s", "s1.rdf"));
-            unexpectFile.Exists.Should().BeFalse();
-#endif
         }
-
     }
 }

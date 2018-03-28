@@ -21,7 +21,7 @@ namespace DataDock.Worker.Processors
     {
         private readonly WorkerConfiguration _configuration;
         private readonly GitCommandProcessor _git;
-        private readonly IDatasetRepository _datasetRepository;
+        private readonly IDatasetStore _datasetStore;
         private readonly IOwnerSettingsRepository _ownerSettingsRepository;
         private readonly IRepoSettingsRepository _repoSettingsRepository;
         private readonly IFileStore _jobFileStore;
@@ -33,7 +33,7 @@ namespace DataDock.Worker.Processors
         public ImportJobProcessor(
             WorkerConfiguration configuration,
             GitCommandProcessor gitProcessor,
-            IDatasetRepository datasetRepository,
+            IDatasetStore datasetStore,
             IFileStore jobFileStore,
             IOwnerSettingsRepository ownerSettingsRepository,
             IRepoSettingsRepository repoSettingsRepository,
@@ -42,7 +42,7 @@ namespace DataDock.Worker.Processors
         {
             _configuration = configuration;
             _git = gitProcessor;
-            _datasetRepository = datasetRepository;
+            _datasetStore = datasetStore;
             _ownerSettingsRepository = ownerSettingsRepository;
             _repoSettingsRepository = repoSettingsRepository;
             _jobFileStore = jobFileStore;
@@ -134,7 +134,7 @@ namespace DataDock.Worker.Processors
             // Update the dataset repository
             try
             {
-                await _datasetRepository.CreateOrUpdateDatasetRecordAsync(new DatasetInfo
+                await _datasetStore.CreateOrUpdateDatasetRecordAsync(new DatasetInfo
                 {
                     OwnerId = job.OwnerId,
                     RepositoryId = job.GitRepositoryFullName,

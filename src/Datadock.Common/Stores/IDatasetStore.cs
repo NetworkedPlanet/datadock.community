@@ -4,7 +4,7 @@ using Datadock.Common.Models;
 
 namespace Datadock.Common.Stores
 {
-    public interface IDatasetRepository
+    public interface IDatasetStore
     {
         /// <summary>
         /// Get the N most recently updated datasets across all repositories

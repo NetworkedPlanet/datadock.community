@@ -13,19 +13,19 @@ namespace DataDock.Worker.Processors
     {
         private readonly WorkerConfiguration _configuration;
         private readonly GitCommandProcessor _git;
-        private readonly IDatasetRepository _datasetRepository;
+        private readonly IDatasetStore _datasetStore;
         private readonly IQuinceStoreFactory _quinceStoreFactory;
         private readonly IHtmlGeneratorFactory _htmlGeneratorFactory;
 
         public DeleteDatasetProcessor(WorkerConfiguration configuration,
             GitCommandProcessor gitProcessor,
-            IDatasetRepository datasetRepository,
+            IDatasetStore datasetStore,
             IQuinceStoreFactory quinceStoreFactory,
             IHtmlGeneratorFactory htmlGeneratorFactory)
         {
             _configuration = configuration;
             _git = gitProcessor;
-            _datasetRepository = datasetRepository;
+            _datasetStore = datasetStore;
             _quinceStoreFactory = quinceStoreFactory;
             _htmlGeneratorFactory = htmlGeneratorFactory;
         }
@@ -61,7 +61,7 @@ namespace DataDock.Worker.Processors
             }
             try
             {
-                await _datasetRepository.DeleteDatasetAsync(jobInfo.GitRepositoryFullName, jobInfo.DatasetId);
+                await _datasetStore.DeleteDatasetAsync(jobInfo.GitRepositoryFullName, jobInfo.DatasetId);
             }
             catch (Exception ex)
             {

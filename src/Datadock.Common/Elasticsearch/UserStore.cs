@@ -12,11 +12,11 @@ using Serilog;
 
 namespace Datadock.Common.Elasticsearch
 {
-    public class UserRepository : IUserRepository
+    public class UserStore : IUserStore
     {
         private readonly IElasticClient _client;
 
-        public UserRepository(IElasticClient client,ApplicationConfiguration config)
+        public UserStore(IElasticClient client,ApplicationConfiguration config)
         {
             var userSettingsIndexName = "obsolete";
             var userAccountIndexName = config.UserIndexName;
@@ -32,7 +32,7 @@ namespace Datadock.Common.Elasticsearch
                 {
                     Log.Error("Create ES index failed for {indexName}. Cause: {detail}", userSettingsIndexName, createIndexResponse.DebugInformation);
                     throw new DatadockException(
-                        $"Could not create index {userSettingsIndexName} for UserRepository. Cause: {createIndexResponse.DebugInformation}");
+                        $"Could not create index {userSettingsIndexName} for UserStore. Cause: {createIndexResponse.DebugInformation}");
                 }
             }
 
@@ -47,7 +47,7 @@ namespace Datadock.Common.Elasticsearch
                 {
                     Log.Error("Create ES index failed for {indexName}. Cause: {detail}", userAccountIndexName, createIndexResponse.DebugInformation);
                     throw new DatadockException(
-                        $"Could not create index {userAccountIndexName} for UserRepository. Cause: {createIndexResponse.DebugInformation}");
+                        $"Could not create index {userAccountIndexName} for UserStore. Cause: {createIndexResponse.DebugInformation}");
                 }
             }
             // Set default indexes for repository types
@@ -63,7 +63,7 @@ namespace Datadock.Common.Elasticsearch
             if (!response.IsValid)
             {
                 if (!response.Found) throw new UserAccountNotFoundException(userId);
-                throw new UserRepositoryException(
+                throw new UserStoreException(
                     $"Error retrieving user account for user ID {userId}. Cause: {response.DebugInformation}");
             }
             return response.Source;
@@ -81,7 +81,7 @@ namespace Datadock.Common.Elasticsearch
             var updateResponse = await _client.IndexDocumentAsync(userSettings);
             if (!updateResponse.IsValid)
             {
-                throw new UserRepositoryException($"Error udpating user settings for user ID {userSettings.UserId}");
+                throw new UserStoreException($"Error udpating user settings for user ID {userSettings.UserId}");
             }
         }
 

@@ -6,7 +6,7 @@ using Datadock.Common.Models;
 
 namespace Datadock.Common.Stores
 {
-    public interface IUserRepository
+    public interface IUserStore
     {
         /// <summary>
         /// Retrieve the settings for the specified user

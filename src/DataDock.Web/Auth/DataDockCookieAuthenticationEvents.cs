@@ -11,11 +11,11 @@ namespace DataDock.Web.Auth
 {
     public class DataDockCookieAuthenticationEvents: CookieAuthenticationEvents
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IUserStore _userStore;
 
-        public DataDockCookieAuthenticationEvents(IUserRepository userRepository)
+        public DataDockCookieAuthenticationEvents(IUserStore userStore)
         {
-            _userRepository = userRepository;
+            _userStore = userStore;
         }
 
         public override async Task ValidatePrincipal(CookieValidatePrincipalContext context)
@@ -38,7 +38,7 @@ namespace DataDock.Web.Auth
                 
                 if (string.IsNullOrEmpty(lastChanged))
                 {
-                    var validate = await _userRepository.ValidateLastChanged(userId, lastChangedDateTime);
+                    var validate = await _userStore.ValidateLastChanged(userId, lastChangedDateTime);
                     if (!validate)
                     {
                         context.RejectPrincipal();

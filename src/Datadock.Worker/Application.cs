@@ -46,7 +46,7 @@ namespace DataDock.Worker
         {
             try
             {
-                var userRepo = Services.GetRequiredService<IUserRepository>();
+                var userRepo = Services.GetRequiredService<IUserStore>();
                 var userAccount = await userRepo.GetUserAccountAsync(jobInfo.UserId);
 
                 IDataDockProcessor processor;

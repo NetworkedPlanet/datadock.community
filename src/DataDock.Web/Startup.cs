@@ -73,7 +73,7 @@ namespace DataDock.Web
 
             services.AddSingleton(config);
             services.AddSingleton<IElasticClient>(client);
-            services.AddSingleton<IUserRepository, UserRepository>();
+            services.AddSingleton<IUserStore, UserStore>();
             services.AddSingleton<IJobStore, JobStore>();
             services.AddSingleton<IOwnerSettingsStore, OwnerSettingsStore>();
             services.AddSingleton<IRepoSettingsStore, RepoSettingsStore>();
@@ -162,7 +162,7 @@ namespace DataDock.Web
         private async Task EnsureUser(OAuthCreatingTicketContext context, string login)
         {
             if (string.IsNullOrEmpty(login)) return;
-            var userRepository = context.HttpContext.RequestServices.GetService<IUserRepository>();
+            var userRepository = context.HttpContext.RequestServices.GetService<IUserStore>();
             try
             {
                 var existingAccount = await userRepository.GetUserAccountAsync(login.ToString());

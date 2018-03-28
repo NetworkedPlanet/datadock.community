@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Datadock.Common;
 using Datadock.Common.Elasticsearch;
-using Datadock.Common.Repositories;
+using Datadock.Common.Stores;
 using DataDock.Common;
 using Elasticsearch.Net;
 using Microsoft.Extensions.DependencyInjection;
@@ -85,14 +85,14 @@ namespace DataDock.Worker
             serviceCollection.AddSingleton<ApplicationConfiguration>(config);
             serviceCollection.AddScoped<IFileStore, DirectoryFileStore>();
 
-            serviceCollection.AddSingleton<IDatasetRepository, DatasetRepository>();
-            serviceCollection.AddSingleton<IJobRepository, JobRepository>();
-            serviceCollection.AddSingleton<IUserRepository, UserRepository>();
-            serviceCollection.AddSingleton<IOwnerSettingsRepository,OwnerSettingsRepository>();
-            serviceCollection.AddSingleton<IRepoSettingsRepository>(
-                new RepoSettingsRepository(elasticClient, config.RepoSettingsIndexName));
-            serviceCollection.AddSingleton<ISchemaRepository>(
-                new SchemaRepository(elasticClient, config.SchemaIndexName));
+            serviceCollection.AddSingleton<IDatasetStore, DatasetStore>();
+            serviceCollection.AddSingleton<IJobStore, JobStore>();
+            serviceCollection.AddSingleton<IUserStore, UserStore>();
+            serviceCollection.AddSingleton<IOwnerSettingsStore,OwnerSettingsStore>();
+            serviceCollection.AddSingleton<IRepoSettingsStore>(
+                new RepoSettingsStore(elasticClient, config.RepoSettingsIndexName));
+            serviceCollection.AddSingleton<ISchemaStore>(
+                new SchemaStore(elasticClient, config.SchemaIndexName));
             serviceCollection.AddSingleton<IProgressLogFactory, SignalrProgressLogFactory>();
             serviceCollection.AddSingleton<IGitHubClientFactory>(
                 new GitHubClientFactory(config.GitHubProductHeader));

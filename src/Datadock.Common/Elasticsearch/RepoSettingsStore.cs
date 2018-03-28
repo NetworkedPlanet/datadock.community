@@ -1,19 +1,19 @@
 ﻿using Datadock.Common.Models;
-using Datadock.Common.Repositories;
 using Nest;
 using Serilog;
 using System;
 using System.Threading.Tasks;
+using Datadock.Common.Stores;
 using Datadock.Common.Validators;
 
 namespace Datadock.Common.Elasticsearch
 {
-    public class RepoSettingsRepository : IRepoSettingsRepository
+    public class RepoSettingsStore : IRepoSettingsStore
     {
         private readonly IElasticClient _client;
-        public RepoSettingsRepository(IElasticClient client, string indexName)
+        public RepoSettingsStore(IElasticClient client, string indexName)
         {
-            Log.Debug("Create RepoSettingsRepository. Index={indexName}", indexName);
+            Log.Debug("Create RepoSettingsStore. Index={indexName}", indexName);
             _client = client;
             // Ensure the index exists
             var indexExistsReponse = _client.IndexExists(indexName);
@@ -39,7 +39,7 @@ namespace Datadock.Common.Elasticsearch
             if (!response.IsValid)
             {
                 if (!response.Found) throw new RepoSettingsNotFoundException(ownerRepoId);
-                throw new RepoSettingsRepositoryException(
+                throw new RepoSettingsStoreException(
                     $"Error retrieving repository settings for repo ID {ownerRepoId}. Cause: {response.DebugInformation}");
             }
             return response.Source;
@@ -57,7 +57,7 @@ namespace Datadock.Common.Elasticsearch
             var updateResponse = await _client.IndexDocumentAsync(settings);
             if (!updateResponse.IsValid)
             {
-                throw new OwnerSettingsRepositoryException($"Error updating repo settings for owner/repo ID {settings.RepositoryId}");
+                throw new OwnerSettingsStoreException($"Error updating repo settings for owner/repo ID {settings.RepositoryId}");
             }
         }
     }

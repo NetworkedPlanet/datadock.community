@@ -1,21 +1,21 @@
-﻿using Datadock.Common.Repositories;
-using DataDock.Web.ViewModels;
+﻿using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Serilog;
 using System;
 using System.Threading.Tasks;
+using Datadock.Common.Stores;
 
 namespace DataDock.Web.ViewComponents
 {
     public class SettingsViewComponent : ViewComponent
     {
-        private readonly IOwnerSettingsRepository _ownerSettingsRepository;
-        private readonly IRepoSettingsRepository _repoSettingsRepository;
-        public SettingsViewComponent(IOwnerSettingsRepository ownerSettingsRepository, IRepoSettingsRepository repoSettingsRepository)
+        private readonly IOwnerSettingsStore _ownerSettingsStore;
+        private readonly IRepoSettingsStore _repoSettingsStore;
+        public SettingsViewComponent(IOwnerSettingsStore ownerSettingsStore, IRepoSettingsStore repoSettingsStore)
         {
-            _ownerSettingsRepository = ownerSettingsRepository;
-            _repoSettingsRepository = repoSettingsRepository;
+            _ownerSettingsStore = ownerSettingsStore;
+            _repoSettingsStore = repoSettingsStore;
         }
 
         public async Task<IViewComponentResult> InvokeAsync(string selectedOwnerId, string selectedRepoId)
@@ -57,7 +57,7 @@ namespace DataDock.Web.ViewComponents
             if (string.IsNullOrEmpty(ownerId)) return null;
             try
             {
-                var os = await _ownerSettingsRepository.GetOwnerSettingsAsync(ownerId);
+                var os = await _ownerSettingsStore.GetOwnerSettingsAsync(ownerId);
                 var osvm = new OwnerSettingsViewModel(os);
                 return osvm;
             }
@@ -83,7 +83,7 @@ namespace DataDock.Web.ViewComponents
             if (string.IsNullOrEmpty(ownerRepoId)) return null;
             try
             {
-                var rs = await _repoSettingsRepository.GetRepoSettingsAsync(ownerRepoId);
+                var rs = await _repoSettingsStore.GetRepoSettingsAsync(ownerRepoId);
                 var rsvm = new RepoSettingsViewModel(rs);
                 return rsvm;
             }

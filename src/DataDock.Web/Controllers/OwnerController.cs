@@ -3,7 +3,7 @@ using DataDock.Web.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using Datadock.Common.Repositories;
+using Datadock.Common.Stores;
 using DataDock.Web.Models;
 using DataDock.Web.ViewModels;
 using Serilog;
@@ -13,11 +13,11 @@ namespace DataDock.Web.Controllers
     
     public class OwnerController : DashboardBaseController
     {
-        private readonly IOwnerSettingsRepository _ownerSettingsRepository;
+        private readonly IOwnerSettingsStore _ownerSettingsStore;
 
-        public OwnerController(IOwnerSettingsRepository ownerSettingsRepository)
+        public OwnerController(IOwnerSettingsStore ownerSettingsStore)
         {
-            _ownerSettingsRepository = ownerSettingsRepository;
+            _ownerSettingsStore = ownerSettingsStore;
         }
 
         /// <summary>
@@ -137,7 +137,7 @@ namespace DataDock.Web.Controllers
                     settingsViewModel.LastModified = DateTime.UtcNow;
                     settingsViewModel.LastModifiedBy = User.Identity.Name;
                     var ownerSettings = settingsViewModel.AsOwnerSettings();
-                    await _ownerSettingsRepository.CreateOrUpdateOwnerSettingsAsync(ownerSettings);
+                    await _ownerSettingsStore.CreateOrUpdateOwnerSettingsAsync(ownerSettings);
                     ViewBag.StatusMessage = GetSettingsStatusMessage(ManageMessageId.ChangeSettingSuccess);
                     TempData["ModelState"] = null;
                 }

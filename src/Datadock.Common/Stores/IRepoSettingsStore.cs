@@ -1,9 +1,9 @@
-﻿using Datadock.Common.Models;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Datadock.Common.Models;
 
-namespace Datadock.Common.Repositories
+namespace Datadock.Common.Stores
 {
-    public interface IRepoSettingsRepository
+    public interface IRepoSettingsStore
     {
         Task<RepoSettings> GetRepoSettingsAsync(string ownerRepoId);
         Task CreateOrUpdateRepoSettingsAsync(RepoSettings settings);

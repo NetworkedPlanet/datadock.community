@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Datadock.Common.Models;
-using Datadock.Common.Repositories;
+using Datadock.Common.Stores;
 using DataDock.Common;
 using Nest;
 using Serilog;
@@ -14,13 +14,13 @@ namespace Datadock.Common.Repositories
 
 namespace Datadock.Common.Elasticsearch
 {
-    public class JobRepository : IJobRepository
+    public class JobStore : IJobStore
     {
         private readonly IElasticClient _client;
-        public JobRepository(IElasticClient client, ApplicationConfiguration config)
+        public JobStore(IElasticClient client, ApplicationConfiguration config)
         {
             var indexName = config.JobsIndexName;
-            Log.Debug("Create JobRepository. Index={indexName}", indexName);
+            Log.Debug("Create JobStore. Index={indexName}", indexName);
             _client = client;
             // Ensure the index exists
             var indexExistsReponse = _client.IndexExists(indexName);
@@ -33,7 +33,7 @@ namespace Datadock.Common.Elasticsearch
                 {
                     Log.Error("Create ES index failed for {indexName}. Cause: {detail}", indexName, createIndexResponse.DebugInformation);
                     throw new DatadockException(
-                        $"Could not create index {indexName} for Job repository. Cause: {createIndexResponse.DebugInformation}");
+                        $"Could not create index {indexName} for JobStore. Cause: {createIndexResponse.DebugInformation}");
                 }
             }
         }
@@ -66,7 +66,7 @@ namespace Datadock.Common.Elasticsearch
             var indexResponse = await _client.IndexDocumentAsync<JobInfo>(jobInfo);
             if (!indexResponse.IsValid)
             {
-                throw new JobRepositoryException($"Failed to insert new job record: {indexResponse.DebugInformation}");
+                throw new JobStoreException($"Failed to insert new job record: {indexResponse.DebugInformation}");
             }
             return jobInfo;
         }
@@ -79,7 +79,7 @@ namespace Datadock.Common.Elasticsearch
             {
                 throw new JobNotFoundException(jobId);
             }
-            throw new JobRepositoryException($"Failed to retrieve job record for jobId {jobId}: {getResponse.DebugInformation}");
+            throw new JobStoreException($"Failed to retrieve job record for jobId {jobId}: {getResponse.DebugInformation}");
         }
 
         public async Task UpdateJobInfoAsync(JobInfo updatedJobInfo)
@@ -88,7 +88,7 @@ namespace Datadock.Common.Elasticsearch
             var updateResponse = await _client.IndexDocumentAsync(updatedJobInfo);
             if (!updateResponse.IsValid)
             {
-                throw new JobRepositoryException(
+                throw new JobStoreException(
                     $"Failed to update job record for jobId {updatedJobInfo.JobId}: {updateResponse.DebugInformation}");
             }
         }

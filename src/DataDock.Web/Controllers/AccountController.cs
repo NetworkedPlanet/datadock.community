@@ -3,7 +3,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Datadock.Common.Models;
-using Datadock.Common.Repositories;
+using Datadock.Common.Stores;
 using DataDock.Web.Auth;
 using DataDock.Web.Models;
 using DataDock.Web.ViewModels;
@@ -18,10 +18,10 @@ namespace DataDock.Web.Controllers
     [Route("[controller]/[action]")]
     public class AccountController : Controller
     {
-        private readonly IUserRepository _userRepository;
-        public AccountController(IUserRepository userRepository)
+        private readonly IUserStore _userStore;
+        public AccountController(IUserStore userStore)
         {
-            _userRepository = userRepository;
+            _userStore = userStore;
         }
 
         [HttpGet]
@@ -59,7 +59,7 @@ namespace DataDock.Web.Controllers
             try
             {
                 // check for user in datadock just in case of login  / claims problems
-                var datadockUser = await _userRepository.GetUserAccountAsync(User.Identity.Name);
+                var datadockUser = await _userStore.GetUserAccountAsync(User.Identity.Name);
                 if (datadockUser != null)
                 {
                     // add identity to context User
@@ -71,7 +71,7 @@ namespace DataDock.Web.Controllers
                         null)
                     {
                         // update datadock user account if required
-                        await _userRepository.UpdateUserAsync(User.Identity.Name, User.Claims);
+                        await _userStore.UpdateUserAsync(User.Identity.Name, User.Claims);
 
                     }
 
@@ -122,7 +122,7 @@ namespace DataDock.Web.Controllers
                     User.AddIdentity(datadockIdentity);
 
                     // create user in datadock
-                    var newUser = await _userRepository.CreateUserAsync(User.Identity.Name, User.Claims);
+                    var newUser = await _userStore.CreateUserAsync(User.Identity.Name, User.Claims);
                     if (newUser == null)
                     {
                         Log.Error("Creation of new user account returned null");
@@ -136,7 +136,7 @@ namespace DataDock.Web.Controllers
                 catch (UserAccountExistsException existsEx)
                 {
                     Log.Warning("User account {0} already exists. Identities: {1}. Claims Total: {2}", User.Identity.Name, User.Identities.Count(), User.Claims.Count());
-                    var datadockUser = await _userRepository.GetUserAccountAsync(User.Identity.Name);
+                    var datadockUser = await _userStore.GetUserAccountAsync(User.Identity.Name);
                     if (datadockUser.Claims.FirstOrDefault(c => c.Type.Equals(DataDockClaimTypes.DataDockUserId)) ==
                         null)
                     {
@@ -144,7 +144,7 @@ namespace DataDock.Web.Controllers
                         var datadockIdentity = new ClaimsIdentity();
                         datadockIdentity.AddClaim(new Claim(DataDockClaimTypes.DataDockUserId, User.Identity.Name));
                         User.AddIdentity(datadockIdentity);
-                        await _userRepository.UpdateUserAsync(User.Identity.Name, User.Claims);
+                        await _userStore.UpdateUserAsync(User.Identity.Name, User.Claims);
                         // logout and back in to persist new claims
                         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
                         return Challenge(new AuthenticationProperties() { RedirectUri = "account/settings" });
@@ -172,7 +172,7 @@ namespace DataDock.Web.Controllers
         {
             try
             {
-                var userSettings = await _userRepository.GetUserSettingsAsync(User.Identity.Name);
+                var userSettings = await _userStore.GetUserSettingsAsync(User.Identity.Name);
                 var usvm = new UserSettingsViewModel(userSettings);
                 return View(usvm);
             }
@@ -198,7 +198,7 @@ namespace DataDock.Web.Controllers
                 usvm.LastModified = DateTime.UtcNow;
                 usvm.LastModifiedBy = User.Identity.Name;
                 var userSettings = usvm.AsUserSettings();
-                await _userRepository.CreateOrUpdateUserSettingsAsync(userSettings);
+                await _userStore.CreateOrUpdateUserSettingsAsync(userSettings);
 
                 ViewBag.StatusMessage = GetSettingsStatusMessage(ManageMessageId.ChangeSettingSuccess);
                 
@@ -237,7 +237,7 @@ namespace DataDock.Web.Controllers
             try
             {
                 // check user exists
-                var userAccount = await _userRepository.GetUserAccountAsync(User.Identity.Name);
+                var userAccount = await _userStore.GetUserAccountAsync(User.Identity.Name);
                 var davm = new DeleteAccountViewModel();
                 return View(davm);
             }
@@ -258,7 +258,7 @@ namespace DataDock.Web.Controllers
             {
                 if (ModelState.IsValid && davm.Confirm)
                 {
-                    var deleted = await _userRepository.DeleteUserAsync(User.Identity.Name);
+                    var deleted = await _userStore.DeleteUserAsync(User.Identity.Name);
                     if (deleted)
                     {
                         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

@@ -14,12 +14,12 @@ namespace DataDock.IntegrationTests
     public class SchemaRepositoryTests : IClassFixture<ElasticsearchFixture>
     {
         private readonly ElasticsearchFixture _fixture;
-        private readonly SchemaRepository _repo;
+        private readonly SchemaStore _repo;
 
         public SchemaRepositoryTests(ElasticsearchFixture fixture)
         {
             _fixture = fixture;
-            _repo = new SchemaRepository(fixture.Client, fixture.SchemasIndexName);
+            _repo = new SchemaStore(fixture.Client, fixture.SchemasIndexName);
         }
 
         [Fact]
@@ -53,10 +53,10 @@ namespace DataDock.IntegrationTests
 
     public class SchemaRepositoryFixture : ElasticsearchFixture
     {
-        public SchemaRepository Repository { get; }
+        public SchemaStore Store { get; }
         public SchemaRepositoryFixture() : base()
         {
-            Repository = new SchemaRepository(Client, SchemasIndexName);
+            Store = new SchemaStore(Client, SchemasIndexName);
             InitializeRepository().Wait();
             Thread.Sleep(1000);
         }
@@ -76,7 +76,7 @@ namespace DataDock.IntegrationTests
                         LastModified = DateTime.UtcNow,
                         Schema = new { foo = "foo" }
                     };
-                    await Repository.CreateOrUpdateSchemaRecordAsync(schemaInfo);
+                    await Store.CreateOrUpdateSchemaRecordAsync(schemaInfo);
                 }
             }
 
@@ -86,11 +86,11 @@ namespace DataDock.IntegrationTests
 
     public class SchemaRepositorySearchTests : IClassFixture<SchemaRepositoryFixture>
     {
-        private readonly SchemaRepository _repo;
+        private readonly SchemaStore _repo;
 
         public SchemaRepositorySearchTests(SchemaRepositoryFixture fixture)
         {
-            _repo= fixture.Repository;
+            _repo= fixture.Store;
         }
 
 

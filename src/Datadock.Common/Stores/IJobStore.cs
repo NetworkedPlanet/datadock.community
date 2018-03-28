@@ -2,9 +2,9 @@
 using System.Threading.Tasks;
 using Datadock.Common.Models;
 
-namespace Datadock.Common.Repositories
+namespace Datadock.Common.Stores
 {
-    public interface IJobRepository
+    public interface IJobStore
     {
         /// <summary>
         /// Create a new import job and add it to the queue

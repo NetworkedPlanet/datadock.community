@@ -3,21 +3,21 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Datadock.Common.Models;
-using Datadock.Common.Repositories;
+using Datadock.Common.Stores;
 using DataDock.Common;
 using Nest;
 using Serilog;
 
 namespace Datadock.Common.Elasticsearch
 {
-    public class DatasetRepository : IDatasetRepository
+    public class DatasetStore : IDatasetStore
     {
         private readonly IElasticClient _client;
 
-        public DatasetRepository(IElasticClient client, ApplicationConfiguration config)
+        public DatasetStore(IElasticClient client, ApplicationConfiguration config)
         {
             var indexName = config.DatasetIndexName;
-            Log.Debug("Create DatasetRepository. Index={indexName}", indexName);
+            Log.Debug("Create DatasetStore. Index={indexName}", indexName);
             _client = client;
             // Ensure the index exists
             var indexExistsReponse = _client.IndexExists(indexName);
@@ -30,7 +30,7 @@ namespace Datadock.Common.Elasticsearch
                 {
                     Log.Error("Create ES index failed for {indexName}. Cause: {detail}", indexName, createIndexResponse.DebugInformation);
                     throw new DatadockException(
-                        $"Could not create index {indexName} for Job repository. Cause: {createIndexResponse.DebugInformation}");
+                        $"Could not create index {indexName} for DatasetStore. Cause: {createIndexResponse.DebugInformation}");
                 }
             }
             _client.ConnectionSettings.DefaultIndices[typeof(DatasetInfo)] = indexName;
@@ -92,7 +92,7 @@ namespace Datadock.Common.Elasticsearch
             var indexResponse =await _client.IndexDocumentAsync(datasetInfo);
             if (!indexResponse.IsValid)
             {
-                throw new DatasetRepositoryException(
+                throw new DatasetStoreException(
                     $"Failed to index dataset record. Cause: {indexResponse.DebugInformation}");
             }
         }

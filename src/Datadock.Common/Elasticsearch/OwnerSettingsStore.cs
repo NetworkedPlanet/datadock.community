@@ -1,21 +1,21 @@
 ﻿using Datadock.Common.Models;
-using Datadock.Common.Repositories;
 using Nest;
 using Serilog;
 using System;
 using System.Threading.Tasks;
+using Datadock.Common.Stores;
 using Datadock.Common.Validators;
 using DataDock.Common;
 
 namespace Datadock.Common.Elasticsearch
 {
-    public class OwnerSettingsRepository : IOwnerSettingsRepository
+    public class OwnerSettingsStore : IOwnerSettingsStore
     {
         private readonly IElasticClient _client;
-        public OwnerSettingsRepository(IElasticClient client, ApplicationConfiguration config)
+        public OwnerSettingsStore(IElasticClient client, ApplicationConfiguration config)
         {
             var indexName = config.OwnerSettingsIndexName;
-            Log.Debug("Create OwnerSettingsRepository. Index={indexName}", indexName);
+            Log.Debug("Create OwnerSettingsStore. Index={indexName}", indexName);
             _client = client;
             // Ensure the index exists
             var indexExistsReponse = _client.IndexExists(indexName);
@@ -41,7 +41,7 @@ namespace Datadock.Common.Elasticsearch
             if (!response.IsValid)
             {
                 if (!response.Found) throw new OwnerSettingsNotFoundException(ownerId);
-                throw new OwnerSettingsRepositoryException(
+                throw new OwnerSettingsStoreException(
                     $"Error retrieving owner settings for owner ID {ownerId}. Cause: {response.DebugInformation}");
             }
             return response.Source;
@@ -59,7 +59,7 @@ namespace Datadock.Common.Elasticsearch
             var updateResponse = await _client.IndexDocumentAsync(ownerSettings);
             if (!updateResponse.IsValid)
             {
-                throw new OwnerSettingsRepositoryException($"Error udpating owner settings for owner ID {ownerSettings.OwnerId}");
+                throw new OwnerSettingsStoreException($"Error udpating owner settings for owner ID {ownerSettings.OwnerId}");
             }
         }
     }

@@ -2,9 +2,9 @@
 using System.Threading.Tasks;
 using Datadock.Common.Models;
 
-namespace Datadock.Common.Repositories
+namespace Datadock.Common.Stores
 {
-    public interface IDatasetRepository
+    public interface IDatasetStore
     {
         /// <summary>
         /// Get the N most recently updated datasets across all repositories

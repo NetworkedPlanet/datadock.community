@@ -1,15 +1,15 @@
 ﻿using Datadock.Common.Models;
-using Datadock.Common.Repositories;
+using Datadock.Common.Stores;
 using Microsoft.AspNet.SignalR.Client;
 
 namespace DataDock.Worker
 {
     public class SignalrProgressLogFactory : IProgressLogFactory
     {
-        private readonly IJobRepository _jobRepository;
+        private readonly IJobStore _jobRepository;
         private readonly IHubProxy _hubProxy;
 
-        public SignalrProgressLogFactory(IJobRepository jobRepository, IHubProxy hubProxy)
+        public SignalrProgressLogFactory(IJobStore jobRepository, IHubProxy hubProxy)
         {
             _jobRepository = jobRepository;
             _hubProxy = hubProxy;

@@ -1,6 +1,5 @@
 using Datadock.Common.Elasticsearch;
 using Datadock.Common.Models;
-using Datadock.Common.Repositories;
 using DataDock.Web.Auth;
 using DataDock.Web.Routing;
 using DataDock.Web.Services;
@@ -27,6 +26,7 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Datadock.Common.Stores;
 using DataDock.Common;
 
 namespace DataDock.Web
@@ -73,10 +73,10 @@ namespace DataDock.Web
 
             services.AddSingleton(config);
             services.AddSingleton<IElasticClient>(client);
-            services.AddSingleton<IUserRepository, UserRepository>();
-            services.AddSingleton<IJobRepository, JobRepository>();
-            services.AddSingleton<IOwnerSettingsRepository, OwnerSettingsRepository>();
-            services.AddSingleton<IRepoSettingsRepository, RepoSettingsRepository>();
+            services.AddSingleton<IUserStore, UserStore>();
+            services.AddSingleton<IJobStore, JobStore>();
+            services.AddSingleton<IOwnerSettingsStore, OwnerSettingsStore>();
+            services.AddSingleton<IRepoSettingsStore, RepoSettingsStore>();
 
             services.AddScoped<DataDockCookieAuthenticationEvents>();
 
@@ -162,7 +162,7 @@ namespace DataDock.Web
         private async Task EnsureUser(OAuthCreatingTicketContext context, string login)
         {
             if (string.IsNullOrEmpty(login)) return;
-            var userRepository = context.HttpContext.RequestServices.GetService<IUserRepository>();
+            var userRepository = context.HttpContext.RequestServices.GetService<IUserStore>();
             try
             {
                 var existingAccount = await userRepository.GetUserAccountAsync(login.ToString());
@@ -197,33 +197,7 @@ namespace DataDock.Web
                 }
             }
         }
-
-        private static void EnsureElasticsearchIndexes(IElasticClient client)
-        {
-            var elasticsearchAvailable = false;
-            while (!elasticsearchAvailable)
-            {
-                Thread.Sleep(1000);
-                elasticsearchAvailable = client.Ping().IsValid;
-            }
-
-            EnsureIndex(client, "useraccounts", ElasticsearchMapping.UserAccountIndexMappings);
-
-            EnsureIndex(client, "usersettings", ElasticsearchMapping.UserSettingsIndexMappings);
-
-            // Leave this index as the last one to be created
-            EnsureIndex(client, "jobs", ElasticsearchMapping.JobsIndexMappings);
-        }
-
-        private static void EnsureIndex(IElasticClient client, string indexName, Func<MappingsDescriptor, IPromise<IMappings>> mappingsPromise)
-        {
-            var existsResponse = client.IndexExists(indexName);
-            if (!existsResponse.Exists)
-            {
-                var createIndexResponse = client.CreateIndex(indexName, c => c.Mappings(mappingsPromise));
-            }
-        }
-
+        
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {

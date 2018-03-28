@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 using Datadock.Common.Models;
-using Datadock.Common.Repositories;
+using Datadock.Common.Stores;
 using Microsoft.AspNet.SignalR.Client;
 using Serilog;
 
@@ -10,12 +10,12 @@ namespace DataDock.Worker
     public class SignalrProgressLog : IProgressLog
     {
         private readonly JobInfo _jobInfo;
-        private readonly IJobRepository _jobRepository;
+        private readonly IJobStore _jobRepository;
         private readonly IHubProxy _hubProxy;
         private readonly ILogger _log;
         private readonly StringBuilder _fullLog;
 
-        public SignalrProgressLog(JobInfo jobInfo, IJobRepository jobRepository, IHubProxy hubProxy)
+        public SignalrProgressLog(JobInfo jobInfo, IJobStore jobRepository, IHubProxy hubProxy)
         {
             _jobInfo = jobInfo;
             _jobRepository = jobRepository;

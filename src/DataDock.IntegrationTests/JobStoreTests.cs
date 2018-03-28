@@ -9,17 +9,17 @@ using Xunit;
 
 namespace DataDock.IntegrationTests
 {
-    public class JobRepositoryTests : IClassFixture<ElasticsearchFixture>, IDisposable
+    public class JobStoreTests : IClassFixture<ElasticsearchFixture>, IDisposable
     {
-        private readonly JobRepository _repo;
+        private readonly JobStore _repo;
         private readonly ElasticsearchFixture _fixture;
 
-        public JobRepositoryTests(ElasticsearchFixture esFixture)
+        public JobStoreTests(ElasticsearchFixture esFixture)
         {
             _fixture = esFixture;
             var config =
                 new ApplicationConfiguration(null, esFixture.JobsIndexName, null, null, null, null, null, null);
-            _repo = new JobRepository(esFixture.Client, config);
+            _repo = new JobStore(esFixture.Client, config);
         }
 
         public void Dispose()

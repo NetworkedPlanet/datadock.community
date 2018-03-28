@@ -12,14 +12,14 @@ namespace DataDock.IntegrationTests
 {
     public class UserRepositoryTests : IClassFixture<ElasticsearchFixture>
     {
-        private readonly UserRepository _userRepository;
+        private readonly UserStore _userStore;
 
         public UserRepositoryTests(ElasticsearchFixture fixture)
         {
             var esFixture = fixture;
             var config = new ApplicationConfiguration(null, null, esFixture.UserAccountsIndexName, null, null, null,
                 null, null);
-            _userRepository = new UserRepository(esFixture.Client, config);
+            _userStore = new UserStore(esFixture.Client, config);
         }
 
         [Fact]
@@ -31,7 +31,7 @@ namespace DataDock.IntegrationTests
                 new Claim(ClaimTypes.Name, "Test User Name"),
                 new Claim(DataDockClaimTypes.GitHubAccessToken, "some_access_token_value")
             };
-            var userAccount = await _userRepository.CreateUserAsync("create1", accountClaims);
+            var userAccount = await _userStore.CreateUserAsync("create1", accountClaims);
             Assert.NotNull(userAccount);
             Assert.Equal("create1", userAccount.UserId);
             foreach (var claim in accountClaims)
@@ -40,7 +40,7 @@ namespace DataDock.IntegrationTests
                 Assert.Contains(userAccount.Claims, c => c.Type.Equals(claim.Type) && c.Value.Equals(claim.Value));
             }
 
-            var retrievedAccount = await _userRepository.GetUserAccountAsync("create1");
+            var retrievedAccount = await _userStore.GetUserAccountAsync("create1");
             Assert.NotNull(retrievedAccount);
             Assert.Equal("create1", retrievedAccount.UserId);
             Assert.Equal(3, retrievedAccount.Claims.Count());
@@ -66,9 +66,9 @@ namespace DataDock.IntegrationTests
                 new Claim(ClaimTypes.Name, "Updated User Name"),
                 new Claim(DataDockClaimTypes.GitHubAccessToken, "some_access_token_value")
             };
-            var userAccount = await _userRepository.CreateUserAsync("update1", initialAccountClaims);
-            var updatedAccount = await _userRepository.UpdateUserAsync("update1", updatedAccountClaims);
-            var retrievedAccount = await _userRepository.GetUserAccountAsync("update1");
+            var userAccount = await _userStore.CreateUserAsync("update1", initialAccountClaims);
+            var updatedAccount = await _userStore.UpdateUserAsync("update1", updatedAccountClaims);
+            var retrievedAccount = await _userStore.GetUserAccountAsync("update1");
             Assert.Equal("update1", retrievedAccount.UserId);
             Assert.Equal(3, retrievedAccount.Claims.Count());
             foreach (var claim in updatedAccountClaims)

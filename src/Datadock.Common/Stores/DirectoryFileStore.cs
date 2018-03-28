@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using DataDock.Common;
 
-namespace Datadock.Common.Repositories
+namespace Datadock.Common.Stores
 {
     public class DirectoryFileStore:IFileStore
     {

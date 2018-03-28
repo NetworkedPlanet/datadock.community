@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Datadock.Common.Models;
 
-namespace Datadock.Common.Repositories
+namespace Datadock.Common.Stores
 {
-    public interface IOwnerSettingsRepository
+    public interface IOwnerSettingsStore
     {
         Task<OwnerSettings> GetOwnerSettingsAsync(string ownerId);
 

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Datadock.Common.Models;
-using Datadock.Common.Repositories;
+using Datadock.Common.Stores;
 using DataDock.Common;
 using DataDock.CsvWeb.Metadata;
 using DataDock.CsvWeb.Parsing;
@@ -21,9 +21,9 @@ namespace DataDock.Worker.Processors
     {
         private readonly WorkerConfiguration _configuration;
         private readonly GitCommandProcessor _git;
-        private readonly IDatasetRepository _datasetRepository;
-        private readonly IOwnerSettingsRepository _ownerSettingsRepository;
-        private readonly IRepoSettingsRepository _repoSettingsRepository;
+        private readonly IDatasetStore _datasetStore;
+        private readonly IOwnerSettingsStore _ownerSettingsStore;
+        private readonly IRepoSettingsStore _repoSettingsStore;
         private readonly IFileStore _jobFileStore;
         private IProgressLog _progressLog;
         private readonly IQuinceStoreFactory _quinceStoreFactory;
@@ -33,18 +33,18 @@ namespace DataDock.Worker.Processors
         public ImportJobProcessor(
             WorkerConfiguration configuration,
             GitCommandProcessor gitProcessor,
-            IDatasetRepository datasetRepository,
+            IDatasetStore datasetStore,
             IFileStore jobFileStore,
-            IOwnerSettingsRepository ownerSettingsRepository,
-            IRepoSettingsRepository repoSettingsRepository,
+            IOwnerSettingsStore ownerSettingsStore,
+            IRepoSettingsStore repoSettingsStore,
             IQuinceStoreFactory quinceStoreFactory,
             IHtmlGeneratorFactory htmlGeneratorFactory)
         {
             _configuration = configuration;
             _git = gitProcessor;
-            _datasetRepository = datasetRepository;
-            _ownerSettingsRepository = ownerSettingsRepository;
-            _repoSettingsRepository = repoSettingsRepository;
+            _datasetStore = datasetStore;
+            _ownerSettingsStore = ownerSettingsStore;
+            _repoSettingsStore = repoSettingsStore;
             _jobFileStore = jobFileStore;
             _quinceStoreFactory = quinceStoreFactory;
             _htmlGeneratorFactory = htmlGeneratorFactory;
@@ -134,7 +134,7 @@ namespace DataDock.Worker.Processors
             // Update the dataset repository
             try
             {
-                await _datasetRepository.CreateOrUpdateDatasetRecordAsync(new DatasetInfo
+                await _datasetStore.CreateOrUpdateDatasetRecordAsync(new DatasetInfo
                 {
                     OwnerId = job.OwnerId,
                     RepositoryId = job.GitRepositoryFullName,
@@ -194,7 +194,7 @@ namespace DataDock.Worker.Processors
             {
                 _progressLog.Info("Attempting to retrieve publisher contact information from repository settings");
                 // get repoSettings
-                var repoSettings = await _repoSettingsRepository.GetRepoSettingsAsync(ownerId + "/" + repoId);
+                var repoSettings = await _repoSettingsStore.GetRepoSettingsAsync(ownerId + "/" + repoId);
                 if (repoSettings?.DefaultPublisher != null)
                 {
                     _progressLog.Info("Returning publisher from repository settings");
@@ -205,7 +205,7 @@ namespace DataDock.Worker.Processors
                 if (ownerId != null)
                 {
                     _progressLog.Info("Attempting to retrieve publisher contact information from repository owner's settings");
-                    var ownerSettings = await _ownerSettingsRepository.GetOwnerSettingsAsync(ownerId);
+                    var ownerSettings = await _ownerSettingsStore.GetOwnerSettingsAsync(ownerId);
                     if (ownerSettings?.DefaultPublisher != null)
                     {
                         _progressLog.Info("Returning publisher from repository owner's settings");

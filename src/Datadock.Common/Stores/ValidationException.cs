@@ -2,7 +2,7 @@
 using System.Linq;
 using FluentValidation.Results;
 
-namespace Datadock.Common.Repositories
+namespace Datadock.Common.Stores
 {
     public class ValidationException : DatadockException
     {

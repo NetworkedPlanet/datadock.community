@@ -3,7 +3,7 @@ using DataDock.Web.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using Datadock.Common.Repositories;
+using Datadock.Common.Stores;
 using DataDock.Web.Models;
 using DataDock.Web.ViewModels;
 using Serilog;
@@ -14,11 +14,11 @@ namespace DataDock.Web.Controllers
     [ServiceFilter(typeof(AccountExistsFilter))]
     public class RepositoryController : DashboardBaseController
     {
-        private readonly IRepoSettingsRepository _repoSettingsRepository;
+        private readonly IRepoSettingsStore _repoSettingsStore;
 
-        public RepositoryController(IRepoSettingsRepository repoSettingsRepository)
+        public RepositoryController(IRepoSettingsStore repoSettingsStore)
         {
-            _repoSettingsRepository = repoSettingsRepository;
+            _repoSettingsStore = repoSettingsStore;
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace DataDock.Web.Controllers
                     settingsViewModel.LastModified = DateTime.UtcNow;
                     settingsViewModel.LastModifiedBy = User.Identity.Name;
                     var repoSettings = settingsViewModel.AsRepoSettings();
-                    await _repoSettingsRepository.CreateOrUpdateRepoSettingsAsync(repoSettings);
+                    await _repoSettingsStore.CreateOrUpdateRepoSettingsAsync(repoSettings);
                     ViewBag.StatusMessage = GetSettingsStatusMessage(ManageMessageId.ChangeSettingSuccess);
                     TempData["ModelState"] = null;
                 }

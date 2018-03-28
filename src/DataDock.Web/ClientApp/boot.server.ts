@@ -22,23 +22,13 @@ export default createServerRenderer(params => {
         const zone: NgZone = moduleRef.injector.get(NgZone);
 
         return new Promise<RenderResult>((resolve, reject) => {
-
-            const result = `<h2>Add data to ${params.data.ownerId} ${params.data.repoId}</h2>`;
-
             zone.onError.subscribe((errorInfo: any) => reject(errorInfo));
             appRef.isStable.first(isStable => isStable).subscribe(() => {
                 // Because 'onStable' fires before 'onError', we have to delay slightly before
                 // completing the request in case there's an error to report
                 setImmediate(() => {
                     resolve({
-                        // html: state.renderToString()
-                        html: result,
-                        globals: {
-                            postList: [
-                                'Introduction to ASP.NET Core',
-                                'Making apps with Angular and ASP.NET Core'
-                            ]
-                        }
+                        html: state.renderToString()
                     });
                     moduleRef.destroy();
                 });

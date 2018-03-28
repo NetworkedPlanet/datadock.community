@@ -4,9 +4,6 @@ namespace DataDock.Web.ViewModels
 {
     public class SignUpViewModel : BaseLayoutViewModel
     {
-        [Display(Name = "Mailing List")]
-        public bool MailingList { get; set; }
-
         [Required]
         [Display(Name = "Agree to Terms & Conditions")]
         [Compare("MustAgreeTerms", ErrorMessage = "Please agree to Terms and Conditions")]

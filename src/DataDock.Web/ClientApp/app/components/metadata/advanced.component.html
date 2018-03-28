@@ -1,0 +1,40 @@
+<table class="ui celled table">
+    <thead>
+    <tr>
+        <th>Identifier</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let fieldName of fm.getControls(sectionName)">
+        <td>
+            <dd-form-field [field]="fm.getField(fieldName)"></dd-form-field>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<div class="ui info large message">
+    <i class="unhide sign icon"></i> Does the list below show your spreadsheet's column headings? If not, check your file and start again.
+</div>
+<p><a href="http://networkedplanet.com/datadock/user-guide/vocabulary-terms.html" target="_blank" title="More info about Property URLs">More info about Property URLs (opens in new window)</a></p>
+<table class="ui celled table">
+    <thead>
+    <tr>
+        <th>
+            Column
+        </th>
+        <th *ngFor="let th of fm.getViewModelTableHeaders(sectionName)">
+            {{th}}
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let columnName of fm.getColumnsList(sectionName)">
+        <td class="collapsing">
+            {{getColumnTitle(columnName)}}
+        </td>
+        <td class="middle aligned" *ngFor="let fieldName of fm.getCollectionControls(sectionName, columnName)">
+            <dd-form-field [field]="fm.getField(fieldName)"></dd-form-field>
+        </td>
+    </tr>
+    </tbody>
+</table>

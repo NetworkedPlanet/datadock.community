@@ -76,7 +76,7 @@ namespace DataDock.Web
             services.AddSingleton<IUserRepository, UserRepository>();
             services.AddSingleton<IJobStore, JobStore>();
             services.AddSingleton<IOwnerSettingsStore, OwnerSettingsStore>();
-            services.AddSingleton<IRepoSettingsRepository, RepoSettingsRepository>();
+            services.AddSingleton<IRepoSettingsStore, RepoSettingsStore>();
 
             services.AddScoped<DataDockCookieAuthenticationEvents>();
 

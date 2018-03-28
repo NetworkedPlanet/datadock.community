@@ -8,12 +8,12 @@ using Datadock.Common.Validators;
 
 namespace Datadock.Common.Elasticsearch
 {
-    public class RepoSettingsRepository : IRepoSettingsRepository
+    public class RepoSettingsStore : IRepoSettingsStore
     {
         private readonly IElasticClient _client;
-        public RepoSettingsRepository(IElasticClient client, string indexName)
+        public RepoSettingsStore(IElasticClient client, string indexName)
         {
-            Log.Debug("Create RepoSettingsRepository. Index={indexName}", indexName);
+            Log.Debug("Create RepoSettingsStore. Index={indexName}", indexName);
             _client = client;
             // Ensure the index exists
             var indexExistsReponse = _client.IndexExists(indexName);

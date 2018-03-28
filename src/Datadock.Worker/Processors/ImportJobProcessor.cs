@@ -23,7 +23,7 @@ namespace DataDock.Worker.Processors
         private readonly GitCommandProcessor _git;
         private readonly IDatasetStore _datasetStore;
         private readonly IOwnerSettingsStore _ownerSettingsStore;
-        private readonly IRepoSettingsRepository _repoSettingsRepository;
+        private readonly IRepoSettingsStore _repoSettingsStore;
         private readonly IFileStore _jobFileStore;
         private IProgressLog _progressLog;
         private readonly IQuinceStoreFactory _quinceStoreFactory;
@@ -36,7 +36,7 @@ namespace DataDock.Worker.Processors
             IDatasetStore datasetStore,
             IFileStore jobFileStore,
             IOwnerSettingsStore ownerSettingsStore,
-            IRepoSettingsRepository repoSettingsRepository,
+            IRepoSettingsStore repoSettingsStore,
             IQuinceStoreFactory quinceStoreFactory,
             IHtmlGeneratorFactory htmlGeneratorFactory)
         {
@@ -44,7 +44,7 @@ namespace DataDock.Worker.Processors
             _git = gitProcessor;
             _datasetStore = datasetStore;
             _ownerSettingsStore = ownerSettingsStore;
-            _repoSettingsRepository = repoSettingsRepository;
+            _repoSettingsStore = repoSettingsStore;
             _jobFileStore = jobFileStore;
             _quinceStoreFactory = quinceStoreFactory;
             _htmlGeneratorFactory = htmlGeneratorFactory;
@@ -194,7 +194,7 @@ namespace DataDock.Worker.Processors
             {
                 _progressLog.Info("Attempting to retrieve publisher contact information from repository settings");
                 // get repoSettings
-                var repoSettings = await _repoSettingsRepository.GetRepoSettingsAsync(ownerId + "/" + repoId);
+                var repoSettings = await _repoSettingsStore.GetRepoSettingsAsync(ownerId + "/" + repoId);
                 if (repoSettings?.DefaultPublisher != null)
                 {
                     _progressLog.Info("Returning publisher from repository settings");

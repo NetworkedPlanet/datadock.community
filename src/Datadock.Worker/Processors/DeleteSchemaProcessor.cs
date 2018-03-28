@@ -8,11 +8,11 @@ namespace DataDock.Worker.Processors
 {
     public class DeleteSchemaProcessor : IDataDockProcessor
     {
-        private readonly ISchemaRepository _schemaRepository;
+        private readonly ISchemaStore _schemaStore;
 
-        public DeleteSchemaProcessor(ISchemaRepository schemaRepository)
+        public DeleteSchemaProcessor(ISchemaStore schemaStore)
         {
-            _schemaRepository = schemaRepository;
+            _schemaStore = schemaStore;
         }
 
         public async Task ProcessJob(JobInfo job, UserAccount userAccount, IProgressLog progressLog)
@@ -21,7 +21,7 @@ namespace DataDock.Worker.Processors
             try
             {
                 progressLog.UpdateStatus(JobStatus.Running, $"Deleting schema {job.SchemaId}");
-                await _schemaRepository.DeleteSchemaAsync(null, job.SchemaId);
+                await _schemaStore.DeleteSchemaAsync(null, job.SchemaId);
                 progressLog.UpdateStatus(JobStatus.Running, "Schema deleted successfully");
             }
             catch (Exception ex)

@@ -11,12 +11,12 @@ using Serilog;
 
 namespace Datadock.Common.Elasticsearch
 {
-    public class SchemaRepository : ISchemaRepository
+    public class SchemaStore : ISchemaStore
     {
         private readonly IElasticClient _client;
-        public SchemaRepository(IElasticClient client, string indexName)
+        public SchemaStore(IElasticClient client, string indexName)
         {
-            Log.Debug("Create JobRepository. Index={indexName}", indexName);
+            Log.Debug("Create SchemaStore. Index={indexName}", indexName);
             _client = client;
             // Ensure the index exists
             var indexExistsReponse = _client.IndexExists(indexName);
@@ -29,7 +29,7 @@ namespace Datadock.Common.Elasticsearch
                 {
                     Log.Error("Create ES index failed for {indexName}. Cause: {detail}", indexName, createIndexResponse.DebugInformation);
                     throw new DatadockException(
-                        $"Could not create index {indexName} for Job repository. Cause: {createIndexResponse.DebugInformation}");
+                        $"Could not create index {indexName} for SchemaStore. Cause: {createIndexResponse.DebugInformation}");
                 }
             }
             _client.ConnectionSettings.DefaultIndices[typeof(SchemaInfo)] = indexName;
@@ -68,7 +68,7 @@ namespace Datadock.Common.Elasticsearch
             {
                 Log.Error("GetSchemasByOwnerList Failed. OwnerIds=[{ownerIds}], Skip={skip}, Take={take}. DebugInformation: {debugInfo}",
                     ownerIds, skip, take, searchResponse.DebugInformation);
-                throw new SchemaRepositoryException(
+                throw new SchemaStoreException(
                     $"Failed to retrieve schema list by owner. Cause: {searchResponse.DebugInformation}");
             }
             Log.Debug("GetSchemasByOwnerList [{ownerIds}]. Skip={skip}, Take={take}. Returns {docCount} results", ownerIds, skip, take, searchResponse.Documents.Count);
@@ -92,7 +92,7 @@ namespace Datadock.Common.Elasticsearch
             {
                 Log.Error("GetSchemasByRepositoryList Failed. RepoIds=[{ownerIds}], Skip={skip}, Take={take}. DebugInformation: {debugInfo}",
                     repositoryIds, skip, take, searchResponse.DebugInformation);
-                throw new SchemaRepositoryException(
+                throw new SchemaStoreException(
                     $"Failed to retrieve schema list by repository. Cause: {searchResponse.DebugInformation}");
             }
             Log.Debug("GetSchemasByRepositoryList [{repoIds}]. Skip={skip}, Take={take}. Returns {docCount} results", repositoryIds, skip, take, searchResponse.Documents.Count);
@@ -125,7 +125,7 @@ namespace Datadock.Common.Elasticsearch
             if (!searchResponse.IsValid)
             {
                 Log.Error("GetSchemaInfoAsync Failed. OwnerId={ownerId}, SchemaId={schemaId}. DebugInformation: {debugInfo}", ownerId, schemaId, searchResponse.DebugInformation);
-                throw new SchemaRepositoryException($"Schema search failed: {searchResponse.DebugInformation}");
+                throw new SchemaStoreException($"Schema search failed: {searchResponse.DebugInformation}");
             }
 
             if (!searchResponse.Documents.Any())
@@ -142,7 +142,7 @@ namespace Datadock.Common.Elasticsearch
             var indexResponse = await _client.IndexDocumentAsync(schemaInfo);
             if (!indexResponse.IsValid)
             {
-                throw new SchemaRepositoryException($"Failed to insert or update schema record: {indexResponse.DebugInformation}");
+                throw new SchemaStoreException($"Failed to insert or update schema record: {indexResponse.DebugInformation}");
             }
         }
 
@@ -151,7 +151,7 @@ namespace Datadock.Common.Elasticsearch
             var deleteResponse = await _client.DeleteByQueryAsync<SchemaInfo>(s => s.Query(q => QueryByOwnerId(q, ownerId)));
             if (!deleteResponse.IsValid)
             {
-                throw new SchemaRepositoryException(
+                throw new SchemaStoreException(
                     $"Failed to delete schema record for all schemas owned by {ownerId}");
             }
         }
@@ -161,7 +161,7 @@ namespace Datadock.Common.Elasticsearch
             var deleteResponse = await _client.DeleteByQueryAsync<SchemaInfo>(s => s.Query(q => QueryByOwnerIdAndSchemaId(q, ownerId, schemaId)));
             if (!deleteResponse.IsValid)
             {
-                throw new SchemaRepositoryException(
+                throw new SchemaStoreException(
                     $"Failed to delete schema record for schema {schemaId} owned by {ownerId}");
             }
         }

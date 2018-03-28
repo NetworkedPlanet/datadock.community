@@ -11,13 +11,13 @@ namespace DataDock.Worker.Processors
 {
     public class ImportSchemaProcessor : IDataDockProcessor
     {
-        private readonly ISchemaRepository _schemaRepository;
+        private readonly ISchemaStore _schemaStore;
         private readonly IFileStore _jobFileStore;
         private IProgressLog _progressLog;
 
-        public ImportSchemaProcessor(ISchemaRepository schemaRepository, IFileStore jobFileStore, IProgressLog progressLog)
+        public ImportSchemaProcessor(ISchemaStore schemaStore, IFileStore jobFileStore, IProgressLog progressLog)
         {
-            _schemaRepository = schemaRepository;
+            _schemaStore = schemaStore;
             _jobFileStore = jobFileStore;
         }
 
@@ -59,7 +59,7 @@ namespace DataDock.Worker.Processors
                         };
                         _progressLog.UpdateStatus(JobStatus.Running, "Creating schema record.");
 
-                        await _schemaRepository.CreateOrUpdateSchemaRecordAsync(schemaInfo);
+                        await _schemaStore.CreateOrUpdateSchemaRecordAsync(schemaInfo);
                         _progressLog.UpdateStatus(JobStatus.Running, "Schema record created successfully.");
                     }
                     else

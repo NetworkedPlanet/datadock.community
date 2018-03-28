@@ -91,8 +91,8 @@ namespace DataDock.Worker
             serviceCollection.AddSingleton<IOwnerSettingsStore,OwnerSettingsStore>();
             serviceCollection.AddSingleton<IRepoSettingsStore>(
                 new RepoSettingsStore(elasticClient, config.RepoSettingsIndexName));
-            serviceCollection.AddSingleton<ISchemaRepository>(
-                new SchemaRepository(elasticClient, config.SchemaIndexName));
+            serviceCollection.AddSingleton<ISchemaStore>(
+                new SchemaStore(elasticClient, config.SchemaIndexName));
             serviceCollection.AddSingleton<IProgressLogFactory, SignalrProgressLogFactory>();
             serviceCollection.AddSingleton<IGitHubClientFactory>(
                 new GitHubClientFactory(config.GitHubProductHeader));

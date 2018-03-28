@@ -162,10 +162,10 @@ namespace DataDock.Web
         private async Task EnsureUser(OAuthCreatingTicketContext context, string login)
         {
             if (string.IsNullOrEmpty(login)) return;
-            var userRepository = context.HttpContext.RequestServices.GetService<IUserStore>();
+            var userStore = context.HttpContext.RequestServices.GetService<IUserStore>();
             try
             {
-                var existingAccount = await userRepository.GetUserAccountAsync(login.ToString());
+                var existingAccount = await userStore.GetUserAccountAsync(login.ToString());
                 if (existingAccount != null)
                 {
                     context.Identity.AddClaim(new Claim(DataDockClaimTypes.DataDockUserId, login));

@@ -12,7 +12,7 @@ using Serilog;
 using VDS.RDF;
 using VDS.RDF.Writing;
 
-namespace DataDock.Worker.Processors
+namespace DataDock.Worker
 {
     public class GitCommandProcessor
     {
@@ -125,7 +125,12 @@ namespace DataDock.Worker.Processors
         {
             var nameClaim = userAccount.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.Name));
             var emailClaim = userAccount.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.Email));
-            // TODO: If nameClaim or emailClaim is null the user account is not properly configured
+            // If nameClaim or emailClaim is null the user account is not properly configured
+            if (string.IsNullOrEmpty(nameClaim?.Value) || string.IsNullOrEmpty(emailClaim?.Value))
+            {
+                ProgressLog.Error("Commit failed: Could not retrieve GitHub name and email information for your user account.");
+                throw new WorkerException("Commit failed: Failed to retrieve name and email claims for user account.");
+            }
             var commitAuthor = nameClaim.Value + " <" + emailClaim.Value + ">";
 
             var git = new GitWrapper(repositoryDirectory, Configuration.GitPath);

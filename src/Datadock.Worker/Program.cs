@@ -88,7 +88,7 @@ namespace DataDock.Worker
             serviceCollection.AddSingleton<IDatasetStore, DatasetStore>();
             serviceCollection.AddSingleton<IJobStore, JobStore>();
             serviceCollection.AddSingleton<IUserRepository, UserRepository>();
-            serviceCollection.AddSingleton<IOwnerSettingsRepository,OwnerSettingsRepository>();
+            serviceCollection.AddSingleton<IOwnerSettingsStore,OwnerSettingsStore>();
             serviceCollection.AddSingleton<IRepoSettingsRepository>(
                 new RepoSettingsRepository(elasticClient, config.RepoSettingsIndexName));
             serviceCollection.AddSingleton<ISchemaRepository>(

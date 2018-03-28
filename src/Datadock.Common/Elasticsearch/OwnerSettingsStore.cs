@@ -9,13 +9,13 @@ using DataDock.Common;
 
 namespace Datadock.Common.Elasticsearch
 {
-    public class OwnerSettingsRepository : IOwnerSettingsRepository
+    public class OwnerSettingsStore : IOwnerSettingsStore
     {
         private readonly IElasticClient _client;
-        public OwnerSettingsRepository(IElasticClient client, ApplicationConfiguration config)
+        public OwnerSettingsStore(IElasticClient client, ApplicationConfiguration config)
         {
             var indexName = config.OwnerSettingsIndexName;
-            Log.Debug("Create OwnerSettingsRepository. Index={indexName}", indexName);
+            Log.Debug("Create OwnerSettingsStore. Index={indexName}", indexName);
             _client = client;
             // Ensure the index exists
             var indexExistsReponse = _client.IndexExists(indexName);

@@ -75,7 +75,7 @@ namespace DataDock.Web
             services.AddSingleton<IElasticClient>(client);
             services.AddSingleton<IUserRepository, UserRepository>();
             services.AddSingleton<IJobStore, JobStore>();
-            services.AddSingleton<IOwnerSettingsRepository, OwnerSettingsRepository>();
+            services.AddSingleton<IOwnerSettingsStore, OwnerSettingsStore>();
             services.AddSingleton<IRepoSettingsRepository, RepoSettingsRepository>();
 
             services.AddScoped<DataDockCookieAuthenticationEvents>();

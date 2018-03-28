@@ -22,7 +22,7 @@ namespace DataDock.Worker.Processors
         private readonly WorkerConfiguration _configuration;
         private readonly GitCommandProcessor _git;
         private readonly IDatasetStore _datasetStore;
-        private readonly IOwnerSettingsRepository _ownerSettingsRepository;
+        private readonly IOwnerSettingsStore _ownerSettingsStore;
         private readonly IRepoSettingsRepository _repoSettingsRepository;
         private readonly IFileStore _jobFileStore;
         private IProgressLog _progressLog;
@@ -35,7 +35,7 @@ namespace DataDock.Worker.Processors
             GitCommandProcessor gitProcessor,
             IDatasetStore datasetStore,
             IFileStore jobFileStore,
-            IOwnerSettingsRepository ownerSettingsRepository,
+            IOwnerSettingsStore ownerSettingsStore,
             IRepoSettingsRepository repoSettingsRepository,
             IQuinceStoreFactory quinceStoreFactory,
             IHtmlGeneratorFactory htmlGeneratorFactory)
@@ -43,7 +43,7 @@ namespace DataDock.Worker.Processors
             _configuration = configuration;
             _git = gitProcessor;
             _datasetStore = datasetStore;
-            _ownerSettingsRepository = ownerSettingsRepository;
+            _ownerSettingsStore = ownerSettingsStore;
             _repoSettingsRepository = repoSettingsRepository;
             _jobFileStore = jobFileStore;
             _quinceStoreFactory = quinceStoreFactory;
@@ -205,7 +205,7 @@ namespace DataDock.Worker.Processors
                 if (ownerId != null)
                 {
                     _progressLog.Info("Attempting to retrieve publisher contact information from repository owner's settings");
-                    var ownerSettings = await _ownerSettingsRepository.GetOwnerSettingsAsync(ownerId);
+                    var ownerSettings = await _ownerSettingsStore.GetOwnerSettingsAsync(ownerId);
                     if (ownerSettings?.DefaultPublisher != null)
                     {
                         _progressLog.Info("Returning publisher from repository owner's settings");

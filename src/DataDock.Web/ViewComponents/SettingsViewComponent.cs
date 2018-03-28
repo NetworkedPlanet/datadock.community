@@ -10,11 +10,11 @@ namespace DataDock.Web.ViewComponents
 {
     public class SettingsViewComponent : ViewComponent
     {
-        private readonly IOwnerSettingsRepository _ownerSettingsRepository;
+        private readonly IOwnerSettingsStore _ownerSettingsStore;
         private readonly IRepoSettingsRepository _repoSettingsRepository;
-        public SettingsViewComponent(IOwnerSettingsRepository ownerSettingsRepository, IRepoSettingsRepository repoSettingsRepository)
+        public SettingsViewComponent(IOwnerSettingsStore ownerSettingsStore, IRepoSettingsRepository repoSettingsRepository)
         {
-            _ownerSettingsRepository = ownerSettingsRepository;
+            _ownerSettingsStore = ownerSettingsStore;
             _repoSettingsRepository = repoSettingsRepository;
         }
 
@@ -57,7 +57,7 @@ namespace DataDock.Web.ViewComponents
             if (string.IsNullOrEmpty(ownerId)) return null;
             try
             {
-                var os = await _ownerSettingsRepository.GetOwnerSettingsAsync(ownerId);
+                var os = await _ownerSettingsStore.GetOwnerSettingsAsync(ownerId);
                 var osvm = new OwnerSettingsViewModel(os);
                 return osvm;
             }

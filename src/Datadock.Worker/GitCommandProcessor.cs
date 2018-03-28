@@ -16,8 +16,8 @@ namespace DataDock.Worker
 {
     public class GitCommandProcessor
     {
-        public WorkerConfiguration Configuration { get; }
-        public IProgressLog ProgressLog { get; }
+        private WorkerConfiguration Configuration { get; }
+        private IProgressLog ProgressLog { get; }
         private readonly IGitHubClientFactory _gitHubClientFactory;
 
         public GitCommandProcessor(WorkerConfiguration configuration, IProgressLog progressLog, IGitHubClientFactory gitHubClientFactory)

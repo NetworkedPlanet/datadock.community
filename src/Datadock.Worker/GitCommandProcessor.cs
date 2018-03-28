@@ -14,7 +14,7 @@ using VDS.RDF.Writing;
 
 namespace DataDock.Worker
 {
-    public class GitCommandProcessor
+    public class GitCommandProcessor : IGitCommandProcessor
     {
         private WorkerConfiguration Configuration { get; }
         private IProgressLog ProgressLog { get; }

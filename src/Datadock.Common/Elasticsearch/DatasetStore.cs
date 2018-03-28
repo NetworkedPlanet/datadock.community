@@ -30,7 +30,7 @@ namespace Datadock.Common.Elasticsearch
                 {
                     Log.Error("Create ES index failed for {indexName}. Cause: {detail}", indexName, createIndexResponse.DebugInformation);
                     throw new DatadockException(
-                        $"Could not create index {indexName} for Job repository. Cause: {createIndexResponse.DebugInformation}");
+                        $"Could not create index {indexName} for DatasetStore. Cause: {createIndexResponse.DebugInformation}");
                 }
             }
             _client.ConnectionSettings.DefaultIndices[typeof(DatasetInfo)] = indexName;

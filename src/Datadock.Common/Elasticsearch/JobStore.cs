@@ -20,7 +20,7 @@ namespace Datadock.Common.Elasticsearch
         public JobStore(IElasticClient client, ApplicationConfiguration config)
         {
             var indexName = config.JobsIndexName;
-            Log.Debug("Create JobRepository. Index={indexName}", indexName);
+            Log.Debug("Create JobStore. Index={indexName}", indexName);
             _client = client;
             // Ensure the index exists
             var indexExistsReponse = _client.IndexExists(indexName);
@@ -33,7 +33,7 @@ namespace Datadock.Common.Elasticsearch
                 {
                     Log.Error("Create ES index failed for {indexName}. Cause: {detail}", indexName, createIndexResponse.DebugInformation);
                     throw new DatadockException(
-                        $"Could not create index {indexName} for Job repository. Cause: {createIndexResponse.DebugInformation}");
+                        $"Could not create index {indexName} for JobStore. Cause: {createIndexResponse.DebugInformation}");
                 }
             }
         }

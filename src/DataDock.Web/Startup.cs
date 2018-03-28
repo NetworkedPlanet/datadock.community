@@ -197,33 +197,7 @@ namespace DataDock.Web
                 }
             }
         }
-
-        private static void EnsureElasticsearchIndexes(IElasticClient client)
-        {
-            var elasticsearchAvailable = false;
-            while (!elasticsearchAvailable)
-            {
-                Thread.Sleep(1000);
-                elasticsearchAvailable = client.Ping().IsValid;
-            }
-
-            EnsureIndex(client, "useraccounts", ElasticsearchMapping.UserAccountIndexMappings);
-
-            EnsureIndex(client, "usersettings", ElasticsearchMapping.UserSettingsIndexMappings);
-
-            // Leave this index as the last one to be created
-            EnsureIndex(client, "jobs", ElasticsearchMapping.JobsIndexMappings);
-        }
-
-        private static void EnsureIndex(IElasticClient client, string indexName, Func<MappingsDescriptor, IPromise<IMappings>> mappingsPromise)
-        {
-            var existsResponse = client.IndexExists(indexName);
-            if (!existsResponse.Exists)
-            {
-                var createIndexResponse = client.CreateIndex(indexName, c => c.Mappings(mappingsPromise));
-            }
-        }
-
+        
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {

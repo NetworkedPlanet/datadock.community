@@ -9,7 +9,7 @@ using Xunit;
 
 namespace DataDock.Common.Tests
 {
-    public class JobRepositoryTests
+    public class JobStoreTests
     {
         [Fact]
         public void RepositoryCreatesIndexIfItDoesNotExist()

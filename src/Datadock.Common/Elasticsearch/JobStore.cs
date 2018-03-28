@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Datadock.Common.Models;
-using Datadock.Common.Repositories;
+using Datadock.Common.Stores;
 using DataDock.Common;
 using Nest;
 using Serilog;
@@ -14,10 +14,10 @@ namespace Datadock.Common.Repositories
 
 namespace Datadock.Common.Elasticsearch
 {
-    public class JobRepository : IJobRepository
+    public class JobStore : IJobStore
     {
         private readonly IElasticClient _client;
-        public JobRepository(IElasticClient client, ApplicationConfiguration config)
+        public JobStore(IElasticClient client, ApplicationConfiguration config)
         {
             var indexName = config.JobsIndexName;
             Log.Debug("Create JobRepository. Index={indexName}", indexName);

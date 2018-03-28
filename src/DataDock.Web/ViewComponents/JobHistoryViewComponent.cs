@@ -5,7 +5,7 @@ using System.Security.Claims;
 using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using Datadock.Common.Repositories;
+using Datadock.Common.Stores;
 using DataDock.Web.Models;
 
 namespace DataDock.Web.ViewComponents
@@ -13,8 +13,8 @@ namespace DataDock.Web.ViewComponents
     [ViewComponent(Name = "JobHistory")]
     public class JobHistoryViewComponent : ViewComponent
     {
-        private readonly IJobRepository _jobRepository;
-        public JobHistoryViewComponent(IJobRepository jobRepository)
+        private readonly IJobStore _jobRepository;
+        public JobHistoryViewComponent(IJobStore jobRepository)
         {
             _jobRepository = jobRepository;
         }

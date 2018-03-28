@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Datadock.Common.Elasticsearch;
 using Datadock.Common.Models;
-using Datadock.Common.Repositories;
+using Datadock.Common.Stores;
 using DataDock.Worker.Processors;
 using Elasticsearch.Net;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -29,7 +29,7 @@ namespace DataDock.Worker
         {
             Log.Information("Initializing SignalR hub connection");
             await InitializeHubConnection();
-            var jobRepo = Services.GetRequiredService<IJobRepository>();
+            var jobRepo = Services.GetRequiredService<IJobStore>();
             while (true)
             {
                 Thread.Sleep(1000);

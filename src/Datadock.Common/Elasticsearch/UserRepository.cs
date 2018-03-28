@@ -4,7 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Datadock.Common.Models;
-using Datadock.Common.Repositories;
+using Datadock.Common.Stores;
 using Datadock.Common.Validators;
 using DataDock.Common;
 using Nest;

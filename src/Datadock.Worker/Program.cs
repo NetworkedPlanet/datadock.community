@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Datadock.Common;
 using Datadock.Common.Elasticsearch;
-using Datadock.Common.Repositories;
+using Datadock.Common.Stores;
 using DataDock.Common;
 using Elasticsearch.Net;
 using Microsoft.Extensions.DependencyInjection;
@@ -86,7 +86,7 @@ namespace DataDock.Worker
             serviceCollection.AddScoped<IFileStore, DirectoryFileStore>();
 
             serviceCollection.AddSingleton<IDatasetRepository, DatasetRepository>();
-            serviceCollection.AddSingleton<IJobRepository, JobRepository>();
+            serviceCollection.AddSingleton<IJobStore, JobStore>();
             serviceCollection.AddSingleton<IUserRepository, UserRepository>();
             serviceCollection.AddSingleton<IOwnerSettingsRepository,OwnerSettingsRepository>();
             serviceCollection.AddSingleton<IRepoSettingsRepository>(

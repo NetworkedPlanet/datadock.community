@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Datadock.Common.Models;
-using Datadock.Common.Repositories;
+using Datadock.Common.Stores;
 using Nest;
 using Serilog;
 

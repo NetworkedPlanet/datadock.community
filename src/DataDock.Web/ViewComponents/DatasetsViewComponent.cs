@@ -4,7 +4,6 @@ using System.Security.Claims;
 using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using Datadock.Common.Repositories;
 using DataDock.Web.Models;
 
 namespace DataDock.Web.ViewComponents

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Datadock.Common.Models;
-using Datadock.Common.Repositories;
+using Datadock.Common.Stores;
 using DataDock.Common;
 using Nest;
 using Serilog;

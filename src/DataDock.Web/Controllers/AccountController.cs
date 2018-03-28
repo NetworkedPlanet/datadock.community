@@ -3,7 +3,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Datadock.Common.Models;
-using Datadock.Common.Repositories;
+using Datadock.Common.Stores;
 using DataDock.Web.Auth;
 using DataDock.Web.Models;
 using DataDock.Web.ViewModels;

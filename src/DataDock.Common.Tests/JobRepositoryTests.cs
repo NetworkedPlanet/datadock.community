@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using Datadock.Common.Elasticsearch;
 using Datadock.Common.Models;
-using Datadock.Common.Repositories;
+using Datadock.Common.Stores;
 using Moq;
 using Nest;
 using Xunit;
@@ -22,7 +22,7 @@ namespace DataDock.Common.Tests
             client.Setup(x => x.IndexExists(It.IsAny<Indices>(), null)).Returns(notExists.Object);
             client.Setup(x => x.CreateIndex("jobs", It.IsAny<Func<CreateIndexDescriptor, ICreateIndexRequest>>()))
                 .Returns(indexCreated.Object).Verifiable();
-            var repo = new JobRepository(client.Object, new ApplicationConfiguration(null, "jobs", null, null, null, null, null, null));
+            var jobStore = new JobStore(client.Object, new ApplicationConfiguration(null, "jobs", null, null, null, null, null, null));
             client.Verify();
         }
 
@@ -31,8 +31,8 @@ namespace DataDock.Common.Tests
         {
             var client = new Mock<IElasticClient>();
             AssertIndexExists(client, "jobs");
-            var repo = new JobRepository(client.Object, new ApplicationConfiguration(null, "jobs", null, null, null, null, null, null));
-            await Assert.ThrowsAsync<ArgumentNullException>(() => repo.SubmitImportJobAsync(null));
+            var jobStore = new JobStore(client.Object, new ApplicationConfiguration(null, "jobs", null, null, null, null, null, null));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => jobStore.SubmitImportJobAsync(null));
         }
 
         [Fact]
@@ -44,7 +44,7 @@ namespace DataDock.Common.Tests
             AssertIndexExists(client, "jobs");
             client.Setup(x => x.IndexDocumentAsync<JobInfo>(It.IsAny<JobInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(mockResponse.Object).Verifiable();
-            var repo = new JobRepository(client.Object, new ApplicationConfiguration(null, "jobs", null, null, null, null, null, null));
+            var jobStore = new JobStore(client.Object, new ApplicationConfiguration(null, "jobs", null, null, null, null, null, null));
                 
             var jobRequest = new ImportJobRequestInfo
             {
@@ -60,7 +60,7 @@ namespace DataDock.Common.Tests
                 OverwriteExistingData = false
             };
 
-            var jobInfo = await repo.SubmitImportJobAsync(jobRequest);
+            var jobInfo = await jobStore.SubmitImportJobAsync(jobRequest);
 
             client.Verify();
         }
@@ -74,7 +74,7 @@ namespace DataDock.Common.Tests
             AssertIndexExists(client, "jobs");
             client.Setup(x => x.IndexDocumentAsync<JobInfo>(It.IsAny<JobInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(mockResponse.Object).Verifiable();
-            var repo = new JobRepository(client.Object, new ApplicationConfiguration(null, "jobs", null, null, null, null, null, null));
+            var jobStore = new JobStore(client.Object, new ApplicationConfiguration(null, "jobs", null, null, null, null, null, null));
 
             var jobRequest = new ImportJobRequestInfo
             {
@@ -90,7 +90,7 @@ namespace DataDock.Common.Tests
                 OverwriteExistingData = false
             };
 
-            await Assert.ThrowsAsync<JobRepositoryException>(() => repo.SubmitImportJobAsync(jobRequest));
+            await Assert.ThrowsAsync<JobRepositoryException>(() => jobStore.SubmitImportJobAsync(jobRequest));
 
             client.Verify();
         }

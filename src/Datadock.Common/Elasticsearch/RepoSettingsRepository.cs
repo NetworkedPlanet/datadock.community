@@ -1,9 +1,9 @@
 ﻿using Datadock.Common.Models;
-using Datadock.Common.Repositories;
 using Nest;
 using Serilog;
 using System;
 using System.Threading.Tasks;
+using Datadock.Common.Stores;
 using Datadock.Common.Validators;
 
 namespace Datadock.Common.Elasticsearch

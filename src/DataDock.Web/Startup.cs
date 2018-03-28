@@ -1,6 +1,5 @@
 using Datadock.Common.Elasticsearch;
 using Datadock.Common.Models;
-using Datadock.Common.Repositories;
 using DataDock.Web.Auth;
 using DataDock.Web.Routing;
 using DataDock.Web.Services;
@@ -27,6 +26,7 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Datadock.Common.Stores;
 using DataDock.Common;
 
 namespace DataDock.Web
@@ -74,7 +74,7 @@ namespace DataDock.Web
             services.AddSingleton(config);
             services.AddSingleton<IElasticClient>(client);
             services.AddSingleton<IUserRepository, UserRepository>();
-            services.AddSingleton<IJobRepository, JobRepository>();
+            services.AddSingleton<IJobStore, JobStore>();
             services.AddSingleton<IOwnerSettingsRepository, OwnerSettingsRepository>();
             services.AddSingleton<IRepoSettingsRepository, RepoSettingsRepository>();
 

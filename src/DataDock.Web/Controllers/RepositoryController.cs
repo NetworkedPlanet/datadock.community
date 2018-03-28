@@ -3,7 +3,7 @@ using DataDock.Web.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using Datadock.Common.Repositories;
+using Datadock.Common.Stores;
 using DataDock.Web.Models;
 using DataDock.Web.ViewModels;
 using Serilog;

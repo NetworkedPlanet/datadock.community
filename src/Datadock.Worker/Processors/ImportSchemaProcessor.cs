@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using Datadock.Common.Models;
-using Datadock.Common.Repositories;
+using Datadock.Common.Stores;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Serilog;

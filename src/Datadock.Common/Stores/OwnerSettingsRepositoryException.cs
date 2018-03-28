@@ -1,4 +1,4 @@
-﻿namespace Datadock.Common.Repositories
+﻿namespace Datadock.Common.Stores
 {
     public class OwnerSettingsRepositoryException : DatadockException
     {

@@ -28,6 +28,7 @@ import { FormManager } from './shared/form-manager';
 import { ViewModelHelperService } from './shared/viewmodel-helper.service';
 import { AppService } from './shared/app.service';
 import { ConfigurationService } from './shared/services/config.service';
+import { Globals } from './globals';
 
 
 @NgModule({
@@ -71,6 +72,7 @@ import { ConfigurationService } from './shared/services/config.service';
         StepsComponent
     ],
     providers: [
+        Globals,
         AppService,
         ViewModelHelperService,
         FormManager,

@@ -29,6 +29,7 @@ namespace DataDock.Worker.Tests
         private string _repositoryDescription;
         private Uri _rootMetadataGraphIri;
         private MockQuinceStore _quinceStore;
+        private Uri _baseUri;
 
         public BasicDataDockRepositoryTests()
         {
@@ -40,8 +41,8 @@ namespace DataDock.Worker.Tests
             var quinceStoreFactory = new Mock<IQuinceStoreFactory>();
             quinceStoreFactory.Setup(x => x.MakeQuinceStore(_repoPath)).Returns(_quinceStore);
             var htmlGeneratorFactory = new Mock<IHtmlGeneratorFactory>();
-            var baseUri = new Uri("http://datadock.io/test/repo");
-            _repo = new DataDockRepository(_repoPath, baseUri, new MockProgressLog(),
+            _baseUri = new Uri("http://datadock.io/test/repo");
+            _repo = new DataDockRepository(_repoPath, _baseUri, new MockProgressLog(),
                 quinceStoreFactory.Object, htmlGeneratorFactory.Object);
             _insertGraph = new Graph();
             _insertGraph.Assert(_insertGraph.CreateUriNode(new Uri("http://example.org/s")),
@@ -49,8 +50,16 @@ namespace DataDock.Worker.Tests
                 _insertGraph.CreateUriNode(new Uri("http://example.org/o")));
             _datasetGraphIri = new Uri("http://datadock.io/test/repo/example");
             _metadataGraph = new Graph();
+            _metadataGraph.Assert(
+                _metadataGraph.CreateUriNode(_datasetGraphIri),
+                _metadataGraph.CreateUriNode(new Uri("http://example.org/properties/foo")),
+                _metadataGraph.CreateLiteralNode("foo"));
             _metadataGraphIri= new Uri("http://datadock.io/test/repo/example/metadata");
             _definitionsGraph = new Graph();
+            _definitionsGraph.Assert(
+                _definitionsGraph.CreateUriNode(_datasetGraphIri),
+                _definitionsGraph.CreateUriNode(new Uri("http://example.org/properties/bar")),
+                _definitionsGraph.CreateLiteralNode("bar"));
             _definitionsGraphIri = new Uri("http://datadock.io/test/repo/example/definitions");
             _publisherIri = new Uri("http://datadock.io/test/publisher");
             _publisherInfo= new ContactInfo { Label = "Test Publisher" };
@@ -108,6 +117,78 @@ namespace DataDock.Worker.Tests
                 _rootMetadataGraphIri);
             _quinceStore.AssertTriplesInserted(_insertGraph.Triples, _datasetGraphIri);
             _quinceStore.DroppedGraphs.Should().Contain(_metadataGraphIri);
+        }
+
+        [Fact]
+        public void UpdateAssertsMetadataGraphTriples()
+        {
+            _repo.UpdateDataset(_insertGraph, _datasetGraphIri, true,
+                _metadataGraph, _metadataGraphIri,
+                _definitionsGraph, _definitionsGraphIri,
+                _publisherIri, _publisherInfo,
+                _repositoryTitle, _repositoryDescription,
+                _rootMetadataGraphIri);
+            _quinceStore.AssertTriplesInserted(_metadataGraph.Triples, _metadataGraphIri);
+        }
+
+        [Fact]
+        public void UpdateAssertsDefinitionsGraphTriples()
+        {
+            _repo.UpdateDataset(_insertGraph, _datasetGraphIri, true,
+                _metadataGraph, _metadataGraphIri,
+                _definitionsGraph, _definitionsGraphIri,
+                _publisherIri, _publisherInfo,
+                _repositoryTitle, _repositoryDescription,
+                _rootMetadataGraphIri);
+            _quinceStore.AssertTriplesInserted(_metadataGraph.Triples, _metadataGraphIri);
+        }
+
+        [Fact]
+        public void UpdateAddsMetadataToRootMetadataGraph()
+        {
+            _repo.UpdateDataset(_insertGraph, _datasetGraphIri, true,
+                _metadataGraph, _metadataGraphIri,
+                _definitionsGraph, _definitionsGraphIri,
+                _publisherIri, _publisherInfo,
+                _repositoryTitle, _repositoryDescription,
+                _rootMetadataGraphIri);
+            var expectedRootMetadata = new Graph();
+            // Expectations
+            var repoNode = expectedRootMetadata.CreateUriNode(_baseUri);
+            // (repo, rdf:type, void:Dataset)
+            expectedRootMetadata.Assert(
+                repoNode,
+                expectedRootMetadata.CreateUriNode(new Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")),
+                expectedRootMetadata.CreateUriNode(new Uri("http://rdfs.org/ns/void#Dataset")));
+            // (repo, void:subset, dataset)
+            expectedRootMetadata.Assert(
+                repoNode,
+                expectedRootMetadata.CreateUriNode(new Uri("http://rdfs.org/ns/void#subset")),
+                expectedRootMetadata.CreateUriNode(_datasetGraphIri));
+            // (repo, dcterms:publisher, publisher)
+            expectedRootMetadata.Assert(
+                repoNode,
+                expectedRootMetadata.CreateUriNode(new Uri("http://purl.org/dc/terms/publisher")),
+                expectedRootMetadata.CreateUriNode(_publisherIri));
+
+            _quinceStore.AssertTriplesInserted(expectedRootMetadata.Triples, _rootMetadataGraphIri);
+        }
+
+        [Fact]
+        public void UpdateAssertsTitleAndDescription()
+        {
+            _repo.UpdateDataset(_insertGraph, _datasetGraphIri, true,
+                _metadataGraph, _metadataGraphIri,
+                _definitionsGraph, _definitionsGraphIri,
+                _publisherIri, _publisherInfo,
+                _repositoryTitle, _repositoryDescription,
+                _rootMetadataGraphIri);
+            var expect = new Graph();
+            expect.NamespaceMap.AddNamespace("dcterms", new Uri("http://purl.org/dc/terms/"));
+            var repoNode = expect.CreateUriNode(_baseUri);
+            expect.Assert(repoNode, expect.CreateUriNode("dcterms:title"), expect.CreateLiteralNode(_repositoryTitle));
+            expect.Assert(repoNode, expect.CreateUriNode("dcterms:description"), expect.CreateLiteralNode(_repositoryDescription));
+            _quinceStore.AssertTriplesInserted(expect.Triples, _rootMetadataGraphIri);
         }
     }
 

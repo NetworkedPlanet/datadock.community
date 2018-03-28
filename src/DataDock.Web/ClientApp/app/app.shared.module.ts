@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
@@ -27,6 +27,7 @@ import { UserService } from './shared/user.service';
 import { FormManager } from './shared/form-manager';
 import { ViewModelHelperService } from './shared/viewmodel-helper.service';
 import { AppService } from './shared/app.service';
+import { ConfigurationService } from './shared/services/config.service';
 
 
 @NgModule({
@@ -78,7 +79,17 @@ import { AppService } from './shared/app.service';
         DatatypeService,
         CsvFile,
         SchemaService,
-        SchemaHelperService
+        SchemaHelperService,
+        ConfigurationService,
+        {
+            // Here we request that configuration loading be done at app-
+            // initialization time (prior to rendering)
+            provide: APP_INITIALIZER,
+            useFactory: (configService: ConfigurationService) =>
+                () => configService.loadConfigurationData(),
+            deps: [ConfigurationService],
+            multi: true
+        }
     ]
 })
 export class AppModuleShared {

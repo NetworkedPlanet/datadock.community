@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Globals } from '../globals';
 
 @Injectable()
 export class SchemaHelperService {
@@ -10,7 +11,7 @@ export class SchemaHelperService {
     public hasSchema: boolean;
     public schemaTitle: string;
 
-    constructor() {
+    constructor(private globals: Globals ) {
         this.schemaId = '';
         this.schemaTitle = '';
         this.hasSchema = false;
@@ -113,7 +114,7 @@ export class SchemaHelperService {
                 if (metadataColumns) {
                     for (let i = 0; i < metadataColumns.length; i++) {
                         if (metadataColumns[i].name === columnName) {
-                            if (IN_DEBUG) {
+                            if (this.globals.config.inDebug) {
                                  console.log('template found for column.', metadataColumns[i])
                             }
                             return metadataColumns[i];
@@ -121,7 +122,7 @@ export class SchemaHelperService {
                     }
                 }
             }
-            if (IN_DEBUG) {
+            if (this.globals.config.inDebug) {
                 console.log('Unable to find column in template.', columnName);
             }
         }

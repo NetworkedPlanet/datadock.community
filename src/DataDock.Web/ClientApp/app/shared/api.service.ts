@@ -1,19 +1,18 @@
 import { Injectable } from '@angular/core';
 import { Http, RequestOptions, Headers, Response, RequestMethod, Request } from '@angular/http';
 import { Observable } from 'rxjs';
+import { Globals } from '../globals';
 
 @Injectable()
 export class ApiService {
 
-  apiUrl = API_URL;
-
-  constructor(private http: Http) {}
+  constructor(private globals: Globals, private http: Http) {}
 
   post(formData: FormData) {
     let headers = new Headers();
     let options = new RequestOptions({
       method: RequestMethod.Post,
-      url: `${this.apiUrl}data`,
+      url: `${this.globals.apiUrl}data`,
       headers: headers,
       body: formData
     });

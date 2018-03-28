@@ -9,6 +9,7 @@ import { DatatypeService } from './datatype.service';
 import { OPTIONS_SUPPRESS } from './form-field/options-suppress';
 import { NoSpaceValidator } from './form-field/custom-validator';
 import { SchemaHelperService } from './schema-helper.service';
+import { Globals } from '../globals';
 
 @Injectable()
 export class ViewModelHelperService {
@@ -22,7 +23,7 @@ export class ViewModelHelperService {
   identifierOptions = [];
 
 
-  constructor(private ds: DatatypeService, private shs: SchemaHelperService) {}
+  constructor(private globals: Globals, private ds: DatatypeService, private shs: SchemaHelperService) {}
 
   /*
     getMetadataViewModel returns a MetadataViewModel object that describes the shape of the form,
@@ -35,7 +36,7 @@ export class ViewModelHelperService {
   buildMetadataViewModel(prefix: string, filename: string, columnSet: Array<any>, rowDataSample: Array<any>): MetadataViewModel {
 
     let schema = this.shs.getSchema();
-    if (IN_DEBUG) {
+    if (this.globals.config.inDebug) {
       console.log('building view model with supplied values: ');
       console.log('prefix', prefix);
       console.log('filename', filename);
@@ -76,7 +77,7 @@ export class ViewModelHelperService {
     let defaultAboutUrlPrefix = resourcePrefix + encodeURIComponent(filename);
 
     let templateIdentifier = this.shs.getMetadataIdentifier(defaultAboutUrlPrefix, '');
-    if (IN_DEBUG) {
+    if (this.globals.config.inDebug) {
       console.log('template identifier', templateIdentifier);
     }
 
@@ -189,7 +190,7 @@ export class ViewModelHelperService {
   private getColumnFieldsBasic() {
 
     let colDataSample = this.getRawDataByColumn();
-    if (IN_DEBUG) {
+    if (this.globals.config.inDebug) {
       console.log('getColumnFieldsBasic', this.dataSampleRows, colDataSample);
     }
 
@@ -280,7 +281,7 @@ export class ViewModelHelperService {
       // get number of columns
       let r1 = this.dataSampleRows[0];
       if (r1) {
-        if (IN_DEBUG) {
+        if (this.globals.config.inDebug) {
          //  console.log('Processing row ', r1);
         }
         let numCols = r1.length;
@@ -292,7 +293,7 @@ export class ViewModelHelperService {
               columnData.push(cellData);
             }
           });
-          if (IN_DEBUG) {
+          if (this.globals.config.inDebug) {
             // console.log('Produced ', columnData);
           }
           colDataSample.push(columnData);

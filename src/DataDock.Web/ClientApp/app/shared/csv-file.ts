@@ -1,3 +1,4 @@
+import { Globals } from '../globals';
 export class CsvFile {
     filename: string;
     uriSafeFilename: string;
@@ -24,9 +25,6 @@ export class CsvFile {
     processing done in method rather than constructor to make the class more testable
      */
     initialise(parseResult?: any, file?: any): void {
-        if (IN_DEBUG) {
-            console.log('Initialising CSVFile:', parseResult, file);
-        }
         if (file) {
             this.file = file;
             this.filename = file.name;
@@ -53,9 +51,6 @@ export class CsvFile {
                 this.truncated = meta['truncated'];
             }
         }
-        if (IN_DEBUG) {
-            console.log('Initialising CSVFile complete', this);
-        }
     }
 
 
@@ -70,9 +65,6 @@ export class CsvFile {
                 this.columnSet.push(colInfo);
                 idx++;
             }
-        }
-        if (IN_DEBUG) {
-            console.log('csvFile.populateColumnSetFromHeadings()', this.columnSet);
         }
     }
 

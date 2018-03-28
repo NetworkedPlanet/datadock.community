@@ -6,6 +6,7 @@ import { FormManager, CsvFile } from '../../shared';
 import { ViewModelHelperService, SchemaHelperService, SchemaService } from '../../shared';
 import { Response } from "@angular/http";
 import { AppService } from '../../shared/app.service';
+import { Globals } from '../../globals';
 
 @Component({
   selector: 'dd-file',
@@ -31,6 +32,7 @@ export class FileComponent implements OnInit, OnDestroy  {
   restartLink: string;
 
   constructor(
+      private globals: Globals,
       private router: Router,
       private route: ActivatedRoute,
       private papa: PapaParseService,
@@ -66,7 +68,7 @@ export class FileComponent implements OnInit, OnDestroy  {
     if (fileInput.target.files && fileInput.target.files[0]) {
       let file = fileInput.target.files[0];
       this.filename = file.name;
-      if (IN_DEBUG) {
+      if (this.globals.config.inDebug) {
         console.log(this.filename);
       }
       if (file.size > this.MAX_FILE_SIZE) {
@@ -86,7 +88,7 @@ export class FileComponent implements OnInit, OnDestroy  {
   }
 
   parseComplete(results: any, file: any): void {
-    if (IN_DEBUG) {
+    if (this.globals.config.inDebug) {
       console.log('Parsing complete:', results, file);
     }
 
@@ -106,7 +108,7 @@ export class FileComponent implements OnInit, OnDestroy  {
         this.ss.get(this.ownerId, this.schemaId).subscribe(
             apiResponse => {
               // successful apiResponse =  obj {status: 200, schema: {} }
-              if (IN_DEBUG) {
+              if (this.globals.config.inDebug) {
                 console.log('schema api response', apiResponse);
               }
               if (apiResponse && apiResponse.status === 200) {
@@ -125,12 +127,12 @@ export class FileComponent implements OnInit, OnDestroy  {
               }
               this.error = `Unable to retrieve template for use in import. Do you want to:`;
               this.showTemplateErrorButtons = true;
-              if (IN_DEBUG) {
+              if (this.globals.config.inDebug) {
                 console.error('API error', res);
               }
             },
             () => {
-              if (IN_DEBUG) {
+              if (this.globals.config.inDebug) {
                 console.log('subscription complete');
               }
               // when schema returned, build view model
@@ -144,7 +146,7 @@ export class FileComponent implements OnInit, OnDestroy  {
       this.error = `Error retrieving template for use in import . Do you wish to 
 <a href="#" (click)="continue()">continue without the template</a> or 
 <a href="/${this.ownerId}/library">return to check the template library</a>?`;
-      if (IN_DEBUG) {
+      if (this.globals.config.inDebug) {
         console.error('error hit', (<Error>e));
       }
     }
@@ -165,7 +167,7 @@ export class FileComponent implements OnInit, OnDestroy  {
 
   buildAndRedirect(csvFile: CsvFile, dataSlice: Array<any>) {
     let viewModel = this.vmhs.buildMetadataViewModel(this.appService.prefix, csvFile.filename, csvFile.columnSet, dataSlice);
-    if (IN_DEBUG) {
+    if (this.globals.config.inDebug) {
       console.log('view model building complete', viewModel);
     }
     this.fm.metadataViewModel = viewModel;

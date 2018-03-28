@@ -1,20 +1,19 @@
 import { Injectable } from '@angular/core';
 import { Http, RequestOptions, Headers, Response, RequestMethod, Request } from '@angular/http';
 import { Observable } from 'rxjs';
+import { Globals } from '../globals';
 
     @Injectable()
     export class UserService {
 
-    apiUrl = API_URL;
-
-    constructor(private http: Http) {}
+    constructor(private globals: Globals, private http: Http) {}
 
     // get current logged in user
     get() {
         let headers = new Headers();
         let options = new RequestOptions({
           method: RequestMethod.Get,
-          url: `${this.apiUrl}user`,
+          url: `${this.globals.apiUrl}user`,
           headers: headers,
         });
         return this.http.request(new Request(options))

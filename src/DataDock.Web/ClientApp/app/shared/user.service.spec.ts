@@ -64,7 +64,7 @@ describe('UserService', () => {
                 connection = mockBackend.connections.subscribe(c => {
                    connection = c;
                    // expect(connection.request.url).toBe('DEFINITELY NOT THIS 1');
-                   if (IN_DEBUG) {
+                   if (this.globals.config.inDebug) {
                        expect(c.request.url).toBe('http://localhost:4376/api/user');
                    } else {
                        expect(c.request.url).toBe('/api/user');

@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, SimpleChange } from '@angular/core';
 import { Router } from '@angular/router';
 import { AppService } from '../../shared/app.service';
+import { Globals } from '../../globals';
 
 @Component({
     selector: 'dd-steps',
@@ -15,7 +16,7 @@ export class StepsComponent implements OnChanges {
 
     @Input() restartLink: string;
 
-    constructor(private router: Router, private ihs: AppService) {
+    constructor(private globals: Globals, private router: Router, private ihs: AppService) {
         this.isUploading = false;
         this.activeStep = '';
     }
@@ -31,7 +32,7 @@ export class StepsComponent implements OnChanges {
             if (this.ihs.schemaId) {
                 restartUrl = restartUrl + '/' + this.ihs.schemaId;
             }
-            if (IN_DEBUG) {
+            if (this.globals.config.inDebug) {
                 console.log('restart (choose new CSV)', restartUrl);
             }
             this.router.navigate([restartUrl]);

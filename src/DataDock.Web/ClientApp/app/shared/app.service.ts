@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { DashboardModel } from './dashboard-model';
 import { RepositoryInfo } from './repository-info';
 import { CsvFile } from './csv-file';
+import { Globals } from '../globals';
 
 /*
 A helper service for data sharing across the whole import
@@ -23,14 +24,14 @@ export class AppService {
     public restartImportRelativeUrl: string;
     public redirectToJobsRelativeUrl: string;
 
-    constructor() {
+    constructor(private globals: Globals) {
         this.ownerId = '';
         this.repoId = '';
         this.schemaId = '';
     }
 
     public setSource(file: CsvFile, ownerId: string, repoId: string, schemaId: string): void {
-        if (IN_DEBUG) {
+        if (this.globals.config.inDebug) {
             console.log('setting source on ImportHelperService', file, ownerId, repoId, schemaId);
         }
         this.csvFile = file;

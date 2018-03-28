@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormManager } from '../../shared/form-manager';
 import { MetadataViewModel } from '../../shared/metadata-viewmodel';
+import { Globals } from '../../globals';
 
 @Component({
     selector: 'dd-dev',
@@ -14,8 +15,8 @@ export class DeveloperComponent  {
     form: FormGroup;
     viewModel: MetadataViewModel;
 
-    constructor( public fm: FormManager) {
-        if (IN_DEBUG) {
+    constructor( public fm: FormManager, private globals: Globals) {
+        if (this.globals.config.inDebug) {
             this.devMode = true;
             this.form = this.fm.mainForm;
             this.viewModel = this.fm.metadataViewModel;

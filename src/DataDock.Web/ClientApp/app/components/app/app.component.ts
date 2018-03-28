@@ -1,5 +1,7 @@
-import { Component, OnInit, ElementRef } from '@angular/core';
+import { Component, OnInit, ElementRef, Inject } from '@angular/core';
 import { AppService } from '../../shared/app.service';
+import { ConfigurationService } from '../../shared/services/config.service';
+import { Globals } from '../../globals';
 
 @Component({
     selector: 'app',
@@ -10,27 +12,22 @@ export class AppComponent implements OnInit  {
 
     error: string;
 
-    constructor(private elementRef: ElementRef, private appService: AppService){
+    constructor(public configService: ConfigurationService, @Inject('BASE_URL') private originUrl: string, private globals: Globals){
         this.error = '';
     }
 
     ngOnInit(): void {
+        this.globals.config = this.configService.config;
+        this.globals.apiUrl = this.originUrl + 'api/';
+
         this.printEnvironmentVariables();
-            // v0.1 set a dash view model and target repo simply to recreate the dashboard menu, this is unnecessary in v1.0 community edition
     }
 
     printEnvironmentVariables() {
-
-        // set in webpack config
-
-        if (IN_DEBUG) {
-
-            // let env = JSON.stringify(process.env);
-            // console.log(`process.env: ${env}`);
-
-            console.log(`IN_DEBUG: ${IN_DEBUG}`);
-            console.log(`VERSION: ${VERSION}`);
-            console.log(`API_URL: ${API_URL}`);
+        if (this.configService.config.inDebug) {
+            console.log(`BASE_URL: ${this.originUrl}`);
+            console.log(`API_URL: ${this.globals.apiUrl}`);
+            console.log(`IN_DEBUG: ${this.globals.config.inDebug}`);
         }
     }
 }

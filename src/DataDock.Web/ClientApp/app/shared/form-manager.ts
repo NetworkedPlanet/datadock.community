@@ -8,6 +8,7 @@ import { MetadataViewModel, ViewModelSection } from './metadata-viewmodel';
 import { CustomValidators } from './form-field/custom-validators';
 import { ApiService } from './api.service';
 import { AppService } from './app.service';
+import { Globals } from '../globals';
 
 /*
 
@@ -41,6 +42,7 @@ export class FormManager {
   public saveAsSchema: boolean;
 
   constructor(
+      private globals: Globals,
       private appService: AppService,
       private fb: FormBuilder,
       private api: ApiService) {
@@ -124,7 +126,7 @@ export class FormManager {
    It should only be called once from the parent component after a file has been selected
    */
   generateFormControlsFromModel(): void {
-    if (IN_DEBUG) {
+    if (this.globals.config.inDebug) {
       console.log('Generating form controls from view model...', this.metadataViewModel);
     }
 
@@ -175,7 +177,7 @@ export class FormManager {
       }
 
       this.mainForm = this.fb.group(sections);
-      if (IN_DEBUG) {
+      if (this.globals.config.inDebug) {
         console.log('the form', this.mainForm);
       }
 
@@ -317,11 +319,11 @@ export class FormManager {
    it and the CSV file to the DataDock Data API
    */
   sendData() {
-    if (IN_DEBUG) {
+    if (this.globals.config.inDebug) {
       console.log('sendData()');
     }
     let metadata = this.generateMetadataJsonFromFormValues();
-    if (IN_DEBUG) {
+    if (this.globals.config.inDebug) {
       console.log('metadata', metadata);
     }
     let formData = new FormData();
@@ -329,13 +331,13 @@ export class FormManager {
     // console.log(this.csvFile);
     formData.append('file', this.appService.csvFile.file, this.appService.csvFile.filename);
     formData.append('metadata', JSON.stringify(metadata));
-    if (IN_DEBUG) {
+    if (this.globals.config.inDebug) {
       // console.log('appending target repo to formData', this.appService.targetRepository);
     }
     //formData.append('targetRepository', JSON.stringify(this.appService.targetRepository));
     formData.append('showOnHomePage', JSON.stringify(this.showOnHomePage));
     formData.append('saveAsSchema', JSON.stringify(this.saveAsSchema));
-    if (IN_DEBUG) {
+    if (this.globals.config.inDebug) {
       console.log('formData', formData);
       console.log('sending to API');
     }
@@ -421,7 +423,7 @@ export class FormManager {
         }
       }
     }
-    if (IN_DEBUG) {
+    if (this.globals.config.inDebug) {
       console.log('tableSchemaColumns', tableSchemaColumns);
     }
     let ts = {};

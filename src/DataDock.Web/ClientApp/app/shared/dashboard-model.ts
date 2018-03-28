@@ -1,3 +1,4 @@
+import { Globals } from '../globals';
 export class DashboardModel {
     area: string;
     subtitle: string;
@@ -29,9 +30,7 @@ export class DashboardModel {
                 this.ownerRepositoryIds.unshift(this.requestedRepositoryId);
             }
 
-            if (IN_DEBUG) {
-                console.log('DashboardModel', this);
-            }
+            console.log('DashboardModel', this);
         }
 
     }

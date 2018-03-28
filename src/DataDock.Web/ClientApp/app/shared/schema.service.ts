@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Http, RequestOptions, Headers, Response, RequestMethod, Request, URLSearchParams } from '@angular/http';
 import { Observable } from 'rxjs';
+import { Globals } from '../globals';
 
 @Injectable()
 export class SchemaService {
 
-    apiUrl = API_URL;
-
-    constructor(private http: Http) {}
+    constructor(private globals: Globals, private http: Http) {}
 
     // get current logged in user
     get(ownerId: string, schemaId: string) {
@@ -17,7 +16,7 @@ export class SchemaService {
         params.set('schemaId', schemaId);
         let options = new RequestOptions({
             method: RequestMethod.Get,
-            url: `${this.apiUrl}schema`,
+            url: `${this.globals.apiUrl}schema`,
             params: params,
             headers: headers,
         });

@@ -5,6 +5,7 @@ import { FormGroup, FormControl, FormArray } from '@angular/forms';
 import { FormField } from '../../shared/form-field/form-field';
 import { FormManager, SchemaHelperService } from '../../shared';
 import { AppService } from '../../shared/app.service';
+import { Globals } from '../../globals';
 
 @Component({
     selector: 'dd-metadata',
@@ -35,10 +36,10 @@ export class MetadataComponent implements OnInit {
     saveAsSchema: boolean;
     schemaTitle: string;
 
-    constructor(private router: Router, private app: AppService,
+    constructor(private globals: Globals, private router: Router, private app: AppService,
                 private fm: FormManager, private shs: SchemaHelperService) {
 
-        this.developerMode = IN_DEBUG;
+        this.developerMode = this.globals.config.inDebug;
         this.isLoading = false;
         this.isUploading = false;
         this.showOnHomePage = true;
@@ -46,7 +47,7 @@ export class MetadataComponent implements OnInit {
         this.warnings = [];
         this.errors = [];
 
-        if (IN_DEBUG) {
+        if (this.globals.config.inDebug) {
             console.log('Loading metadata editor');
         }
 

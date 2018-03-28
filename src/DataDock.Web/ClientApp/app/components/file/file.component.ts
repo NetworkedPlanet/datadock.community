@@ -22,7 +22,7 @@ export class FileComponent implements OnInit, OnDestroy  {
 
   showTemplateErrorButtons = false;
 
-  repoUriCheck = false;
+  repoUriCheck = true;
   ownerId: string;
   repoId: string;
   schemaId: string;

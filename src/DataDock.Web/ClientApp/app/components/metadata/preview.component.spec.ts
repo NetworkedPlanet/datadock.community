@@ -32,13 +32,13 @@ describe('Metadata: Preview Component', () => {
             ['Column 1', 'Column 2', 'Column 3', 'Column 4'],
             ['Row 1, Cell 1', 'Row 1, Cell 2', 'Row 1, Cell 3', 'Row 1, Cell 4'],
             ['Row 2, Cell 1', 'Row 2, Cell 2', 'Row 2, Cell 3', 'Row 2, Cell 4']];
-        ihs.setSource(fileStub, 'jen', 'repo', 'abc');
+        ihs.initialise(fileStub, 'jen', 'repo', 'abc');
 
         fixture = TestBed.createComponent(PreviewComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
 
-        const spy = spyOn(ihs, 'setSource');
+        const spy = spyOn(ihs, 'initialise');
         fixture.detectChanges();
 
         fixture.whenStable()

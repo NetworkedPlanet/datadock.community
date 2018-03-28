@@ -30,14 +30,19 @@ export class AppService {
         this.schemaId = '';
     }
 
-    public setSource(file: CsvFile, ownerId: string, repoId: string, schemaId: string): void {
+    public initialise(file: CsvFile, ownerId: string, repoId: string, schemaId: string): void {
         if (this.globals.config.inDebug) {
-            console.log('setting source on ImportHelperService', file, ownerId, repoId, schemaId);
+            console.log('initialising AppService', file, ownerId, repoId, schemaId);
         }
         this.csvFile = file;
         this.ownerId = ownerId;
         this.repoId = repoId;
         this.schemaId = schemaId;
+        if (repoId) {
+            this.prefix = `${this.DATADOCK_URL}${ownerId}/${repoId}/`;
+            this.restartImportRelativeUrl = `/${ownerId}/${repoId}/import`;
+            this.redirectToJobsRelativeUrl = `/${ownerId}/${repoId}/jobs`;
+        }
     }
 
     public getCsvFileUri() {

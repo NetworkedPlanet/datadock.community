@@ -72,7 +72,7 @@ describe('File Component', () => {
             };
 
         component.fileChangeEvent(fileInputStub);
-        const spy = spyOn(ihs, 'setSource');
+        const spy = spyOn(ihs, 'initialise');
         fixture.detectChanges();
 
         fixture.whenStable()

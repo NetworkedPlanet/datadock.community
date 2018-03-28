@@ -19,8 +19,8 @@ export class MockAppService {
     public restartImportRelativeUrl: string;
     public redirectToJobsRelativeUrl: string;
 
-    setSource(file: CsvFile, ownerId: string, repoId: string, schemaId: string): void {
-        console.warn('MockImportHelperService.setSource()');
+    initialise(file: CsvFile, ownerId: string, repoId: string, schemaId: string): void {
+        console.warn('MockImportHelperService.initialise()');
         // repeat the logic of the real FormManager here so that stubs can be set from tests
         this.csvFile = file;
         this.ownerId = ownerId;

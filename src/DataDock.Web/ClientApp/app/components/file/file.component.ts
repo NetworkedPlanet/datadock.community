@@ -94,7 +94,7 @@ export class FileComponent implements OnInit, OnDestroy  {
 
     let csvFile: CsvFile = new CsvFile();
     csvFile.initialise(results, file);
-    this.appService.setSource(csvFile, this.ownerId, this.repoId, this.schemaId);
+    this.appService.initialise(csvFile, this.ownerId, this.repoId, this.schemaId);
     this.processFileInfoViewModelAndRedirect();
   }
 

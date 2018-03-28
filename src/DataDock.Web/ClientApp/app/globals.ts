@@ -5,4 +5,5 @@ import { Configuration } from './shared/models/configuration';
 export class Globals {
     apiUrl: string;
     config: Configuration;
+
 }

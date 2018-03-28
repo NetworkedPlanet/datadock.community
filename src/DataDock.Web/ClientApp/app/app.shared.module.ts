@@ -29,6 +29,7 @@ import { ViewModelHelperService } from './shared/viewmodel-helper.service';
 import { AppService } from './shared/app.service';
 import { ConfigurationService } from './shared/services/config.service';
 import { Globals } from './globals';
+import { routing } from './app.routing';
 
 
 @NgModule({
@@ -39,22 +40,7 @@ import { Globals } from './globals';
         ReactiveFormsModule,
         PapaParseModule,
         TagInputModule,
-        RouterModule.forRoot([
-            {
-                path: ':ownerId',
-                children: [
-                    {
-                        path: ':repoId',
-                        children: [
-                            { path: 'import', component: FileComponent },
-                            { path: 'import/:schemaId', component: FileComponent },
-                            { path: 'define', component: FileComponent }
-                        ]
-                    }
-                ]
-            },
-            { path: '**', component: FileComponent }
-        ])
+        routing
     ],
     declarations: [
         AppComponent,

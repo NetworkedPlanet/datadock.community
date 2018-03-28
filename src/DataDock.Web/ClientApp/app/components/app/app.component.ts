@@ -17,13 +17,13 @@ export class AppComponent implements OnInit  {
     }
 
     ngOnInit(): void {
+        console.log('initialising app component...');
         this.globals.config = this.configService.config;
         this.globals.apiUrl = this.originUrl + 'api/';
-
-        this.printEnvironmentVariables();
+        this.printGlobals();
     }
 
-    printEnvironmentVariables() {
+    printGlobals() {
         if (this.configService.config.inDebug) {
             console.log(`BASE_URL: ${this.originUrl}`);
             console.log(`API_URL: ${this.globals.apiUrl}`);

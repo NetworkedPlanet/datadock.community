@@ -2,6 +2,6 @@
 {
     public class ClientConfiguration
     {
-        public string ApiUrl { get; set; }
+        public bool InDebug { get; set; }
     }
 }

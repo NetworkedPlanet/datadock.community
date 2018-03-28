@@ -67,6 +67,8 @@ namespace DataDock.Web
                 options.LowercaseUrls = true;
             });
 
+            services.Configure<DataDock.Web.Config.ClientConfiguration>(Configuration.GetSection("ClientConfiguration"));
+
 
             services.AddSignalR();
             var client = new ElasticClient(new Uri(esUrl));
@@ -364,55 +366,55 @@ namespace DataDock.Web
                     name: "RepoSummary",
                     template: "{ownerId}/{repoId}",
                     defaults: new { controller = "Repository", action = "Index" },
-                    constraints: new { ownerId = new NonDashboardConstraint(), repoId = new PremiumFeatureConstraint() }
+                    constraints: new { ownerId = new NonDashboardConstraint() }
                 );
                 routes.MapRoute(
                     name: "RepoDatasets",
                     template: "{ownerId}/{repoId}/datasets",
                     defaults: new { controller = "Repository", action = "Datasets" },
-                    constraints: new { ownerId = new NonDashboardConstraint(), repoId = new PremiumFeatureConstraint() }
+                    constraints: new { ownerId = new NonDashboardConstraint() }
                 );
                 routes.MapRoute(
                     name: "RepoJobs",
                     template: "{ownerId}/{repoId}/jobs",
                     defaults: new { controller = "Repository", action = "Jobs" },
-                    constraints: new { ownerId = new NonDashboardConstraint(), repoId = new PremiumFeatureConstraint() }
+                    constraints: new { ownerId = new NonDashboardConstraint() }
                 );
                 routes.MapRoute(
                     name: "RepoLibrary",
                     template: "{ownerId}/{repoId}/library",
                     defaults: new { controller = "Repository", action = "Library" },
-                    constraints: new { ownerId = new NonDashboardConstraint(), repoId = new PremiumFeatureConstraint() }
+                    constraints: new { ownerId = new NonDashboardConstraint() }
                 );
                 routes.MapRoute(
                     name: "RepoImport",
                     template: "{ownerId}/{repoId}/import/{schemaId?}",
                     defaults: new { controller = "Repository", action = "Import"},
-                    constraints: new { ownerId = new NonDashboardConstraint(), repoId = new PremiumFeatureConstraint() }
+                    constraints: new { ownerId = new NonDashboardConstraint() }
                 );
                 routes.MapRoute(
                     name: "RepoSettings",
                     template: "{ownerId}/{repoId}/settings",
                     defaults: new { controller = "Repository", action = "Settings" },
-                    constraints: new { ownerId = new NonDashboardConstraint(), repoId = new PremiumFeatureConstraint() }
+                    constraints: new { ownerId = new NonDashboardConstraint() }
                 );
                 routes.MapRoute(
                     name: "RepoStats",
                     template: "{ownerId}/{repoId}/stats",
                     defaults: new { controller = "Repository", action = "Stats" },
-                    constraints: new { ownerId = new NonDashboardConstraint(), repoId = new PremiumFeatureConstraint() }
+                    constraints: new { ownerId = new NonDashboardConstraint() }
                 );
                 routes.MapRoute(
                     name: "Dataset",
                     template: "{ownerId}/{repoId}/{datasetId}/view",
                     defaults: new { controller = "Repository", action = "Dataset" },
-                    constraints: new { ownerId = new NonDashboardConstraint(), repoId = new PremiumFeatureConstraint() }
+                    constraints: new { ownerId = new NonDashboardConstraint() }
                 );
                 routes.MapRoute(
                     name: "DeleteDataset",
                     template: "{ownerId}/{repoId}/{datasetId}/delete",
                     defaults: new { controller = "Repository", action = "DeleteDataset" },
-                    constraints: new { ownerId = new NonDashboardConstraint(), repoId = new PremiumFeatureConstraint() }
+                    constraints: new { ownerId = new NonDashboardConstraint() }
                 );
                 routes.MapRoute(
                     name: "SignUp",

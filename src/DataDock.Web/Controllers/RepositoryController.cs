@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Datadock.Common.Stores;
+using DataDock.Web.Filters;
 using DataDock.Web.Models;
 using DataDock.Web.ViewModels;
 using Serilog;
@@ -76,6 +77,7 @@ namespace DataDock.Web.Controllers
         [Authorize]
         [ServiceFilter(typeof(AccountExistsFilter))]
         [ServiceFilter(typeof(OwnerAdminAuthFilter))]
+        [GenerateAntiforgeryTokenCookieForAjax]
         public async Task<IActionResult> Import(string ownerId, string repoId)
         {
             this.DashboardViewModel.Area = "import";

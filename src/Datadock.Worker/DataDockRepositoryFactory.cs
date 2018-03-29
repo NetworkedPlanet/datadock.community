@@ -9,15 +9,15 @@ namespace DataDock.Worker
     {
         private readonly WorkerConfiguration _config;
         private readonly IQuinceStoreFactory _quinceStoreFactory;
-        private readonly IHtmlGeneratorFactory _htmlGeneratorFactory;
+        private readonly IFileGeneratorFactory _fileGeneratorFactory;
 
         public DataDockRepositoryFactory(WorkerConfiguration config, 
             IQuinceStoreFactory quinceStoreFactory, 
-            IHtmlGeneratorFactory htmlGeneratorFactory)
+            IFileGeneratorFactory fileGeneratorFactory)
         {
             _config = config;
             _quinceStoreFactory = quinceStoreFactory;
-            _htmlGeneratorFactory = htmlGeneratorFactory;
+            _fileGeneratorFactory = fileGeneratorFactory;
         }
 
         public IDataDockRepository GetRepositoryForJob(JobInfo jobInfo, IProgressLog progressLog)
@@ -37,7 +37,7 @@ namespace DataDock.Worker
                 baseIri,
                 progressLog,
                 _quinceStoreFactory,
-                _htmlGeneratorFactory,
+                _fileGeneratorFactory,
                 rdfResourceFileMapper,
                 htmlResourceFileMapper);
         }

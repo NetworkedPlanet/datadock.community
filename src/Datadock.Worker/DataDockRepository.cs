@@ -16,7 +16,7 @@ namespace DataDock.Worker
         private readonly Uri _repositoryUri;
         private readonly IQuinceStore _quinceStore;
         private readonly IProgressLog _progressLog;
-        private readonly IHtmlGeneratorFactory _htmlGeneratorFactory;
+        private readonly IFileGeneratorFactory _fileGeneratorFactory;
         private readonly IResourceFileMapper _rdfResourceFileMapper;
         private readonly IResourceFileMapper _htmlResourceFileMapper;
 
@@ -37,7 +37,7 @@ namespace DataDock.Worker
         /// <param name="repositoryUri">The base IRI for DataDock graphs in this repository</param>
         /// <param name="progressLog">The progress logger to report to</param>
         /// <param name="quinceStoreFactory">a factory for creating an IQuinceStore instance to access the Quince store of the GitHub repository</param>
-        /// <param name="htmlFileGeneratorFactory">a factory for creating an <see cref="IHtmlGeneratorFactory"/> instance to generate the statically published HTML files for the GitHub repository</param>
+        /// <param name="fileFileGeneratorFactory">a factory for creating an <see cref="IFileGeneratorFactory"/> instance to generate the statically published HTML files for the GitHub repository</param>
         /// <param name="rdfResourceFileMapper">Provides the logic to map resource URIs to the path to the static RDF files for that resource</param>
         /// <param name="htmlResourceFileMapper">Provides the logic to map resource URIs to the path to the static HTML files for that resource</param>
         public DataDockRepository(
@@ -45,7 +45,7 @@ namespace DataDock.Worker
             Uri repositoryUri, 
             IProgressLog progressLog,
             IQuinceStoreFactory quinceStoreFactory,
-            IHtmlGeneratorFactory htmlFileGeneratorFactory,
+            IFileGeneratorFactory fileFileGeneratorFactory,
             IResourceFileMapper rdfResourceFileMapper,
             IResourceFileMapper htmlResourceFileMapper)
         {
@@ -53,7 +53,7 @@ namespace DataDock.Worker
             _repositoryUri = repositoryUri;
             _progressLog = progressLog;
             _quinceStore = quinceStoreFactory.MakeQuinceStore(targetDirectory);
-            _htmlGeneratorFactory = htmlFileGeneratorFactory;
+            _fileGeneratorFactory = fileFileGeneratorFactory;
             _rdfResourceFileMapper = rdfResourceFileMapper;
             _htmlResourceFileMapper = htmlResourceFileMapper;
         }
@@ -252,7 +252,9 @@ namespace DataDock.Worker
                         RemoveDirectory(resourcePath);
                     }
                 }
-                var rdfGenerator = new RdfFileGenerator(_rdfResourceFileMapper, graphFilter, _progressLog, RdfFileGenerationReportInterval);
+
+                var rdfGenerator = _fileGeneratorFactory.MakeRdfFileGenerator(_rdfResourceFileMapper, graphFilter,
+                    _progressLog, RdfFileGenerationReportInterval);
                 _quinceStore.EnumerateSubjects(rdfGenerator);
             }
             catch (Exception ex)
@@ -289,7 +291,7 @@ namespace DataDock.Worker
                     RemoveDirectory(resourcePath);
                 }
 
-                var generator = _htmlGeneratorFactory.MakeHtmlFileGenerator(_htmlResourceFileMapper, templateEngine, _progressLog, HtmlFileGenerationReportInterval);
+                var generator = _fileGeneratorFactory.MakeHtmlFileGenerator(_htmlResourceFileMapper, templateEngine, _progressLog, HtmlFileGenerationReportInterval);
 
                 _quinceStore.EnumerateSubjects(generator);
             }

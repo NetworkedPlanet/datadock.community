@@ -28,7 +28,7 @@ namespace DataDock.Worker.Tests
             repo.Flush();
             var mockQuinceFactory = new Mock<IQuinceStoreFactory>();
             mockQuinceFactory.Setup(x => x.MakeQuinceStore(It.IsAny<string>())).Returns(repo);
-            var mockHtmlGeneratorFactory = new Mock<IHtmlGeneratorFactory>();
+            var mockHtmlGeneratorFactory = new Mock<IFileGeneratorFactory>();
 
             var rdfResourceFileMapper = new ResourceFileMapper(
                 new ResourceMapEntry(new Uri("http://example.org/id/"),  Path.Combine(tmpDir, "data")));

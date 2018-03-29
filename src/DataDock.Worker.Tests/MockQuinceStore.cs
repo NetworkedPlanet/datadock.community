@@ -12,6 +12,9 @@ namespace DataDock.Worker.Tests
         public List<Uri> DroppedGraphs { get; }
         public List<Tuple<INode, INode, INode, Uri>> Asserted { get; }
         public List<Tuple<INode, INode, INode, Uri>> Retracted { get; }
+        public List<List<Triple>> TripleCollections { get; }
+        public List<Tuple<INode, IList<Triple>, IList<Triple>>> ResourceStatements { get; }
+
         public bool Flushed { get; private set; }
 
         public MockQuinceStore()
@@ -19,6 +22,8 @@ namespace DataDock.Worker.Tests
             Asserted = new List<Tuple<INode, INode, INode, Uri>>();
             Retracted = new List<Tuple<INode, INode, INode, Uri>>();
             DroppedGraphs = new List<Uri>();
+            TripleCollections = new List<List<Triple>>();
+            ResourceStatements = new List<Tuple<INode, IList<Triple>, IList<Triple>>>();
             Flushed = false;
         }
 
@@ -44,7 +49,8 @@ namespace DataDock.Worker.Tests
 
         public IEnumerable<Triple> GetTriplesForSubject(INode subjectNode)
         {
-            throw new NotImplementedException();
+            return Asserted.Where(t => t.Item1.Equals(subjectNode))
+                .Select(t => new Triple(t.Item1, t.Item2, t.Item3, t.Item4));
         }
 
         public IEnumerable<Triple> GetTriplesForSubject(Uri subjectUri)
@@ -65,12 +71,18 @@ namespace DataDock.Worker.Tests
 
         public void EnumerateSubjects(ITripleCollectionHandler handler)
         {
-            throw new NotImplementedException();
+            foreach (var tc in TripleCollections)
+            {
+                handler.HandleTripleCollection(tc);
+            }
         }
 
         public void EnumerateSubjects(IResourceStatementHandler handler)
         {
-            throw new NotImplementedException();
+            foreach (var resourceStatement in ResourceStatements)
+            {
+                handler.HandleResource(resourceStatement.Item1, resourceStatement.Item2, resourceStatement.Item3);
+            }
         }
 
         public void AssertTriplesInserted(BaseTripleCollection tripleCollection, Uri graphIri)

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Moq;
+using NetworkedPlanet.Quince;
+using VDS.RDF;
 
 namespace DataDock.Worker.Tests
 {
@@ -14,6 +16,9 @@ namespace DataDock.Worker.Tests
         protected readonly MockQuinceStore QuinceStore;
         protected readonly Uri BaseUri;
         protected readonly DataDockRepository Repo;
+        protected readonly Mock<IFileGeneratorFactory> FileGeneratorFactory;
+        protected readonly Mock<ITripleCollectionHandler> MockRdfFileGenerator;
+        protected readonly Mock<IResourceStatementHandler> MockHtmlFileGenerator;
 
         public BaseDataDockRepositorySpec()
         {
@@ -24,7 +29,23 @@ namespace DataDock.Worker.Tests
             QuinceStore = new MockQuinceStore();
             var quinceStoreFactory = new Mock<IQuinceStoreFactory>();
             quinceStoreFactory.Setup(x => x.MakeQuinceStore(RepoPath)).Returns(QuinceStore);
-            var htmlGeneratorFactory = new Mock<IHtmlGeneratorFactory>();
+            FileGeneratorFactory = new Mock<IFileGeneratorFactory>();
+            MockRdfFileGenerator = new Mock<ITripleCollectionHandler>();
+            MockRdfFileGenerator.Setup(x => x.HandleTripleCollection(It.IsAny<IList<Triple>>())).Returns(true)
+                .Verifiable();
+            MockHtmlFileGenerator = new Mock<IResourceStatementHandler>();
+            MockHtmlFileGenerator.Setup(x => x.HandleResource(
+                    It.IsAny<INode>(), It.IsAny<IList<Triple>>(), It.IsAny<IList<Triple>>()))
+                .Returns(true);
+            FileGeneratorFactory.Setup(x => x.MakeRdfFileGenerator(
+                    It.IsAny<IResourceFileMapper>(),
+                    It.IsAny<IEnumerable<Uri>>(), It.IsAny<IProgressLog>(), It.IsAny<int>()))
+                .Returns(MockRdfFileGenerator.Object);
+            FileGeneratorFactory.Setup(x => x.MakeHtmlFileGenerator(
+                    It.IsAny<IResourceFileMapper>(), It.IsAny<IViewEngine>(), It.IsAny<IProgressLog>(),
+                    It.IsAny<int>()))
+                .Returns(MockHtmlFileGenerator.Object);
+                            
             BaseUri = new Uri("http://datadock.io/test/repo/");
             var rdfResourceMapper = new ResourceFileMapper(
                 new ResourceMapEntry(new Uri(BaseUri, "id"), "data"));
@@ -32,7 +53,7 @@ namespace DataDock.Worker.Tests
                 new ResourceMapEntry(new Uri(BaseUri, "id"), "doc"));
 
             Repo = new DataDockRepository(RepoPath, BaseUri, new MockProgressLog(),
-                quinceStoreFactory.Object, htmlGeneratorFactory.Object,
+                quinceStoreFactory.Object, FileGeneratorFactory.Object,
                 rdfResourceMapper, htmlResourceMapper);
 
         }

@@ -1,49 +1,27 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using Datadock.Common.Models;
 using FluentAssertions;
-using Moq;
-using NetworkedPlanet.Quince;
 using VDS.RDF;
 using Xunit;
 
 namespace DataDock.Worker.Tests
 {
-    public class BasicDataDockRepositoryTests
+    public class DataDockRepositoryUpdateSpec : BaseDataDockRepositorySpec
     {
-        private string _repoPath;
+        private readonly IGraph _insertGraph;
+        private readonly IGraph _metadataGraph;
+        private readonly IGraph _definitionsGraph;
+        private readonly Uri _datasetGraphIri;
+        private readonly Uri _metadataGraphIri;
+        private readonly Uri _definitionsGraphIri;
+        private readonly Uri _publisherIri;
+        private readonly ContactInfo _publisherInfo;
+        private readonly string _repositoryTitle;
+        private readonly string _repositoryDescription;
+        private readonly Uri _rootMetadataGraphIri;
 
-        private DataDockRepository _repo;
-        private IGraph _insertGraph;
-        private IGraph _metadataGraph;
-        private IGraph _definitionsGraph;
-        private Uri _datasetGraphIri;
-        private Uri _metadataGraphIri;
-        private Uri _definitionsGraphIri;
-        private Uri _publisherIri;
-        private ContactInfo _publisherInfo;
-        private string _repositoryTitle;
-        private string _repositoryDescription;
-        private Uri _rootMetadataGraphIri;
-        private MockQuinceStore _quinceStore;
-        private Uri _baseUri;
-
-        public BasicDataDockRepositoryTests()
+        public DataDockRepositoryUpdateSpec()
         {
-            var runId = DateTime.UtcNow.Ticks.ToString();
-            var repoDir = Directory.CreateDirectory(runId);
-            _repoPath = repoDir.FullName;
-
-            _quinceStore = new MockQuinceStore();
-            var quinceStoreFactory = new Mock<IQuinceStoreFactory>();
-            quinceStoreFactory.Setup(x => x.MakeQuinceStore(_repoPath)).Returns(_quinceStore);
-            var htmlGeneratorFactory = new Mock<IHtmlGeneratorFactory>();
-            _baseUri = new Uri("http://datadock.io/test/repo");
-            _repo = new DataDockRepository(_repoPath, _baseUri, new MockProgressLog(),
-                quinceStoreFactory.Object, htmlGeneratorFactory.Object);
             _insertGraph = new Graph();
             _insertGraph.Assert(_insertGraph.CreateUriNode(new Uri("http://example.org/s")),
                 _insertGraph.CreateUriNode(new Uri("http://example.org/p")),
@@ -66,87 +44,110 @@ namespace DataDock.Worker.Tests
             _repositoryTitle = "Test Repository";
             _repositoryDescription = "Test Repository Description";
             _rootMetadataGraphIri = new Uri("http://datadock.io/test/repo/metadata");
+
+            // Create some existing triples that we will expect to be retracted
+            var initGraph = new Graph();
+            initGraph.NamespaceMap.AddNamespace("test", new Uri("http://datadock.io/test/"));
+            initGraph.NamespaceMap.AddNamespace("dcterms", new Uri("http://purl.org/dc/terms/"));
+            initGraph.NamespaceMap.AddNamespace("rdfs", new Uri("http://www.w3.org/2000/01/rdf-schema#"));
+            var repo = initGraph.CreateUriNode(BaseUri);
+            var publisher = initGraph.CreateUriNode(_publisherIri);
+            QuinceStore.Assert(
+                repo,
+                initGraph.CreateUriNode("dcterms:title"),
+                initGraph.CreateLiteralNode("Old Title"),
+                _rootMetadataGraphIri);
+            QuinceStore.Assert(
+                repo,
+                initGraph.CreateUriNode("dcterms:description"),
+                initGraph.CreateLiteralNode("Old Description"),
+                _rootMetadataGraphIri);
+            QuinceStore.Assert(
+                publisher,
+                initGraph.CreateUriNode("rdfs:label"),
+                initGraph.CreateLiteralNode("Old Publisher"),
+                _rootMetadataGraphIri);
         }
 
         [Fact]
         public void UpdateAssertsDataTriples()
         {
-            _repo.UpdateDataset(_insertGraph, _datasetGraphIri, true,
+            Repo.UpdateDataset(_insertGraph, _datasetGraphIri, true,
                 _metadataGraph, _metadataGraphIri,
                 _definitionsGraph, _definitionsGraphIri,
                 _publisherIri, _publisherInfo,
                 _repositoryTitle, _repositoryDescription,
                 _rootMetadataGraphIri);
-            _quinceStore.AssertTriplesInserted(_insertGraph.Triples, _datasetGraphIri);
+            QuinceStore.AssertTriplesInserted(_insertGraph.Triples, _datasetGraphIri);
         }
 
         [Fact]
         public void UpdateCanDropDatasetGraph()
         {
-            _repo.UpdateDataset(_insertGraph, _datasetGraphIri, true,
+            Repo.UpdateDataset(_insertGraph, _datasetGraphIri, true,
                 _metadataGraph, _metadataGraphIri,
                 _definitionsGraph, _definitionsGraphIri,
                 _publisherIri, _publisherInfo,
                 _repositoryTitle, _repositoryDescription,
                 _rootMetadataGraphIri);
-            _quinceStore.AssertTriplesInserted(_insertGraph.Triples, _datasetGraphIri);
-            _quinceStore.DroppedGraphs.Should().Contain(_datasetGraphIri);
+            QuinceStore.AssertTriplesInserted(_insertGraph.Triples, _datasetGraphIri);
+            QuinceStore.DroppedGraphs.Should().Contain(_datasetGraphIri);
         }
 
         [Fact]
         public void UpdateCanAppendToExistingDatasetGraph()
         {
-            _repo.UpdateDataset(_insertGraph, _datasetGraphIri, false,
+            Repo.UpdateDataset(_insertGraph, _datasetGraphIri, false,
                 _metadataGraph, _metadataGraphIri,
                 _definitionsGraph, _definitionsGraphIri,
                 _publisherIri, _publisherInfo,
                 _repositoryTitle, _repositoryDescription,
                 _rootMetadataGraphIri);
-            _quinceStore.AssertTriplesInserted(_insertGraph.Triples, _datasetGraphIri);
-            _quinceStore.DroppedGraphs.Should().NotContain(_datasetGraphIri);
+            QuinceStore.AssertTriplesInserted(_insertGraph.Triples, _datasetGraphIri);
+            QuinceStore.DroppedGraphs.Should().NotContain(_datasetGraphIri);
         }
 
         [Fact]
         public void UpdateDropsMetadataGraph()
         {
-            _repo.UpdateDataset(_insertGraph, _datasetGraphIri, false,
+            Repo.UpdateDataset(_insertGraph, _datasetGraphIri, false,
                 _metadataGraph, _metadataGraphIri,
                 _definitionsGraph, _definitionsGraphIri,
                 _publisherIri, _publisherInfo,
                 _repositoryTitle, _repositoryDescription,
                 _rootMetadataGraphIri);
-            _quinceStore.AssertTriplesInserted(_insertGraph.Triples, _datasetGraphIri);
-            _quinceStore.DroppedGraphs.Should().Contain(_metadataGraphIri);
+            QuinceStore.AssertTriplesInserted(_insertGraph.Triples, _datasetGraphIri);
+            QuinceStore.DroppedGraphs.Should().Contain(_metadataGraphIri);
         }
 
         [Fact]
         public void UpdateAssertsMetadataGraphTriples()
         {
-            _repo.UpdateDataset(_insertGraph, _datasetGraphIri, true,
+            Repo.UpdateDataset(_insertGraph, _datasetGraphIri, true,
                 _metadataGraph, _metadataGraphIri,
                 _definitionsGraph, _definitionsGraphIri,
                 _publisherIri, _publisherInfo,
                 _repositoryTitle, _repositoryDescription,
                 _rootMetadataGraphIri);
-            _quinceStore.AssertTriplesInserted(_metadataGraph.Triples, _metadataGraphIri);
+            QuinceStore.AssertTriplesInserted(_metadataGraph.Triples, _metadataGraphIri);
         }
 
         [Fact]
         public void UpdateAssertsDefinitionsGraphTriples()
         {
-            _repo.UpdateDataset(_insertGraph, _datasetGraphIri, true,
+            Repo.UpdateDataset(_insertGraph, _datasetGraphIri, true,
                 _metadataGraph, _metadataGraphIri,
                 _definitionsGraph, _definitionsGraphIri,
                 _publisherIri, _publisherInfo,
                 _repositoryTitle, _repositoryDescription,
                 _rootMetadataGraphIri);
-            _quinceStore.AssertTriplesInserted(_metadataGraph.Triples, _metadataGraphIri);
+            QuinceStore.AssertTriplesInserted(_metadataGraph.Triples, _metadataGraphIri);
         }
 
         [Fact]
         public void UpdateAddsMetadataToRootMetadataGraph()
         {
-            _repo.UpdateDataset(_insertGraph, _datasetGraphIri, true,
+            Repo.UpdateDataset(_insertGraph, _datasetGraphIri, true,
                 _metadataGraph, _metadataGraphIri,
                 _definitionsGraph, _definitionsGraphIri,
                 _publisherIri, _publisherInfo,
@@ -154,7 +155,7 @@ namespace DataDock.Worker.Tests
                 _rootMetadataGraphIri);
             var expectedRootMetadata = new Graph();
             // Expectations
-            var repoNode = expectedRootMetadata.CreateUriNode(_baseUri);
+            var repoNode = expectedRootMetadata.CreateUriNode(BaseUri);
             // (repo, rdf:type, void:Dataset)
             expectedRootMetadata.Assert(
                 repoNode,
@@ -171,13 +172,13 @@ namespace DataDock.Worker.Tests
                 expectedRootMetadata.CreateUriNode(new Uri("http://purl.org/dc/terms/publisher")),
                 expectedRootMetadata.CreateUriNode(_publisherIri));
 
-            _quinceStore.AssertTriplesInserted(expectedRootMetadata.Triples, _rootMetadataGraphIri);
+            QuinceStore.AssertTriplesInserted(expectedRootMetadata.Triples, _rootMetadataGraphIri);
         }
 
         [Fact]
         public void UpdateAssertsTitleAndDescription()
         {
-            _repo.UpdateDataset(_insertGraph, _datasetGraphIri, true,
+            Repo.UpdateDataset(_insertGraph, _datasetGraphIri, true,
                 _metadataGraph, _metadataGraphIri,
                 _definitionsGraph, _definitionsGraphIri,
                 _publisherIri, _publisherInfo,
@@ -185,87 +186,56 @@ namespace DataDock.Worker.Tests
                 _rootMetadataGraphIri);
             var expect = new Graph();
             expect.NamespaceMap.AddNamespace("dcterms", new Uri("http://purl.org/dc/terms/"));
-            var repoNode = expect.CreateUriNode(_baseUri);
+            var repoNode = expect.CreateUriNode(BaseUri);
             expect.Assert(repoNode, expect.CreateUriNode("dcterms:title"), expect.CreateLiteralNode(_repositoryTitle));
             expect.Assert(repoNode, expect.CreateUriNode("dcterms:description"), expect.CreateLiteralNode(_repositoryDescription));
-            _quinceStore.AssertTriplesInserted(expect.Triples, _rootMetadataGraphIri);
-        }
-    }
-
-    public class MockQuinceStore: IQuinceStore {
-
-        public List<Uri> DroppedGraphs { get; }
-        public List<Tuple<INode, INode, INode, Uri>> Asserted { get; }
-        public bool Flushed { get; private set; }
-
-        public MockQuinceStore()
-        {
-            Asserted = new List<Tuple<INode, INode, INode, Uri>>();
-            DroppedGraphs = new List<Uri>();
-            Flushed = false;
+            QuinceStore.AssertTriplesInserted(expect.Triples, _rootMetadataGraphIri);
         }
 
-        public void Assert(INode subject, INode predicate, INode obj, Uri graph)
+        [Fact]
+        public void UpdateRetractsOldTitleAndDescription()
         {
-            Asserted.Add(new Tuple<INode, INode, INode, Uri>(subject, predicate, obj, graph));
+            Repo.UpdateDataset(_insertGraph, _datasetGraphIri, true,
+                _metadataGraph, _metadataGraphIri,
+                _definitionsGraph, _definitionsGraphIri,
+                _publisherIri, _publisherInfo,
+                _repositoryTitle, _repositoryDescription,
+                _rootMetadataGraphIri);
+            var expect = new Graph();
+            expect.NamespaceMap.AddNamespace("dcterms", new Uri("http://purl.org/dc/terms/"));
+            var repoNode = expect.CreateUriNode(BaseUri);
+            expect.Assert(repoNode, expect.CreateUriNode("dcterms:title"), expect.CreateLiteralNode("Old Title"));
+            expect.Assert(repoNode, expect.CreateUriNode("dcterms:description"), expect.CreateLiteralNode("Old Description"));
+            QuinceStore.AssertTriplesRetracted(expect.Triples, _rootMetadataGraphIri);
         }
 
-        public void Retract(INode subject, INode predicate, INode obj, Uri graph)
+        [Fact]
+        public void UpdateRetractsOldPublisher()
         {
-            throw new NotImplementedException();
+            Repo.UpdateDataset(_insertGraph, _datasetGraphIri, true,
+                _metadataGraph, _metadataGraphIri,
+                _definitionsGraph, _definitionsGraphIri,
+                _publisherIri, _publisherInfo,
+                _repositoryTitle, _repositoryDescription,
+                _rootMetadataGraphIri);
+            var expect = new Graph();
+            expect.NamespaceMap.AddNamespace("dcterms", new Uri("http://purl.org/dc/terms/"));
+            expect.NamespaceMap.AddNamespace("rdfs", new Uri("http://www.w3.org/2000/01/rdf-schema#"));
+            var publisher = expect.CreateUriNode(_publisherIri);
+            expect.Assert(publisher, expect.CreateUriNode("rdfs:label"), expect.CreateLiteralNode("Old Publisher"));
+            QuinceStore.AssertTriplesRetracted(expect.Triples, _rootMetadataGraphIri);
         }
 
-        public void DropGraph(Uri graph)
+        [Fact]
+        public void UpdateFlushesQuinceStore()
         {
-            DroppedGraphs.Add(graph);
-        }
-
-        public void Flush()
-        {
-            Flushed = true;
-        }
-
-        public IEnumerable<Triple> GetTriplesForSubject(INode subjectNode)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<Triple> GetTriplesForSubject(Uri subjectUri)
-        {
-            return Asserted.Where(x => x.Item1 is IUriNode && ((IUriNode)x.Item1).Uri.Equals(subjectUri))
-                .Select(x => new Triple(x.Item1, x.Item2, x.Item3, x.Item4));
-        }
-
-        public IEnumerable<Triple> GetTriplesForObject(INode objectNode)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<Triple> GetTriplesForObject(Uri objectUri)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void EnumerateSubjects(ITripleCollectionHandler handler)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void EnumerateSubjects(IResourceStatementHandler handler)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void AssertTriplesInserted(BaseTripleCollection tripleCollection, Uri graphIri)
-        {
-            foreach (var t in tripleCollection)
-            {
-                Asserted.Should().Contain(x =>
-                    x.Item1.Equals(t.Subject) && x.Item2.Equals(t.Predicate) && x.Item3.Equals(t.Object) &&
-                    x.Item4.Equals(graphIri),
-                    "Expected a quad ({0}, {1}, {2}, {3}) to have been asserted but no matching quad was found.",
-                    t.Subject, t.Predicate, t.Object, graphIri);
-            }
+            Repo.UpdateDataset(_insertGraph, _datasetGraphIri, true,
+                _metadataGraph, _metadataGraphIri,
+                _definitionsGraph, _definitionsGraphIri,
+                _publisherIri, _publisherInfo,
+                _repositoryTitle, _repositoryDescription,
+                _rootMetadataGraphIri);
+            QuinceStore.Flushed.Should().BeTrue();
         }
     }
 }

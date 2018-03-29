@@ -10,13 +10,15 @@ using VDS.RDF;
 
 namespace DataDock.Worker
 {
-    public class DataDockRepository
+    public class DataDockRepository : IDataDockRepository
     {
         private readonly string _targetDirectory;
         private readonly Uri _repositoryUri;
         private readonly IQuinceStore _quinceStore;
         private readonly IProgressLog _progressLog;
         private readonly IHtmlGeneratorFactory _htmlGeneratorFactory;
+        private readonly IResourceFileMapper _rdfResourceFileMapper;
+        private readonly IResourceFileMapper _htmlResourceFileMapper;
 
         /// <summary>
         /// How many files to generate between progress reports
@@ -36,15 +38,24 @@ namespace DataDock.Worker
         /// <param name="progressLog">The progress logger to report to</param>
         /// <param name="quinceStoreFactory">a factory for creating an IQuinceStore instance to access the Quince store of the GitHub repository</param>
         /// <param name="htmlFileGeneratorFactory">a factory for creating an <see cref="IHtmlGeneratorFactory"/> instance to generate the statically published HTML files for the GitHub repository</param>
-        public DataDockRepository(string targetDirectory, Uri repositoryUri, IProgressLog progressLog,
+        /// <param name="rdfResourceFileMapper">Provides the logic to map resource URIs to the path to the static RDF files for that resource</param>
+        /// <param name="htmlResourceFileMapper">Provides the logic to map resource URIs to the path to the static HTML files for that resource</param>
+        public DataDockRepository(
+            string targetDirectory, 
+            Uri repositoryUri, 
+            IProgressLog progressLog,
             IQuinceStoreFactory quinceStoreFactory,
-            IHtmlGeneratorFactory htmlFileGeneratorFactory)
+            IHtmlGeneratorFactory htmlFileGeneratorFactory,
+            IResourceFileMapper rdfResourceFileMapper,
+            IResourceFileMapper htmlResourceFileMapper)
         {
             _targetDirectory = targetDirectory;
             _repositoryUri = repositoryUri;
             _progressLog = progressLog;
             _quinceStore = quinceStoreFactory.MakeQuinceStore(targetDirectory);
             _htmlGeneratorFactory = htmlFileGeneratorFactory;
+            _rdfResourceFileMapper = rdfResourceFileMapper;
+            _htmlResourceFileMapper = htmlResourceFileMapper;
         }
 
         /// <summary>
@@ -226,19 +237,22 @@ namespace DataDock.Worker
         {
             try
             {
-                var identifierUri = new Uri(_repositoryUri, "id/");
-                var resourcePath = Path.Combine(_targetDirectory, "data");
-                var rdfMapper = new ResourceFileMapper(new List<ResourceMapEntry>
-                {
-                    new ResourceMapEntry(identifierUri, resourcePath)
-                });
+                //var identifierUri = new Uri(_repositoryUri, "id/");
+                //var resourcePath = Path.Combine(_targetDirectory, "data");
+                //var rdfMapper = new ResourceFileMapper(new List<ResourceMapEntry>
+                //{
+                //    new ResourceMapEntry(identifierUri, resourcePath)
+                //});
                 if (graphFilter == null)
                 {
                     // Performing a complete reset of RDF data
                     _progressLog.Info("Performing a clean rebuild of data directory");
-                    RemoveDirectory(resourcePath);
+                    foreach (var resourcePath in _rdfResourceFileMapper.GetMappedPaths())
+                    {
+                        RemoveDirectory(resourcePath);
+                    }
                 }
-                var rdfGenerator = new RdfFileGenerator(rdfMapper, graphFilter, _progressLog, RdfFileGenerationReportInterval);
+                var rdfGenerator = new RdfFileGenerator(_rdfResourceFileMapper, graphFilter, _progressLog, RdfFileGenerationReportInterval);
                 _quinceStore.EnumerateSubjects(rdfGenerator);
             }
             catch (Exception ex)
@@ -262,16 +276,20 @@ namespace DataDock.Worker
                         new RdfTypeTemplateSelector(new Uri("http://rdfs.org/ns/void#Dataset"), "dataset.liquid")
                     });
 
-                var identifierUri = new Uri(_repositoryUri, "id/");
-                var resourcePath = Path.Combine(_targetDirectory, "page");
-                var htmlMapper =
-                    new ResourceFileMapper(new List<ResourceMapEntry>
-                    {
-                        new ResourceMapEntry(identifierUri, resourcePath)
-                    });
+                //var identifierUri = new Uri(_repositoryUri, "id/");
+                //var resourcePath = Path.Combine(_targetDirectory, "page");
+                //var htmlMapper =
+                //    new ResourceFileMapper(new List<ResourceMapEntry>
+                //    {
+                //        new ResourceMapEntry(identifierUri, resourcePath)
+                //    });
 
-                RemoveDirectory(resourcePath);
-                var generator = _htmlGeneratorFactory.MakeHtmlFileGenerator(htmlMapper, templateEngine, _progressLog, HtmlFileGenerationReportInterval);
+                foreach (var resourcePath in _htmlResourceFileMapper.GetMappedPaths())
+                {
+                    RemoveDirectory(resourcePath);
+                }
+
+                var generator = _htmlGeneratorFactory.MakeHtmlFileGenerator(_htmlResourceFileMapper, templateEngine, _progressLog, HtmlFileGenerationReportInterval);
 
                 _quinceStore.EnumerateSubjects(generator);
             }

@@ -7,13 +7,36 @@ namespace DataDock.Worker
 {
     public interface IResourceFileMapper
     {
+        /// <summary>
+        /// Returns the mapped output path for the specified resource URI
+        /// </summary>
+        /// <param name="resourceUri">The resource URI</param>
+        /// <returns>The mapped output path for the resource, or null if no mapping was found</returns>
         string GetPathFor(Uri resourceUri);
+
+        /// <summary>
+        /// Determines if a resource URI has an output mapping
+        /// </summary>
+        /// <param name="resourceUri">The resource URI</param>
+        /// <returns>True if the resource URI can be mapped to an output path, false otherwise</returns>
         bool CanMap(Uri resourceUri);
+
+        /// <summary>
+        /// Returns an enumeration over the unique output paths mapped by this file mapper
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<string> GetMappedPaths();
     }
 
     public class ResourceFileMapper : IResourceFileMapper
     {
         private readonly List<ResourceMapEntry> _mapEntries;
+
+        public ResourceFileMapper(params ResourceMapEntry[] entries)
+        {
+            _mapEntries = new List<ResourceMapEntry>(entries);
+        }
+
         public ResourceFileMapper(List<ResourceMapEntry> entries)
         {
             _mapEntries = entries;
@@ -42,6 +65,11 @@ namespace DataDock.Worker
         public bool CanMap(Uri resourceUri)
         {
             return resourceUri != null && _mapEntries.Any(m => m.BaseUri.IsBaseOf(resourceUri));
+        }
+
+        public IEnumerable<string> GetMappedPaths()
+        {
+            return _mapEntries.Select(m => m.OutputDirectoryPath).Distinct();
         }
     }
 

@@ -30,8 +30,14 @@ namespace DataDock.Worker.Tests
             mockQuinceFactory.Setup(x => x.MakeQuinceStore(It.IsAny<string>())).Returns(repo);
             var mockHtmlGeneratorFactory = new Mock<IHtmlGeneratorFactory>();
 
-            var ddRepository = new DataDockRepository(tmpDir, new Uri("http://example.org/"), new MockProgressLog(),
-                mockQuinceFactory.Object, mockHtmlGeneratorFactory.Object);
+            var rdfResourceFileMapper = new ResourceFileMapper(
+                new ResourceMapEntry(new Uri("http://example.org/id/"),  Path.Combine(tmpDir, "data")));
+            var htmlResourceFileMapper = new ResourceFileMapper(
+                new ResourceMapEntry(new Uri("http://example.org/id/"), Path.Combine(tmpDir, "doc")));
+            var ddRepository = new DataDockRepository(
+                tmpDir, new Uri("http://example.org/"), new MockProgressLog(),
+                mockQuinceFactory.Object, mockHtmlGeneratorFactory.Object, 
+                rdfResourceFileMapper, htmlResourceFileMapper);
             ddRepository.GenerateRdf(new[] {new Uri("http://example.org/g/g1")});
 
             var expectFile = new FileInfo(Path.Combine(tmpDir, "data", "resource", "s", "s0.nq"));

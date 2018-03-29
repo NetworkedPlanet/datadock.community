@@ -49,15 +49,34 @@ namespace DataDock.Worker
                 var userRepo = Services.GetRequiredService<IUserStore>();
                 var userAccount = await userRepo.GetUserAccountAsync(jobInfo.UserId);
 
+                var progressLog = Services.GetRequiredService<IProgressLogFactory>().MakeProgressLogForJob(jobInfo);
+                // TODO: Should encapsulate this logic plus basic job info validation into its own processor factory class
                 IDataDockProcessor processor;
                 switch (jobInfo.JobType)
                 {
                     case JobType.Import:
-                        processor = Services.GetRequiredService<ImportJobProcessor>();
+                    {
+                        var ddRepoFactory = Services.GetRequiredService<IDataDockRepositoryFactory>();
+                        processor = new ImportJobProcessor(
+                            Services.GetRequiredService<WorkerConfiguration>(),
+                            Services.GetRequiredService<GitCommandProcessor>(),
+                            Services.GetRequiredService<IDatasetStore>(),
+                            Services.GetRequiredService<IFileStore>(),
+                            Services.GetRequiredService<IOwnerSettingsStore>(),
+                            Services.GetRequiredService<IRepoSettingsStore>(),
+                            ddRepoFactory.GetRepositoryForJob(jobInfo, progressLog));
                         break;
+                    }
                     case JobType.Delete:
-                        processor = Services.GetRequiredService<DeleteDatasetProcessor>();
+                    {
+                        var ddRepoFactory = Services.GetRequiredService<IDataDockRepositoryFactory>();
+                            processor = new DeleteDatasetProcessor(
+                                Services.GetRequiredService<WorkerConfiguration>(),
+                                Services.GetRequiredService<GitCommandProcessor>(),
+                                Services.GetRequiredService<IDatasetStore>(),
+                                ddRepoFactory.GetRepositoryForJob(jobInfo, progressLog));
                         break;
+                    }
                     case JobType.SchemaCreate:
                         processor = Services.GetRequiredService<ImportSchemaProcessor>();
                         break;
@@ -68,7 +87,6 @@ namespace DataDock.Worker
                         throw new WorkerException($"Could not process job of type {jobInfo.JobType}");
                 }
 
-                var progressLog = Services.GetRequiredService<IProgressLogFactory>().MakeProgressLogForJob(jobInfo);
                 await processor.ProcessJob(jobInfo, userAccount, progressLog);
             }
             catch (Exception ex)

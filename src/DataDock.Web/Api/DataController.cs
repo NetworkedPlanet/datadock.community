@@ -113,8 +113,8 @@ namespace DataDock.Web.Api
                         {
 
                             // todo log file name
-                            jobInfo.CsvFileName = "TODO";
-                            jobInfo.DatasetId = "TODO";
+                            jobInfo.CsvFileName = string.Empty;
+                            jobInfo.DatasetId = string.Empty;
                             Log.Information("api/data(POST): Starting conversion job. UserId='{0}', File='{1}'", userId, "");
                             var csvFileId = await _fileStore.AddFileAsync(section.Body);
 
@@ -176,30 +176,21 @@ namespace DataDock.Web.Api
                     return BadRequest("No metadata supplied");
                 }
 
-                if (string.IsNullOrEmpty(formData.TargetRepository))
+                if (string.IsNullOrEmpty(formData.OwnerId) || string.IsNullOrEmpty(formData.RepoId))
                 {
-                    Log.Error("DataController: POST called with no target repository set in FormData");
+                    Log.Error("DataController: POST called with no owner or repo set in FormData");
                     return BadRequest("No target repository supplied");
                 }
 
                 jobInfo.OwnerId = formData.OwnerId;
-                jobInfo.RepositoryId = formData.TargetRepository;
+                jobInfo.RepositoryId = formData.RepoId;
 
-                // TODO get repo by id
-                // TODO split repoId into OwnerId and RepoId
-                try
-                {
-                    var repoSettings = await _repoSettingsStore.GetRepoSettingsAsync(formData.TargetRepository);
-
-                }
-                catch (Exception e)
-                {
-                    //none found
-                    Log.Error($"DataController: No repo settings found for target repo {formData.TargetRepository}.");
-                    return BadRequest($"No repo settings found for target repo {formData.TargetRepository}.");
-                }
-                
                 // save CSVW to file storage
+                if (string.IsNullOrEmpty(jobInfo.CsvFileName))
+                {
+                    jobInfo.CsvFileName = formData.Filename;
+                    jobInfo.DatasetId = formData.Filename;
+                }
                 
                 byte[] byteArray = Encoding.UTF8.GetBytes(formData.Metadata);
                 var metadataStream = new MemoryStream(byteArray);
@@ -238,7 +229,7 @@ namespace DataDock.Web.Api
                         Log.Information("api/data(POST): Saving metadata as template.");
 
                         var schema = new JObject(new JProperty("dc:title", "Template from " + datasetTitle), new JProperty("metadata", metadataObject));
-                        Log.Information("api/data(POST): Starting schema creation job. UserId='{0}', Repository='{1}'", userId, formData.TargetRepository);
+                        Log.Information("api/data(POST): Starting schema creation job. UserId='{0}', Repository='{1}'", userId, formData.RepoId);
 
                         byte[] schemaByteArray = Encoding.UTF8.GetBytes(schema.ToString());
                         var schemaStream = new MemoryStream(schemaByteArray);
@@ -252,7 +243,7 @@ namespace DataDock.Web.Api
                                 UserId = userId,
                                 SchemaFileId = schemaFileId,
                                 OwnerId = formData.OwnerId,
-                                RepositoryId = formData.TargetRepository
+                                RepositoryId = formData.RepoId
                             };
                             var sj = await _jobStore.SubmitSchemaImportJobAsync(schemaJobRequest);
                             
@@ -270,7 +261,7 @@ namespace DataDock.Web.Api
                     }
                 }
 
-                return Ok(new DataControllerResult { Message = "API called successfully: " + formData.TargetRepository, Metadata = formData.Metadata });
+                return Ok(new DataControllerResult { Message = "API called successfully: " + formData.RepoId, Metadata = formData.Metadata });
             }
             catch (Exception ex)
             {

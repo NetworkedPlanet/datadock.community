@@ -167,36 +167,20 @@ namespace DataDock.Web.Api
                         return BadRequest(ModelState);
                     }
                 }
-                
-                //return Json(targetFilePath);
 
-                if (formData.Metadata == null)
-                {
-                    Log.Error("DataController: POST called with no metadata present in FormData");
-                    return BadRequest("No metadata supplied");
-                }
-
+                jobInfo.OwnerId = formData.OwnerId;
+                jobInfo.RepositoryId = formData.RepoId;
                 if (string.IsNullOrEmpty(formData.OwnerId) || string.IsNullOrEmpty(formData.RepoId))
                 {
                     Log.Error("DataController: POST called with no owner or repo set in FormData");
                     return BadRequest("No target repository supplied");
                 }
 
-                jobInfo.OwnerId = formData.OwnerId;
-                jobInfo.RepositoryId = formData.RepoId;
-
-                // save CSVW to file storage
-                if (string.IsNullOrEmpty(jobInfo.CsvFileName))
+                if (formData.Metadata == null)
                 {
-                    jobInfo.CsvFileName = formData.Filename;
-                    jobInfo.DatasetId = formData.Filename;
+                    Log.Error("DataController: POST called with no metadata present in FormData");
+                    return BadRequest("No metadata supplied");
                 }
-                
-                byte[] byteArray = Encoding.UTF8.GetBytes(formData.Metadata);
-                var metadataStream = new MemoryStream(byteArray);
-                var csvwFileId = await _fileStore.AddFileAsync(metadataStream);
-                jobInfo.CsvmFileId = csvwFileId;
-
                 var parser = new JsonSerializer();
                 Log.Debug("DataController: Metadata: {0}", formData.Metadata);
                 var metadataObject = parser.Deserialize(new JsonTextReader(new StringReader(formData.Metadata))) as JObject;
@@ -217,6 +201,19 @@ namespace DataDock.Web.Api
                 }
                 Log.Debug("DataController: datasetIri = '{0}'", datasetIri);
                 jobInfo.DatasetIri = datasetIri;
+
+                // save CSVW to file storage
+                if (string.IsNullOrEmpty(jobInfo.CsvFileName))
+                {
+                    jobInfo.CsvFileName = formData.Filename;
+                    jobInfo.DatasetId = formData.Filename;
+                }
+                
+                byte[] byteArray = Encoding.UTF8.GetBytes(formData.Metadata);
+                var metadataStream = new MemoryStream(byteArray);
+                var csvwFileId = await _fileStore.AddFileAsync(metadataStream);
+                jobInfo.CsvmFileId = csvwFileId;
+                
 
                 var job = await _jobStore.SubmitImportJobAsync(jobInfo);
                 
@@ -261,7 +258,7 @@ namespace DataDock.Web.Api
                     }
                 }
 
-                return Ok(new DataControllerResult { Message = "API called successfully: " + formData.RepoId, Metadata = formData.Metadata });
+                return Ok(new DataControllerResult { Message = "API called successfully: " + job.JobId, Metadata = formData.Metadata });
             }
             catch (Exception ex)
             {

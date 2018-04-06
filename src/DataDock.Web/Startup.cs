@@ -235,9 +235,9 @@ namespace DataDock.Web
                 constraints: new { ownerId = new NonDashboardConstraint() }
             );
                 routes.MapRoute(
-                    name: "ProxyPortal",
-                    template: "Proxy/{ownerId}",
-                    defaults: new { controller = "Proxy", action = "Index" },
+                    name: "OwnerRepos",
+                    template: "{ownerId}/repositories",
+                    defaults: new { controller = "Owner", action = "Repositories" },
                     constraints: new { ownerId = new NonDashboardConstraint() }
                 );
                 routes.MapRoute(

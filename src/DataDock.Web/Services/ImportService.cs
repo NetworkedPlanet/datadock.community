@@ -51,6 +51,7 @@ namespace DataDock.Web.Services
                     RepoId = repoId,
                     Name = repo.Name,
                     CloneUrl = repo.CloneUrl,
+                    OwnerIsOrg = !user.Identity.Name.Equals(ownerId, StringComparison.InvariantCultureIgnoreCase),
                     OwnerAvatar = repo.Owner?.AvatarUrl
                 };
 

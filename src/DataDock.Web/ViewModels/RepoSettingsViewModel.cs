@@ -13,6 +13,7 @@ namespace DataDock.Web.ViewModels
         public RepoSettingsViewModel(RepoSettings repoSettings)
         {
             OwnerId = repoSettings.OwnerId;
+            RepoId = repoSettings.RepoId;
             OwnerIsOrg = repoSettings.OwnerIsOrg;
             DefaultPublisherName = repoSettings.DefaultPublisher?.Label;
             DefaultPublisherType = repoSettings.DefaultPublisher?.Type;

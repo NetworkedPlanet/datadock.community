@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using FluentAssertions;
+using System.Linq;
 using Moq;
 using NetworkedPlanet.Quince;
 using VDS.RDF;
@@ -8,14 +9,23 @@ using Xunit;
 
 namespace DataDock.Worker.Tests
 {
-    public class CsvConverionSpec
+    public class CsvConverionSpec : IDisposable
     {
+        private readonly string _tmpDir;
+        public CsvConverionSpec()
+        {
+            _tmpDir = Path.GetFullPath(DateTime.UtcNow.Ticks.ToString());
+        }
+
+        public void Dispose()
+        {
+            Directory.Delete(_tmpDir, true);
+        }
+
         [Fact]
         public void CanGenerateRdfFromRepository()
         {
-            var tmpDir = Path.GetFullPath("tmp//generate");
-            if (Directory.Exists(tmpDir)) Directory.Delete(tmpDir, true);
-            var repoDir = Path.Combine(tmpDir, "quince");
+            var repoDir = Path.Combine(_tmpDir, "quince");
             Directory.CreateDirectory(repoDir);
             var repo = new DynamicFileStore(repoDir, 100);
             var defaultGraph = new Graph();
@@ -28,22 +38,30 @@ namespace DataDock.Worker.Tests
             repo.Flush();
             var mockQuinceFactory = new Mock<IQuinceStoreFactory>();
             mockQuinceFactory.Setup(x => x.MakeQuinceStore(It.IsAny<string>())).Returns(repo);
-            var mockHtmlGeneratorFactory = new Mock<IFileGeneratorFactory>();
+            var rdfGeneratorMock = new Mock<ITripleCollectionHandler>();
+            rdfGeneratorMock.Setup(x => x.HandleTripleCollection(It.Is<IList<Triple>>(c =>
+                c.All(t => (t.Subject as IUriNode).Uri.ToString().Equals("http://example.org/id/resource/s/s0"))))).Verifiable();
+            var fileGeneratorFactoryMock = new Mock<IFileGeneratorFactory>();
+            fileGeneratorFactoryMock.Setup(x => x.MakeRdfFileGenerator(It.IsAny<IResourceFileMapper>(),
+                It.IsAny<IEnumerable<Uri>>(), It.IsAny<IProgressLog>(), It.IsAny<int>())).Returns(rdfGeneratorMock.Object);
 
             var rdfResourceFileMapper = new ResourceFileMapper(
-                new ResourceMapEntry(new Uri("http://example.org/id/"),  Path.Combine(tmpDir, "data")));
+                new ResourceMapEntry(new Uri("http://example.org/id/"),  "data"));
             var htmlResourceFileMapper = new ResourceFileMapper(
-                new ResourceMapEntry(new Uri("http://example.org/id/"), Path.Combine(tmpDir, "doc")));
+                new ResourceMapEntry(new Uri("http://example.org/id/"), "doc"));
             var ddRepository = new DataDockRepository(
-                tmpDir, new Uri("http://example.org/"), new MockProgressLog(),
-                mockQuinceFactory.Object, mockHtmlGeneratorFactory.Object, 
+                _tmpDir, new Uri("http://example.org/"), new MockProgressLog(),
+                mockQuinceFactory.Object, fileGeneratorFactoryMock.Object, 
                 rdfResourceFileMapper, htmlResourceFileMapper);
             ddRepository.GenerateRdf(new[] {new Uri("http://example.org/g/g1")});
 
-            var expectFile = new FileInfo(Path.Combine(tmpDir, "data", "resource", "s", "s0.nq"));
-            expectFile.Exists.Should().BeTrue();
-            var unexpectFile = new FileInfo(Path.Combine(tmpDir, "data", "resource", "s", "s1.rdf"));
-            unexpectFile.Exists.Should().BeFalse();
+            // Should be invoked to generate files for subject IRIs
+            rdfGeneratorMock.Verify(x => x.HandleTripleCollection(It.Is<IList<Triple>>(c =>
+                    c.All(t => (t.Subject as IUriNode).Uri.ToString().Equals("http://example.org/id/resource/s/s0")))),
+                Times.Once);
+            // Should not be invoked to generate files for object IRIs
+            rdfGeneratorMock.Verify(x=>x.HandleTripleCollection(It.Is<IList<Triple>>(
+                c=>c.Any(t=>(t.Subject as IUriNode).Uri.ToString().Equals("http://example.org/id/resource/o/o0")))), Times.Never);
         }
     }
 }

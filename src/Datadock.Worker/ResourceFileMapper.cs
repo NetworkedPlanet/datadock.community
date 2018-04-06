@@ -22,10 +22,11 @@ namespace DataDock.Worker
         bool CanMap(Uri resourceUri);
 
         /// <summary>
-        /// Returns an enumeration over the unique output paths mapped by this file mapper
+        /// Returns an enumeration over the unique output paths mapped by this file mapper, optionally combined with a base path
         /// </summary>
+        /// <param name="basePath">OPTIONAL: The base path to be used to resolve the map entry to the actual output path</param>
         /// <returns></returns>
-        IEnumerable<string> GetMappedPaths();
+        IEnumerable<string> GetMappedPaths(string basePath=null);
     }
 
     public class ResourceFileMapper : IResourceFileMapper
@@ -67,9 +68,12 @@ namespace DataDock.Worker
             return resourceUri != null && _mapEntries.Any(m => m.BaseUri.IsBaseOf(resourceUri));
         }
 
-        public IEnumerable<string> GetMappedPaths()
+        public IEnumerable<string> GetMappedPaths(string basePath = null)
         {
-            return _mapEntries.Select(m => m.OutputDirectoryPath).Distinct();
+            return _mapEntries
+                .Select(m => m.OutputDirectoryPath)
+                .Distinct()
+                .Select(x => basePath == null ? x : Path.Combine(basePath, x));
         }
     }
 

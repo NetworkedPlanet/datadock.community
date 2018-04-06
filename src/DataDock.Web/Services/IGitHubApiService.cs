@@ -13,8 +13,9 @@ namespace DataDock.Web.Services
 
         Task<bool> UserIsAuthorizedForOrganization(IIdentity identity, string ownerId);
 
-        Task<List<Repository>> GetRepositoriesForOwnerAsync(IIdentity identity, string ownerId);
-        
-        Task<Repository> GetRepositoryAsync(IIdentity identity, string ownerId, string repoShortId);
+        Task<List<Repository>> GetRepositoryListForOwnerAsync(IIdentity identity, string ownerId);
+
+        Task<Repository> GetRepositoryAsync(IIdentity identity, string ownerId, string repoId);
+
     }
 }

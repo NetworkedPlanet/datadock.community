@@ -90,7 +90,7 @@ namespace DataDock.Web.Services
             }
         }
 
-        public async Task<List<Repository>> GetRepositoriesForOwnerAsync(IIdentity identity, string ownerId)
+        public async Task<List<Repository>> GetRepositoryListForOwnerAsync(IIdentity identity, string ownerId)
         {
             if (identity == null) throw new ArgumentNullException();
             if (string.IsNullOrEmpty(ownerId)) throw new ArgumentException("ownerId parameter is null or empty");
@@ -99,30 +99,31 @@ namespace DataDock.Web.Services
             {
                 var ghClient = _gitHubClientFactory.CreateClient(identity as ClaimsIdentity);
 
-                bool isOrg = ownerId.Equals(identity.Name, StringComparison.InvariantCultureIgnoreCase);
-                if (isOrg)
+                bool ownerIsUser = ownerId.Equals(identity.Name, StringComparison.InvariantCultureIgnoreCase);
+                if (ownerIsUser)
                 {
-                    var repositories = await ghClient.Repository.GetAllForOrg(ownerId);
+                    var repositories = await ghClient.Repository.GetAllForUser(ownerId);
                     if (repositories == null || !repositories.Any())
                     {
-                        Log.Warning("GetRepositoriesForOwnerAsync: No repositories returned for ownerId '{0}'",
-                            ownerId);
+                        Log.Warning("GetRepositoryListForOwnerAsync: No repositories returned for ownerId '{0}'", ownerId);
                         return new List<Repository>();
                     }
-                    Log.Debug("GetRepositoriesForOwnerAsync: {0} repositories found for ownerId '{1}'",
-                        repositories.Count(), ownerId);
+                    Log.Debug("GetRepositoryListForOwnerAsync: {0} repositories found for ownerId '{1}'", repositories.Count(), ownerId);
 
                     return repositories.ToList();
                 }
                 else
                 {
-                    var repositories = await ghClient.Repository.GetAllForUser(ownerId);
+                    // owner is an organization
+                    var repositories = await ghClient.Repository.GetAllForOrg(ownerId);
                     if (repositories == null || !repositories.Any())
                     {
-                        Log.Warning("GetRepositoriesForOwnerAsync: No repositories returned for ownerId '{0}'", ownerId);
+                        Log.Warning("GetRepositoryListForOwnerAsync: No repositories returned for ownerId '{0}'",
+                            ownerId);
                         return new List<Repository>();
                     }
-                    Log.Debug("GetRepositoriesForOwnerAsync: {0} repositories found for ownerId '{1}'", repositories.Count(), ownerId);
+                    Log.Debug("GetRepositoryListForOwnerAsync: {0} repositories found for ownerId '{1}'",
+                        repositories.Count(), ownerId);
 
                     return repositories.ToList();
                 }
@@ -130,19 +131,17 @@ namespace DataDock.Web.Services
             }
             catch (Exception ex)
             {
-                if (ex.Message.Equals("Bad credentials"))
-                {
-                    //TODO - allow user to reset credentials
-                }
-                Log.Error(ex, "GetRepositoriesForOwnerAsync: Error retrieving repository list for ownerId {0}.", ownerId);
+                Log.Error(ex, "GetRepositoryListForOwnerAsync: Error retrieving repository list for ownerId {0}.", ownerId);
                 Log.Error(ex.ToString());
                 throw;
             }
         }
-
-        public async Task<Repository> GetRepositoryAsync(IIdentity identity, string ownerId, string repoShortId)
+        
+        public async Task<Repository> GetRepositoryAsync(IIdentity identity, string ownerId, string repoId)
         {
-            throw new NotImplementedException();
+            if (identity == null) throw new ArgumentNullException();
+            var repos = await GetRepositoryListForOwnerAsync(identity, ownerId);
+            return repos.FirstOrDefault(r => r.Name.Equals(repoId, StringComparison.InvariantCultureIgnoreCase));
         }
     }
 }

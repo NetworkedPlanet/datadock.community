@@ -14,15 +14,10 @@ namespace Datadock.Common.Models
         public bool OwnerIsOrg { get; set; }
 
         /// <summary>
-        /// The DataDock repository ID ({owner-name}/{repo-name})
+        /// The DataDock repository ID
         /// </summary>
-        public string RepositoryId { get; set; }
-
-        /// <summary>
-        /// True if this repository is part of an organization's account
-        /// </summary>
-        public bool IsOrgRepo { get; set; }
-
+        public string RepoId { get; set; }
+        
         public string CloneUrl { get; set; }
 
         /// <summary>

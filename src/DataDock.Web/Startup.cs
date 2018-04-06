@@ -81,6 +81,7 @@ namespace DataDock.Web
             services.AddSingleton<IFileStore, DirectoryFileStore>();
             services.AddSingleton<IOwnerSettingsStore, OwnerSettingsStore>();
             services.AddSingleton<IRepoSettingsStore, RepoSettingsStore>();
+            services.AddSingleton<IImportService, ImportService>();
 
             services.AddScoped<DataDockCookieAuthenticationEvents>();
 

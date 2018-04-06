@@ -40,7 +40,7 @@ namespace Datadock.Common.Elasticsearch
         {           
             var response = await _client.SearchAsync<RepoSettings>(s => s
                 .From(0).Query(q => q.Match(m => m.Field(f => f.OwnerId).Query(ownerId)) &&
-                                    q.Match(m => m.Field(f => f.RepositoryId).Query(repoId)))
+                                    q.Match(m => m.Field(f => f.RepoId).Query(repoId)))
             );
             if (!response.IsValid)
             {
@@ -63,7 +63,7 @@ namespace Datadock.Common.Elasticsearch
             var updateResponse = await _client.IndexDocumentAsync(settings);
             if (!updateResponse.IsValid)
             {
-                throw new OwnerSettingsStoreException($"Error updating repo settings for owner/repo ID {settings.RepositoryId}");
+                throw new OwnerSettingsStoreException($"Error updating repo settings for owner/repo ID {settings.RepoId}");
             }
         }
     }

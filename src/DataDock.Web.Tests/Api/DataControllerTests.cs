@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Datadock.Common.Models;
 using Datadock.Common.Stores;
 using DataDock.Web.Api;
+using DataDock.Web.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Mvc;
@@ -28,6 +29,7 @@ namespace DataDock.Web.Tests.Api
         private readonly Mock<IRepoSettingsStore> _mockRepoSettingsStore;
         private readonly Mock<IFileStore> _mockFileStore;
         private readonly Mock<IJobStore> _mockJobStore;
+        private readonly Mock<IImportService> _mockImportService;
         private readonly Mock<IPrincipal> _mockPrincipal;
         private readonly Mock<HttpContext> _mockHttpContext;
 
@@ -62,6 +64,7 @@ namespace DataDock.Web.Tests.Api
             _mockRepoSettingsStore = new Mock<IRepoSettingsStore>();
             _mockFileStore = new Mock<IFileStore>();
             _mockJobStore = new Mock<IJobStore>();
+            _mockImportService = new Mock<IImportService>();
             _mockPrincipal = new Mock<IPrincipal>();
             _mockHttpContext = new Mock<HttpContext>();
 
@@ -83,7 +86,7 @@ namespace DataDock.Web.Tests.Api
             var claimsId = _mockPrincipal.Object as ClaimsPrincipal;
             _mockHttpContext.Setup(m => m.User).Returns(claimsId);
 
-            var dummyRepository = new RepoSettings { RepositoryId = repositoryFullName };
+            var dummyRepository = new RepoSettings { RepoId = repositoryFullName };
             var dummyUserSettings = new UserSettings { };
             _mockUserStore.Setup(sr => sr.GetUserSettingsAsync(It.IsAny<string>())).Returns(Task.FromResult(dummyUserSettings));
 
@@ -159,7 +162,7 @@ namespace DataDock.Web.Tests.Api
         {
             var dataController = new DataController(_mockUserStore.Object, _mockRepoSettingsStore.Object,
                 _mockFileStore.Object,
-                _mockJobStore.Object);
+                _mockJobStore.Object, _mockImportService.Object);
 
             //var requestMessage = new HttpRequestMessage();
             //requestMessage.RequestUri = new Uri("http://awesomeunittesting.com");

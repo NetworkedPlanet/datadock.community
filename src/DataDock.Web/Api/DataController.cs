@@ -263,7 +263,7 @@ namespace DataDock.Web.Api
             catch (Exception ex)
             {
                 Log.Fatal(ex, $"Fatal error in api/data '{ex.Message}'");
-                return StatusCode(500);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
             }
         }
 

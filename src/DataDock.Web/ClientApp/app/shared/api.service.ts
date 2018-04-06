@@ -17,17 +17,22 @@ export class ApiService {
       body: formData
     });
     return this.http.request(new Request(options))
-        .map((res: Response) => {
-          if (res) {
-            return { status: res.status, json: res.json() };
-          }
-        });
+        .map(success => success.status)
+        .catch(this.handleError);
   }
 
-  private handleError (error: Response) {
-    // TODO send the error to logging infrastructure instead of just logging it to the console
-    console.error(error);
-    return Observable.throw(error.json().error || 'Server error');
+  private handleError (error: Response | any) {
+    console.log('API error');
+    let errMsg: string;
+    if (error instanceof Response) {
+      const body = error.json() || '';
+      const err = body.error || JSON.stringify(body);
+      errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
+    } else {
+      errMsg = error.message ? error.message : error.toString();
+    }
+    console.error(errMsg);
+    return Observable.throw(errMsg);
   }
 
 

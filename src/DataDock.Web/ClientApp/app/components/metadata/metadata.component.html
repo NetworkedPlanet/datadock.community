@@ -16,9 +16,9 @@
         </div>
 
     </div>
-    <div class="ui attached segment">
+    <div class="ui attached segment" *ngIf="!isLoading">
         <!-- Tabs -->
-        <div class="ui stackable two column grid container" *ngIf="!isLoading">
+        <div class="ui stackable two column grid container">
             <div class="four wide column">
                 <dd-tabs (tabChange)="getTabChange($event)"></dd-tabs>
 

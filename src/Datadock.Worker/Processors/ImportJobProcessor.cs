@@ -26,8 +26,7 @@ namespace DataDock.Worker.Processors
         private readonly IRepoSettingsStore _repoSettingsStore;
         private readonly IFileStore _jobFileStore;
         private IProgressLog _progressLog;
-        private readonly IQuinceStoreFactory _quinceStoreFactory;
-        private readonly IHtmlGeneratorFactory _htmlGeneratorFactory;
+        private readonly IDataDockRepository _dataDataDockRepository;
         private const int CsvConversionReportInterval = 250;
 
         public ImportJobProcessor(
@@ -37,8 +36,7 @@ namespace DataDock.Worker.Processors
             IFileStore jobFileStore,
             IOwnerSettingsStore ownerSettingsStore,
             IRepoSettingsStore repoSettingsStore,
-            IQuinceStoreFactory quinceStoreFactory,
-            IHtmlGeneratorFactory htmlGeneratorFactory)
+            IDataDockRepository dataDockRepository)
         {
             _configuration = configuration;
             _git = gitProcessor;
@@ -46,8 +44,7 @@ namespace DataDock.Worker.Processors
             _ownerSettingsStore = ownerSettingsStore;
             _repoSettingsStore = repoSettingsStore;
             _jobFileStore = jobFileStore;
-            _quinceStoreFactory = quinceStoreFactory;
-            _htmlGeneratorFactory = htmlGeneratorFactory;
+            _dataDataDockRepository = dataDockRepository;
         }
 
         public async Task ProcessJob(JobInfo job, UserAccount userAccount, IProgressLog progressLog)
@@ -111,16 +108,16 @@ namespace DataDock.Worker.Processors
 
             IGraph definitionsGraph = GenerateDefinitionsGraph(metadataJson);
 
-            var ddRepository = new DataDockRepository(targetDirectory, repositoryUri, _progressLog, _quinceStoreFactory, _htmlGeneratorFactory);
-
-            ddRepository.UpdateDataset(datasetGraph, datasetUri, job.OverwriteExistingData,
+            _dataDataDockRepository.UpdateDataset(
+                datasetGraph, datasetUri, job.OverwriteExistingData,
                 metadataGraph, datasetMetadataGraphIri, 
                 definitionsGraph, definitionsGraphIri, 
                 publisherIri, publisher,
                 "", "",
                 rootMetadataGraphIri);
 
-            ddRepository.Publish(new[] { datasetUri, datasetMetadataGraphIri, rootMetadataGraphIri });
+            _dataDataDockRepository.Publish(
+                new[] { datasetUri, datasetMetadataGraphIri, rootMetadataGraphIri });
 
             // Add and Commit all changes
             if (await _git.CommitChanges(targetDirectory,

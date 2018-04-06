@@ -53,6 +53,9 @@ namespace DataDock.Worker
 
         public void GenerateVoidNQuads(string targetFileName)
         {
+            var targetDir = Path.GetDirectoryName(targetFileName);
+            if (!Directory.Exists(targetDir)) Directory.CreateDirectory(targetDir);
+
             var rootTripleCollection = _quinceStore.GetTriplesForSubject(_graph.CreateUriNode(_repositoryUri)).ToList();
             foreach (var subsetTriple in rootTripleCollection.WithPredicate(_voidSubset).ToList())
             {

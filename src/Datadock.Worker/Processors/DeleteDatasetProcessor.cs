@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Datadock.Common.Models;
 using Datadock.Common.Stores;
-using DataDock.Common;
 using Serilog;
 
 namespace DataDock.Worker.Processors
@@ -14,20 +13,18 @@ namespace DataDock.Worker.Processors
         private readonly WorkerConfiguration _configuration;
         private readonly GitCommandProcessor _git;
         private readonly IDatasetStore _datasetStore;
-        private readonly IQuinceStoreFactory _quinceStoreFactory;
-        private readonly IHtmlGeneratorFactory _htmlGeneratorFactory;
+        private readonly IDataDockRepository _dataDockRepository;
 
-        public DeleteDatasetProcessor(WorkerConfiguration configuration,
+        public DeleteDatasetProcessor(
+            WorkerConfiguration configuration,
             GitCommandProcessor gitProcessor,
             IDatasetStore datasetStore,
-            IQuinceStoreFactory quinceStoreFactory,
-            IHtmlGeneratorFactory htmlGeneratorFactory)
+            IDataDockRepository dataDockRepository)
         {
             _configuration = configuration;
             _git = gitProcessor;
             _datasetStore = datasetStore;
-            _quinceStoreFactory = quinceStoreFactory;
-            _htmlGeneratorFactory = htmlGeneratorFactory;
+            _dataDockRepository = dataDockRepository;
         }
 
         public async Task ProcessJob(JobInfo jobInfo, UserAccount userAccount, IProgressLog progressLog)
@@ -47,13 +44,11 @@ namespace DataDock.Worker.Processors
             Log.Information("Clone Repository: {gitRepositoryUrl} => {targetDirectory}", jobInfo.GitRepositoryUrl, targetDirectory);
             await _git.CloneRepository(jobInfo.GitRepositoryUrl, targetDirectory, authenticationToken, userAccount);
 
-            var repositoryIri = new Uri(DataDockUrlHelper.GetRepositoryUri(jobInfo.GitRepositoryFullName));
             var datasetIri = new Uri(jobInfo.DatasetIri);
-            var ddRepository = new DataDockRepository(targetDirectory, repositoryIri, progressLog, _quinceStoreFactory, _htmlGeneratorFactory);
 
             DeleteCsvAndMetadata(targetDirectory, jobInfo.DatasetId, progressLog);
-            ddRepository.DeleteDataset(datasetIri);
-            ddRepository.Publish();
+            _dataDockRepository.DeleteDataset(datasetIri);
+            _dataDockRepository.Publish();
 
             if (await _git.CommitChanges(targetDirectory, $"Deleted dataset {datasetIri}", userAccount))
             {
@@ -72,7 +67,7 @@ namespace DataDock.Worker.Processors
         }
 
 
-        private void DeleteCsvAndMetadata(string baseDirectory, string datasetId, IProgressLog progressLog)
+        private static void DeleteCsvAndMetadata(string baseDirectory, string datasetId, IProgressLog progressLog)
         {
             Log.Information("DeleteCsvAndMetadata: {baseDirectory}, {datasetId}", baseDirectory, datasetId);
             try

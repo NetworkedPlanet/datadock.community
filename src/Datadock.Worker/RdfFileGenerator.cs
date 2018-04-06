@@ -17,7 +17,7 @@ namespace DataDock.Worker
         private readonly IProgressLog _progressLog;
         private int _subjectCount;
         private readonly bool _noFilter;
-        private int _reportInterval;
+        private readonly int _reportInterval;
 
         public RdfFileGenerator(IResourceFileMapper resourceMap, IEnumerable<Uri> graphFilter, IProgressLog progressLog, int reportInterval)
         {

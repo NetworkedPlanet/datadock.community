@@ -292,3 +292,4 @@ src/DataDock.Web/oauth.staging.json
 src/DataDock.Web/wwwroot/css/*.min.css
 src/DataDock.Web/wwwroot/js/*.min.js
 src/DataDock.Web/wwwroot/vendor/**/*
+src/DataDock.Web/files/**/*

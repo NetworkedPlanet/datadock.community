@@ -56,6 +56,9 @@ namespace DataDock.Web
             var config = ApplicationConfiguration.FromEnvironment();
             services.AddOptions();
 
+            // Angular's default header name for sending the XSRF token.
+            services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
+
             services.AddMvc();
             services.AddRouting(options =>
             {
@@ -75,6 +78,7 @@ namespace DataDock.Web
             services.AddSingleton<IElasticClient>(client);
             services.AddSingleton<IUserStore, UserStore>();
             services.AddSingleton<IJobStore, JobStore>();
+            services.AddSingleton<IFileStore, DirectoryFileStore>();
             services.AddSingleton<IOwnerSettingsStore, OwnerSettingsStore>();
             services.AddSingleton<IRepoSettingsStore, RepoSettingsStore>();
 

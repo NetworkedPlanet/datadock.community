@@ -327,14 +327,11 @@ export class FormManager {
       console.log('metadata', metadata);
     }
     let formData = new FormData();
-    // console.log('appending data to formData ' + this.csvFile.filename);
-    // console.log(this.csvFile);
+    formData.append('ownerId', this.appService.ownerId);
+    formData.append('repoId', this.appService.repoId);
     formData.append('file', this.appService.csvFile.file, this.appService.csvFile.filename);
+    formData.append('filename', this.appService.csvFile.filename);
     formData.append('metadata', JSON.stringify(metadata));
-    if (this.globals.config.inDebug) {
-      // console.log('appending target repo to formData', this.appService.targetRepository);
-    }
-    //formData.append('targetRepository', JSON.stringify(this.appService.targetRepository));
     formData.append('showOnHomePage', JSON.stringify(this.showOnHomePage));
     formData.append('saveAsSchema', JSON.stringify(this.saveAsSchema));
     if (this.globals.config.inDebug) {

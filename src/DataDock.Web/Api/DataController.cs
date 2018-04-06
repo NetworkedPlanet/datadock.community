@@ -10,6 +10,7 @@ using Datadock.Common.Models;
 using Datadock.Common.Stores;
 using DataDock.Web.Filters;
 using DataDock.Web.Models;
+using DataDock.Web.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.Features;
@@ -32,16 +33,19 @@ namespace DataDock.Web.Api
         private readonly IRepoSettingsStore _repoSettingsStore;
         private readonly IFileStore _fileStore;
         private readonly IJobStore _jobStore;
+        private readonly IImportService _importService;
 
         public DataController(IUserStore userStore, 
             IRepoSettingsStore repoSettingsStore,
             IFileStore fileStore,
-            IJobStore jobStore)
+            IJobStore jobStore,
+            IImportService importService)
         {
             _userStore = userStore;
             _repoSettingsStore = repoSettingsStore;
             _fileStore = fileStore;
             _jobStore = jobStore;
+            _importService = importService;
         }
 
         // GET: api/Data
@@ -111,10 +115,6 @@ namespace DataDock.Web.Api
                         // TODO - if no file upload then badrequest
                         if (MultipartRequestHelper.HasFileContentDisposition(contentDisposition))
                         {
-
-                            // todo log file name
-                            jobInfo.CsvFileName = string.Empty;
-                            jobInfo.DatasetId = string.Empty;
                             Log.Information("api/data(POST): Starting conversion job. UserId='{0}', File='{1}'", userId, "");
                             var csvFileId = await _fileStore.AddFileAsync(section.Body);
 
@@ -152,13 +152,13 @@ namespace DataDock.Web.Api
                     section = await reader.ReadNextSectionAsync();
                 }
 
-                // Bind form data to a model
-                var formData = new ImportFormData();
+                // Bind form data to the import model
+                var importFormData = new ImportFormData();
                 var formValueProvider = new FormValueProvider(
                     BindingSource.Form,
                     new FormCollection(formAccumulator.GetResults()),
                     CultureInfo.CurrentCulture);
-                var bindingSuccessful = await TryUpdateModelAsync(formData, prefix: "",
+                var bindingSuccessful = await TryUpdateModelAsync(importFormData, prefix: "",
                     valueProvider: formValueProvider);
                 if (!bindingSuccessful)
                 {
@@ -168,27 +168,27 @@ namespace DataDock.Web.Api
                     }
                 }
 
-                jobInfo.OwnerId = formData.OwnerId;
-                jobInfo.RepositoryId = formData.RepoId;
-                if (string.IsNullOrEmpty(formData.OwnerId) || string.IsNullOrEmpty(formData.RepoId))
+                jobInfo.OwnerId = importFormData.OwnerId;
+                jobInfo.RepositoryId = importFormData.RepoId;
+                if (string.IsNullOrEmpty(importFormData.OwnerId) || string.IsNullOrEmpty(importFormData.RepoId))
                 {
                     Log.Error("DataController: POST called with no owner or repo set in FormData");
                     return BadRequest("No target repository supplied");
                 }
 
-                if (formData.Metadata == null)
+                if (importFormData.Metadata == null)
                 {
                     Log.Error("DataController: POST called with no metadata present in FormData");
                     return BadRequest("No metadata supplied");
                 }
                 var parser = new JsonSerializer();
-                Log.Debug("DataController: Metadata: {0}", formData.Metadata);
-                var metadataObject = parser.Deserialize(new JsonTextReader(new StringReader(formData.Metadata))) as JObject;
+                Log.Debug("DataController: Metadata: {0}", importFormData.Metadata);
+                var metadataObject = parser.Deserialize(new JsonTextReader(new StringReader(importFormData.Metadata))) as JObject;
                 if (metadataObject == null)
                 {
                     Log.Error(
                         "DataController: Error deserializing metadata as object, unable to create conversion job. Metadata = '{0}'",
-                        formData.Metadata);
+                        importFormData.Metadata);
                     return BadRequest("Metadata badly formatted");
                 }
 
@@ -205,28 +205,39 @@ namespace DataDock.Web.Api
                 // save CSVW to file storage
                 if (string.IsNullOrEmpty(jobInfo.CsvFileName))
                 {
-                    jobInfo.CsvFileName = formData.Filename;
-                    jobInfo.DatasetId = formData.Filename;
+                    jobInfo.CsvFileName = importFormData.Filename;
+                    jobInfo.DatasetId = importFormData.Filename;
                 }
                 
-                byte[] byteArray = Encoding.UTF8.GetBytes(formData.Metadata);
+                byte[] byteArray = Encoding.UTF8.GetBytes(importFormData.Metadata);
                 var metadataStream = new MemoryStream(byteArray);
                 var csvwFileId = await _fileStore.AddFileAsync(metadataStream);
                 jobInfo.CsvmFileId = csvwFileId;
-                
+
+                try
+                {
+                    var repoSettings =
+                        await _importService.CheckRepoSettingsAsync(User, importFormData.OwnerId, importFormData.RepoId);
+                }
+                catch (Exception e)
+                {
+                    Log.Error($"api/data: unable to retrive repoSettings for the supplied owner '{importFormData.OwnerId}' and repo '{importFormData.RepoId}'");
+                    return BadRequest("Repository does not exist or you do not have the required authorization to publish to it.");
+                }
+
 
                 var job = await _jobStore.SubmitImportJobAsync(jobInfo);
                 
                 Log.Information("api/data(POST): Conversion job started.");
 
-                if (formData.SaveAsSchema)
+                if (importFormData.SaveAsSchema)
                 {
                     try
                     {
                         Log.Information("api/data(POST): Saving metadata as template.");
 
                         var schema = new JObject(new JProperty("dc:title", "Template from " + datasetTitle), new JProperty("metadata", metadataObject));
-                        Log.Information("api/data(POST): Starting schema creation job. UserId='{0}', Repository='{1}'", userId, formData.RepoId);
+                        Log.Information("api/data(POST): Starting schema creation job. UserId='{0}', Repository='{1}'", userId, importFormData.RepoId);
 
                         byte[] schemaByteArray = Encoding.UTF8.GetBytes(schema.ToString());
                         var schemaStream = new MemoryStream(schemaByteArray);
@@ -239,8 +250,8 @@ namespace DataDock.Web.Api
                             {
                                 UserId = userId,
                                 SchemaFileId = schemaFileId,
-                                OwnerId = formData.OwnerId,
-                                RepositoryId = formData.RepoId
+                                OwnerId = importFormData.OwnerId,
+                                RepositoryId = importFormData.RepoId
                             };
                             var sj = await _jobStore.SubmitSchemaImportJobAsync(schemaJobRequest);
                             
@@ -258,7 +269,7 @@ namespace DataDock.Web.Api
                     }
                 }
 
-                return Ok(new DataControllerResult { Message = "API called successfully: " + job.JobId, Metadata = formData.Metadata });
+                return Ok(new DataControllerResult { Message = "API called successfully: " + job.JobId, Metadata = importFormData.Metadata });
             }
             catch (Exception ex)
             {

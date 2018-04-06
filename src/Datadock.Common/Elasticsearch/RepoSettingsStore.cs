@@ -2,6 +2,7 @@
 using Nest;
 using Serilog;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Datadock.Common.Stores;
 using Datadock.Common.Validators;
@@ -35,16 +36,19 @@ namespace Datadock.Common.Elasticsearch
             _client.ConnectionSettings.DefaultIndices[typeof(RepoSettings)] = indexName;
         }
 
-        public async Task<RepoSettings> GetRepoSettingsAsync(string ownerRepoId)
-        {
-            var response = await _client.GetAsync<RepoSettings>(ownerRepoId);
+        public async Task<RepoSettings> GetRepoSettingsAsync(string ownerId, string repoId)
+        {           
+            var response = await _client.SearchAsync<RepoSettings>(s => s
+                .From(0).Query(q => q.Match(m => m.Field(f => f.OwnerId).Query(ownerId)) &&
+                                    q.Match(m => m.Field(f => f.RepoId).Query(repoId)))
+            );
             if (!response.IsValid)
             {
-                if (!response.Found) throw new RepoSettingsNotFoundException(ownerRepoId);
                 throw new RepoSettingsStoreException(
-                    $"Error retrieving repository settings for repo ID {ownerRepoId}. Cause: {response.DebugInformation}");
+                    $"Error retrieving repository settings for repo ID {repoId} on owner {ownerId}. Cause: {response.DebugInformation}");
             }
-            return response.Source;
+            if (response.Total < 1) throw new RepoSettingsNotFoundException($"{ownerId}/{repoId}");
+            return response.Documents.FirstOrDefault();
         }
 
         public async Task CreateOrUpdateRepoSettingsAsync(RepoSettings settings)
@@ -59,7 +63,7 @@ namespace Datadock.Common.Elasticsearch
             var updateResponse = await _client.IndexDocumentAsync(settings);
             if (!updateResponse.IsValid)
             {
-                throw new OwnerSettingsStoreException($"Error updating repo settings for owner/repo ID {settings.RepositoryId}");
+                throw new OwnerSettingsStoreException($"Error updating repo settings for owner/repo ID {settings.RepoId}");
             }
         }
     }

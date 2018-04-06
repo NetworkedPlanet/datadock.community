@@ -1,26 +1,21 @@
 ﻿using Octokit;
 using System.Collections.Generic;
-using System.Security.Claims;
+using System.Security.Principal;
 using System.Threading.Tasks;
 
 namespace DataDock.Web.Services
 {
     public interface IGitHubApiService
     {
-        Task<List<string>> GetOwnerIdsForUserAsync(string userName, ClaimsIdentity identity);
+        Task<List<string>> GetOwnerIdsForUserAsync(IIdentity identity);
 
-        Task<List<Organization>> GetOrganizationsForUserAsync(string userName, ClaimsIdentity identity);
+        Task<List<Organization>> GetOrganizationsForUserAsync(IIdentity identity);
 
-        Task<bool> UserIsAuthorizedForOrganization(string userName, ClaimsIdentity identity, string ownerId);
+        Task<bool> UserIsAuthorizedForOrganization(IIdentity identity, string ownerId);
 
-        Task<List<Repository>> GetRepositoriesForUserAsync(string userName, ClaimsIdentity identity);
+        Task<List<Repository>> GetRepositoryListForOwnerAsync(IIdentity identity, string ownerId);
 
-        Task<List<Repository>> GetRepositoriesForOwnerAsync(ClaimsIdentity identity, string ownerId, bool isOrg = false);
+        Task<Repository> GetRepositoryAsync(IIdentity identity, string ownerId, string repoId);
 
-        //Task<OwnerViewModel> GetUserInfoAsync(string userName, ClaimsIdentity identity);
-
-        //Task<List<OwnerViewModel>> GetUserOrgInfoListAsync(string userName, ClaimsIdentity identity);
-        
-        Task<Repository> GetRepositoryAsync(ClaimsIdentity identity, string ownerId, string repoShortId);
     }
 }

@@ -82,6 +82,7 @@ namespace DataDock.Web
             services.AddSingleton<IOwnerSettingsStore, OwnerSettingsStore>();
             services.AddSingleton<IRepoSettingsStore, RepoSettingsStore>();
             services.AddSingleton<IImportFormParser, DefaultImportFormParser>();
+            services.AddSingleton<IImportService, ImportService>();
 
             services.AddScoped<DataDockCookieAuthenticationEvents>();
 
@@ -192,7 +193,7 @@ namespace DataDock.Web
                 return;
             }
 
-            var orgs = await gitHubApiService.GetOrganizationsForUserAsync(login, context.Identity);
+            var orgs = await gitHubApiService.GetOrganizationsForUserAsync(context.Identity);
             if (orgs != null)
             {
                 foreach (Organization org in orgs)
@@ -235,9 +236,9 @@ namespace DataDock.Web
                 constraints: new { ownerId = new NonDashboardConstraint() }
             );
                 routes.MapRoute(
-                    name: "ProxyPortal",
-                    template: "Proxy/{ownerId}",
-                    defaults: new { controller = "Proxy", action = "Index" },
+                    name: "OwnerRepos",
+                    template: "{ownerId}/repositories",
+                    defaults: new { controller = "Owner", action = "Repositories" },
                     constraints: new { ownerId = new NonDashboardConstraint() }
                 );
                 routes.MapRoute(

@@ -30,11 +30,13 @@ import { AppService } from './shared/app.service';
 import { ConfigurationService } from './shared/services/config.service';
 import { Globals } from './globals';
 import { routing } from './app.routing';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 
 @NgModule({
     imports: [
         CommonModule,
+        BrowserAnimationsModule,
         HttpModule,
         FormsModule,
         ReactiveFormsModule,

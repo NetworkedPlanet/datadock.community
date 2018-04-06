@@ -78,19 +78,16 @@ namespace DataDock.Web.ViewComponents
             if (string.IsNullOrEmpty(ownerId)) throw new ArgumentNullException();
             if (string.IsNullOrEmpty(repoId)) throw new ArgumentNullException();
 
-            var ownerRepoId = string.Format("{0}/{1}", ownerId, repoId);
-
-            if (string.IsNullOrEmpty(ownerRepoId)) return null;
             try
             {
-                var rs = await _repoSettingsStore.GetRepoSettingsAsync(ownerRepoId);
+                var rs = await _repoSettingsStore.GetRepoSettingsAsync(ownerId, repoId);
                 var rsvm = new RepoSettingsViewModel(rs);
                 return rsvm;
             }
             catch (RepoSettingsNotFoundException notFound)
             {
-                Log.Debug("No repo settings found for repo '{0}'", ownerRepoId);
-                return new RepoSettingsViewModel { OwnerId = ownerId, RepoId = repoId, OwnerRepositoryId = ownerRepoId };
+                Log.Debug("No repo settings found for repo '{0}/{1}'", ownerId, repoId);
+                return new RepoSettingsViewModel { OwnerId = ownerId, RepoId = repoId };
             }
             catch (Exception e)
             {

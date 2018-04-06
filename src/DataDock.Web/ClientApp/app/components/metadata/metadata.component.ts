@@ -22,7 +22,6 @@ export class MetadataComponent implements OnInit {
     viewTab: string;
     restartLink: string;
 
-    results: any;
     warnings: Array<string>;
     errors: Array<string>;
 
@@ -64,7 +63,7 @@ export class MetadataComponent implements OnInit {
 
     ngOnInit(): void {
         if (!this.fm.metadataViewModel) {
-            console.error('SOMETHING IS HORRIBLY WRONG! :D');
+            console.error('Unable to load editor');
             // todo display error
         } else {
             this.form = this.generateForm();
@@ -197,23 +196,17 @@ export class MetadataComponent implements OnInit {
     save() {
         this.isLoading = true;
         this.isUploading = true;
-        this.fm.sendData().subscribe(
-            res => {
-                this.results = res;
-                if (res) {
-                    if (res.status === 200) {
-                        // window.location.href = this.app.redirectToJobsRelativeUrl;
-                    }
+        this.fm.sendData()
+            .subscribe(successCode => {
+                    window.location.href = this.app.redirectToJobsRelativeUrl;
+                },
+                errorCode => {
+                    this.isLoading = false;
+                    this.isUploading = false;
+                    this.warnings = [];
+                    this.warnings.push(errorCode);
+                    console.error(errorCode);
                 }
-            },
-            function(error) {
-                this.isLoading = false;
-                this.isUploading = false;
-                this.warnings = [];
-                this.warnings.push(error);
-                console.error(error); },
-            function() {
-                // console.log('send data complete');
-            });
+            );
     }
 }

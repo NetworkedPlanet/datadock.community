@@ -2,6 +2,7 @@
 using Nest;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Datadock.Common.Stores;
@@ -34,6 +35,20 @@ namespace Datadock.Common.Elasticsearch
             }
 
             _client.ConnectionSettings.DefaultIndices[typeof(RepoSettings)] = indexName;
+        }
+
+        public async Task<IEnumerable<RepoSettings>> GetRepoSettingsForOwnerAsync(string ownerId)
+        {
+            var response = await _client.SearchAsync<RepoSettings>(s => s
+                .From(0).Query(q => q.Match(m => m.Field(f => f.OwnerId).Query(ownerId)))
+            );
+            if (!response.IsValid)
+            {
+                throw new RepoSettingsStoreException(
+                    $"Error retrieving repository settings for owner {ownerId}. Cause: {response.DebugInformation}");
+            }
+            if (response.Total < 1) throw new RepoSettingsNotFoundException($"{ownerId}");
+            return response.Documents;
         }
 
         public async Task<RepoSettings> GetRepoSettingsAsync(string ownerId, string repoId)

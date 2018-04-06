@@ -7,5 +7,7 @@
 
 
 <div class="ui container">
-  repo list page
+  <p>The list below shows the repositories you have already published data to, if you would like to publish to other repositories go to <a href="/@Model.SelectedOwnerId/import">Add Data</a> and choose a new repository.</p>
+  <div class="ui hidden divider"></div>
+  @await Component.InvokeAsync("RepositoryList", new {selectedOwnerId = Model.SelectedOwnerId})
 </div>

@@ -1,0 +1,17 @@
+﻿@using DataDock.Web.ViewModels
+@model List<DataDock.Web.ViewModels.RepoSettingsViewModel>
+
+@if (Model != null)
+{
+    
+  <div class="">
+    @foreach (RepoSettingsViewModel repo in Model)
+    {
+      <div class="ui fluid raised card">
+        <div class="content">
+          <div class="header"><a href="/@repo.OwnerId/@repo.RepoId">@repo.RepoId</a></div>
+        </div>
+      </div>
+    }
+  </div>
+}

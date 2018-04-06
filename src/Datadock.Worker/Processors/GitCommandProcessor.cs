@@ -19,12 +19,14 @@ namespace DataDock.Worker.Processors
         public WorkerConfiguration Configuration { get; }
         public IProgressLog ProgressLog { get; }
         private readonly IGitHubClientFactory _gitHubClientFactory;
+        private readonly IGitWrapperFactory _gitWrapperFactory;
 
-        public GitCommandProcessor(WorkerConfiguration configuration, IProgressLog progressLog, IGitHubClientFactory gitHubClientFactory)
+        public GitCommandProcessor(WorkerConfiguration configuration, IProgressLog progressLog, IGitHubClientFactory gitHubClientFactory, IGitWrapperFactory gitWrapperFactory)
         {
             Configuration = configuration;
             ProgressLog = progressLog;
             _gitHubClientFactory = gitHubClientFactory;
+            _gitWrapperFactory = gitWrapperFactory;
         }
 
         public async Task CloneRepository(string repository, string targetDirectory, string authenticationToken, UserAccount userAccount)
@@ -34,7 +36,7 @@ namespace DataDock.Worker.Processors
                 throw new WorkerException("Failed to validate remote repository {0}. Please check that the repository exists and that you have write access to it.", repository);
             }
 
-            var cloneWrapper = new GitWrapper(Configuration.RepoBaseDir, Configuration.GitPath);
+            var cloneWrapper = _gitWrapperFactory.MakeGitWrapper(Configuration.RepoBaseDir);
             ProgressLog.Info("Cloning {0}", repository);
 
             var cloneResult = await cloneWrapper.Clone(repository, targetDirectory, depth: 1, branch: "gh-pages");
@@ -50,7 +52,7 @@ namespace DataDock.Worker.Processors
                     throw new WorkerException("Clone of repository {0} failed.", repository);
                 }
                 var repoDir = Path.Combine(Configuration.RepoBaseDir, targetDirectory);
-                var branchWrapper = new GitWrapper(repoDir, Configuration.GitPath);
+                var branchWrapper = _gitWrapperFactory.MakeGitWrapper(repoDir);
                 var branchResult = await branchWrapper.NewBranch("gh-pages", force: true);
                 if (!branchResult.Success)
                 {
@@ -67,14 +69,14 @@ namespace DataDock.Worker.Processors
             var repoDir = Path.Combine(Configuration.RepoBaseDir, targetDirectory);
             Directory.CreateDirectory(repoDir);
             Log.Information("EnsureRepository: repo={repoId}, targetDirectory={targetDir}, RepoBaseDir={baseDir}, GitPath={gitPath}", repository, targetDirectory, Configuration.RepoBaseDir, Configuration.GitPath);
-            var cloneWrapper = new GitWrapper(repoDir, Configuration.GitPath, Configuration.RepoBaseDir);
+            var cloneWrapper = _gitWrapperFactory.MakeGitWrapper(repoDir, Configuration.RepoBaseDir);
             var repoTarget = "https://" + authenticationToken + ":@" + repository.Substring(8);
             ProgressLog.Info("Verifying {0}", repository);
             var lsRemoteResult = await cloneWrapper.ListRemote(repository, headsOnly: true, setExitCode: true);
             if (!lsRemoteResult.Success)
             {
                 ProgressLog.Warn("{0} appears to be an empty repository. Attempting to initialize it", repository);
-                var gitWrapper = new GitWrapper(repoDir, Configuration.GitPath);
+                var gitWrapper = _gitWrapperFactory.MakeGitWrapper(repoDir);
                 var initResult = await gitWrapper.Init();
                 if (initResult.Success)
                 {
@@ -128,7 +130,7 @@ namespace DataDock.Worker.Processors
             // TODO: If nameClaim or emailClaim is null the user account is not properly configured
             var commitAuthor = nameClaim.Value + " <" + emailClaim.Value + ">";
 
-            var git = new GitWrapper(repositoryDirectory, Configuration.GitPath);
+            var git = _gitWrapperFactory.MakeGitWrapper(repositoryDirectory);
             ProgressLog.Info("Adding files to git repository.");
             var configResult = await git.SetUserName(nameClaim.Value);
             if (!configResult.Success)
@@ -202,7 +204,7 @@ namespace DataDock.Worker.Processors
         {
             try
             {
-                var gitWrapper = new GitWrapper(repositoryDirectory, Configuration.GitPath);
+                var gitWrapper = _gitWrapperFactory.MakeGitWrapper(repositoryDirectory, Configuration.GitPath);
                 var repoTarget = "https://" + authenticationToken + ":@" + remoteUrl.Substring(8);
                 var pushResult = await gitWrapper.PushTo(repoTarget, branch, setUpstream);
                 if (!pushResult.Success)

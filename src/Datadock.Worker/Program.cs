@@ -94,7 +94,8 @@ namespace DataDock.Worker
             serviceCollection.AddSingleton<IProgressLogFactory, SignalrProgressLogFactory>();
             serviceCollection.AddSingleton<IGitHubClientFactory>(new GitHubClientFactory(config.GitHubProductHeader));
             serviceCollection.AddSingleton<IQuinceStoreFactory, DefaultQuinceStoreFactory>();
-            serviceCollection.AddTransient<IHtmlGeneratorFactory, HtmlFileGeneratorFactory>();
+            serviceCollection.AddTransient<IFileGeneratorFactory, FileGeneratorFactory>();
+            serviceCollection.AddTransient<IDataDockRepositoryFactory, DataDockRepositoryFactory>();
         }
 
         private static void ConfigureLogging(IConnectionPool clientConnectionPool)

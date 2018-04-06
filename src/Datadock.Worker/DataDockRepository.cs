@@ -247,7 +247,7 @@ namespace DataDock.Worker
                 {
                     // Performing a complete reset of RDF data
                     _progressLog.Info("Performing a clean rebuild of data directory");
-                    foreach (var resourcePath in _rdfResourceFileMapper.GetMappedPaths())
+                    foreach (var resourcePath in _rdfResourceFileMapper.GetMappedPaths(_targetDirectory))
                     {
                         RemoveDirectory(resourcePath);
                     }
@@ -286,7 +286,7 @@ namespace DataDock.Worker
                 //        new ResourceMapEntry(identifierUri, resourcePath)
                 //    });
 
-                foreach (var resourcePath in _htmlResourceFileMapper.GetMappedPaths())
+                foreach (var resourcePath in _htmlResourceFileMapper.GetMappedPaths(_targetDirectory))
                 {
                     RemoveDirectory(resourcePath);
                 }

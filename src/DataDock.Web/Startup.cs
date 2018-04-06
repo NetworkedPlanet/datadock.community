@@ -191,7 +191,7 @@ namespace DataDock.Web
                 return;
             }
 
-            var orgs = await gitHubApiService.GetOrganizationsForUserAsync(login, context.Identity);
+            var orgs = await gitHubApiService.GetOrganizationsForUserAsync(context.Identity);
             if (orgs != null)
             {
                 foreach (Organization org in orgs)

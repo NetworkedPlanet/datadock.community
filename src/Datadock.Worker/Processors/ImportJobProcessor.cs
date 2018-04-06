@@ -191,7 +191,7 @@ namespace DataDock.Worker.Processors
             {
                 _progressLog.Info("Attempting to retrieve publisher contact information from repository settings");
                 // get repoSettings
-                var repoSettings = await _repoSettingsStore.GetRepoSettingsAsync(ownerId + "/" + repoId);
+                var repoSettings = await _repoSettingsStore.GetRepoSettingsAsync(ownerId, repoId);
                 if (repoSettings?.DefaultPublisher != null)
                 {
                     _progressLog.Info("Returning publisher from repository settings");

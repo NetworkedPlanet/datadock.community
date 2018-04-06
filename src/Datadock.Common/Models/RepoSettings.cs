@@ -3,7 +3,7 @@ using Nest;
 
 namespace Datadock.Common.Models
 {
-    [ElasticsearchType(Name = "reposettings", IdProperty = "RepositoryId")]
+    [ElasticsearchType(Name = "reposettings")]
     public class RepoSettings
     {
         /// <summary>

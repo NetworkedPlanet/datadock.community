@@ -4,6 +4,7 @@ using Octokit;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DataDock.Web.ViewModels;
 
 namespace DataDock.Web.ViewComponents
 {
@@ -17,7 +18,7 @@ namespace DataDock.Web.ViewComponents
             _gitHubApiService = gitHubApiService;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(string selectedOwnerId)
+        public async Task<IViewComponentResult> InvokeAsync(string selectedOwnerId, string display = "dropdown")
         {
             try
             {
@@ -25,7 +26,13 @@ namespace DataDock.Web.ViewComponents
                 if (User?.Identity == null || !User.Identity.IsAuthenticated) return View("Empty");
 
                 var repos = await GetRepositoriesForOwner(selectedOwnerId);
-                return View(repos);
+                switch (display)
+                {
+                    case "link-list":
+                        return View("DividedList", repos);
+                    default:
+                        return View(repos);
+                }
             }
             catch (Exception e)
             {
@@ -33,10 +40,15 @@ namespace DataDock.Web.ViewComponents
             }
         }
 
-        public async Task<List<Repository>> GetRepositoriesForOwner(string ownerId)
+        public async Task<List<RepositoryInfoViewModel>> GetRepositoriesForOwner(string ownerId)
         {
+            var repoInfos = new List<RepositoryInfoViewModel>();
             var allRepositories = await _gitHubApiService.GetRepositoryListForOwnerAsync(User.Identity, ownerId);
-            return allRepositories;
+            foreach (var r in allRepositories)
+            {
+                repoInfos.Add(new RepositoryInfoViewModel(r));
+            }
+            return repoInfos;
         }
     }
 }

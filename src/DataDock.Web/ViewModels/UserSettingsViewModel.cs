@@ -1,7 +1,6 @@
 ﻿using Datadock.Common.Models;
-using System;
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace DataDock.Web.ViewModels
 {
@@ -38,11 +37,6 @@ namespace DataDock.Web.ViewModels
         }
     }
 
-    public class DeleteAccountViewModel
-    {
-        [Range(typeof(bool), "true", "true", ErrorMessage = "You must confirm before you can delete your account.")]
-        [Display(Name = "Yes, I want to delete my account permanently.")]
-        public bool Confirm { get; set; }
-    }
+   
     
 }

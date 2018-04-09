@@ -32,7 +32,8 @@ namespace DataDock.Web.Controllers
         public async Task<IActionResult> Index(string ownerId, string repoId)
         {
             this.DashboardViewModel.Area = "summary";
-            DashboardViewModel.Title = string.Format("{0} > {1} Summary", DashboardViewModel.SelectedOwnerId, DashboardViewModel.SelectedRepoId);
+            DashboardViewModel.Title = string.Format("{0} > {1} Summary", DashboardViewModel.SelectedOwnerId,
+                DashboardViewModel.SelectedRepoId);
             return View("Dashboard/Index", this.DashboardViewModel);
         }
 
@@ -46,7 +47,8 @@ namespace DataDock.Web.Controllers
         public async Task<IActionResult> Datasets(string ownerId, string repoId)
         {
             this.DashboardViewModel.Area = "datasets";
-            DashboardViewModel.Title = string.Format("{0} > {1} Datasets", DashboardViewModel.SelectedOwnerId, DashboardViewModel.SelectedRepoId);
+            DashboardViewModel.Title = string.Format("{0} > {1} Datasets", DashboardViewModel.SelectedOwnerId,
+                DashboardViewModel.SelectedRepoId);
             return View("Dashboard/Datasets", this.DashboardViewModel);
         }
 
@@ -63,7 +65,8 @@ namespace DataDock.Web.Controllers
         public async Task<IActionResult> Library(string ownerId, string repoId)
         {
             this.DashboardViewModel.Area = "library";
-            DashboardViewModel.Title = string.Format("{0} > {1} Template Library", DashboardViewModel.SelectedOwnerId, DashboardViewModel.SelectedRepoId);
+            DashboardViewModel.Title = string.Format("{0} > {1} Template Library", DashboardViewModel.SelectedOwnerId,
+                DashboardViewModel.SelectedRepoId);
             return View("Dashboard/Library", this.DashboardViewModel);
         }
 
@@ -81,7 +84,8 @@ namespace DataDock.Web.Controllers
         public async Task<IActionResult> Import(string ownerId, string repoId)
         {
             this.DashboardViewModel.Area = "import";
-            DashboardViewModel.Title = string.Format("{0} > {1} Add Data", DashboardViewModel.SelectedOwnerId, DashboardViewModel.SelectedRepoId);
+            DashboardViewModel.Title = string.Format("{0} > {1} Add Data", DashboardViewModel.SelectedOwnerId,
+                DashboardViewModel.SelectedRepoId);
             return View("Import", this.DashboardViewModel);
         }
 
@@ -98,7 +102,8 @@ namespace DataDock.Web.Controllers
         public async Task<IActionResult> Jobs(string ownerId, string repoId)
         {
             this.DashboardViewModel.Area = "jobs";
-            DashboardViewModel.Title = string.Format("{0} > {1} Job History", DashboardViewModel.SelectedOwnerId, DashboardViewModel.SelectedRepoId);
+            DashboardViewModel.Title = string.Format("{0} > {1} Job History", DashboardViewModel.SelectedOwnerId,
+                DashboardViewModel.SelectedRepoId);
             return View("Dashboard/Jobs", this.DashboardViewModel);
         }
 

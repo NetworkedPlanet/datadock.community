@@ -6,6 +6,7 @@ using Datadock.Common.Models;
 using Datadock.Common.Stores;
 using DataDock.Web.Auth;
 using DataDock.Web.Models;
+using DataDock.Web.Services;
 using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -19,9 +20,12 @@ namespace DataDock.Web.Controllers
     public class AccountController : Controller
     {
         private readonly IUserStore _userStore;
-        public AccountController(IUserStore userStore)
+        private readonly IOwnerSettingsStore _ownerSettingsStore;
+
+        public AccountController(IUserStore userStore, IOwnerSettingsStore ownerSettingsStore)
         {
             _userStore = userStore;
+            _ownerSettingsStore = ownerSettingsStore;
         }
 
         [HttpGet]
@@ -128,6 +132,27 @@ namespace DataDock.Web.Controllers
                         Log.Error("Creation of new user account returned null");
                         return RedirectToAction("Error", "Home");
                     }
+
+                    // create userSettings
+                    var userSettings = new UserSettings
+                    {
+                        UserId = User.Identity.Name,
+                        LastModified = DateTime.UtcNow,
+                        LastModifiedBy = "Account Created"
+                    };
+                    await _userStore.CreateOrUpdateUserSettingsAsync(userSettings);
+
+                    // create ownerSettings for the github user owner
+                    var userOwner = new OwnerSettings
+                    {
+                        OwnerId = User.Identity.Name,
+                        IsOrg = false,
+                        DisplayGitHubAvatar = true,
+                        DisplayGitHubDescription = true,
+                        LastModified = DateTime.UtcNow,
+                        LastModifiedBy = "Account Created"
+                    };
+                    await _ownerSettingsStore.CreateOrUpdateOwnerSettingsAsync(userOwner);
 
                     // logout and back in to persist new claims
                     await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -260,7 +285,7 @@ namespace DataDock.Web.Controllers
                 {
                     var deleted = await _userStore.DeleteUserAsync(User.Identity.Name);
                     if (deleted)
-                    {
+                    {                       
                         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
                         return RedirectToAction("Index", "Home");
                     }

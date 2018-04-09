@@ -22,7 +22,7 @@ namespace DataDock.Web.ViewComponents
                     SelectedRepoId = selectedRepoId,
                     ActiveArea = area
                 };
-                // TODO: avatar URL cannot be retrieved from the user claims, so needs to be retrieved from data storage / cache
+                //note: when public, the avatar URL cannot be retrieved from the user claims, so needs to be retrieved from data storage / cache
                 return View("Public", publicDash);
             }
             

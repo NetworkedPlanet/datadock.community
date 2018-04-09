@@ -14,18 +14,4 @@
 
 @RenderBody()
 
-@section Scripts {
-  
-  <script type="text/javascript">
-    /*
-    Dashboard javascript
-    */
-
-    // Repository selector to redirect to settings page
-    $("#repoSettings").click(function () {
-      var ownerId = $('#ownerId').val();
-      var repoId = $('#repoId').val();
-      window.location.href = '/' + ownerId + '/' + repoId + '/settings';
-    });
-  </script>
-}
+@RenderSection("scripts", required: false)

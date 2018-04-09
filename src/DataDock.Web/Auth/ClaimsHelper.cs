@@ -10,14 +10,14 @@ namespace DataDock.Web.Auth
 {
     public class ClaimsHelper
     {
-        public Owner GetUserOwnerFromClaims(ClaimsIdentity identity)
+        public OwnerInfo GetUserOwnerFromClaims(ClaimsIdentity identity)
         {
             if (identity == null) return null;
             var ghLoginClaim = identity.Claims.FirstOrDefault(c => c.Type.Equals(DataDockClaimTypes.GitHubLogin));
             var ghAvatarClaim = identity.Claims.FirstOrDefault(c => c.Type.Equals(DataDockClaimTypes.GitHubAvatar));
             if (ghLoginClaim != null)
             {
-                var owner = new Owner {OwnerId = ghLoginClaim.Value};
+                var owner = new OwnerInfo {OwnerId = ghLoginClaim.Value};
                 if (ghAvatarClaim != null)
                 {
                     owner.AvatarUrl = ghAvatarClaim.Value;
@@ -29,10 +29,10 @@ namespace DataDock.Web.Auth
             return null;
         }
 
-        public static IEnumerable<Owner> GetOrgOwnersFromClaims(ClaimsIdentity identity)
+        public static IEnumerable<OwnerInfo> GetOrgOwnersFromClaims(ClaimsIdentity identity)
         {
             var ghOrgClaims = identity?.Claims.Where(c => c.Type.Equals(DataDockClaimTypes.GitHubUserOrganization));
-            return ghOrgClaims?.Select(claim => JsonConvert.DeserializeObject<Owner>(claim.Value)).ToList();
+            return ghOrgClaims?.Select(claim => JsonConvert.DeserializeObject<OwnerInfo>(claim.Value)).ToList();
         }
 
         /// <summary>

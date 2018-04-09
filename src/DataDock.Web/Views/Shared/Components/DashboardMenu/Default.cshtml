@@ -13,7 +13,18 @@
 
         @foreach (var owner in Model.Owners)
         {
-          <a class="item no-underline" href="/@owner.OwnerId" title="Go to @owner.OwnerId dashboard">
+          var link = $"/{owner.OwnerId}";
+          if (!string.IsNullOrEmpty(Model.SelectedRepoId) && Model.SelectedOwnerId.Equals(owner.OwnerId) && !Model.ActiveArea.Equals("summary", StringComparison.InvariantCultureIgnoreCase))
+          {
+            link += $"/{Model.SelectedRepoId}";
+          }
+          if (!Model.ActiveArea.Equals("summary", StringComparison.InvariantCultureIgnoreCase))
+          {
+            link += $"/{Model.ActiveArea}";
+          }
+          var linkTitle = $"Go to {owner.OwnerId} {Model.ActiveArea}";
+
+          <a class="item no-underline" href="@link" title="@linkTitle">
             @if (!string.IsNullOrEmpty(owner.AvatarUrl))
             {
               <img class="ui avatar image" src="@owner.AvatarUrl" alt="@owner.OwnerId" />

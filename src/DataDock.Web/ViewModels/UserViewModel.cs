@@ -20,13 +20,13 @@ namespace DataDock.Web.ViewModels
 
         public IReadOnlyList<Repository> Repositories { get; set; }
 
-        public Owner UserOwner { get; set; }
+        public OwnerInfo UserOwner { get; set; }
 
-        public List<Owner> Organisations { get; set; }
+        public List<OwnerInfo> Organisations { get; set; }
         
         public UserViewModel()
         {
-            this.Organisations = new List<Owner>();
+            this.Organisations = new List<OwnerInfo>();
         }
 
         public void Populate(ClaimsIdentity identity)
@@ -38,7 +38,7 @@ namespace DataDock.Web.ViewModels
                 GitHubUrl = identity.FindFirst(c => c.Type == "urn:github:url")?.Value;
                 GitHubAvatar = identity.FindFirst(c => c.Type == "urn:github:avatar")?.Value;
 
-                UserOwner = new Owner
+                UserOwner = new OwnerInfo
                 {
                     OwnerId = GitHubLogin,
                     AvatarUrl = GitHubAvatar
@@ -47,7 +47,7 @@ namespace DataDock.Web.ViewModels
                 foreach (var orgClaim in identity.Claims.Where(c =>
                     c.Type.Equals((DataDockClaimTypes.GitHubUserOrganization))))
                 {
-                    Organisations.Add(JsonConvert.DeserializeObject<Owner>(orgClaim.Value));
+                    Organisations.Add(JsonConvert.DeserializeObject<OwnerInfo>(orgClaim.Value));
                 }
                 
             }

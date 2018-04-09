@@ -3,21 +3,26 @@ using Nest;
 
 namespace Datadock.Common.Models
 {
-    [ElasticsearchType(Name = "reposettings")]
+    [ElasticsearchType(Name = "reposettings", IdProperty = "FullId")]
     public class RepoSettings
     {
+        /// <summary>
+        /// Combined owner and repo IDs in the format {ownerId}/{repoId}
+        /// </summary>
+        public string FullId { get; set; }
+
         /// <summary>
         /// The repository owner
         /// </summary>
         public string OwnerId { get; set; }
 
-        public bool OwnerIsOrg { get; set; }
-
         /// <summary>
         /// The DataDock repository ID
         /// </summary>
         public string RepoId { get; set; }
-        
+
+        public bool OwnerIsOrg { get; set; }
+
         public string CloneUrl { get; set; }
 
         /// <summary>

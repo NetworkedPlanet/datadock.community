@@ -96,19 +96,50 @@ namespace Datadock.Common.Elasticsearch
             }
         }
 
-        public Task<IEnumerable<JobInfo>> GetJobsForUser(string userId, int skip = 0, int take = 20)
+        public async Task<IEnumerable<JobInfo>> GetJobsForUser(string userId, int skip = 0, int take = 20)
         {
-            throw new NotImplementedException();
+            var response = await _client.SearchAsync<JobInfo>(s => s
+                .From(0).Query(q => q.Match(m => m.Field(f => f.UserId).Query(userId)))
+            );
+
+            if (!response.IsValid)
+            {
+                throw new JobStoreException(
+                    $"Error retrieving jobs for user {userId}. Cause: {response.DebugInformation}");
+            }
+            if (response.Total < 1) throw new JobNotFoundException($"No jobs found for user '{userId}'");
+            return response.Documents;
         }
 
-        public Task<IEnumerable<JobInfo>> GetJobsForOwner(string ownerId, int skip = 0, int take = 20)
+        public async Task<IEnumerable<JobInfo>> GetJobsForOwner(string ownerId, int skip = 0, int take = 20)
         {
-            throw new NotImplementedException();
+            var response = await _client.SearchAsync<JobInfo>(s => s
+                .From(0).Query(q => q.Match(m => m.Field(f => f.OwnerId).Query(ownerId)))
+            );
+
+            if (!response.IsValid)
+            {
+                throw new JobStoreException(
+                    $"Error retrieving jobs for owner {ownerId}. Cause: {response.DebugInformation}");
+            }
+            if (response.Total < 1) throw new JobNotFoundException($"No jobs found for owner '{ownerId}'");
+            return response.Documents;
         }
 
-        public Task<IEnumerable<JobInfo>> GetJobsForRepository(string ownerId, string repositoryId, int skip = 0, int take = 20)
+        public async Task<IEnumerable<JobInfo>> GetJobsForRepository(string ownerId, string repositoryId, int skip = 0, int take = 20)
         {
-            throw new NotImplementedException();
+            var response = await _client.SearchAsync<JobInfo>(s => s
+                .From(0).Query(q => q.Match(m => m.Field(f => f.OwnerId).Query(ownerId)) &&
+                                    q.Match(m => m.Field(f => f.RepositoryId).Query(repositoryId)))
+            );
+            
+            if (!response.IsValid)
+            {
+                throw new JobStoreException(
+                    $"Error retrieving jobs for repository '{repositoryId}' of owner {ownerId}. Cause: {response.DebugInformation}");
+            }
+            if (response.Total < 1) throw new JobNotFoundException($"No jobs found for repository '{repositoryId}' of owner '{ownerId}'");
+            return response.Documents;
         }
 
         public async Task<JobInfo> GetNextJob()

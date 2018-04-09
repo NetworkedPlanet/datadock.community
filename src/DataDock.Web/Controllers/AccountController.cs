@@ -133,6 +133,15 @@ namespace DataDock.Web.Controllers
                         return RedirectToAction("Error", "Home");
                     }
 
+                    // create userSettings
+                    var userSettings = new UserSettings
+                    {
+                        UserId = User.Identity.Name,
+                        LastModified = DateTime.UtcNow,
+                        LastModifiedBy = "Account Created"
+                    };
+                    await _userStore.CreateOrUpdateUserSettingsAsync(userSettings);
+
                     // create ownerSettings for the github user owner
                     var userOwner = new OwnerSettings
                     {

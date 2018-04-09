@@ -14,7 +14,7 @@
         @foreach (var owner in Model.Owners)
         {
           var link = $"/{owner.OwnerId}";
-          if (!string.IsNullOrEmpty(Model.SelectedRepoId) && Model.SelectedOwnerId.Equals(owner.OwnerId))
+          if (!string.IsNullOrEmpty(Model.SelectedRepoId) && Model.SelectedOwnerId.Equals(owner.OwnerId) && !Model.ActiveArea.Equals("summary", StringComparison.InvariantCultureIgnoreCase))
           {
             link += $"/{Model.SelectedRepoId}";
           }

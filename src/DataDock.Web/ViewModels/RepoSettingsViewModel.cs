@@ -29,6 +29,7 @@ namespace DataDock.Web.ViewModels
             return new RepoSettings()
             {
                 OwnerId = this.OwnerId,
+                RepoId = this.RepoId,
                 OwnerIsOrg = this.OwnerIsOrg,
                 DefaultPublisher = new ContactInfo
                 {

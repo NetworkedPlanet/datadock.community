@@ -1,0 +1,19 @@
+﻿@using Octokit
+@model List<Octokit.Repository>
+
+@if (Model != null & Model.Count > 0)
+{
+        <select class="ui dropdown" name="repoId" id="repoId">
+          @foreach (Repository r in Model)
+          {
+            <option value="@r.Name">@r.Name</option>
+      
+          }
+        </select>
+}
+else
+{
+  <div class="">
+    No repositories found.
+  </div>
+}

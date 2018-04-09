@@ -1,13 +1,37 @@
 ﻿@model DataDock.Web.ViewModels.DashboardViewModel
 @{
-    
+
   Layout = "~/Views/Shared/_DashboardLayout.cshtml";
   Model.Title = Model.Title + " Repositories";
 }
 
 
 <div class="ui container">
-  <p>The list below shows the repositories you have already published data to, if you would like to publish to other repositories go to <a href="/@Model.SelectedOwnerId/import">Add Data</a> and choose a new repository.</p>
+  <p>The list below shows the repositories you have already set up in DataDock:</p>
   <div class="ui hidden divider"></div>
-  @await Component.InvokeAsync("RepositoryList", new {selectedOwnerId = Model.SelectedOwnerId})
+  @await Component.InvokeAsync("RepositoryList", new { selectedOwnerId = Model.SelectedOwnerId })
 </div>
+
+<div class="ui hidden divider"></div>
+
+<div class="ui container">
+  <h3>Set up new repository</h3>
+  <p>Choose your GitHub repository from the list below to initialise it for DataDock publishing: </p>
+  
+  <form class="ui form">
+    <input type="hidden" name="ownerId" id="ownerId" value="@Model.SelectedOwnerId">
+    
+    <div class="field">
+      <div class="two fields">
+        <div class="field">
+            @await Component.InvokeAsync("RepositorySelectorList", new { selectedOwnerId = Model.SelectedOwnerId })
+        </div>
+        <div class="field">
+          <button class="ui button" type="button" id="repoSettings">Go</button>
+        </div>
+      </div>
+    </div>
+  </form>
+  
+</div>
+

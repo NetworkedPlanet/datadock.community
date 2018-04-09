@@ -1,20 +1,20 @@
 ﻿using Octokit;
 
-namespace DataDock.Web.ViewModels
+namespace DataDock.Web.Models
 {
-    public class RepositoryInfoViewModel
+    public class RepositoryInfo
     {
         public string OwnerId { get; set; }
         public string RepoId { get; set; }
         public string DataDockImportUrl { get; set; }
         public string OwnerAvatar { get; set; }
 
-        public RepositoryInfoViewModel()
+        public RepositoryInfo()
         {
 
         }
 
-        public RepositoryInfoViewModel(Repository r)
+        public RepositoryInfo(Repository r)
         {
             this.OwnerId = r.Owner?.Login;
             this.RepoId = r.Name;

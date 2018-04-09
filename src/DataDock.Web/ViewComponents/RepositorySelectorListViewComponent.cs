@@ -4,6 +4,7 @@ using Octokit;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DataDock.Web.Models;
 using DataDock.Web.ViewModels;
 
 namespace DataDock.Web.ViewComponents
@@ -40,13 +41,13 @@ namespace DataDock.Web.ViewComponents
             }
         }
 
-        public async Task<List<RepositoryInfoViewModel>> GetRepositoriesForOwner(string ownerId)
+        public async Task<List<RepositoryInfo>> GetRepositoriesForOwner(string ownerId)
         {
-            var repoInfos = new List<RepositoryInfoViewModel>();
+            var repoInfos = new List<RepositoryInfo>();
             var allRepositories = await _gitHubApiService.GetRepositoryListForOwnerAsync(User.Identity, ownerId);
             foreach (var r in allRepositories)
             {
-                repoInfos.Add(new RepositoryInfoViewModel(r));
+                repoInfos.Add(new RepositoryInfo(r));
             }
             return repoInfos;
         }

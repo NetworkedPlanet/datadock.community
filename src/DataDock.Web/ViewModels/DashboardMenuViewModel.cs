@@ -16,13 +16,13 @@ namespace DataDock.Web.ViewModels
         public string SelectedOwnerAvatarUrl { get; set; }
         public string ActiveArea { get; set; }
 
-        public List<Owner> Owners { get; set; }
+        public List<OwnerInfo> Owners { get; set; }
 
         public UserViewModel UserViewModel { get; set; }
 
         public DashboardMenuViewModel()
         {
-            Owners = new List<Owner>();
+            Owners = new List<OwnerInfo>();
         }
 
         /// <summary>

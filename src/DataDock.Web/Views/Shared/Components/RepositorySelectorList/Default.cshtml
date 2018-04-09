@@ -1,10 +1,10 @@
-﻿@using DataDock.Web.ViewModels
-@model List<DataDock.Web.ViewModels.RepositoryInfoViewModel>
+﻿@using DataDock.Web.Models
+@model List<DataDock.Web.Models.RepositoryInfo>
 
 @if (Model != null & Model.Count > 0)
 {
   <select class="ui dropdown" name="repoId" id="repoId">
-    @foreach (RepositoryInfoViewModel r in Model)
+    @foreach (RepositoryInfo r in Model)
     {
       <option value="@r.RepoId">@r.RepoId</option>
 

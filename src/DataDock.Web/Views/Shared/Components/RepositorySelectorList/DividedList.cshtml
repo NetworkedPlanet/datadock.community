@@ -1,10 +1,10 @@
-﻿@using DataDock.Web.ViewModels
-@model List<RepositoryInfoViewModel>
+﻿@using DataDock.Web.Models
+@model List<DataDock.Web.Models.RepositoryInfo>
 
 @if (Model != null & Model.Count > 0)
 {
   <div class="ui relaxed selection divided list">
-    @foreach (RepositoryInfoViewModel r in Model)
+    @foreach (RepositoryInfo r in Model)
     {
       <a class="item no-underline" href="@r.DataDockImportUrl" title="Add Data to @r.RepoId">
         @if (!string.IsNullOrEmpty(r.OwnerAvatar))

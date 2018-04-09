@@ -9,13 +9,7 @@ namespace DataDock.Web.ViewModels
     {
         [HiddenInput]
         public string UserId { get; set; }
-
-        /// <summary>
-        /// Happy to receive emails from NetworkedPlanet
-        /// </summary>
-        [Display(Name = "Happy to receive emails from DataDock mailing list")]
-        public bool OnMailingList { get; set; }
-
+        
         /*
         * Last Modified
         */
@@ -28,7 +22,6 @@ namespace DataDock.Web.ViewModels
         public UserSettingsViewModel(UserSettings settings)
         {
             UserId = settings.UserId;
-            OnMailingList = settings.OnMailingList;
             LastModified = settings.LastModified;
             LastModifiedBy = settings.LastModifiedBy;
         }
@@ -38,7 +31,6 @@ namespace DataDock.Web.ViewModels
             return new UserSettings
             {
                 UserId = this.UserId,
-                OnMailingList = this.OnMailingList,
                 LastModified = this.LastModified,
                 LastModifiedBy = this.LastModifiedBy
             };

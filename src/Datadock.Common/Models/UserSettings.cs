@@ -11,10 +11,7 @@ namespace Datadock.Common.Models
         /// </summary>
         [Keyword]
         public string UserId { get; set; }
-
-        [Boolean]
-        public bool OnMailingList { get; set; }
-
+        
         /// <summary>
         /// Date and time that the settings were last changed
         /// </summary>

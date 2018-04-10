@@ -174,8 +174,7 @@ namespace Datadock.Common.Elasticsearch
                         Field = new Field("repositoryId"), Value = runningJobInfo.RepositoryId
                     });
                 }
-                // TODO: remove repos that have running jobs from the results
-                // notTheseRepos.Add(new BoolQuery { MustNot = repoClauses });
+                notTheseRepos.Add(new BoolQuery { MustNot = repoClauses });
             }
             var searchRequest = new SearchRequest<JobInfo>
             {

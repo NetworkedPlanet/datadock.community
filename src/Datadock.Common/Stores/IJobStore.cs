@@ -79,5 +79,7 @@ namespace Datadock.Common.Stores
         /// <returns></returns>
         Task<JobInfo> GetNextJob();
 
+        Task<bool> UpdateJobStatus(JobInfo jobInfo, JobStatus newStatus);
+
     }
 }

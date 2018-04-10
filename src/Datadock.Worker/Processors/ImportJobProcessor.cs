@@ -137,7 +137,7 @@ namespace DataDock.Worker.Processors
                     RepositoryId = job.GitRepositoryFullName,
                     DatasetId = job.DatasetId,
                     LastModified = DateTime.UtcNow,
-                    Metadata = metadataJson,
+                    CsvwMetadata = metadataJson,
                     ShowOnHomePage = job.IsPublic
                 });
             }

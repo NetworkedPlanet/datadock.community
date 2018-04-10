@@ -21,7 +21,15 @@ namespace Datadock.Common.Models
 
         public DateTime LastModified { get; set; }
 
-        public dynamic Metadata { get; set; }
+        /// <summary>
+        /// CSVW Metadata
+        /// </summary>
+        public dynamic CsvwMetadata { get; set; }
+
+        /// <summary>
+        /// VoID Metadata
+        /// </summary>
+        public dynamic VoidMetadata { get; set; }
 
         public bool? ShowOnHomePage { get; set; }
     }

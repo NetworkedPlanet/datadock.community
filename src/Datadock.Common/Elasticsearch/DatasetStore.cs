@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using Datadock.Common.Models;
+﻿using Datadock.Common.Models;
 using Datadock.Common.Stores;
 using DataDock.Common;
 using Nest;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Datadock.Common.Elasticsearch
 {
@@ -41,31 +40,21 @@ namespace Datadock.Common.Elasticsearch
             throw new NotImplementedException();
         }
 
-        public IReadOnlyList<DatasetInfo> GetRecentlyUpdatedDatasets(string[] ownerIds, int skip, int take, bool showHidden = false)
+        public IReadOnlyList<DatasetInfo> GetRecentlyUpdatedDatasetsForOwner(string[] ownerIds, int skip, int take, bool showHidden = false)
         {
             throw new NotImplementedException();
         }
 
-        public IReadOnlyList<DatasetInfo> GetRecentlyUpdatedRepositoryDatasets(string[] repositoryIds, int skip, int take, bool showHidden = false)
+        public IReadOnlyList<DatasetInfo> GetRecentlyUpdatedDatasetsForRepositories(string ownerId, string[] repositoryIds, int skip, int take, bool showHidden = false)
         {
             throw new NotImplementedException();
         }
 
-        public IReadOnlyList<DatasetInfo> GetDatasetsForRepository(string repositoryId, int skip, int take)
+        public IReadOnlyList<DatasetInfo> GetDatasetsForRepository(string ownerId, string repositoryId, int skip, int take)
         {
             throw new NotImplementedException();
         }
-
-        public IReadOnlyList<DatasetInfo> GetDatasetsForOwner(string ownerId, int skip, int take)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IReadOnlyList<string> GetRepositoryIdListForOwner(string[] ownerIds)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public DatasetInfo GetDatasetInfo(string repositoryId, string datasetId)
         {
             throw new NotImplementedException();
@@ -89,6 +78,7 @@ namespace Datadock.Common.Elasticsearch
 
         public async Task CreateOrUpdateDatasetRecordAsync(DatasetInfo datasetInfo)
         {
+            if (datasetInfo == null) throw new ArgumentNullException();
             var indexResponse =await _client.IndexDocumentAsync(datasetInfo);
             if (!indexResponse.IsValid)
             {
@@ -102,7 +92,7 @@ namespace Datadock.Common.Elasticsearch
             throw new NotImplementedException();
         }
 
-        public Task DeleteDatasetAsync(string repositoryId, string datasetId)
+        public Task DeleteDatasetAsync(string ownerId, string repositoryId, string datasetId)
         {
             throw new NotImplementedException();
         }

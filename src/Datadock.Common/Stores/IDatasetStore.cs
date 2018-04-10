@@ -7,7 +7,7 @@ namespace Datadock.Common.Stores
     public interface IDatasetStore
     {
         /// <summary>
-        /// Get the N most recently updated datasets across all repositories
+        /// Get the N most recently updated datasets across all owners and repositories
         /// </summary>
         /// <param name="limit">The number of results to return</param>
         /// <param name="showHidden">Whether to include datasets that are hidden from the front page. Defaults to false</param>
@@ -15,31 +15,35 @@ namespace Datadock.Common.Stores
         IReadOnlyList<DatasetInfo> GetRecentlyUpdatedDatasets(int limit, bool showHidden = false);
 
         /// <summary>
-        /// Get a list of the most recently updated datasets that are in one of the specified repositories
+        /// Get a list of the most recently updated datasets that for specific owners
         /// </summary>
         /// <param name="ownerIds">A list of owner IDs to match</param>
         /// <param name="skip">The number of results to skip</param>
         /// <param name="take">The number of results to return</param>
         /// <param name="showHidden">Whether to include datasets that are hidden from the front page. Defaults to false</param>
         /// <returns>A list of <see cref="DatasetInfo"/> instances ordered by last modified date (most recent first)</returns>
-        IReadOnlyList<DatasetInfo> GetRecentlyUpdatedDatasets(string[] ownerIds, int skip, int take, bool showHidden = false);
+        IReadOnlyList<DatasetInfo> GetRecentlyUpdatedDatasetsForOwner(string[] ownerIds, int skip, int take, bool showHidden = false);
 
         /// <summary>
         /// Get a list of the most recently updated datasets that are in one of the specified repositories
         /// </summary>
+        /// <param name="ownerId">The ID of the owner that the repositories belong to</param>
         /// <param name="repositoryIds">A list of repository IDs to match</param>
         /// <param name="skip">The number of results to skip</param>
         /// <param name="take">The number of results to return</param>
         /// <param name="showHidden">Whether to include datasets that are hidden from the front page. Defaults to false</param>
         /// <returns>A list of <see cref="DatasetInfo"/> instances ordered by last modified date (most recent first)</returns>
-        IReadOnlyList<DatasetInfo> GetRecentlyUpdatedRepositoryDatasets(string[] repositoryIds, int skip, int take, bool showHidden = false);
+        IReadOnlyList<DatasetInfo> GetRecentlyUpdatedDatasetsForRepositories(string ownerId, string[] repositoryIds, int skip, int take, bool showHidden = false);
 
-
-        IReadOnlyList<DatasetInfo> GetDatasetsForRepository(string repositoryId, int skip, int take);
-
-        IReadOnlyList<DatasetInfo> GetDatasetsForOwner(string ownerId, int skip, int take);
-
-        IReadOnlyList<string> GetRepositoryIdListForOwner(string[] ownerIds);
+        /// <summary>
+        /// Get a list datasets for a specific repository
+        /// </summary>
+        /// <param name="ownerId">The owner of the repository</param>
+        /// <param name="repositoryId">The repository ID to match</param>
+        /// <param name="skip">The number of results to skip</param>
+        /// <param name="take">The number of results to return</param>
+        /// <returns>A list of <see cref="DatasetInfo"/> instances</returns>
+        IReadOnlyList<DatasetInfo> GetDatasetsForRepository(string ownerId, string repositoryId, int skip, int take);
 
         DatasetInfo GetDatasetInfo(string repositoryId, string datasetId);
 
@@ -77,6 +81,6 @@ namespace Datadock.Common.Stores
         /// <returns>true if successful</returns>
         Task<bool> DeleteDatasetsForOwnerAsync(string ownerId);
 
-        Task DeleteDatasetAsync(string repositoryId, string datasetId);
+        Task DeleteDatasetAsync(string ownerId, string repositoryId, string datasetId);
     }
 }

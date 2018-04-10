@@ -72,7 +72,7 @@ namespace Datadock.Common.Stores
         /// <returns></returns>
         IReadOnlyList<DatasetInfo> GetDatasetsForTag(string ownerId, string repositoryId, string[] tags, bool matchAll = false, bool showHidden = false);
 
-        Task CreateOrUpdateDatasetRecordAsync(DatasetInfo datasetInfo);
+        Task<DatasetInfo> CreateOrUpdateDatasetRecordAsync(DatasetInfo datasetInfo);
 
         /// <summary>
         /// Delete all dataset records for a given owner

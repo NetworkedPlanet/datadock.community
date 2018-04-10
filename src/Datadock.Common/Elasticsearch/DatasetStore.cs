@@ -76,15 +76,20 @@ namespace Datadock.Common.Elasticsearch
             throw new NotImplementedException();
         }
 
-        public async Task CreateOrUpdateDatasetRecordAsync(DatasetInfo datasetInfo)
+        public async Task<DatasetInfo> CreateOrUpdateDatasetRecordAsync(DatasetInfo datasetInfo)
         {
             if (datasetInfo == null) throw new ArgumentNullException();
+            if (string.IsNullOrEmpty(datasetInfo.FullId))
+            {
+                datasetInfo.FullId = $"{datasetInfo.OwnerId}/{datasetInfo.RepositoryId}/{datasetInfo.DatasetId}";
+            }
             var indexResponse =await _client.IndexDocumentAsync(datasetInfo);
             if (!indexResponse.IsValid)
             {
                 throw new DatasetStoreException(
                     $"Failed to index dataset record. Cause: {indexResponse.DebugInformation}");
             }
+            return datasetInfo;
         }
 
         public Task<bool> DeleteDatasetsForOwnerAsync(string ownerId)

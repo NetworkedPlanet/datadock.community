@@ -5,6 +5,7 @@ using Nest;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Datadock.Common.Elasticsearch
@@ -35,42 +36,178 @@ namespace Datadock.Common.Elasticsearch
             _client.ConnectionSettings.DefaultIndices[typeof(DatasetInfo)] = indexName;
         }
 
-        public IReadOnlyList<DatasetInfo> GetRecentlyUpdatedDatasets(int limit, bool showHidden = false)
+        public async Task<IEnumerable<DatasetInfo>> GetRecentlyUpdatedDatasets(int limit, bool showHidden = false)
         {
-            throw new NotImplementedException();
+            var mustClauses = new List<QueryContainer>
+            {
+                new TermQuery
+                {
+                    Field = new Field("showOnHomepage"),
+                    Value = showHidden
+                }
+            };
+            var searchRequest = new SearchRequest<DatasetInfo>
+            {
+                Size = limit,
+                From = 0,
+                Query = new BoolQuery { Must = mustClauses }
+            };
+
+            var searchResponse = await _client.SearchAsync<DatasetInfo>(searchRequest);
+
+            if (!searchResponse.IsValid)
+            {
+                throw new DatasetStoreException(
+                    $"Error retrieving datasets. Cause: {searchResponse.DebugInformation}");
+            }
+            if (searchResponse.Total < 1) throw new DatasetNotFoundException("all");
+            return searchResponse.Documents;
         }
 
-        public IReadOnlyList<DatasetInfo> GetRecentlyUpdatedDatasetsForOwner(string[] ownerIds, int skip, int take, bool showHidden = false)
+        public async Task<IEnumerable<DatasetInfo>> GetRecentlyUpdatedDatasetsForOwners(string[] ownerIds, int skip, int take, bool showHidden = false)
         {
-            throw new NotImplementedException();
+            var mustClauses = new List<QueryContainer>
+            {
+                new TermQuery
+                {
+                    Field = new Field("showOnHomepage"),
+                    Value = showHidden
+                }
+            };
+            var shouldClauses = new List<QueryContainer>();
+            foreach (var repositoryId in ownerIds)
+            {
+                shouldClauses.Add(new TermQuery { Field = new Field("ownerIds"), Value = repositoryId });
+            }
+            var searchRequest = new SearchRequest<DatasetInfo>
+            {
+                Size = take,
+                From = skip,
+                Query = new BoolQuery { Must = mustClauses, Should = shouldClauses }
+            };
+
+            var searchResponse = await _client.SearchAsync<DatasetInfo>(searchRequest);
+
+            var ownerIdsString = string.Join(", ", ownerIds);
+            if (!searchResponse.IsValid)
+            {
+                throw new DatasetStoreException(
+                    $"Error retrieving datasets for owner IDs {ownerIdsString}. Cause: {searchResponse.DebugInformation}");
+            }
+            if (searchResponse.Total < 1) throw new DatasetNotFoundException(ownerIdsString);
+            return searchResponse.Documents;
         }
 
-        public IReadOnlyList<DatasetInfo> GetRecentlyUpdatedDatasetsForRepositories(string ownerId, string[] repositoryIds, int skip, int take, bool showHidden = false)
+        public async Task<IEnumerable<DatasetInfo>> GetRecentlyUpdatedDatasetsForRepositories(string ownerId, string[] repositoryIds, int skip, int take, bool showHidden = false)
         {
-            throw new NotImplementedException();
+            var mustClauses = new List<QueryContainer>
+            {
+                new TermQuery
+                {
+                    Field = new Field("ownerId"),
+                    Value = ownerId
+                },
+                new TermQuery
+                {
+                    Field = new Field("showOnHomepage"),
+                    Value = showHidden
+                }
+            };
+            var shouldClauses = new List<QueryContainer>();
+            foreach (var repositoryId in repositoryIds)
+            {
+                shouldClauses.Add(new TermQuery{Field = new Field("repositoryId"), Value = repositoryId});
+            }
+            var searchRequest = new SearchRequest<DatasetInfo>
+            {
+                Size = take,
+                From = skip,
+                Query = new BoolQuery { Must = mustClauses, Should = shouldClauses }
+            };
+
+            var searchResponse = await _client.SearchAsync<DatasetInfo>(searchRequest);
+
+            var repositoryIdsString = string.Join(", ", repositoryIds);
+            if (!searchResponse.IsValid)
+            {
+                throw new DatasetStoreException(
+                    $"Error retrieving datasets for repo IDs {repositoryIdsString} on owner {ownerId}. Cause: {searchResponse.DebugInformation}");
+            }
+            if (searchResponse.Total < 1) throw new DatasetNotFoundException(ownerId, repositoryIdsString);
+            return searchResponse.Documents;
+
         }
 
-        public IReadOnlyList<DatasetInfo> GetDatasetsForRepository(string ownerId, string repositoryId, int skip, int take)
+        public async Task<IEnumerable<DatasetInfo>> GetDatasetsForRepository(string ownerId, string repositoryId, int skip, int take)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(ownerId)) throw new ArgumentNullException(nameof(ownerId));
+            if (string.IsNullOrEmpty(repositoryId)) throw new ArgumentNullException(nameof(repositoryId));
+            
+            var response = await _client.SearchAsync<DatasetInfo>(s => s
+                .From(0).Query(q => q.Match(m => m.Field(f => f.OwnerId).Query(ownerId)) &&
+                                    q.Match(m => m.Field(f => f.RepositoryId).Query(repositoryId)))
+            );
+            if (!response.IsValid)
+            {
+                throw new DatasetStoreException(
+                    $"Error retrieving datasets for repo ID {repositoryId} on owner {ownerId}. Cause: {response.DebugInformation}");
+            }
+            if (response.Total < 1) throw new DatasetNotFoundException(ownerId, repositoryId);
+            return response.Documents;
         }
         
-        public DatasetInfo GetDatasetInfo(string repositoryId, string datasetId)
+        public async Task<DatasetInfo> GetDatasetInfo(string ownerId, string repositoryId, string datasetId)
+        {
+            if (string.IsNullOrEmpty(ownerId)) throw new ArgumentNullException(nameof(ownerId));
+            if (string.IsNullOrEmpty(repositoryId)) throw new ArgumentNullException(nameof(repositoryId));
+            if (string.IsNullOrEmpty(datasetId)) throw new ArgumentNullException(nameof(datasetId));
+
+            var mustClauses = new List<QueryContainer>
+            {
+                new TermQuery
+                {
+                    Field = new Field("ownerId"),
+                    Value = ownerId
+                },
+                new TermQuery
+                {
+                    Field = new Field("repositoryId"),
+                    Value = repositoryId
+                },
+                new TermQuery
+                {
+                    Field = new Field("datasetId"),
+                    Value = datasetId
+                }
+            };
+           
+            var searchRequest = new SearchRequest<DatasetInfo>
+            {
+                Query = new BoolQuery { Must = mustClauses}
+            };
+
+            var searchResponse = await _client.SearchAsync<DatasetInfo>(searchRequest);
+
+            if (!searchResponse.IsValid)
+            {
+                throw new DatasetStoreException(
+                    $"Error retrieving dataset for owner ID {ownerId} repositoryId {repositoryId} datasetId {datasetId}. Cause: {searchResponse.DebugInformation}");
+            }
+            if (searchResponse.Total < 1) throw new DatasetNotFoundException(ownerId, repositoryId, datasetId);
+            return searchResponse.Documents.FirstOrDefault();
+        }
+
+        public async Task<IEnumerable<DatasetInfo>> GetDatasetsForTag(string tag)
         {
             throw new NotImplementedException();
         }
 
-        public IReadOnlyList<DatasetInfo> GetDatasetsForTag(string tag)
+        public async Task<IEnumerable<DatasetInfo>> GetDatasetsForTag(string ownerId, string[] tags, bool matchAll = false, bool showHidden = false)
         {
             throw new NotImplementedException();
         }
 
-        public IReadOnlyList<DatasetInfo> GetDatasetsForTag(string ownerId, string[] tags, bool matchAll = false, bool showHidden = false)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IReadOnlyList<DatasetInfo> GetDatasetsForTag(string ownerId, string repositoryId, string[] tags, bool matchAll = false,
+        public async Task<IEnumerable<DatasetInfo>> GetDatasetsForTag(string ownerId, string repositoryId, string[] tags, bool matchAll = false,
             bool showHidden = false)
         {
             throw new NotImplementedException();

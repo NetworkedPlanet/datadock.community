@@ -78,11 +78,12 @@ namespace DataDock.Web
             services.AddSingleton<IElasticClient>(client);
             services.AddSingleton<IUserStore, UserStore>();
             services.AddSingleton<IJobStore, JobStore>();
-            services.AddSingleton<IFileStore, DirectoryFileStore>();
             services.AddSingleton<IOwnerSettingsStore, OwnerSettingsStore>();
             services.AddSingleton<IRepoSettingsStore, RepoSettingsStore>();
+            services.AddSingleton<IDatasetStore, DatasetStore>();
+            services.AddSingleton<ISchemaStore, SchemaStore>();
             services.AddSingleton<IImportService, ImportService>();
-
+            services.AddSingleton<IFileStore, DirectoryFileStore>();
             services.AddScoped<DataDockCookieAuthenticationEvents>();
 
             // TODO: This should come from environment variables, not config

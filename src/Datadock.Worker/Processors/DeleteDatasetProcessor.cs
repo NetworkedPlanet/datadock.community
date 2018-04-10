@@ -56,7 +56,7 @@ namespace DataDock.Worker.Processors
             }
             try
             {
-                await _datasetStore.DeleteDatasetAsync(jobInfo.GitRepositoryFullName, jobInfo.DatasetId);
+                await _datasetStore.DeleteDatasetAsync(jobInfo.OwnerId, jobInfo.RepositoryId, jobInfo.DatasetId);
             }
             catch (Exception ex)
             {

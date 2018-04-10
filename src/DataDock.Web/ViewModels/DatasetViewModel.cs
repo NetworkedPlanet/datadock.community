@@ -11,12 +11,14 @@ namespace DataDock.Web.ViewModels
     public class DatasetViewModel
     {
         private readonly DatasetInfo _datasetInfo;
-        private readonly JObject _metadata;
+        private readonly JObject _csvwMetadata;
+        private readonly JObject _voidMetadata;
 
         public DatasetViewModel(DatasetInfo datasetInfo)
         {
             _datasetInfo = datasetInfo;
-            _metadata = datasetInfo.Metadata as JObject;
+            _csvwMetadata = datasetInfo.CsvwMetadata as JObject;
+            _voidMetadata = datasetInfo.VoidMetadata as JObject;
 
             Title = this.GetTitle();
             Description = this.GetDescription();
@@ -48,36 +50,36 @@ namespace DataDock.Web.ViewModels
 
         public string GetIri()
         {
-            if (_metadata != null)
+            if (_csvwMetadata != null)
             {
-                return _metadata["url"].ToString();
+                return _csvwMetadata["url"].ToString();
             }
             return DataDockUrlHelper.GetDatasetIdentifier(_datasetInfo.RepositoryId, _datasetInfo.DatasetId);
         }
 
         public string GetTitle()
         {
-            if (_metadata != null)
+            if (_csvwMetadata != null)
             {
-                return GetLiteralValue(_metadata, "dc:title");
+                return GetLiteralValue(_csvwMetadata, "dc:title");
             }
             return _datasetInfo.RepositoryId + "/" + _datasetInfo.DatasetId;
         }
 
         public string GetDescription()
         {
-            if (_metadata != null)
+            if (_csvwMetadata != null)
             {
-                return GetLiteralValue(_metadata, "dc:description");
+                return GetLiteralValue(_csvwMetadata, "dc:description");
             }
             return string.Empty;
         }
 
         public string GetLicenseUri()
         {
-            if (_metadata != null)
+            if (_csvwMetadata != null)
             {
-                return GetLiteralValue(_metadata, "dc:license");
+                return GetLiteralValue(_csvwMetadata, "dc:license");
             }
             return string.Empty;
         }
@@ -104,7 +106,7 @@ namespace DataDock.Web.ViewModels
 
         public IEnumerable<string> GetTags()
         {
-            var tags = _metadata?["dcat:keyword"] as JArray;
+            var tags = _csvwMetadata?["dcat:keyword"] as JArray;
             if (tags != null)
             {
                 return tags.Select(t => (t as JValue)?.Value<string>());
@@ -131,9 +133,7 @@ namespace DataDock.Web.ViewModels
 
         private static string GetBestLanguageMatch(JArray literalArray, string prefLang)
         {
-            // TODO: Language matching
-            var match = literalArray[0];
-            return GetLiteralValue(match);
+            throw new NotImplementedException();
         }
     }
 }

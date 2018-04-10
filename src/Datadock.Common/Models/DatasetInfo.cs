@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Nest;
 
 namespace Datadock.Common.Models
@@ -39,5 +40,7 @@ namespace Datadock.Common.Models
         public dynamic VoidMetadata { get; set; }
 
         public bool? ShowOnHomePage { get; set; }
+
+        public IEnumerable<string> Tags { get; set; }
     }
 }

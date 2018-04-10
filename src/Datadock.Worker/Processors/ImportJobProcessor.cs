@@ -138,7 +138,8 @@ namespace DataDock.Worker.Processors
                     DatasetId = job.DatasetId,
                     LastModified = DateTime.UtcNow,
                     CsvwMetadata = metadataJson,
-                    ShowOnHomePage = job.IsPublic
+                    ShowOnHomePage = job.IsPublic,
+                    Tags = metadataJson["dcat:keyword"]?.ToObject<List<string>>()
                 });
             }
             catch (Exception ex)

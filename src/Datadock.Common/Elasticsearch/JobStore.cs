@@ -8,10 +8,6 @@ using DataDock.Common;
 using Nest;
 using Serilog;
 
-namespace Datadock.Common.Repositories
-{
-}
-
 namespace Datadock.Common.Elasticsearch
 {
     public class JobStore : IJobStore
@@ -146,14 +142,21 @@ namespace Datadock.Common.Elasticsearch
         {
             // TODO: Should make sure that: (a) there aren't any jobs running for the same GitHub repository
             // (b) when we claim the job to work on it, no-one else grabbed it before us (i.e. update with If-Not-Modified)
+
+            var queued = (int) JobStatus.Queued;
             var searchResults = await _client.SearchAsync<JobInfo>(s => s
                 .Query(q => q.Bool(b => b
                     .Filter(bf => bf
                         .Match(m => m
                             .Field(f => f.CurrentStatus)
-                            .Query(JobStatus.Queued.ToString())
+                            .Query(queued.ToString())
                         ))))
                 .Sort(sort => sort.Ascending(on => on.QueuedTimestamp)).Take(1));
+            if (!searchResults.IsValid)
+            {
+                throw new JobStoreException(
+                    $"Error retrieving next job. Cause: {searchResults.DebugInformation}");
+            }
             if (searchResults.Hits.Any())
             {
                 // Attempt to update the job document to mark it as running

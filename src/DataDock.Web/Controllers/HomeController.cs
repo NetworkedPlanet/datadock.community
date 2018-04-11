@@ -20,9 +20,8 @@ namespace DataDock.Web.Controllers
                 return RedirectToAction("SignUp", "Account");
             }
 
-            var userViewModel = new UserViewModel();
+            var userViewModel = new UserViewModel {Title = "DataDock"};
             userViewModel.Populate(User.Identity as ClaimsIdentity);
-
             return View(userViewModel);
         }
 

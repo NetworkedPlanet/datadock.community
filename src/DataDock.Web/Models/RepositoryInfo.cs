@@ -1,4 +1,5 @@
-﻿using Octokit;
+﻿using Datadock.Common.Models;
+using Octokit;
 
 namespace DataDock.Web.Models
 {
@@ -20,6 +21,14 @@ namespace DataDock.Web.Models
             this.RepoId = r.Name;
             this.DataDockImportUrl = $"/{OwnerId}/{RepoId}/import";
             this.OwnerAvatar = r.Owner?.AvatarUrl;
+        }
+
+        public RepositoryInfo(RepoSettings s)
+        {
+            this.OwnerId = s.OwnerId;
+            this.RepoId = s.RepoId;
+            this.DataDockImportUrl = $"/{OwnerId}/{RepoId}/import";
+            this.OwnerAvatar = s.OwnerAvatar;
         }
     }
 }

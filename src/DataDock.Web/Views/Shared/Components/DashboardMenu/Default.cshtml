@@ -41,14 +41,54 @@
     </div><!-- simple dropdown -->
   </div><!-- end user / org menu item -->
   <!-- repo list menu item-->
-  @if (!string.IsNullOrEmpty(Model.SelectedRepoId))
-  {
-    <a class="item @Model.AreaIsActive("repos")" href="@Model.GetDashContext()/" title="@Model.SelectedRepoId"><i class="cubes icon"></i> @Model.SelectedRepoId</a>
-  }
-  else
-  {
-    <a class="item @Model.AreaIsActive("repos")" href="@Model.GetDashContext()/repositories" title="Repositories"><i class="cubes icon"></i> Repositories</a>
-  }
+  <div class="item">
+    <div class="ui simple dropdown">
+      <div class="text">
+        @if (string.IsNullOrEmpty(Model.SelectedRepoId))
+        {
+          <span>Repositories</span>
+        }
+        else
+        {
+          @Model.SelectedRepoId
+        }
+          
+      </div>
+      
+      @{
+        var repos = Model.Owners.FirstOrDefault(o => o.OwnerId.Equals(Model.SelectedOwnerId))?.Repositories;
+        if (repos != null && repos.Count > 0)
+        {
+          <i class="dropdown icon"></i>
+          <div class="menu">
+            <a class="item @Model.AreaIsActive("repos")" href="@Model.SelectedOwnerId/repositories" title="Repositories"><i class="cubes icon"></i> All</a>
+
+            @foreach (var repo in repos)
+            {
+              var repoLink = $"/{repo.OwnerId}/{repo.RepoId}";
+              if (Model.SelectedOwnerId.Equals(repo.OwnerId) && Model.SelectedRepoId.Equals(repo.RepoId) && !Model.ActiveArea.Equals("summary", StringComparison.InvariantCultureIgnoreCase))
+              {
+                repoLink += $"/{Model.SelectedRepoId}";
+              }
+              if (!Model.ActiveArea.Equals("summary", StringComparison.InvariantCultureIgnoreCase) && !Model.ActiveArea.Equals("repositories", StringComparison.InvariantCultureIgnoreCase))
+              {
+                repoLink += $"/{Model.ActiveArea}";
+              }
+              var repoLinkTitle = $"Go to {repo.OwnerId}/{repo.RepoId} {Model.ActiveArea}";
+
+              <a class="item no-underline" href="@repoLink" title="@repoLinkTitle">
+                <i class="large disk outline icon"></i>
+                @repo.RepoId
+              </a>
+            }
+          </div>
+        }
+      }
+
+    </div>
+  </div>
+   
+  
 
   <!-- end repo list menu item-->
   <!-- datasets list menu item-->

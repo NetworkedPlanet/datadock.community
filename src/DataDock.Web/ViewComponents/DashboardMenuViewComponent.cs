@@ -4,13 +4,24 @@ using System.Security.Claims;
 using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Datadock.Common.Stores;
 using DataDock.Web.Auth;
+using DataDock.Web.Models;
 
 namespace DataDock.Web.ViewComponents
 {
     [ViewComponent(Name = "DashboardMenu")]
     public class DashboardMenuViewComponent : ViewComponent
     {
+        private readonly IRepoSettingsStore _repoSettingsStore;
+
+        public DashboardMenuViewModel DashboardMenuViewModel { get; set; }
+
+        public DashboardMenuViewComponent(IRepoSettingsStore repoSettingsStore)
+        {
+            _repoSettingsStore = repoSettingsStore;
+        }
+
         public async Task<IViewComponentResult> InvokeAsync(string selectedOwnerId, string selectedRepoId, string area)
         {
             if (User?.Identity == null || !User.Identity.IsAuthenticated || !ClaimsHelper.OwnerExistsInUserClaims(User.Identity as ClaimsIdentity, selectedOwnerId))
@@ -31,18 +42,38 @@ namespace DataDock.Web.ViewComponents
             uvm.Populate(User.Identity as ClaimsIdentity);
                 
             // dash view model
-            var dvm = new DashboardMenuViewModel
+            this.DashboardMenuViewModel = new DashboardMenuViewModel
             {
                 SelectedOwnerId = selectedOwnerId,
                 SelectedRepoId = selectedRepoId,
                 UserViewModel = uvm,
                 ActiveArea = area
             };
-            dvm.Owners.Add(uvm.UserOwner);
-            dvm.Owners.AddRange(uvm.Organisations);
-            dvm.SelectedOwnerAvatarUrl = dvm.Owners.FirstOrDefault(o => o.OwnerId.Equals(selectedOwnerId, StringComparison.InvariantCultureIgnoreCase))?.AvatarUrl;
-            return View(dvm);
+            this.DashboardMenuViewModel.Owners.Add(uvm.UserOwner);
+            this.DashboardMenuViewModel.Owners.AddRange(uvm.Organisations);
+            this.DashboardMenuViewModel.SelectedOwnerAvatarUrl = this.DashboardMenuViewModel.Owners.FirstOrDefault(o => o.OwnerId.Equals(selectedOwnerId, StringComparison.InvariantCultureIgnoreCase))?.AvatarUrl;
+            await PopulateRepositoryList();
+            return View(this.DashboardMenuViewModel);
 
+        }
+
+        private async Task PopulateRepositoryList()
+        {
+            if(this.DashboardMenuViewModel == null || string.IsNullOrEmpty(this.DashboardMenuViewModel.SelectedOwnerId)) return;
+            try
+            {
+                var repos = await _repoSettingsStore.GetRepoSettingsForOwnerAsync(this.DashboardMenuViewModel.SelectedOwnerId);
+                foreach (var r in repos)
+                {
+                    var ri = new RepositoryInfo(r);
+                    DashboardMenuViewModel.Owners.FirstOrDefault(o => o.OwnerId.Equals(this.DashboardMenuViewModel.SelectedOwnerId))?.Repositories.Add(ri);
+                }
+            }
+            catch (RepoSettingsNotFoundException rnf)
+            {
+                // do nothing
+                return;
+            }
         }
     }
 }

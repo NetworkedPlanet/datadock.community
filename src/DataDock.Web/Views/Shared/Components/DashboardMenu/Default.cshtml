@@ -46,7 +46,7 @@
       <div class="text">
         @if (string.IsNullOrEmpty(Model.SelectedRepoId))
         {
-          <span>Repositories</span>
+          <a class="no-underline" href="/@Model.SelectedOwnerId/repositories" title="@Model.SelectedOwnerId Repository List">Repositories</a>
         }
         else
         {

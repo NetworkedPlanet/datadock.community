@@ -1,89 +1,117 @@
 ﻿@model DataDock.Web.ViewModels.DashboardMenuViewModel
-
-<div class="ui pointing menu">
-  <!-- summary list menu item-->
-
-  <a class="item @Model.AreaIsActive("summary")" href="@Model.SelectedOwnerId" title="Summary">
-    <img class="ui avatar image" src="@Model.SelectedOwnerAvatarUrl">
-    @Model.SelectedOwnerId
-  </a>
-  <!-- end summary list menu item-->
-  <!-- repo list menu item-->
   @{
     var activeOwner = Model.GetActiveOwner();
-    if (activeOwner.Repositories.Count < 1)
+  }
+<div class="ui pointing menu">
+  <!-- summary list menu item-->
+  
+  @{
+    if (Model.Owners.Count == 1)
     {
-      <a class="item @Model.AreaIsActive("repositories")" href="@Model.SelectedOwnerId/repositories" title="Repositories"><i class="hdd icon"></i> Repositories</a>
+      <a class="item @Model.AreaIsActive("summary")" href="@Model.SelectedOwnerId" title="Dashboard"><img class="ui avatar image" src="@Model.SelectedOwnerAvatarUrl">
+        @Model.SelectedOwnerId</a>
     }
     else
     {
-      // no repositories set up in datadock
+      //list
+      <div class="item">
+        <div class="ui simple dropdown">
+          <div class="text">
+            <img class="ui avatar image" src="@Model.SelectedOwnerAvatarUrl">
+            @Model.SelectedOwnerId
+          </div>
+          <i class="dropdown icon"></i>
+          <div class="menu">
+            @foreach (var owner in Model.Owners)
+            {
+              <a class="item no-underline" href="@owner.OwnerId" title="@owner.OwnerId Dashboard">
+                <img class="ui avatar image" src="@owner.AvatarUrl" alt="@owner.OwnerId"/>
+                @owner.OwnerId
+              </a>
+            }
+          </div><!-- menu -->
+        </div><!-- simple dropdown -->
+      </div>
+      <!-- item -->
+    }
+  }
+        <!-- end summary list menu item-->
+        <!-- repo list menu item-->
+        @{
+
+    if (activeOwner.Repositories.Count < 1)
+    {
+      <a class="item @Model.AreaIsActive("repositories")" href="@Model.SelectedOwnerId/repositories" title="Repositories"><i class="hdd icon"></i> Repositories</a>
+}
+else
+{
+// no repositories set up in datadock
       <!-- repo list menu item-->
       <div class="item">
         <div class="ui simple dropdown">
 
           @if (string.IsNullOrEmpty(Model.SelectedRepoId))
-          {
-          <div class="text">
-            Repositories
-          </div>
-          }
-          else
-          {
-            <div class="text">
-              @Model.SelectedRepoId
-            </div>
-          }
+    {
+      <div class="text">
+        Repositories
+      </div>
+}
+else
+{
+      <div class="text">
+        @Model.SelectedRepoId
+      </div>
+}
           @{
-            var repos = Model.Owners.FirstOrDefault(o => o.OwnerId.Equals(Model.SelectedOwnerId))?.Repositories;
-            if (repos != null && repos.Count > 0)
-            {
-              <i class="dropdown icon"></i>
-              <div class="menu">
-                <a class="item @Model.AreaIsActive("repositories")" href="@Model.SelectedOwnerId/repositories" title="Repositories"><i class="cubes icon"></i> All</a>
+      var repos = Model.Owners.FirstOrDefault(o => o.OwnerId.Equals(Model.SelectedOwnerId))?.Repositories;
+      if (repos != null && repos.Count > 0)
+      {
+        <i class="dropdown icon"></i>
+        <div class="menu">
+          <a class="item @Model.AreaIsActive("repositories")" href="@Model.SelectedOwnerId/repositories" title="Repositories"><i class="cubes icon"></i> All</a>
 
-                @foreach (var repo in repos)
-                {
-                  var repoLink = $"/{repo.OwnerId}/{repo.RepoId}";
-                  if (Model.SelectedOwnerId.Equals(repo.OwnerId) && Model.SelectedRepoId.Equals(repo.RepoId) && !Model.ActiveArea.Equals("summary", StringComparison.InvariantCultureIgnoreCase))
-                  {
-                    repoLink += $"/{Model.SelectedRepoId}";
-                  }
-                  if (!Model.ActiveArea.Equals("summary", StringComparison.InvariantCultureIgnoreCase) && !Model.ActiveArea.Equals("repositories", StringComparison.InvariantCultureIgnoreCase))
-                  {
-                    repoLink += $"/{Model.ActiveArea}";
-                  }
-                  var repoLinkTitle = $"Go to {repo.OwnerId}/{repo.RepoId} {Model.ActiveArea}";
+          @foreach (var repo in repos)
+    {
+      var repoLink = $"/{repo.OwnerId}/{repo.RepoId}";
+      if (Model.SelectedOwnerId.Equals(repo.OwnerId) && Model.SelectedRepoId.Equals(repo.RepoId) && !Model.ActiveArea.Equals("summary", StringComparison.InvariantCultureIgnoreCase))
+      {
+        repoLink += $"/{Model.SelectedRepoId}";
+      }
+      if (!Model.ActiveArea.Equals("summary", StringComparison.InvariantCultureIgnoreCase) && !Model.ActiveArea.Equals("repositories", StringComparison.InvariantCultureIgnoreCase))
+      {
+        repoLink += $"/{Model.ActiveArea}";
+      }
+      var repoLinkTitle = $"Go to {repo.OwnerId}/{repo.RepoId} {Model.ActiveArea}";
 
-                  <a class="item no-underline" href="@repoLink" title="@repoLinkTitle">
-                    <i class="large hdd outline icon"></i>
-                    @repo.RepoId
-                  </a>
-                }
-              </div>
-            }
+      <a class="item no-underline" href="@repoLink" title="@repoLinkTitle">
+        <i class="large hdd outline icon"></i>
+        @repo.RepoId
+      </a>
+}
+        </div>
+}
           }
 
         </div>
       </div>
-    }
-  }
-  <!-- end repo list menu item-->
-  <!-- datasets list menu item-->
-  <a class="item @Model.AreaIsActive("datasets")" href="@Model.GetDashContext()/datasets" title="Datasets"><i class="cubes icon"></i> Datasets</a>
-  <!-- end datasets list menu item-->
-  <!-- add data menu item-->
-  <a class="item @Model.AreaIsActive("import")" href="@Model.GetDashContext()/import" title="Add Data"><i class="upload icon"></i> Add Data</a>
-  <!-- end add data menu item-->
-  <!-- datasets list menu item-->
-  <a class="item @Model.AreaIsActive("jobs")" href="@Model.GetDashContext()/jobs" title="Jobs"><i class="history icon"></i> Job History</a>
-  <!-- end datasets list menu item-->
-  <!-- templates library menu item-->
-  <a class="item @Model.AreaIsActive("library")" href="@Model.GetDashContext()/library" title="Templates"><i class="book icon"></i> Template Library</a>
-  <!-- end template library menu item-->
-  <!-- settings menu item-->
-  <a class="item @Model.AreaIsActive("settings")" href="@Model.GetDashContext()/settings" title="Settings"><i class="cogs icon"></i> Settings</a>
-  <!-- end settings menu item-->
+}
+        }
+        <!-- end repo list menu item-->
+        <!-- datasets list menu item-->
+        <a class="item @Model.AreaIsActive("datasets")" href="@Model.GetDashContext()/datasets" title="Datasets"><i class="cubes icon"></i> Datasets</a>
+        <!-- end datasets list menu item-->
+        <!-- add data menu item-->
+        <a class="item @Model.AreaIsActive("import")" href="@Model.GetDashContext()/import" title="Add Data"><i class="upload icon"></i> Add Data</a>
+        <!-- end add data menu item-->
+        <!-- datasets list menu item-->
+        <a class="item @Model.AreaIsActive("jobs")" href="@Model.GetDashContext()/jobs" title="Jobs"><i class="history icon"></i> Job History</a>
+        <!-- end datasets list menu item-->
+        <!-- templates library menu item-->
+        <a class="item @Model.AreaIsActive("library")" href="@Model.GetDashContext()/library" title="Templates"><i class="book icon"></i> Template Library</a>
+        <!-- end template library menu item-->
+        <!-- settings menu item-->
+        <a class="item @Model.AreaIsActive("settings")" href="@Model.GetDashContext()/settings" title="Settings"><i class="cogs icon"></i> Settings</a>
+        <!-- end settings menu item-->
 
 
-</div><!-- menu -->
+      </div><!-- menu -->

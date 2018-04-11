@@ -42,16 +42,30 @@ namespace DataDock.Web.ViewComponents
 
         private async Task<List<JobHistoryViewModel>> GetOwnerJobHistory(string selectedOwnerId)
         {
-            var jobs = await _jobStore.GetJobsForOwner(selectedOwnerId);
-            var jobHistoriesHistoryViewModels = jobs.Select(j => new JobHistoryViewModel(j)).ToList();
-            return jobHistoriesHistoryViewModels;
+            try
+            {
+                var jobs = await _jobStore.GetJobsForOwner(selectedOwnerId);
+                var jobHistoriesHistoryViewModels = jobs.Select(j => new JobHistoryViewModel(j)).ToList();
+                return jobHistoriesHistoryViewModels;
+            }
+            catch (JobNotFoundException jnf)
+            {
+                return new List<JobHistoryViewModel>();
+            }
         }
 
         private async Task<List<JobHistoryViewModel>> GetRepoJobHistory(string selectedOwnerId, string selectedRepoId)
         {
-            var jobs = await _jobStore.GetJobsForRepository(selectedOwnerId, selectedRepoId);
-            var jobHistoriesHistoryViewModels = jobs.Select(j => new JobHistoryViewModel(j)).ToList();
-            return jobHistoriesHistoryViewModels;
+            try
+            {
+                var jobs = await _jobStore.GetJobsForRepository(selectedOwnerId, selectedRepoId);
+                var jobHistoriesHistoryViewModels = jobs.Select(j => new JobHistoryViewModel(j)).ToList();
+                return jobHistoriesHistoryViewModels;
+            }
+            catch (JobNotFoundException jnf)
+            {
+                return new List<JobHistoryViewModel>();
+            }
         }
     }
 }

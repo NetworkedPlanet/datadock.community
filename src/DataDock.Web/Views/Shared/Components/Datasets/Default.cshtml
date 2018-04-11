@@ -2,9 +2,8 @@
 @model List<DataDock.Web.ViewModels.DatasetViewModel>
 
 <div>Dataset List</div>
-@if (Model != null)
+@if (Model != null && Model.Count > 0)
 {
-    
   <div class="ui segments">
     @foreach (var ds in Model)
     {
@@ -37,5 +36,11 @@
         }
       </div>
     }
+  </div>
+}
+else
+{
+  <div class="ui warning message">
+    None found.
   </div>
 }

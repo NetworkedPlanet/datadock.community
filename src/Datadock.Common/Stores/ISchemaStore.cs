@@ -6,6 +6,8 @@ namespace Datadock.Common.Stores
 {
     public interface ISchemaStore
     {
+        IReadOnlyCollection<SchemaInfo> GetSchemasByOwner(string ownerId, int skip, int take);
+
         /// <summary>
         /// Get a list of schemas for the supplied owners
         /// </summary>
@@ -15,14 +17,17 @@ namespace Datadock.Common.Stores
         /// <returns>A list of <see cref="SchemaInfo"/> instances ordered by last modified date (most recent first)</returns>
         IReadOnlyCollection<SchemaInfo> GetSchemasByOwnerList(string[] ownerIds, int skip, int take);
 
+        IReadOnlyCollection<SchemaInfo> GetSchemasByRepository(string ownerId, string repositoryId, int skip, int take);
+
         /// <summary>
         /// Get a list of schemas for the supplied repositories
         /// </summary>
+        /// <param name="ownerId">The user or organization</param>
         /// <param name="repositoryIds">A list of repository IDs to match</param>
         /// <param name="skip">The number of results to skip</param>
         /// <param name="take">The number of results to return</param>
         /// <returns>A list of <see cref="SchemaInfo"/> instances ordered by last modified date (most recent first)</returns>
-        IReadOnlyCollection<SchemaInfo> GetSchemasByRepositoryList(string[] repositoryIds, int skip, int take);
+        IReadOnlyCollection<SchemaInfo> GetSchemasByRepositoryList(string ownerId, string[] repositoryIds, int skip, int take);
 
         /// <summary>
         /// Get a specific schema by Id

@@ -39,9 +39,8 @@ namespace Datadock.Common.Elasticsearch
 
         public async Task<IEnumerable<RepoSettings>> GetRepoSettingsForOwnerAsync(string ownerId)
         {
-            var response = await _client.SearchAsync<RepoSettings>(s => s
-                .From(0).Query(q => q.Match(m => m.Field(f => f.OwnerId).Query(ownerId)))
-            );
+            var response =
+                await _client.SearchAsync<RepoSettings>(s => s.Query(q => QueryHelper.QueryByOwnerId(q, ownerId)));
             if (!response.IsValid)
             {
                 throw new RepoSettingsStoreException(

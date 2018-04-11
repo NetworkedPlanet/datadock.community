@@ -30,7 +30,7 @@ namespace Datadock.Common.Elasticsearch
                 },
                 new TermQuery
                 {
-                    Field = new Field("repositoryid"),
+                    Field = new Field("repoId"),
                     Value = repositoryId
                 }
             };

@@ -36,6 +36,16 @@ namespace Datadock.Common.Stores
         Task<IEnumerable<DatasetInfo>> GetRecentlyUpdatedDatasetsForRepositories(string ownerId, string[] repositoryIds, int skip, int take, bool showHidden = false);
 
         /// <summary>
+        /// Get a list datasets for a specific owner
+        /// </summary>
+        /// <param name="ownerId">The owner (user / organization)</param>
+        /// <param name="skip">The number of results to skip</param>
+        /// <param name="take">The number of results to return</param>
+        /// <returns>A list of <see cref="DatasetInfo"/> instances</returns>
+
+        Task<IEnumerable<DatasetInfo>> GetDatasetsForOwner(string ownerId, int skip, int take);
+
+        /// <summary>
         /// Get a list datasets for a specific repository
         /// </summary>
         /// <param name="ownerId">The owner of the repository</param>

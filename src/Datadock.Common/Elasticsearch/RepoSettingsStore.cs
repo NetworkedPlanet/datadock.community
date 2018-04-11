@@ -47,7 +47,7 @@ namespace Datadock.Common.Elasticsearch
                 throw new RepoSettingsStoreException(
                     $"Error retrieving repository settings for owner {ownerId}. Cause: {response.DebugInformation}");
             }
-            if (response.Total < 1) throw new RepoSettingsNotFoundException($"{ownerId}");
+            if (response.Total < 1) throw new RepoSettingsNotFoundException(ownerId);
             return response.Documents;
         }
 
@@ -62,7 +62,7 @@ namespace Datadock.Common.Elasticsearch
                 throw new RepoSettingsStoreException(
                     $"Error retrieving repository settings for repo ID {repoId} on owner {ownerId}. Cause: {response.DebugInformation}");
             }
-            if (response.Total < 1) throw new RepoSettingsNotFoundException($"{ownerId}/{repoId}");
+            if (response.Total < 1) throw new RepoSettingsNotFoundException(ownerId, repoId);
             return response.Documents.FirstOrDefault();
         }
 

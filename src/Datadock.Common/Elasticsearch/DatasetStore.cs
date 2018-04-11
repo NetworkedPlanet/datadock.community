@@ -138,6 +138,22 @@ namespace Datadock.Common.Elasticsearch
 
         }
 
+        public async Task<IEnumerable<DatasetInfo>> GetDatasetsForOwner(string ownerId, int skip, int take)
+        {
+            if (string.IsNullOrEmpty(ownerId)) throw new ArgumentNullException(nameof(ownerId));
+
+            var response = await _client.SearchAsync<DatasetInfo>(s => s
+                .From(0).Query(q => q.Match(m => m.Field(f => f.OwnerId).Query(ownerId)))
+            );
+            if (!response.IsValid)
+            {
+                throw new DatasetStoreException(
+                    $"Error retrieving datasets for owner {ownerId}. Cause: {response.DebugInformation}");
+            }
+            if (response.Total < 1) throw new DatasetNotFoundException(ownerId);
+            return response.Documents;
+        }
+
         public async Task<IEnumerable<DatasetInfo>> GetDatasetsForRepository(string ownerId, string repositoryId, int skip, int take)
         {
             if (string.IsNullOrEmpty(ownerId)) throw new ArgumentNullException(nameof(ownerId));

@@ -7,6 +7,13 @@
 
     <h4 class="ui dividing header">Data Publisher Details</h4>
 
+    <div class="field">
+      @Html.LabelFor(m => m.DefaultPublisherType, new {@class = ""})
+      <div class="">
+        @Html.DropDownListFor(m => m.DefaultPublisherType, Model.PublisherTypes, new {@class = ""})
+        @Html.ValidationMessageFor(m => m.DefaultPublisherType)
+      </div>
+    </div>
 
     <div class="field">
       @Html.LabelFor(m => m.DefaultPublisherName, new { @class = "" })

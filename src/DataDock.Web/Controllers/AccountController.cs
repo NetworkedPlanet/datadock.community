@@ -360,6 +360,16 @@ namespace DataDock.Web.Controllers
                         Log.Error($"Error deleting datasets during user account {User.Identity.Name} deletion", e);
                     }
 
+                    // templates
+                    try
+                    {
+                        await _schemaStore.DeleteSchemaRecordsForOwnerAsync(User.Identity.Name);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error($"Error deleting templates during user account {User.Identity.Name} deletion", e);
+                    }
+
                     // jobs
                     try
                     {

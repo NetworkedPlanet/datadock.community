@@ -9,47 +9,51 @@ namespace Datadock.Common.Models
         /// <summary>
         /// Combined owner and repo IDs in the format {ownerId}/{repoId}
         /// </summary>
+        [Keyword]
         public string FullId { get; set; }
 
         /// <summary>
         /// The repository owner
         /// </summary>
+        [Keyword]
         public string OwnerId { get; set; }
 
         /// <summary>
         /// The DataDock repository ID
         /// </summary>
+        [Keyword]
         public string RepoId { get; set; }
 
+        [Boolean]
         public bool OwnerIsOrg { get; set; }
 
+        [Keyword]
         public string CloneUrl { get; set; }
-
-        /// <summary>
-        /// GitHub repository name
-        /// </summary>
-        public string Name { get; set; }
-
+        
         /// <summary>
         /// The link to the avatar image of the repository owner (may be null)
         /// </summary>
+        [Text]
         public string OwnerAvatar { get; set; }
 
         /// <summary>
-        /// The Lodlab publisher metadata for this repository
+        /// The publisher metadata for this repository
         /// </summary>
         public ContactInfo DefaultPublisher { get; set; }
 
         /// <summary>
         /// Date and time that the settings were last changed
         /// </summary>
+        [Date]
         public DateTime LastModified { get; set; }
 
         /// <summary>
         /// UserId of the person who last changed the settings
         /// </summary>
+        [Keyword]
         public string LastModifiedBy { get; set; }
 
+        [Text]
         public string SearchButtons { get; set; }
 
     }

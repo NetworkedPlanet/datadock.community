@@ -3,7 +3,9 @@ using Nest;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Datadock.Common.Stores;
 using Datadock.Common.Validators;
@@ -54,9 +56,18 @@ namespace Datadock.Common.Elasticsearch
         {
             if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
             if (repoId == null) throw new ArgumentNullException(nameof(repoId));
-            var response =
-                await _client.SearchAsync<RepoSettings>(s => s.Query(q => QueryHelper.QueryByOwnerIdAndRepositoryId(q, ownerId, repoId)));
 
+            var search = new SearchDescriptor<RepoSettings>().Query(q => QueryHelper.QueryByOwnerIdAndRepositoryId(q, ownerId, repoId));
+            using (var ms = new MemoryStream())
+            {
+                _client.RequestResponseSerializer.Serialize(search, ms);
+                var rawQuery = Encoding.UTF8.GetString(ms.ToArray());
+                Console.WriteLine(rawQuery);
+            }
+
+            var response =
+                await _client.SearchAsync<RepoSettings>(search);
+            
             if (!response.IsValid)
             {
                 throw new RepoSettingsStoreException(

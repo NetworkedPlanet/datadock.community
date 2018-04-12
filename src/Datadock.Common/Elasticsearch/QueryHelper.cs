@@ -19,9 +19,9 @@ namespace Datadock.Common.Elasticsearch
             return new BoolQuery { Must = mustClauses };
         }
 
-        public static QueryContainer QueryByOwnerIdAndRepositoryId(QueryContainerDescriptor<RepoSettings> q, string ownerId, string repositoryId)
+        public static QueryContainer QueryByOwnerIdAndRepositoryId(QueryContainerDescriptor<RepoSettings> q, string ownerId, string repoId)
         {
-            var mustClauses = new List<QueryContainer>
+            var filterClauses = new List<QueryContainer>
             {
                 new TermQuery
                 {
@@ -31,10 +31,10 @@ namespace Datadock.Common.Elasticsearch
                 new TermQuery
                 {
                     Field = new Field("repoId"),
-                    Value = repositoryId
+                    Value = repoId
                 }
             };
-            return new BoolQuery { Must = mustClauses };
+            return new BoolQuery { Filter = filterClauses };
         }
 
     }

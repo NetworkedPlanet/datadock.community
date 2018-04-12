@@ -8,5 +8,7 @@ namespace Datadock.Common.Stores
         Task<OwnerSettings> GetOwnerSettingsAsync(string ownerId);
 
         Task CreateOrUpdateOwnerSettingsAsync(OwnerSettings ownerSettings);
+
+        Task<bool> DeleteOwnerSettingsAsync(string ownerId);
     }
 }

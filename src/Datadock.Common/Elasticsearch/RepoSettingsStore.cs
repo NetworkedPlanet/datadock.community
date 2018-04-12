@@ -41,14 +41,30 @@ namespace Datadock.Common.Elasticsearch
 
         public async Task<IEnumerable<RepoSettings>> GetRepoSettingsForOwnerAsync(string ownerId)
         {
+            if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
+            
+            var search = new SearchDescriptor<RepoSettings>().Query(q => QueryByOwnerId(q, ownerId));
+            var rawQuery = "";
+            using (var ms = new MemoryStream())
+            {
+                _client.RequestResponseSerializer.Serialize(search, ms);
+                rawQuery = Encoding.UTF8.GetString(ms.ToArray());
+                Console.WriteLine(rawQuery);
+            }
             var response =
-                await _client.SearchAsync<RepoSettings>(s => s.Query(q => QueryByOwnerId(q, ownerId)));
+                await _client.SearchAsync<RepoSettings>(search);
+
             if (!response.IsValid)
             {
                 throw new RepoSettingsStoreException(
                     $"Error retrieving repository settings for owner {ownerId}. Cause: {response.DebugInformation}");
             }
-            if (response.Total < 1) throw new RepoSettingsNotFoundException(ownerId);
+
+            if (response.Total < 1)
+            {
+                Log.Warning($"No settings found with query {rawQuery}");
+                throw new RepoSettingsNotFoundException(ownerId);
+            }
             return response.Documents;
         }
 
@@ -56,12 +72,12 @@ namespace Datadock.Common.Elasticsearch
         {
             if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
             if (repoId == null) throw new ArgumentNullException(nameof(repoId));
-
+            var rawQuery = "";
             var search = new SearchDescriptor<RepoSettings>().Query(q => QueryByOwnerIdAndRepositoryId(q, ownerId, repoId));
             using (var ms = new MemoryStream())
             {
                 _client.RequestResponseSerializer.Serialize(search, ms);
-                var rawQuery = Encoding.UTF8.GetString(ms.ToArray());
+                rawQuery = Encoding.UTF8.GetString(ms.ToArray());
                 Console.WriteLine(rawQuery);
             }
 
@@ -73,7 +89,12 @@ namespace Datadock.Common.Elasticsearch
                 throw new RepoSettingsStoreException(
                     $"Error retrieving repository settings for repo ID {repoId} on owner {ownerId}. Cause: {response.DebugInformation}");
             }
-            if (response.Total < 1) throw new RepoSettingsNotFoundException(ownerId, repoId);
+
+            if (response.Total < 1)
+            {
+                Log.Warning($"No settings found with query {rawQuery}");
+                throw new RepoSettingsNotFoundException(ownerId, repoId);
+            }
             return response.Documents.FirstOrDefault();
         }
 
@@ -95,6 +116,16 @@ namespace Datadock.Common.Elasticsearch
             {
                 throw new OwnerSettingsStoreException($"Error updating repo settings for owner/repo ID {settings.RepoId}");
             }
+        }
+
+        public async Task<bool> DeleteRepoSettingsAsync(string ownerId, string repoId)
+        {
+            if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
+            if (repoId == null) throw new ArgumentNullException(nameof(repoId));
+
+            string documentId = $"{ownerId}/{repoId}";
+            var response = await _client.DeleteAsync<RepoSettings>(documentId);
+            return response.IsValid;
         }
 
         private static QueryContainer QueryByOwnerId(QueryContainerDescriptor<RepoSettings> q, string ownerId)

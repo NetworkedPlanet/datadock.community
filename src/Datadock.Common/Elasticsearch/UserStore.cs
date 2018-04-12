@@ -62,7 +62,7 @@ namespace Datadock.Common.Elasticsearch
             var response = await _client.GetAsync<UserSettings>(userId);
             if (!response.IsValid)
             {
-                if (!response.Found) throw new UserAccountNotFoundException(userId);
+                if (!response.Found) throw new UserSettingsNotFoundException(userId);
                 throw new UserStoreException(
                     $"Error retrieving user account for user ID {userId}. Cause: {response.DebugInformation}");
             }
@@ -83,6 +83,12 @@ namespace Datadock.Common.Elasticsearch
             {
                 throw new UserStoreException($"Error udpating user settings for user ID {userSettings.UserId}");
             }
+        }
+
+        public async Task<bool> DeleteUserSettingsAsync(string userId)
+        {
+            var response = await _client.DeleteAsync<UserSettings>(userId);
+            return response.IsValid;
         }
 
         public async Task<UserAccount> CreateUserAsync(string userId, IEnumerable<Claim> claims)

@@ -60,12 +60,8 @@ namespace DataDock.Web
             services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
 
             services.AddMvc();
-            services.AddRouting(options =>
-            {
-                options.LowercaseUrls = true;
-            });
 
-            services.Configure<DataDock.Web.Config.ClientConfiguration>(Configuration.GetSection("ClientConfiguration"));
+            services.Configure<Config.ClientConfiguration>(Configuration.GetSection("ClientConfiguration"));
 
 
             services.AddSignalR();
@@ -229,174 +225,134 @@ namespace DataDock.Web
             
             app.UseMvc(routes =>
             {
+
+                // {ownerId}
                 routes.MapRoute(
                 name: "OwnerProfile",
                 template: "{ownerId}",
                 defaults: new { controller = "Owner", action = "Index" },
-                constraints: new { ownerId = new NonDashboardConstraint() }
-            );
+                constraints: new { ownerId = new OwnerIdConstraint() });
+
                 routes.MapRoute(
                     name: "OwnerRepos",
                     template: "{ownerId}/repositories",
                     defaults: new { controller = "Owner", action = "Repositories" },
-                    constraints: new { ownerId = new NonDashboardConstraint() }
+                    constraints: new { ownerId = new OwnerIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "OwnerDatasets",
                     template: "{ownerId}/datasets",
                     defaults: new { controller = "Owner", action = "Datasets" },
-                    constraints: new { ownerId = new NonDashboardConstraint() }
+                    constraints: new { ownerId = new OwnerIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "OwnerJobs",
                     template: "{ownerId}/jobs",
                     defaults: new { controller = "Owner", action = "Jobs" },
-                    constraints: new { ownerId = new NonDashboardConstraint() }
+                    constraints: new { ownerId = new OwnerIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "OwnerLibrary",
                     template: "{ownerId}/library",
                     defaults: new { controller = "Owner", action = "Library" },
-                    constraints: new { ownerId = new NonDashboardConstraint() }
+                    constraints: new { ownerId = new OwnerIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "OwnerDeleteSchema",
                     template: "{ownerId}/library/{schemaId}/delete",
                     defaults: new { controller = "Owner", action = "DeleteSchema" },
-                    constraints: new { ownerId = new NonDashboardConstraint() }
+                    constraints: new { ownerId = new OwnerIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "OwnerImport",
                     template: "{ownerId}/import/{schemaId?}",
                     defaults: new { controller = "Owner", action = "Import"},
-                    constraints: new { ownerId = new NonDashboardConstraint() }
+                    constraints: new { ownerId = new OwnerIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "OwnerSettings",
                     template: "{ownerId}/settings",
                     defaults: new { controller = "Owner", action = "Settings" },
-                    constraints: new { ownerId = new NonDashboardConstraint() }
+                    constraints: new { ownerId = new OwnerIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "OwnerAccount",
                     template: "{ownerId}/account",
                     defaults: new { controller = "Owner", action = "Account" },
-                    constraints: new { ownerId = new NonDashboardConstraint() }
+                    constraints: new { ownerId = new OwnerIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "OwnerAccountReset",
                     template: "{ownerId}/account/reset",
                     defaults: new { controller = "Owner", action = "ResetToken" },
-                    constraints: new { ownerId = new NonDashboardConstraint() }
+                    constraints: new { ownerId = new OwnerIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "OwnerAccountDelete",
                     template: "{ownerId}/account/delete",
                     defaults: new { controller = "Owner", action = "DeleteAccount" },
-                    constraints: new { ownerId = new NonDashboardConstraint() }
-                );
-                routes.MapRoute(
-                    name: "OwnerStats",
-                    template: "{ownerId}/stats",
-                    defaults: new { controller = "Owner", action = "Stats" },
-                    constraints: new { ownerId = new NonDashboardConstraint() }
-                );
-                routes.MapRoute(
-                    name: "OwnerSchemas",
-                    template: "{ownerId}/schemas",
-                    defaults: new { controller = "Owner", action = "Schemas" },
-                    constraints: new { ownerId = new NonDashboardConstraint() }
+                    constraints: new { ownerId = new OwnerIdConstraint() }
                 );
 
-                routes.MapRoute(
-                    name: "PfWebhooks",
-                    template: "{ownerId}/webhooks",
-                    defaults: new { controller = "Owner", action = "Webhooks" },
-                    constraints: new { ownerId = new NonDashboardConstraint() }
-                );
-                routes.MapRoute(
-                    name: "PfDomains",
-                    template: "{ownerId}/domains",
-                    defaults: new { controller = "Owner", action = "Domains" },
-                    constraints: new { ownerId = new NonDashboardConstraint() }
-                );
-                routes.MapRoute(
-                    name: "PfValidation",
-                    template: "{ownerId}/validation",
-                    defaults: new { controller = "Owner", action = "Validation" },
-                    constraints: new { ownerId = new NonDashboardConstraint() }
-                );
-                routes.MapRoute(
-                    name: "PfAnalytics",
-                    template: "{ownerId}/analytics",
-                    defaults: new { controller = "Owner", action = "Analytics" },
-                    constraints: new { ownerId = new NonDashboardConstraint() }
-                );
-                routes.MapRoute(
-                    name: "PfVisualizations",
-                    template: "{ownerId}/visualizations",
-                    defaults: new { controller = "Owner", action = "Visualizations" },
-                    constraints: new { ownerId = new NonDashboardConstraint() }
-                );
+
+                // {ownerId}/{repoId}
 
                 routes.MapRoute(
                     name: "RepoSummary",
                     template: "{ownerId}/{repoId}",
                     defaults: new { controller = "Repository", action = "Index" },
-                    constraints: new { ownerId = new NonDashboardConstraint() }
+                    constraints: new { ownerId = new OwnerIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "RepoDatasets",
                     template: "{ownerId}/{repoId}/datasets",
                     defaults: new { controller = "Repository", action = "Datasets" },
-                    constraints: new { ownerId = new NonDashboardConstraint() }
+                    constraints: new { ownerId = new OwnerIdConstraint(), repoId = new RepoIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "RepoJobs",
                     template: "{ownerId}/{repoId}/jobs",
                     defaults: new { controller = "Repository", action = "Jobs" },
-                    constraints: new { ownerId = new NonDashboardConstraint() }
+                    constraints: new { ownerId = new OwnerIdConstraint(), repoId = new RepoIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "RepoLibrary",
                     template: "{ownerId}/{repoId}/library",
                     defaults: new { controller = "Repository", action = "Library" },
-                    constraints: new { ownerId = new NonDashboardConstraint() }
+                    constraints: new { ownerId = new OwnerIdConstraint(), repoId = new RepoIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "RepoImport",
                     template: "{ownerId}/{repoId}/import/{schemaId?}",
                     defaults: new { controller = "Repository", action = "Import"},
-                    constraints: new { ownerId = new NonDashboardConstraint() }
+                    constraints: new { ownerId = new OwnerIdConstraint(), repoId = new RepoIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "RepoSettings",
                     template: "{ownerId}/{repoId}/settings",
                     defaults: new { controller = "Repository", action = "Settings" },
-                    constraints: new { ownerId = new NonDashboardConstraint() }
-                );
-                routes.MapRoute(
-                    name: "RepoStats",
-                    template: "{ownerId}/{repoId}/stats",
-                    defaults: new { controller = "Repository", action = "Stats" },
-                    constraints: new { ownerId = new NonDashboardConstraint() }
+                    constraints: new { ownerId = new OwnerIdConstraint(), repoId = new RepoIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "Dataset",
                     template: "{ownerId}/{repoId}/{datasetId}/view",
                     defaults: new { controller = "Repository", action = "Dataset" },
-                    constraints: new { ownerId = new NonDashboardConstraint() }
+                    constraints: new { ownerId = new OwnerIdConstraint(), repoId = new RepoIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "DeleteDataset",
                     template: "{ownerId}/{repoId}/{datasetId}/delete",
                     defaults: new { controller = "Repository", action = "DeleteDataset" },
-                    constraints: new { ownerId = new NonDashboardConstraint() }
+                    constraints: new { ownerId = new OwnerIdConstraint(), repoId = new RepoIdConstraint() }
                 );
+
+                // account
                 routes.MapRoute(
                     name: "SignUp",
                     template: "account/signup",
                     defaults: new { controller = "Account", action = "SignUp" });
+
+                // default
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");

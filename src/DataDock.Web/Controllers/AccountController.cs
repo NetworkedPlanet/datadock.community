@@ -21,11 +21,24 @@ namespace DataDock.Web.Controllers
     {
         private readonly IUserStore _userStore;
         private readonly IOwnerSettingsStore _ownerSettingsStore;
+        private readonly IRepoSettingsStore _repoSettingsStore;
+        private readonly IDatasetStore _datasetStore;
+        private readonly IJobStore _jobStore;
+        private readonly ISchemaStore _schemaStore;
 
-        public AccountController(IUserStore userStore, IOwnerSettingsStore ownerSettingsStore)
+        public AccountController(IUserStore userStore, 
+            IOwnerSettingsStore ownerSettingsStore, 
+            IRepoSettingsStore repoSettingsStore, 
+            IDatasetStore datasetStore,
+            IJobStore jobStore,
+            ISchemaStore schemaStore)
         {
             _userStore = userStore;
             _ownerSettingsStore = ownerSettingsStore;
+            _repoSettingsStore = repoSettingsStore;
+            _datasetStore = datasetStore;
+            _jobStore = jobStore;
+            _schemaStore = schemaStore;
         }
 
         [HttpGet]
@@ -138,7 +151,7 @@ namespace DataDock.Web.Controllers
                     {
                         UserId = User.Identity.Name,
                         LastModified = DateTime.UtcNow,
-                        LastModifiedBy = "Account Created"
+                        LastModifiedBy = "DataDock"
                     };
                     await _userStore.CreateOrUpdateUserSettingsAsync(userSettings);
 
@@ -150,7 +163,7 @@ namespace DataDock.Web.Controllers
                         DisplayGitHubAvatar = true,
                         DisplayGitHubDescription = true,
                         LastModified = DateTime.UtcNow,
-                        LastModifiedBy = "Account Created"
+                        LastModifiedBy = "DataDock"
                     };
                     await _ownerSettingsStore.CreateOrUpdateOwnerSettingsAsync(userOwner);
 
@@ -198,7 +211,7 @@ namespace DataDock.Web.Controllers
             try
             {
                 var userSettings = await _userStore.GetUserSettingsAsync(User.Identity.Name);
-                var usvm = new UserSettingsViewModel(userSettings);
+                var usvm = new UserSettingsViewModel(userSettings) {Title = "User Account"};
                 return View(usvm);
             }
             catch (UserAccountNotFoundException notFoundEx)
@@ -281,20 +294,101 @@ namespace DataDock.Web.Controllers
         {
             try
             {
-                if (ModelState.IsValid && davm.Confirm)
+                if (!ModelState.IsValid || !davm.Confirm)
                 {
-                    var deleted = await _userStore.DeleteUserAsync(User.Identity.Name);
-                    if (deleted)
-                    {                       
-                        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                        return RedirectToAction("Index", "Home");
-                    }
-
-                    // error
-                    ViewBag.Message =
-                        "Unable to delete account at this time, if the problem persists please open a ticket with support.";
+                    ModelState.AddModelError("", "You must confirm that you want to delete your user account and associated settings.");
                     return View("Delete");
                 }
+                var deleted = await _userStore.DeleteUserAsync(User.Identity.Name);
+                if (deleted)
+                {
+                    // delete user's settings
+                    try
+                    {
+                        var us = await _userStore.GetUserSettingsAsync(User.Identity.Name);
+                        await _userStore.DeleteUserSettingsAsync(User.Identity.Name);
+                    }
+                    catch (UserSettingsNotFoundException e)
+                    {
+                        // no action needed 
+                    }
+                    catch (UserStoreException e)
+                    {
+                        Log.Error($"Error deleting user settings during user account {User.Identity.Name} deletion", e);
+                    }
+
+                    // repositories
+                    try
+                    {
+                        var repos = await _repoSettingsStore.GetRepoSettingsForOwnerAsync(User.Identity.Name);
+                        foreach (var r in repos)
+                        {
+                            await _repoSettingsStore.DeleteRepoSettingsAsync(r.OwnerId, r.RepoId);
+                        }
+                    }
+                    catch (RepoSettingsNotFoundException e)
+                    {
+                        // no action needed
+                    }
+                    catch (RepoSettingsStoreException e)
+                    {
+                        Log.Error($"Error deleting repo settings during user account {User.Identity.Name} deletion", e);
+                    }
+
+                    // owner settings
+                    try
+                    {
+                        var owner = await _ownerSettingsStore.GetOwnerSettingsAsync(User.Identity.Name);
+                        await _ownerSettingsStore.DeleteOwnerSettingsAsync(owner.OwnerId);
+                    }
+                    catch (OwnerSettingsNotFoundException e)
+                    {
+                        // no action needed
+                    }
+                    catch (OwnerSettingsStoreException e)
+                    {
+                        Log.Error($"Error deleting owner settings during user account {User.Identity.Name} deletion", e);
+                    }
+
+                    // datasets
+                    try
+                    {
+                        await _datasetStore.DeleteDatasetsForOwnerAsync(User.Identity.Name);
+                    }
+                    catch (DatasetStoreException e)
+                    {
+                        Log.Error($"Error deleting datasets during user account {User.Identity.Name} deletion", e);
+                    }
+
+                    // templates
+                    try
+                    {
+                        await _schemaStore.DeleteSchemaRecordsForOwnerAsync(User.Identity.Name);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error($"Error deleting templates during user account {User.Identity.Name} deletion", e);
+                    }
+
+                    // jobs
+                    try
+                    {
+                        await _jobStore.DeleteJobsForOwnerAsync(User.Identity.Name);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error($"Error deleting jobs during user account {User.Identity.Name} deletion", e);
+                    }
+                        
+
+                    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                    return RedirectToAction("Index", "Home");
+                }
+
+                // error
+                ViewBag.Message =
+                    "Unable to delete account at this time, if the problem persists please open a ticket with support.";
+                return View("Delete");
 
                 return View("Delete");
 

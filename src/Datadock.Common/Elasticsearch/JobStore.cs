@@ -213,18 +213,33 @@ namespace Datadock.Common.Elasticsearch
             return null;
         }
 
-        public async Task<bool> UpdateJobStatus(JobInfo jobInfo, JobStatus newStatus)
+        public async Task<bool> DeleteJobAsync(string jobId)
         {
-            jobInfo.RefreshedTimestamp = DateTime.UtcNow.Ticks;
-            jobInfo.CurrentStatus = newStatus;
+            throw new NotImplementedException();
+        }
 
-            var indexResponse = await _client.IndexAsync(jobInfo, desc => desc
-                .Id(jobInfo.JobId));
-            if (indexResponse.IsValid)
+        public async Task<bool> DeleteJobsForOwnerAsync(string ownerId)
+        {
+            var deleteResponse = await _client.DeleteByQueryAsync<JobInfo>(s => s.Query(q => QueryByOwnerId(q, ownerId)));
+            if (!deleteResponse.IsValid)
             {
-                return true;
+                throw new JobStoreException(
+                    $"Failed to delete all jobs owned by {ownerId}");
             }
-            return false;
+            return true;
+        }
+
+        private static QueryContainer QueryByOwnerId(QueryContainerDescriptor<JobInfo> q, string ownerId)
+        {
+            var filterClauses = new List<QueryContainer>
+            {
+                new TermQuery
+                {
+                    Field = new Field("ownerId"),
+                    Value = ownerId
+                }
+            };
+            return new BoolQuery { Filter = filterClauses };
         }
     }
 }

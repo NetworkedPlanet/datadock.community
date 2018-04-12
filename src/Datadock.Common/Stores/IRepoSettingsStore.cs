@@ -9,5 +9,6 @@ namespace Datadock.Common.Stores
         Task<IEnumerable<RepoSettings>> GetRepoSettingsForOwnerAsync(string ownerId);
         Task<RepoSettings> GetRepoSettingsAsync(string ownerId, string repoId);
         Task CreateOrUpdateRepoSettingsAsync(RepoSettings settings);
+        Task<bool> DeleteRepoSettingsAsync(string ownerId, string repoId);
     }
 }

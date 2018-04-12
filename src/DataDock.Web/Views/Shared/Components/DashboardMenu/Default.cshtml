@@ -73,10 +73,7 @@ else
           @foreach (var repo in repos)
     {
       var repoLink = $"/{repo.OwnerId}/{repo.RepoId}";
-      if (Model.SelectedOwnerId.Equals(repo.OwnerId) && Model.SelectedRepoId.Equals(repo.RepoId) && !Model.ActiveArea.Equals("summary", StringComparison.InvariantCultureIgnoreCase))
-      {
-        repoLink += $"/{Model.SelectedRepoId}";
-      }
+     
       if (!Model.ActiveArea.Equals("summary", StringComparison.InvariantCultureIgnoreCase) && !Model.ActiveArea.Equals("repositories", StringComparison.InvariantCultureIgnoreCase))
       {
         repoLink += $"/{Model.ActiveArea}";

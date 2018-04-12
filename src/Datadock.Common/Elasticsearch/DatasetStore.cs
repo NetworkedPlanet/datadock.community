@@ -245,14 +245,33 @@ namespace Datadock.Common.Elasticsearch
             return datasetInfo;
         }
 
-        public Task<bool> DeleteDatasetsForOwnerAsync(string ownerId)
+        public async Task<bool> DeleteDatasetsForOwnerAsync(string ownerId)
         {
-            throw new NotImplementedException();
+            var deleteResponse = await _client.DeleteByQueryAsync<DatasetInfo>(s => s.Query(q => QueryByOwnerId(q, ownerId)));
+            if (!deleteResponse.IsValid)
+            {
+                throw new DatasetStoreException(
+                    $"Failed to delete all datasets owned by {ownerId}");
+            }
+            return true;
         }
 
         public Task DeleteDatasetAsync(string ownerId, string repositoryId, string datasetId)
         {
             throw new NotImplementedException();
+        }
+
+        private static QueryContainer QueryByOwnerId(QueryContainerDescriptor<DatasetInfo> q, string ownerId)
+        {
+            var filterClauses = new List<QueryContainer>
+            {
+                new TermQuery
+                {
+                    Field = new Field("ownerId"),
+                    Value = ownerId
+                }
+            };
+            return new BoolQuery { Filter = filterClauses };
         }
     }
 }

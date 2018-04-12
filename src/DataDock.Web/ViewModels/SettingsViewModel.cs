@@ -1,6 +1,8 @@
 ﻿using Datadock.Common.Models;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace DataDock.Web.ViewModels
 {
@@ -25,7 +27,12 @@ namespace DataDock.Web.ViewModels
         [Display(Name = "Publisher Website", GroupName = "Publisher", Order = 3)]
         [DataType(DataType.Url, ErrorMessage = "Website address is not valid")]
         public string DefaultPublisherWebsite { get; set; }
-        
+
+        public IEnumerable<SelectListItem> PublisherTypes { get; set; }
+        /*
+         * Portal Settings
+         */
+
         [Display(Name = "Portal Search Buttons")]
         public string SearchButtons { get; set; }
 
@@ -35,6 +42,14 @@ namespace DataDock.Web.ViewModels
          */
         public DateTime LastModified { get; set; }
         public string LastModifiedBy { get; set; }
-        
+
+        public SettingsViewModel()
+        {
+            this.PublisherTypes = new List<SelectListItem>
+            {
+                new SelectListItem { Text = "Person", Value = "http://xmlns.com/foaf/0.1/Person" },
+                new SelectListItem { Text = "Organization", Value = "http://xmlns.com/foaf/0.1/Organization" }
+            };
+        }
     }
 }

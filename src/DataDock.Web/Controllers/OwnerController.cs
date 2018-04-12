@@ -136,6 +136,7 @@ namespace DataDock.Web.Controllers
                 {
                     settingsViewModel.LastModified = DateTime.UtcNow;
                     settingsViewModel.LastModifiedBy = User.Identity.Name;
+                    if (!ownerId.Equals(User.Identity.Name)) settingsViewModel.OwnerIsOrg = true;
                     var ownerSettings = settingsViewModel.AsOwnerSettings();
                     await _ownerSettingsStore.CreateOrUpdateOwnerSettingsAsync(ownerSettings);
                     ViewBag.StatusMessage = GetSettingsStatusMessage(ManageMessageId.ChangeSettingSuccess);

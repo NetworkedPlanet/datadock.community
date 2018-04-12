@@ -37,6 +37,7 @@ namespace Datadock.Common.Elasticsearch
 
         public async Task<OwnerSettings> GetOwnerSettingsAsync(string ownerId)
         {
+            if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
             var response = await _client.GetAsync<OwnerSettings>(ownerId);
             if (!response.IsValid)
             {

@@ -5,5 +5,5 @@
 }
 
 <div class="ui container">
-  template library page
+  @await Component.InvokeAsync("Templates", new { selectedOwnerId = Model.SelectedOwnerId, selectedRepoId = Model.SelectedRepoId })
 </div>

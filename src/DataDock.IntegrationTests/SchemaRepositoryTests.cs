@@ -143,7 +143,7 @@ namespace DataDock.IntegrationTests
         public void ItCanRetrieveMultipleSchemasForMultipleRepositories()
         {
             var results =
-                _repo.GetSchemasByRepositoryList(new[] {"owner_1/repo_0", "owner_1/repo_1", "owner_1/repo_2"}, 0, 10);
+                _repo.GetSchemasByRepositoryList("owner_1", new[] {"repo_0", "repo_1", "repo_2"}, 0, 10);
             results.Count.Should().Be(3);
             foreach (var r in results)
             {

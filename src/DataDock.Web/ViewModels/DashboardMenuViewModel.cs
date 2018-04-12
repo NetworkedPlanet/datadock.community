@@ -1,6 +1,7 @@
 ﻿using DataDock.Web.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DataDock.Web.ViewModels
 {
@@ -44,6 +45,13 @@ namespace DataDock.Web.ViewModels
         {
             if (string.IsNullOrEmpty(area)) return string.Empty;
             return area.Equals(ActiveArea, StringComparison.InvariantCultureIgnoreCase) ? "active" : string.Empty;
+        }
+
+        public OwnerInfo GetActiveOwner()
+        {
+            var owner = this.Owners.FirstOrDefault(o =>
+                o.OwnerId.Equals(this.SelectedOwnerId, StringComparison.InvariantCultureIgnoreCase));
+            return owner;
         }
     }
 }

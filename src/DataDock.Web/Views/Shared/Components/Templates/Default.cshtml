@@ -1,0 +1,41 @@
+﻿@using System.Globalization
+@model List<DataDock.Web.ViewModels.TemplateViewModel>
+
+@if (Model != null && Model.Count > 0)
+{
+  <div class="ui segments">
+    @foreach (var template in Model)
+    {
+      <div class="ui fluid raised card">
+        <div class="content">
+          <div class="right floated">
+            <div class="ui vertical labeled icon buttons">
+              <a href="/TODO/@template.Id/view" class="ui small basic secondary button" title="Admin"><i class="edit icon"></i>Admin</a>
+            </div>
+          </div>
+          <div class="header">@template.GetTitle()</div>
+          <div class="meta">Last Modified: @template.LastModified.ToString("d", CultureInfo.CurrentUICulture)</div>
+          <div class="description">
+            <p>@template.GetDescription()</p>
+          </div>
+        </div>
+        @if (template.GetTags().Any())
+        {
+          <div class="extra content">
+            @foreach (var tag in template.GetTags())
+            {
+              <a class="ui tag label" href="/search?tag=@tag">@tag</a>
+            }
+          </div>
+
+        }
+      </div>
+    }
+  </div>
+}
+else
+{
+  <div class="ui warning message">
+    None found.
+  </div>
+}

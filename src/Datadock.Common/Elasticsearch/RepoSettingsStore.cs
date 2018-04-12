@@ -3,7 +3,9 @@ using Nest;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Datadock.Common.Stores;
 using Datadock.Common.Validators;
@@ -39,9 +41,8 @@ namespace Datadock.Common.Elasticsearch
 
         public async Task<IEnumerable<RepoSettings>> GetRepoSettingsForOwnerAsync(string ownerId)
         {
-            var response = await _client.SearchAsync<RepoSettings>(s => s
-                .From(0).Query(q => q.Match(m => m.Field(f => f.OwnerId).Query(ownerId)))
-            );
+            var response =
+                await _client.SearchAsync<RepoSettings>(s => s.Query(q => QueryByOwnerId(q, ownerId)));
             if (!response.IsValid)
             {
                 throw new RepoSettingsStoreException(
@@ -52,11 +53,21 @@ namespace Datadock.Common.Elasticsearch
         }
 
         public async Task<RepoSettings> GetRepoSettingsAsync(string ownerId, string repoId)
-        {           
-            var response = await _client.SearchAsync<RepoSettings>(s => s
-                .From(0).Query(q => q.Match(m => m.Field(f => f.OwnerId).Query(ownerId)) &&
-                                    q.Match(m => m.Field(f => f.RepoId).Query(repoId)))
-            );
+        {
+            if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
+            if (repoId == null) throw new ArgumentNullException(nameof(repoId));
+
+            var search = new SearchDescriptor<RepoSettings>().Query(q => QueryByOwnerIdAndRepositoryId(q, ownerId, repoId));
+            using (var ms = new MemoryStream())
+            {
+                _client.RequestResponseSerializer.Serialize(search, ms);
+                var rawQuery = Encoding.UTF8.GetString(ms.ToArray());
+                Console.WriteLine(rawQuery);
+            }
+
+            var response =
+                await _client.SearchAsync<RepoSettings>(search);
+            
             if (!response.IsValid)
             {
                 throw new RepoSettingsStoreException(
@@ -84,6 +95,37 @@ namespace Datadock.Common.Elasticsearch
             {
                 throw new OwnerSettingsStoreException($"Error updating repo settings for owner/repo ID {settings.RepoId}");
             }
+        }
+
+        private static QueryContainer QueryByOwnerId(QueryContainerDescriptor<RepoSettings> q, string ownerId)
+        {
+            var filterClauses = new List<QueryContainer>
+            {
+                new TermQuery
+                {
+                    Field = new Field("ownerId"),
+                    Value = ownerId
+                }
+            };
+            return new BoolQuery { Filter = filterClauses };
+        }
+
+        private static QueryContainer QueryByOwnerIdAndRepositoryId(QueryContainerDescriptor<RepoSettings> q, string ownerId, string repoId)
+        {
+            var filterClauses = new List<QueryContainer>
+            {
+                new TermQuery
+                {
+                    Field = new Field("ownerId"),
+                    Value = ownerId
+                },
+                new TermQuery
+                {
+                    Field = new Field("repoId"),
+                    Value = repoId
+                }
+            };
+            return new BoolQuery { Filter = filterClauses };
         }
     }
 }

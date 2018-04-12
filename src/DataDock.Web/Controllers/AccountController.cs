@@ -151,7 +151,7 @@ namespace DataDock.Web.Controllers
                     {
                         UserId = User.Identity.Name,
                         LastModified = DateTime.UtcNow,
-                        LastModifiedBy = "Account Created"
+                        LastModifiedBy = "DataDock"
                     };
                     await _userStore.CreateOrUpdateUserSettingsAsync(userSettings);
 
@@ -163,7 +163,7 @@ namespace DataDock.Web.Controllers
                         DisplayGitHubAvatar = true,
                         DisplayGitHubDescription = true,
                         LastModified = DateTime.UtcNow,
-                        LastModifiedBy = "Account Created"
+                        LastModifiedBy = "DataDock"
                     };
                     await _ownerSettingsStore.CreateOrUpdateOwnerSettingsAsync(userOwner);
 
@@ -211,7 +211,7 @@ namespace DataDock.Web.Controllers
             try
             {
                 var userSettings = await _userStore.GetUserSettingsAsync(User.Identity.Name);
-                var usvm = new UserSettingsViewModel(userSettings);
+                var usvm = new UserSettingsViewModel(userSettings) {Title = "User Account"};
                 return View(usvm);
             }
             catch (UserAccountNotFoundException notFoundEx)

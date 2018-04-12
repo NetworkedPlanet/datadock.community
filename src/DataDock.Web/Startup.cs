@@ -60,12 +60,8 @@ namespace DataDock.Web
             services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
 
             services.AddMvc();
-            services.AddRouting(options =>
-            {
-                options.LowercaseUrls = true;
-            });
 
-            services.Configure<DataDock.Web.Config.ClientConfiguration>(Configuration.GetSection("ClientConfiguration"));
+            services.Configure<Config.ClientConfiguration>(Configuration.GetSection("ClientConfiguration"));
 
 
             services.AddSignalR();

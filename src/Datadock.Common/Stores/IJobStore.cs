@@ -79,7 +79,8 @@ namespace Datadock.Common.Stores
         /// <returns></returns>
         Task<JobInfo> GetNextJob();
 
-        Task<bool> UpdateJobStatus(JobInfo jobInfo, JobStatus newStatus);
+        Task<bool> DeleteJobAsync(string jobId);
 
+        Task<bool> DeleteJobsForOwnerAsync(string ownerId);
     }
 }

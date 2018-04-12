@@ -118,6 +118,16 @@ namespace Datadock.Common.Elasticsearch
             }
         }
 
+        public async Task<bool> DeleteRepoSettingsAsync(string ownerId, string repoId)
+        {
+            if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
+            if (repoId == null) throw new ArgumentNullException(nameof(repoId));
+
+            string documentId = $"{ownerId}/{repoId}";
+            var response = await _client.DeleteAsync<RepoSettings>(documentId);
+            return response.IsValid;
+        }
+
         private static QueryContainer QueryByOwnerId(QueryContainerDescriptor<RepoSettings> q, string ownerId)
         {
             var filterClauses = new List<QueryContainer>

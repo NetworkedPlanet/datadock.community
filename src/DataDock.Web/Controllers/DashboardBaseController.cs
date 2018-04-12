@@ -1,4 +1,5 @@
-﻿using DataDock.Web.Models;
+﻿using System;
+using DataDock.Web.Models;
 using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -26,8 +27,9 @@ namespace DataDock.Web.Controllers
             RequestedOwnerId = ownerId.ToString();
 
             const string rkey = "repoId";
+            RequestedRepoId = "";
             var repoId = context.ActionArguments.ContainsKey(rkey) ? context.ActionArguments[rkey] : "";
-            RequestedRepoId = repoId.ToString();
+            if(!repoId.ToString().Equals("repositories", StringComparison.InvariantCultureIgnoreCase)) RequestedRepoId = repoId.ToString();
 
             var dvm = new DashboardViewModel
             {

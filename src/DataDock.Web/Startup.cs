@@ -76,6 +76,7 @@ namespace DataDock.Web
             services.AddSingleton<IJobStore, JobStore>();
             services.AddSingleton<IOwnerSettingsStore, OwnerSettingsStore>();
             services.AddSingleton<IRepoSettingsStore, RepoSettingsStore>();
+            services.AddSingleton<IImportFormParser, DefaultImportFormParser>();
             services.AddSingleton<IDatasetStore, DatasetStore>();
             services.AddSingleton<ISchemaStore, SchemaStore>();
             services.AddSingleton<IImportService, ImportService>();

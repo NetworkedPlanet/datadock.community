@@ -1,25 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Globalization;
-using System.IO;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
-using Datadock.Common.Models;
 using Datadock.Common.Stores;
 using DataDock.Web.Filters;
-using DataDock.Web.Models;
 using DataDock.Web.Services;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Net.Http.Headers;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Serilog;
 
 namespace DataDock.Web.Api
@@ -28,24 +16,18 @@ namespace DataDock.Web.Api
     [Route("api/data")]
     public class DataController : Controller
     {
-        private static readonly FormOptions _defaultFormOptions = new FormOptions();
         private readonly IUserStore _userStore;
-        private readonly IRepoSettingsStore _repoSettingsStore;
-        private readonly IFileStore _fileStore;
         private readonly IJobStore _jobStore;
-        private readonly IImportService _importService;
+        private readonly IImportFormParser _parser;
 
         public DataController(IUserStore userStore, 
             IRepoSettingsStore repoSettingsStore,
-            IFileStore fileStore,
             IJobStore jobStore,
-            IImportService importService)
+            IImportFormParser parser)
         {
             _userStore = userStore;
-            _repoSettingsStore = repoSettingsStore;
-            _fileStore = fileStore;
             _jobStore = jobStore;
-            _importService = importService;
+            _parser = parser;
         }
 
         // GET: api/Data
@@ -65,11 +47,6 @@ namespace DataDock.Web.Api
         {
             try
             {
-                if (!MultipartRequestHelper.IsMultipartContentType(Request.ContentType))
-                {
-                    return BadRequest($"Expected a multipart request, but got {Request.ContentType}");
-                }
-
                 // Validate user name and authentication status
                 var userId = User?.Identity?.Name;
                 if (string.IsNullOrEmpty(userId))
@@ -92,184 +69,40 @@ namespace DataDock.Web.Api
                     return Unauthorized();
                 }
 
-                var jobInfo = new ImportJobRequestInfo
-                {
-                    UserId = userId
-                };
-
-                var formAccumulator = new KeyValueAccumulator();
-                string targetFilePath = null;
-
-                var boundary = MultipartRequestHelper.GetBoundary(
-                    MediaTypeHeaderValue.Parse(Request.ContentType),
-                    _defaultFormOptions.MultipartBoundaryLengthLimit);
-                var reader = new MultipartReader(boundary, HttpContext.Request.Body);
-                var section = await reader.ReadNextSectionAsync();
-                while (section != null)
-                {
-                    ContentDispositionHeaderValue contentDisposition;
-                    var hasContentDispositionHeader =
-                        ContentDispositionHeaderValue.TryParse(section.ContentDisposition, out contentDisposition);
-                    if (hasContentDispositionHeader)
+                var parserResult = await _parser.ParseImportFormAsync(Request, userId,
+                    async (formData, formCollection) =>
                     {
-                        // TODO - if no file upload then badrequest
-                        if (MultipartRequestHelper.HasFileContentDisposition(contentDisposition))
-                        {
-                            Log.Information("api/data(POST): Starting conversion job. UserId='{0}', File='{1}'", userId, "");
-                            var csvFileId = await _fileStore.AddFileAsync(section.Body);
-
-                            Log.Information($"Saved the uploaded CSV file '{csvFileId}'");
-                            jobInfo.CsvFileId = csvFileId;
-                        }
-                        else if (MultipartRequestHelper.HasFormDataContentDisposition(contentDisposition))
-                        {
-                            var key = HeaderUtilities.RemoveQuotes(contentDisposition.Name);
-                            var encoding = GetEncoding(section);
-                            using (var streamReader = new StreamReader(
-                                section.Body,
-                                encoding,
-                                detectEncodingFromByteOrderMarks: true,
-                                bufferSize: 1024,
-                                leaveOpen: true))
-                            {
-                                // The value length limit is enforced by MultipartBodyLengthLimit
-                                var value = await streamReader.ReadToEndAsync();
-                                if (String.Equals(value, "undefined", StringComparison.OrdinalIgnoreCase))
-                                {
-                                    value = String.Empty;
-                                }
-                                formAccumulator.Append(key.ToString(), value);
-
-                                if (formAccumulator.ValueCount > _defaultFormOptions.ValueCountLimit)
-                                {
-                                    throw new InvalidDataException($"Form key count limit {_defaultFormOptions.ValueCountLimit} exceeded.");
-                                }
-                            }
-                        }
-                    }
-                    // Drains any remaining section body that has not been consumed and
-                    // reads the headers for the next section.
-                    section = await reader.ReadNextSectionAsync();
-                }
-
-                // Bind form data to the import model
-                var importFormData = new ImportFormData();
-                var formValueProvider = new FormValueProvider(
-                    BindingSource.Form,
-                    new FormCollection(formAccumulator.GetResults()),
-                    CultureInfo.CurrentCulture);
-                var bindingSuccessful = await TryUpdateModelAsync(importFormData, prefix: "",
-                    valueProvider: formValueProvider);
-                if (!bindingSuccessful)
+                        var formValueProvider = new FormValueProvider(
+                            BindingSource.Form,
+                            formCollection,
+                            CultureInfo.CurrentCulture);
+                        return await TryUpdateModelAsync(formData, "", formValueProvider);
+                    });
+                if (!parserResult.IsValid)
                 {
-                    if (!ModelState.IsValid)
-                    {
-                        return BadRequest(ModelState);
-                    }
-                }
-
-                jobInfo.OwnerId = importFormData.OwnerId;
-                jobInfo.RepositoryId = importFormData.RepoId;
-                if (string.IsNullOrEmpty(importFormData.OwnerId) || string.IsNullOrEmpty(importFormData.RepoId))
-                {
-                    Log.Error("DataController: POST called with no owner or repo set in FormData");
-                    return BadRequest("No target repository supplied");
-                }
-
-                if (importFormData.Metadata == null)
-                {
-                    Log.Error("DataController: POST called with no metadata present in FormData");
-                    return BadRequest("No metadata supplied");
-                }
-                var parser = new JsonSerializer();
-                Log.Debug("DataController: Metadata: {0}", importFormData.Metadata);
-                var metadataObject = parser.Deserialize(new JsonTextReader(new StringReader(importFormData.Metadata))) as JObject;
-                if (metadataObject == null)
-                {
-                    Log.Error(
-                        "DataController: Error deserializing metadata as object, unable to create conversion job. Metadata = '{0}'",
-                        importFormData.Metadata);
-                    return BadRequest("Metadata badly formatted");
-                }
-
-                var datasetIri = metadataObject["url"]?.ToString();
-                var datasetTitle = metadataObject["dc:title"]?.ToString();
-                if (string.IsNullOrEmpty(datasetIri))
-                {
-                    Log.Error("DataController: No dataset IRI supplied in metadata.");
-                    return BadRequest("No dataset IRI supplied in metadata");
-                }
-                Log.Debug("DataController: datasetIri = '{0}'", datasetIri);
-                jobInfo.DatasetIri = datasetIri;
-
-                // save CSVW to file storage
-                if (string.IsNullOrEmpty(jobInfo.CsvFileName))
-                {
-                    jobInfo.CsvFileName = importFormData.Filename;
-                    jobInfo.DatasetId = importFormData.Filename;
+                    if (!ModelState.IsValid) return BadRequest(ModelState);
+                    return BadRequest(parserResult.ValidationErrors);
                 }
                 
-                byte[] byteArray = Encoding.UTF8.GetBytes(importFormData.Metadata);
-                var metadataStream = new MemoryStream(byteArray);
-                var csvwFileId = await _fileStore.AddFileAsync(metadataStream);
-                jobInfo.CsvmFileId = csvwFileId;
-
-                try
-                {
-                    var repoSettings =
-                        await _importService.CheckRepoSettingsAsync(User, importFormData.OwnerId, importFormData.RepoId);
-                }
-                catch (Exception e)
-                {
-                    Log.Error($"api/data: unable to retrive repoSettings for the supplied owner '{importFormData.OwnerId}' and repo '{importFormData.RepoId}'");
-                    return BadRequest("Repository does not exist or you do not have the required authorization to publish to it.");
-                }
-
-
-                var job = await _jobStore.SubmitImportJobAsync(jobInfo);
+                var job = await _jobStore.SubmitImportJobAsync(parserResult.ImportJobRequest);
                 
                 Log.Information("api/data(POST): Conversion job started.");
 
-                if (importFormData.SaveAsSchema)
+                if (parserResult.SchemaImportJobRequest != null)
                 {
                     try
                     {
-                        Log.Information("api/data(POST): Saving metadata as template.");
+                        await _jobStore.SubmitSchemaImportJobAsync(parserResult.SchemaImportJobRequest);
 
-                        var schema = new JObject(new JProperty("dc:title", "Template from " + datasetTitle), new JProperty("metadata", metadataObject));
-                        Log.Information("api/data(POST): Starting schema creation job. UserId='{0}', Repository='{1}'", userId, importFormData.RepoId);
-
-                        byte[] schemaByteArray = Encoding.UTF8.GetBytes(schema.ToString());
-                        var schemaStream = new MemoryStream(schemaByteArray);
-                        var schemaFileId = await _fileStore.AddFileAsync(schemaStream);
-
-                        if (!string.IsNullOrEmpty(schemaFileId))
-                        {
-                            Log.Information("api/data(POST): Schema temp file saved: {0}.", schemaFileId);
-                            var schemaJobRequest = new SchemaImportJobRequestInfo()
-                            {
-                                UserId = userId,
-                                SchemaFileId = schemaFileId,
-                                OwnerId = importFormData.OwnerId,
-                                RepositoryId = importFormData.RepoId
-                            };
-                            var sj = await _jobStore.SubmitSchemaImportJobAsync(schemaJobRequest);
-                            
-                            Log.Information("api/data(POST): Schema creation job started.");
-                        }
-                        else
-                        {
-                            Log.Error("api/data(POST): Error saving schema content to temporary file storage, unable to start schema creation job");
-                        }
-
+                        Log.Information("api/data(POST): Schema creation job started.");
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         Log.Error("api/data(POST): Unexpected error staring schema creation job.");
                     }
                 }
 
-                return Ok(new DataControllerResult { Message = "API called successfully: " + job.JobId, Metadata = importFormData.Metadata });
+                return Ok(new DataControllerResult { Message = "API called successfully", Metadata = parserResult.Metadata, JobId = job.JobId});
             }
             catch (Exception ex)
             {
@@ -277,42 +110,6 @@ namespace DataDock.Web.Api
                 return StatusCode(StatusCodes.Status500InternalServerError, ex);
             }
         }
-
-        private static Encoding GetEncoding(MultipartSection section)
-        {
-            MediaTypeHeaderValue mediaType;
-            var hasMediaTypeHeader = MediaTypeHeaderValue.TryParse(section.ContentType, out mediaType);
-            // UTF-7 is insecure and should not be honored. UTF-8 will succeed in 
-            // most cases.
-            if (!hasMediaTypeHeader || Encoding.UTF7.Equals(mediaType.Encoding))
-            {
-                return Encoding.UTF8;
-            }
-            return mediaType.Encoding;
-        }
-
-        private static bool GetBool(NameValueCollection formData, string parameterName, bool defaultValue)
-        {
-            Log.Debug("DataController: GetBool called for FormData parameter '{0}' with default value '{1}'", parameterName, defaultValue);
-            var ret = defaultValue;
-            var strValue = formData[parameterName];
-            Log.Debug("DataController: origin value of '{0}' in FormData is '{1}'", strValue);
-            if (!string.IsNullOrEmpty(strValue))
-            {
-                try
-                {
-                    ret = Convert.ToBoolean(strValue);
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex,
-                        $"Error getting {parameterName} boolean from form data. Received string value {strValue}");
-                }
-            }
-            Log.Debug("DataController: GetBool returning {0}", ret);
-            return ret;
-        }
-
     }
 
     /// <summary>
@@ -322,5 +119,7 @@ namespace DataDock.Web.Api
     {
         public string Message { get; set; }
         public string Metadata { get; set; }
+        public string JobId { get; set; }
     }
+
 }

@@ -118,28 +118,59 @@ namespace Datadock.Common.Elasticsearch
 
         public IReadOnlyCollection<SchemaInfo> GetSchemasByRepository(string ownerId, string repositoryId, int skip, int take)
         {
-            throw new NotImplementedException();
+            Log.Debug("GetSchemasByRepository {repositoryId}. Skip={skip}, Take={take}", repositoryId, skip, take);
+            if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
+
+            var search = new SearchDescriptor<SchemaInfo>().Query(q => QueryHelper.QueryByOwnerIdAndRepositoryId(ownerId, repositoryId));
+            var rawQuery = "";
+            using (var ms = new MemoryStream())
+            {
+                _client.RequestResponseSerializer.Serialize(search, ms);
+                rawQuery = Encoding.UTF8.GetString(ms.ToArray());
+                Console.WriteLine(rawQuery);
+            }
+            var searchResponse = _client.Search<SchemaInfo>(search.Skip(skip).Take(take));
+
+            if (!searchResponse.IsValid)
+            {
+                Log.Error("GetSchemasByRepository Failed. RepoIds={repositoryId}, Skip={skip}, Take={take}. DebugInformation: {debugInfo}",
+                    repositoryId, skip, take, searchResponse.DebugInformation);
+                throw new SchemaStoreException(
+                    $"Failed to retrieve schema list by repository. Cause: {searchResponse.DebugInformation}");
+            }
+            if (searchResponse.Total < 1)
+            {
+                Log.Information($"No schemas found with query {rawQuery}");
+            }
+            Log.Debug("GetSchemasByRepository {repositoryId}. Skip={skip}, Take={take}. Returns {docCount} results", repositoryId, skip, take, searchResponse.Documents.Count);
+            return searchResponse.Documents;
         }
 
         public IReadOnlyCollection<SchemaInfo> GetSchemasByRepositoryList(string ownerId, string[] repositoryIds, int skip, int take)
         {
             Log.Debug("GetSchemasByRepositoryList [{repoIds}]. Skip={skip}, Take={take}", repositoryIds, skip, take);
-            var searchResponse = _client.Search<SchemaInfo>(s => s.Query(
-                    q => q.Bool(
-                        b => b.Must(
-                            bf => bf.Terms(
-                                t => t.Field(f => f.RepositoryId).Terms(repositoryIds)
-                            )
-                        )
-                    )
-                ).Skip(skip).Take(take)
-            );
+            if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
+
+            var search = new SearchDescriptor<SchemaInfo>().Query(q => QueryHelper.QueryByOwnerIdAndRepositoryIds(ownerId, repositoryIds));
+            var rawQuery = "";
+            using (var ms = new MemoryStream())
+            {
+                _client.RequestResponseSerializer.Serialize(search, ms);
+                rawQuery = Encoding.UTF8.GetString(ms.ToArray());
+                Console.WriteLine(rawQuery);
+            }
+            var searchResponse = _client.Search<SchemaInfo>(search.Skip(skip).Take(take));
+            
             if (!searchResponse.IsValid)
             {
                 Log.Error("GetSchemasByRepositoryList Failed. RepoIds=[{ownerIds}], Skip={skip}, Take={take}. DebugInformation: {debugInfo}",
                     repositoryIds, skip, take, searchResponse.DebugInformation);
                 throw new SchemaStoreException(
                     $"Failed to retrieve schema list by repository. Cause: {searchResponse.DebugInformation}");
+            }
+            if (searchResponse.Total < 1)
+            {
+                Log.Information($"No schemas found with query {rawQuery}");
             }
             Log.Debug("GetSchemasByRepositoryList [{repoIds}]. Skip={skip}, Take={take}. Returns {docCount} results", repositoryIds, skip, take, searchResponse.Documents.Count);
             return searchResponse.Documents;

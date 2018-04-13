@@ -43,7 +43,7 @@ namespace Datadock.Common.Elasticsearch
         {
             if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
             
-            var search = new SearchDescriptor<RepoSettings>().Query(q => QueryByOwnerId(q, ownerId));
+            var search = new SearchDescriptor<RepoSettings>().Query(q => QueryHelper.QueryByOwnerId(ownerId));
             var rawQuery = "";
             using (var ms = new MemoryStream())
             {
@@ -73,7 +73,7 @@ namespace Datadock.Common.Elasticsearch
             if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
             if (repoId == null) throw new ArgumentNullException(nameof(repoId));
             var rawQuery = "";
-            var search = new SearchDescriptor<RepoSettings>().Query(q => QueryByOwnerIdAndRepositoryId(q, ownerId, repoId));
+            var search = new SearchDescriptor<RepoSettings>().Query(q => QueryHelper.QueryByOwnerIdAndRepositoryId(ownerId, repoId));
             using (var ms = new MemoryStream())
             {
                 _client.RequestResponseSerializer.Serialize(search, ms);
@@ -128,36 +128,7 @@ namespace Datadock.Common.Elasticsearch
             return response.IsValid;
         }
 
-        private static QueryContainer QueryByOwnerId(QueryContainerDescriptor<RepoSettings> q, string ownerId)
-        {
-            var filterClauses = new List<QueryContainer>
-            {
-                new TermQuery
-                {
-                    Field = new Field("ownerId"),
-                    Value = ownerId
-                }
-            };
-            return new BoolQuery { Filter = filterClauses };
-        }
-
-        private static QueryContainer QueryByOwnerIdAndRepositoryId(QueryContainerDescriptor<RepoSettings> q, string ownerId, string repoId)
-        {
-            var filterClauses = new List<QueryContainer>
-            {
-                new TermQuery
-                {
-                    Field = new Field("ownerId"),
-                    Value = ownerId
-                },
-                new TermQuery
-                {
-                    Field = new Field("repoId"),
-                    Value = repoId
-                }
-            };
-            return new BoolQuery { Filter = filterClauses };
-        }
+        
     }
 }
 

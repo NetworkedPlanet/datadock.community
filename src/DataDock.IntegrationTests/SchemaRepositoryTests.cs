@@ -70,8 +70,8 @@ namespace DataDock.IntegrationTests
                     var schemaInfo = new SchemaInfo
                     {
                         Id = Guid.NewGuid().ToString("N"),
-                        OwnerId = "owner_" + o,
-                        RepositoryId = "owner_" + o + "/repo_" + r,
+                        OwnerId = "owner-" + o,
+                        RepositoryId = "owner-" + o + "/repo-" + r,
                         SchemaId = "schema_" + o + "." + r,
                         LastModified = DateTime.UtcNow,
                         Schema = new { foo = "foo" }
@@ -97,11 +97,11 @@ namespace DataDock.IntegrationTests
         [Fact]
         public void ItCanRetrieveMultipleSchemasForASingleOwner()
         {
-            var results = _repo.GetSchemasByOwnerList(new string[] {"owner_0"}, 0, 10);
+            var results = _repo.GetSchemasByOwnerList(new string[] {"owner-0"}, 0, 10);
             results.Count.Should().Be(5);
             foreach (var r in results)
             {
-                r.OwnerId.Should().Be("owner_0");
+                r.OwnerId.Should().Be("owner-0");
                 r.SchemaId.Should().StartWith("schema_0.");
             }
         }
@@ -109,33 +109,33 @@ namespace DataDock.IntegrationTests
         [Fact]
         public void ItCanRetrieveMultipleSchemasForMultipleOwners()
         {
-            var results = _repo.GetSchemasByOwnerList(new[] {"owner_1", "owner_2"}, 0, 10);
+            var results = _repo.GetSchemasByOwnerList(new[] {"owner-1", "owner-2"}, 0, 10);
             results.Count.Should().Be(10);
             foreach (var r in results)
             {
-                r.OwnerId.Should().BeOneOf("owner_1", "owner_2");
+                r.OwnerId.Should().BeOneOf("owner-1", "owner-2");
             }
         }
 
         [Fact]
         public void ItCanRetrieveMultipleSchemasForMultipleOwnersWithSkip()
         {
-            var results = _repo.GetSchemasByOwnerList(new[] { "owner_1", "owner_2" }, 5, 10);
+            var results = _repo.GetSchemasByOwnerList(new[] { "owner-1", "owner-2" }, 5, 10);
             results.Count.Should().Be(5);
             foreach (var r in results)
             {
-                r.OwnerId.Should().BeOneOf("owner_1", "owner_2");
+                r.OwnerId.Should().BeOneOf("owner-1", "owner-2");
             }
         }
 
         [Fact]
         public void ItCanRetrieveMultipleSchemasForMultipleOwnersWithSkipAndTake()
         {
-            var results = _repo.GetSchemasByOwnerList(new[] { "owner_1", "owner_2" }, 5, 3);
+            var results = _repo.GetSchemasByOwnerList(new[] { "owner-1", "owner-2" }, 5, 3);
             results.Count.Should().Be(3);
             foreach (var r in results)
             {
-                r.OwnerId.Should().BeOneOf("owner_1", "owner_2");
+                r.OwnerId.Should().BeOneOf("owner-1", "owner-2");
             }
         }
 
@@ -143,12 +143,12 @@ namespace DataDock.IntegrationTests
         public void ItCanRetrieveMultipleSchemasForMultipleRepositories()
         {
             var results =
-                _repo.GetSchemasByRepositoryList("owner_1", new[] {"repo_0", "repo_1", "repo_2"}, 0, 10);
+                _repo.GetSchemasByRepositoryList("owner-1", new[] {"repo-0", "repo-1", "repo-2"}, 0, 10);
             results.Count.Should().Be(3);
             foreach (var r in results)
             {
-                r.OwnerId.Should().Be("owner_1");
-                r.RepositoryId.Should().BeOneOf("owner_1/repo_0", "owner_1/repo_1", "owner_1/repo_2");
+                r.OwnerId.Should().Be("owner-1");
+                r.RepositoryId.Should().BeOneOf("owner-1/repo-0", "owner-1/repo-1", "owner-1/repo-2");
             }
         }
 

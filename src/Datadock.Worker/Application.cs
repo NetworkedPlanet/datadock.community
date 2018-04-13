@@ -1,18 +1,11 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
-using Datadock.Common.Elasticsearch;
 using Datadock.Common.Models;
 using Datadock.Common.Stores;
 using DataDock.Worker.Processors;
-using Elasticsearch.Net;
-using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
-using Nest;
 using Serilog;
-using Serilog.Events;
-using Serilog.Sinks.Elasticsearch;
 
 namespace DataDock.Worker
 {
@@ -27,8 +20,6 @@ namespace DataDock.Worker
 
         public async Task Run()
         {
-            Log.Information("Initializing SignalR hub connection");
-            await InitializeHubConnection();
             var jobRepo = Services.GetRequiredService<IJobStore>();
             while (true)
             {
@@ -49,7 +40,9 @@ namespace DataDock.Worker
                 var userRepo = Services.GetRequiredService<IUserStore>();
                 var userAccount = await userRepo.GetUserAccountAsync(jobInfo.UserId);
 
-                var progressLog = Services.GetRequiredService<IProgressLogFactory>().MakeProgressLogForJob(jobInfo);
+                var progressLogFactory = Services.GetRequiredService<IProgressLogFactory>();
+                var progressLog = await progressLogFactory.MakeProgressLogForJobAsync(jobInfo);
+                
                 // TODO: Should encapsulate this logic plus basic job info validation into its own processor factory class
                 IDataDockProcessor processor;
                 switch (jobInfo.JobType)
@@ -57,9 +50,10 @@ namespace DataDock.Worker
                     case JobType.Import:
                     {
                         var ddRepoFactory = Services.GetRequiredService<IDataDockRepositoryFactory>();
+                        var cmdProcessorFactory = Services.GetRequiredService<IGitCommandProcessorFactory>();
                         processor = new ImportJobProcessor(
                             Services.GetRequiredService<WorkerConfiguration>(),
-                            Services.GetRequiredService<GitCommandProcessor>(),
+                            cmdProcessorFactory.MakeGitCommandProcessor(progressLog),
                             Services.GetRequiredService<IDatasetStore>(),
                             Services.GetRequiredService<IFileStore>(),
                             Services.GetRequiredService<IOwnerSettingsStore>(),
@@ -70,11 +64,12 @@ namespace DataDock.Worker
                     case JobType.Delete:
                     {
                         var ddRepoFactory = Services.GetRequiredService<IDataDockRepositoryFactory>();
-                            processor = new DeleteDatasetProcessor(
-                                Services.GetRequiredService<WorkerConfiguration>(),
-                                Services.GetRequiredService<GitCommandProcessor>(),
-                                Services.GetRequiredService<IDatasetStore>(),
-                                ddRepoFactory.GetRepositoryForJob(jobInfo, progressLog));
+                        var cmdProcessorFactory = Services.GetRequiredService<IGitCommandProcessorFactory>();
+                        processor = new DeleteDatasetProcessor(
+                            Services.GetRequiredService<WorkerConfiguration>(),
+                            cmdProcessorFactory.MakeGitCommandProcessor(progressLog),
+                            Services.GetRequiredService<IDatasetStore>(),
+                            ddRepoFactory.GetRepositoryForJob(jobInfo, progressLog));
                         break;
                     }
                     case JobType.SchemaCreate:
@@ -96,35 +91,6 @@ namespace DataDock.Worker
         }
 
 
-        private static async Task<HubConnection> InitializeHubConnection()
-        {
-            var hubConnection = new HubConnectionBuilder().WithUrl("http://datadock.web/progress").Build();
-            hubConnection.Closed += OnHubConnectionLost;
-            var connectionStarted = false;
-            while (!connectionStarted)
-            {
-                try
-                {
-                    await hubConnection.StartAsync();
-                    connectionStarted = true;
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex, "signalr connection failed");
-                    Console.WriteLine("Error connecting to Signalr Hub: " + ex);
-                    Thread.Sleep(3000);
-                }
-            }
-
-            return hubConnection;
-        }
-
-        private static void OnHubConnectionLost(Exception exc)
-        {
-            Log.Warning(exc, "SignalR hub connection was lost. Reconnecting in 3 seconds");
-            Thread.Sleep(3000);
-            InitializeHubConnection().RunSynchronously();
-        }
-
+        
     }
 }

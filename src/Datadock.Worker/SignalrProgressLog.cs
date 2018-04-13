@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Datadock.Common.Models;
 using Datadock.Common.Stores;
-using Microsoft.AspNet.SignalR.Client;
+using Microsoft.AspNetCore.SignalR.Client;
 using Serilog;
 
 namespace DataDock.Worker
@@ -11,18 +13,20 @@ namespace DataDock.Worker
     {
         private readonly JobInfo _jobInfo;
         private readonly IJobStore _jobRepository;
-        private readonly IHubProxy _hubProxy;
+        private readonly HubConnection _hubConnection;
         private readonly ILogger _log;
         private readonly StringBuilder _fullLog;
 
-        public SignalrProgressLog(JobInfo jobInfo, IJobStore jobRepository, IHubProxy hubProxy)
+        public SignalrProgressLog(JobInfo jobInfo, IJobStore jobRepository, HubConnection hubConnection)
         {
             _jobInfo = jobInfo;
             _jobRepository = jobRepository;
-            _hubProxy = hubProxy;
+            _hubConnection = hubConnection;
             _log = Log.ForContext("JobId", jobInfo.JobId);
             _fullLog = new StringBuilder();
         }
+
+       
 
 
         public void UpdateStatus(JobStatus newStatus, string progressMessage, params object[] args)
@@ -106,7 +110,8 @@ namespace DataDock.Worker
         {
             try
             {
-                _hubProxy.Invoke("StatusUpdated", _jobInfo.UserId, _jobInfo.JobId, jobStatus);
+                
+                _hubConnection.InvokeAsync("StatusUpdated", _jobInfo.UserId, _jobInfo.JobId, jobStatus);
             }
             catch (Exception ex)
             {
@@ -118,7 +123,7 @@ namespace DataDock.Worker
         {
             try
             {
-                _hubProxy.Invoke("ProgressUpdated", _jobInfo.UserId, _jobInfo.JobId, message);
+                _hubConnection.InvokeAsync("ProgressUpdated", _jobInfo.UserId, _jobInfo.JobId, message);
             }
             catch (Exception ex)
             {

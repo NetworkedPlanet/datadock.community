@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Datadock.Common\Datadock.Common.csproj" />
+    <ProjectReference Include="..\Datadock.Worker\DataDock.Worker.csproj" />
   </ItemGroup>
 
 </Project>

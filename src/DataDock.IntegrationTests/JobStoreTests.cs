@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Datadock.Common.Elasticsearch;
 using Datadock.Common.Models;
+using Datadock.Common.Stores;
 using DataDock.Common;
+using FluentAssertions;
 using Nest;
 using Xunit;
 
@@ -51,6 +56,100 @@ namespace DataDock.IntegrationTests
             Assert.Equal("user", retrievedJobInfo.UserId);
             Assert.Equal("owner", retrievedJobInfo.OwnerId);
             Assert.Equal("repo", retrievedJobInfo.RepositoryId);
+        }
+
+    }
+
+    public class JobStoreFixture : ElasticsearchFixture
+    {
+        public JobStore Store { get; }
+        public JobStoreFixture() : base()
+        {
+            Store = new JobStore(Client, Configuration);
+            InitializeRepository().Wait();
+            Thread.Sleep(1000);
+        }
+
+        private async Task InitializeRepository()
+        {
+            for (var o = 0; o < 5; o++)
+            {
+                for (var r = 0; r < 5; r++)
+                {
+                    var request = new ImportJobRequestInfo
+                    {
+                        UserId = "user",
+                        OwnerId = "owner_" + o,
+                        RepositoryId = "repo_" + r,
+                        DatasetId = "dataset",
+                        DatasetIri = $"http://datadock.io/owner_{o}/repo_{r}/dataset",
+                        CsvFileName = "data.csv",
+                        CsvFileId = "fileid",
+                        CsvmFileId = "fileid",
+                        IsPublic = true,
+                        OverwriteExistingData = false
+                    };
+                    await Store.SubmitImportJobAsync(request);
+                }
+            }
+
+        }
+
+    }
+
+    public class JobStoreSearchTests : IClassFixture<JobStoreFixture>
+    {
+        private readonly JobStore _store;
+
+        public JobStoreSearchTests(JobStoreFixture fixture)
+        {
+            _store = fixture.Store;
+        }
+
+
+        [Fact]
+        public async void ItCanRetrieveJobsForASingleOwner()
+        {
+            var results = await _store.GetJobsForOwner("owner_0");
+            results.Should().NotBeNull();
+            results.Count().Should().Be(5);
+            foreach (var r in results)
+            {
+                r.OwnerId.Should().Be("owner_0");
+            }
+
+        }
+
+        [Fact]
+        public async void ItCanRetrieveJobsForASingleRepository()
+        {
+            var results = await _store.GetJobsForRepository("owner_0", "repo_0");
+            results.Should().NotBeNull();
+            results.Count().Should().Be(1);
+            foreach (var r in results)
+            {
+                r.OwnerId.Should().Be("owner_0");
+                r.RepositoryId.Should().Be("repo_0");
+            }
+
+        }
+
+        [Fact]
+        public void ItThrowsNotFoundExceptionForASingleOwnerWhenNoneExist()
+        {
+            var ex = Assert.ThrowsAsync<JobNotFoundException>(async () =>
+                await _store.GetJobsForOwner("owner_100"));
+
+            Assert.StartsWith($"No jobs found for ownerId owner_100", ex.Result.Message);
+        }
+
+        [Fact]
+        public async void ItThrowsNotFoundExceptionForASingleRepositoryWhenNoneExist()
+        {
+           var ex = Assert.ThrowsAsync<JobNotFoundException>(async () =>
+                await _store.GetJobsForRepository("owner_0", "repo_100"));
+
+            Assert.StartsWith($"No jobs found for ownerId owner_0 and repositoryId repo_100", ex.Result.Message);
         }
     }
 }

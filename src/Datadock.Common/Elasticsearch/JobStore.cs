@@ -103,7 +103,7 @@ namespace Datadock.Common.Elasticsearch
                 throw new JobStoreException(
                     $"Error retrieving jobs for user {userId}. Cause: {response.DebugInformation}");
             }
-            if (response.Total < 1) throw new JobNotFoundException($"No jobs found for user '{userId}'");
+            if (response.Total < 1) throw new JobNotFoundException(userId);
             return response.Documents;
         }
 
@@ -118,7 +118,7 @@ namespace Datadock.Common.Elasticsearch
                 throw new JobStoreException(
                     $"Error retrieving jobs for owner {ownerId}. Cause: {response.DebugInformation}");
             }
-            if (response.Total < 1) throw new JobNotFoundException($"No jobs found for owner '{ownerId}'");
+            if (response.Total < 1) throw new JobNotFoundException(ownerId, "");
             return response.Documents;
         }
 
@@ -134,7 +134,7 @@ namespace Datadock.Common.Elasticsearch
                 throw new JobStoreException(
                     $"Error retrieving jobs for repository '{repositoryId}' of owner {ownerId}. Cause: {response.DebugInformation}");
             }
-            if (response.Total < 1) throw new JobNotFoundException($"No jobs found for repository '{repositoryId}' of owner '{ownerId}'");
+            if (response.Total < 1) throw new JobNotFoundException(ownerId, repositoryId);
             return response.Documents;
         }
 

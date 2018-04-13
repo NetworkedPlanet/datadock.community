@@ -59,7 +59,7 @@ namespace DataDock.Web.ViewComponents
 
         private async Task PopulateRepositoryList()
         {
-            if(this.DashboardMenuViewModel == null || string.IsNullOrEmpty(this.DashboardMenuViewModel.SelectedOwnerId)) return;
+            if(string.IsNullOrEmpty(DashboardMenuViewModel?.SelectedOwnerId)) return;
             try
             {
                 var repos = await _repoSettingsStore.GetRepoSettingsForOwnerAsync(this.DashboardMenuViewModel.SelectedOwnerId);

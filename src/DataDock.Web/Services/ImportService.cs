@@ -48,7 +48,7 @@ namespace DataDock.Web.Services
                 var newRepoSettings = new RepoSettings
                 {
                     OwnerId = ownerId,
-                    RepoId = repoId,
+                    RepositoryId = repoId,
                     CloneUrl = repo.CloneUrl,
                     OwnerIsOrg = !user.Identity.Name.Equals(ownerId, StringComparison.InvariantCultureIgnoreCase),
                     OwnerAvatar = repo.Owner?.AvatarUrl

@@ -31,7 +31,7 @@ namespace Datadock.Common.Elasticsearch
             };
             return new BoolQuery { Filter = filterClauses };
         }
-        public static QueryContainer QueryByOwnerIdAndRepositoryId(string ownerId, string repoId)
+        public static QueryContainer QueryByOwnerIdAndRepositoryId(string ownerId, string repositoryId)
         {
             var filterClauses = new List<QueryContainer>
             {
@@ -42,13 +42,13 @@ namespace Datadock.Common.Elasticsearch
                 },
                 new TermQuery
                 {
-                    Field = new Field("repoId"),
-                    Value = repoId
+                    Field = new Field("repositoryId"),
+                    Value = repositoryId
                 }
             };
             return new BoolQuery { Filter = filterClauses };
         }
-        public static QueryContainer QueryByOwnerIdAndRepositoryIds(string ownerId, string[] repoIds)
+        public static QueryContainer QueryByOwnerIdAndRepositoryIds(string ownerId, string[] repositoryIds)
         {
             var filterClauses = new List<QueryContainer>
             {
@@ -59,8 +59,8 @@ namespace Datadock.Common.Elasticsearch
                 },
                 new TermQuery
                 {
-                    Field = new Field("repoId"),
-                    Value = repoIds
+                    Field = new Field("repositoryId"),
+                    Value = repositoryIds
                 }
             };
             return new BoolQuery { Filter = filterClauses };

@@ -47,7 +47,7 @@ namespace DataDock.Worker.Processors
                         _progressLog.UpdateStatus(JobStatus.Running, "Schema JSON retrieved from file system: {0}",
                             schemaJson);
 
-                        Log.Debug("Create schema: OwnerId: {ownerId} RepoId: {repoId} SchemaFileId: {schemaFileId}",
+                        Log.Debug("Create schema: OwnerId: {ownerId} RepositoryId: {repoId} SchemaFileId: {schemaFileId}",
                             job.OwnerId, job.GitRepositoryFullName, job.SchemaFileId);
                         var schemaInfo = new SchemaInfo
                         {

@@ -31,7 +31,7 @@ namespace DataDock.IntegrationTests
             var repoSettings = new RepoSettings
             {
                 OwnerId = "owner-1",
-                RepoId = "repo-1",
+                RepositoryId = "repo-1",
                 OwnerIsOrg = false,
                 LastModified = DateTime.UtcNow
             };
@@ -41,7 +41,7 @@ namespace DataDock.IntegrationTests
             var retrievedRepoSettings = await _store.GetRepoSettingsAsync("owner-1", "repo-1");
             retrievedRepoSettings.FullId.Should().Be($"owner-1/repo-1");
             ((string)retrievedRepoSettings.OwnerId).Should().Be("owner-1");
-            ((string)retrievedRepoSettings.RepoId).Should().Be("repo-1");
+            ((string)retrievedRepoSettings.RepositoryId).Should().Be("repo-1");
             (retrievedRepoSettings.OwnerIsOrg).Should().BeFalse();
             retrievedRepoSettings.LastModified.Should().BeCloseTo(repoSettings.LastModified);
         }
@@ -67,7 +67,7 @@ namespace DataDock.IntegrationTests
                     var repoSettings = new RepoSettings
                     {
                         OwnerId = "owner_" + o,
-                        RepoId = "repo_" + r,
+                        RepositoryId = "repo_" + r,
                         LastModified = DateTime.UtcNow
                     };
 
@@ -97,7 +97,7 @@ namespace DataDock.IntegrationTests
             var rs = results as RepoSettings;
             rs.Should().NotBeNull();
             rs.OwnerId.Should().Be("owner_0");
-            rs.RepoId.Should().Be("repo_0");
+            rs.RepositoryId.Should().Be("repo_0");
         }
         [Fact]
         public void ItShouldReturnNoResultsByOwnerWhenNoneExist()
@@ -117,7 +117,7 @@ namespace DataDock.IntegrationTests
             var rs = results as RepoSettings;
             rs.Should().NotBeNull();
             rs.OwnerId.Should().Be("owner_0");
-            rs.RepoId.Should().Be("repo_0");
+            rs.RepositoryId.Should().Be("repo_0");
         }
 
         [Fact]

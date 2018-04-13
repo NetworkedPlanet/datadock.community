@@ -133,7 +133,7 @@ namespace Datadock.Common.Elasticsearch
 
             if (!searchResponse.IsValid)
             {
-                Log.Error("GetSchemasByRepository Failed. RepoIds={repositoryId}, Skip={skip}, Take={take}. DebugInformation: {debugInfo}",
+                Log.Error("GetSchemasByRepository Failed. RepositoryId={repositoryId}, Skip={skip}, Take={take}. DebugInformation: {debugInfo}",
                     repositoryId, skip, take, searchResponse.DebugInformation);
                 throw new SchemaStoreException(
                     $"Failed to retrieve schema list by repository. Cause: {searchResponse.DebugInformation}");
@@ -148,7 +148,7 @@ namespace Datadock.Common.Elasticsearch
 
         public IReadOnlyCollection<SchemaInfo> GetSchemasByRepositoryList(string ownerId, string[] repositoryIds, int skip, int take)
         {
-            Log.Debug("GetSchemasByRepositoryList [{repoIds}]. Skip={skip}, Take={take}", repositoryIds, skip, take);
+            Log.Debug("GetSchemasByRepositoryList [{repositoryIds}]. Skip={skip}, Take={take}", repositoryIds, skip, take);
             if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
 
             var search = new SearchDescriptor<SchemaInfo>().Query(q => QueryHelper.QueryByOwnerIdAndRepositoryIds(ownerId, repositoryIds));
@@ -163,7 +163,7 @@ namespace Datadock.Common.Elasticsearch
             
             if (!searchResponse.IsValid)
             {
-                Log.Error("GetSchemasByRepositoryList Failed. RepoIds=[{ownerIds}], Skip={skip}, Take={take}. DebugInformation: {debugInfo}",
+                Log.Error("GetSchemasByRepositoryList Failed. RepositoryIds=[{repositoryIds}], Skip={skip}, Take={take}. DebugInformation: {debugInfo}",
                     repositoryIds, skip, take, searchResponse.DebugInformation);
                 throw new SchemaStoreException(
                     $"Failed to retrieve schema list by repository. Cause: {searchResponse.DebugInformation}");
@@ -172,7 +172,7 @@ namespace Datadock.Common.Elasticsearch
             {
                 Log.Information($"No schemas found with query {rawQuery}");
             }
-            Log.Debug("GetSchemasByRepositoryList [{repoIds}]. Skip={skip}, Take={take}. Returns {docCount} results", repositoryIds, skip, take, searchResponse.Documents.Count);
+            Log.Debug("GetSchemasByRepositoryList [{repositoryIds}]. Skip={skip}, Take={take}. Returns {docCount} results", repositoryIds, skip, take, searchResponse.Documents.Count);
             return searchResponse.Documents;
         }
         

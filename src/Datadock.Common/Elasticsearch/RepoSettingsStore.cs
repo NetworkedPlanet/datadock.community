@@ -68,12 +68,12 @@ namespace Datadock.Common.Elasticsearch
             return response.Documents;
         }
 
-        public async Task<RepoSettings> GetRepoSettingsAsync(string ownerId, string repoId)
+        public async Task<RepoSettings> GetRepoSettingsAsync(string ownerId, string repositoryId)
         {
             if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
-            if (repoId == null) throw new ArgumentNullException(nameof(repoId));
+            if (repositoryId == null) throw new ArgumentNullException(nameof(repositoryId));
             var rawQuery = "";
-            var search = new SearchDescriptor<RepoSettings>().Query(q => QueryHelper.QueryByOwnerIdAndRepositoryId(ownerId, repoId));
+            var search = new SearchDescriptor<RepoSettings>().Query(q => QueryHelper.QueryByOwnerIdAndRepositoryId(ownerId, repositoryId));
             using (var ms = new MemoryStream())
             {
                 _client.RequestResponseSerializer.Serialize(search, ms);
@@ -87,13 +87,13 @@ namespace Datadock.Common.Elasticsearch
             if (!response.IsValid)
             {
                 throw new RepoSettingsStoreException(
-                    $"Error retrieving repository settings for repo ID {repoId} on owner {ownerId}. Cause: {response.DebugInformation}");
+                    $"Error retrieving repository settings for repo ID {repositoryId} on owner {ownerId}. Cause: {response.DebugInformation}");
             }
 
             if (response.Total < 1)
             {
                 Log.Warning($"No settings found with query {rawQuery}");
-                throw new RepoSettingsNotFoundException(ownerId, repoId);
+                throw new RepoSettingsNotFoundException(ownerId, repositoryId);
             }
             return response.Documents.FirstOrDefault();
         }
@@ -103,7 +103,7 @@ namespace Datadock.Common.Elasticsearch
             if (settings == null) throw new ArgumentNullException(nameof(settings));
             if (string.IsNullOrEmpty(settings.FullId))
             {
-                settings.FullId = $"{settings.OwnerId}/{settings.RepoId}";
+                settings.FullId = $"{settings.OwnerId}/{settings.RepositoryId}";
             }
             var validator = new RepoSettingsValidator();
             var validationResults = await validator.ValidateAsync(settings);
@@ -114,16 +114,16 @@ namespace Datadock.Common.Elasticsearch
             var updateResponse = await _client.IndexDocumentAsync(settings);
             if (!updateResponse.IsValid)
             {
-                throw new OwnerSettingsStoreException($"Error updating repo settings for owner/repo ID {settings.RepoId}");
+                throw new OwnerSettingsStoreException($"Error updating repo settings for owner/repo ID {settings.RepositoryId}");
             }
         }
 
-        public async Task<bool> DeleteRepoSettingsAsync(string ownerId, string repoId)
+        public async Task<bool> DeleteRepoSettingsAsync(string ownerId, string repositoryId)
         {
             if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
-            if (repoId == null) throw new ArgumentNullException(nameof(repoId));
+            if (repositoryId == null) throw new ArgumentNullException(nameof(repositoryId));
 
-            string documentId = $"{ownerId}/{repoId}";
+            string documentId = $"{ownerId}/{repositoryId}";
             var response = await _client.DeleteAsync<RepoSettings>(documentId);
             return response.IsValid;
         }

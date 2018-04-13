@@ -323,7 +323,7 @@ namespace DataDock.Web.Controllers
                         var repos = await _repoSettingsStore.GetRepoSettingsForOwnerAsync(User.Identity.Name);
                         foreach (var r in repos)
                         {
-                            await _repoSettingsStore.DeleteRepoSettingsAsync(r.OwnerId, r.RepoId);
+                            await _repoSettingsStore.DeleteRepoSettingsAsync(r.OwnerId, r.RepositoryId);
                         }
                     }
                     catch (RepoSettingsNotFoundException e)

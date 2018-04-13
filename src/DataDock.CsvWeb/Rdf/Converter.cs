@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using CsvHelper;
+using CsvHelper.Configuration;
 using DataDock.CsvWeb.Metadata;
 using VDS.RDF;
 
@@ -34,7 +35,7 @@ namespace DataDock.CsvWeb.Rdf
         {
             using (var csv = new CsvReader(csvTextReader))
             {
-                if (csv.ReadHeader())
+                if (csv.Read() && csv.ReadHeader())
                 {
                     if (_tableMetadata.TableSchema == null) _tableMetadata.TableSchema = new Schema(_tableMetadata);
                     if (_tableMetadata.TableSchema.Columns == null) AddTableColumns(_tableMetadata.TableSchema, csv.Context.HeaderRecord);

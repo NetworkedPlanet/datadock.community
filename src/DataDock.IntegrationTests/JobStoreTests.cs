@@ -42,8 +42,8 @@ namespace DataDock.IntegrationTests
                 DatasetId = "dataset",
                 DatasetIri = "http://datadock.io/owner/repo/dataset",
                 CsvFileName = "data.csv",
-                CsvFileId = "fileid",
-                CsvmFileId = "fileid",
+                CsvFileId = "fileid1",
+                CsvmFileId = "fileid2",
                 IsPublic = true,
                 OverwriteExistingData = false
             });
@@ -56,6 +56,8 @@ namespace DataDock.IntegrationTests
             Assert.Equal("user", retrievedJobInfo.UserId);
             Assert.Equal("owner", retrievedJobInfo.OwnerId);
             Assert.Equal("repo", retrievedJobInfo.RepositoryId);
+            Assert.Equal("fileid1", jobInfo.CsvFileId);
+            Assert.Equal("fileid2", jobInfo.CsvmFileId);
         }
 
     }

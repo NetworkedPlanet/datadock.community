@@ -37,7 +37,7 @@ namespace Datadock.Common.Models
             DatasetIri = req.DatasetIri;
             CsvFileName = req.CsvFileName;
             CsvFileId = req.CsvFileId;
-            CsvmFileId = req.CsvFileId;
+            CsvmFileId = req.CsvmFileId;
             IsPublic = req.IsPublic;
             OverwriteExistingData = req.OverwriteExistingData;
         }
@@ -88,17 +88,6 @@ namespace Datadock.Common.Models
         [Number(NumberType.Integer)]
         public JobType JobType { get; set; }
 
-        /// <summary>
-        /// The full name of the Git repository to be updated in the format {owner-login}/{repo-name}
-        /// </summary>
-        [Keyword(Index = false, Store=true)]
-        public string GitRepositoryFullName { get; set; }
-
-        /// <summary>
-        /// The URL to use when cloning the Git repository
-        /// </summary>
-        [Keyword(Index = false, Store=true)]
-        public string GitRepositoryUrl { get; set; }
         /// <summary>
         /// The current status of this job
         /// </summary>
@@ -213,7 +202,8 @@ namespace Datadock.Common.Models
         [Keyword(Index = false, Store = true)]
         public string SchemaId { get; set; }
 
-
+        [Ignore]
+        public string GitRepositoryUrl => $"https://github.com/{OwnerId}/{RepositoryId}.git";
     }
 
 }

@@ -26,7 +26,7 @@ namespace DataDock.Worker.Processors
         private readonly IRepoSettingsStore _repoSettingsStore;
         private readonly IFileStore _jobFileStore;
         private IProgressLog _progressLog;
-        private readonly IDataDockRepository _dataDataDockRepository;
+        private readonly IDataDockRepositoryFactory _dataDataDockRepositoryFactory;
         private const int CsvConversionReportInterval = 250;
 
         public ImportJobProcessor(
@@ -36,7 +36,7 @@ namespace DataDock.Worker.Processors
             IFileStore jobFileStore,
             IOwnerSettingsStore ownerSettingsStore,
             IRepoSettingsStore repoSettingsStore,
-            IDataDockRepository dataDockRepository)
+            IDataDockRepositoryFactory dataDockRepositoryFactory)
         {
             _configuration = configuration;
             _git = gitProcessor;
@@ -44,7 +44,7 @@ namespace DataDock.Worker.Processors
             _ownerSettingsStore = ownerSettingsStore;
             _repoSettingsStore = repoSettingsStore;
             _jobFileStore = jobFileStore;
-            _dataDataDockRepository = dataDockRepository;
+            _dataDataDockRepositoryFactory = dataDockRepositoryFactory;
         }
 
         public async Task ProcessJob(JobInfo job, UserAccount userAccount, IProgressLog progressLog)
@@ -84,7 +84,7 @@ namespace DataDock.Worker.Processors
             }
 
             // Run the CSV to RDF conversion
-            var repositoryUri = new Uri(DataDockUrlHelper.GetRepositoryUri(job.GitRepositoryFullName));
+            var repositoryUri = new Uri(DataDockUrlHelper.GetRepositoryUri(job.OwnerId, job.RepositoryId));
             var publisherIri = new Uri(repositoryUri, "id/dataset/publisher");
             var datasetUri = new Uri(job.DatasetIri);
             var datasetMetadataGraphIri = new Uri(datasetUri + "/metadata");
@@ -94,11 +94,16 @@ namespace DataDock.Worker.Processors
             var releaseTag = MakeSafeTag(job.DatasetId + "_" + dateTag);
             var publisher = await GetPublisherContactInfo(job.OwnerId, job.RepositoryId);
             var ntriplesDownloadLink =
-                new Uri($"https://github.com/{job.GitRepositoryFullName}/releases/download/{releaseTag}/{releaseTag}.nt.gz");
+                new Uri($"https://github.com/{job.OwnerId}/{job.RepositoryId}/releases/download/{releaseTag}/{releaseTag}.nt.gz");
             var csvDownloadLink =
                 new Uri(repositoryUri + $"csv/{job.DatasetId}/{job.CsvFileName}");
 
             IGraph datasetGraph;
+            using (var tmpReader = File.OpenText(csvPath))
+            {
+                var header = tmpReader.ReadLine();
+                Log.Information("CSV header: {CsvHeader}",header);
+            }
             using (var csvReader = File.OpenText(csvPath))
             {
                 datasetGraph = GenerateDatasetGraph(csvReader, metadataJson);
@@ -108,7 +113,8 @@ namespace DataDock.Worker.Processors
 
             IGraph definitionsGraph = GenerateDefinitionsGraph(metadataJson);
 
-            _dataDataDockRepository.UpdateDataset(
+            var dataDataDockRepository = _dataDataDockRepositoryFactory.GetRepositoryForJob(job, progressLog);
+            dataDataDockRepository.UpdateDataset(
                 datasetGraph, datasetUri, job.OverwriteExistingData,
                 metadataGraph, datasetMetadataGraphIri, 
                 definitionsGraph, definitionsGraphIri, 
@@ -116,7 +122,7 @@ namespace DataDock.Worker.Processors
                 "", "",
                 rootMetadataGraphIri);
 
-            _dataDataDockRepository.Publish(
+            dataDataDockRepository.Publish(
                 new[] { datasetUri, datasetMetadataGraphIri, rootMetadataGraphIri });
 
             // Add and Commit all changes
@@ -134,7 +140,7 @@ namespace DataDock.Worker.Processors
                 await _datasetStore.CreateOrUpdateDatasetRecordAsync(new DatasetInfo
                 {
                     OwnerId = job.OwnerId,
-                    RepositoryId = job.GitRepositoryFullName,
+                    RepositoryId = job.RepositoryId,
                     DatasetId = job.DatasetId,
                     LastModified = DateTime.UtcNow,
                     CsvwMetadata = metadataJson,

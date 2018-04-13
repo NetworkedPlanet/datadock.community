@@ -40,7 +40,6 @@ namespace DataDock.Worker.Processors
 
             var targetDirectory = Path.Combine(_configuration.RepoBaseDir, jobInfo.JobId);
             Log.Information("Using local directory {localDirPath}", targetDirectory);
-
             Log.Information("Clone Repository: {gitRepositoryUrl} => {targetDirectory}", jobInfo.GitRepositoryUrl, targetDirectory);
             await _git.CloneRepository(jobInfo.GitRepositoryUrl, targetDirectory, authenticationToken, userAccount);
 

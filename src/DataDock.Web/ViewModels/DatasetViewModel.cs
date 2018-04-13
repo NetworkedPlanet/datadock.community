@@ -54,7 +54,7 @@ namespace DataDock.Web.ViewModels
             {
                 return _csvwMetadata["url"].ToString();
             }
-            return DataDockUrlHelper.GetDatasetIdentifier(_datasetInfo.RepositoryId, _datasetInfo.DatasetId);
+            return DataDockUrlHelper.GetDatasetIdentifier(_datasetInfo.OwnerId, _datasetInfo.RepositoryId, _datasetInfo.DatasetId);
         }
 
         public string GetTitle()

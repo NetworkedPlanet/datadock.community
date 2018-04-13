@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using Datadock.Common;
 using Datadock.Common.Elasticsearch;
 using Datadock.Common.Stores;
 using DataDock.Common;
-using Elasticsearch.Net;
 using Microsoft.Extensions.DependencyInjection;
 using Nest;
 using NetworkedPlanet.Quince.Git;
@@ -21,7 +18,7 @@ namespace DataDock.Worker
         public virtual void ConfigureServices(IServiceCollection serviceCollection, WorkerConfiguration config)
         {
             var client = RegisterElasticClient(serviceCollection, config);
-            ConfigureLogging(client.ConnectionSettings.ConnectionPool);
+            ConfigureLogging(config.ElasticsearchUrl);
             ConfigureServices(serviceCollection, client, config);
         }
 
@@ -78,18 +75,18 @@ namespace DataDock.Worker
             serviceCollection.AddSingleton<IGitCommandProcessorFactory, GitCommandProcessorFactory>();
         }
 
-        protected void ConfigureLogging(IConnectionPool clientConnectionPool)
+        protected void ConfigureLogging(string elasticsearchUrl)
         {
-            Log.Logger = new LoggerConfiguration().Enrich.FromLogContext()
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.FromLogContext()
                 .MinimumLevel.Debug()
-                .WriteTo.Elasticsearch().WriteTo.Elasticsearch(
-                    new ElasticsearchSinkOptions(clientConnectionPool)
+                .WriteTo.Elasticsearch(
+                    new ElasticsearchSinkOptions(new Uri(elasticsearchUrl))
                     {
                         MinimumLogEventLevel = LogEventLevel.Debug,
                         AutoRegisterTemplate = true
                     })
                 .CreateLogger();
-
         }
     }
 }

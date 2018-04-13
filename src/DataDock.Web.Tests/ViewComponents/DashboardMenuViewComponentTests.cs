@@ -1,20 +1,17 @@
-﻿using System.Collections.Generic;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Datadock.Common.Models;
+﻿using Datadock.Common.Models;
 using Datadock.Common.Stores;
 using DataDock.Web.ViewComponents;
 using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Moq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace DataDock.Web.Tests.ViewComponents
 {
-    public class DashboardMenuViewComponentTests
+    public class DashboardMenuViewComponentTests : BaseViewComponentTest
     {
         private readonly Mock<HttpContext> _mockHttpContext;
         private readonly Mock<IRepoSettingsStore> _mockRepoSettingsStore;
@@ -51,29 +48,6 @@ namespace DataDock.Web.Tests.ViewComponents
                 .Returns(Task.FromResult<IEnumerable<RepoSettings>>(repos));
         }
 
-        private ViewComponentContext GetViewContext(string withUserId)
-        {
-            if (!string.IsNullOrEmpty(withUserId))
-            {
-                WithAuthorizedUser(withUserId);
-            }
-            var viewContext = new ViewContext {HttpContext = _mockHttpContext.Object};
-            var viewComponentContext = new ViewComponentContext {ViewContext = viewContext};
-            return viewComponentContext;
-        }
-
-        private void WithAuthorizedUser(string userId = "test_id")
-        {
-            var name = new Claim(ClaimTypes.Name, userId);
-            var ghUser = new Claim(DataDockClaimTypes.GitHubUser, userId);
-            var ghLogin = new Claim(DataDockClaimTypes.GitHubLogin, userId);
-            var ghName = new Claim(DataDockClaimTypes.GitHubName, userId);
-
-            var testPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[]
-                {name, ghUser, ghLogin, ghName}, "MockUserAuthentication"));
-
-            _mockHttpContext.Setup(m => m.User).Returns(testPrincipal);
-        }
         
         [Fact]
         public void ViewComponentLoadsPublicWithOwnerId()
@@ -105,7 +79,7 @@ namespace DataDock.Web.Tests.ViewComponents
 
             var vc = new DashboardMenuViewComponent(_mockRepoSettingsStore.Object);
             // Set user
-            vc.ViewComponentContext = GetViewContext(userName);
+            vc.ViewComponentContext = GetViewContext(_mockHttpContext, userName);
 
             var asyncResult = vc.InvokeAsync(ownerId, "", area);
 
@@ -138,7 +112,7 @@ namespace DataDock.Web.Tests.ViewComponents
 
             var vc = new DashboardMenuViewComponent(_mockRepoSettingsStore.Object);
             // Set user
-            vc.ViewComponentContext = GetViewContext(userName);
+            vc.ViewComponentContext = GetViewContext(_mockHttpContext, userName);
 
             var asyncResult = vc.InvokeAsync(ownerId, repoId, area);
 

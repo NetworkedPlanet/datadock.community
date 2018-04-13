@@ -21,6 +21,7 @@ namespace DataDock.Web.Tests.Api
         private readonly Mock<IRepoSettingsStore> _mockRepoSettingsStore;
         private readonly Mock<IJobStore> _mockJobStore;
         private readonly Mock<HttpContext> _mockHttpContext;
+        private readonly Mock<IImportService> _mockImportService;
 
         public DataControllerTests()
         {
@@ -28,6 +29,7 @@ namespace DataDock.Web.Tests.Api
             _mockRepoSettingsStore = new Mock<IRepoSettingsStore>();
             _mockJobStore = new Mock<IJobStore>();
             _mockHttpContext = new Mock<HttpContext>();
+            _mockImportService = new Mock<IImportService>();
 
             _mockHttpContext.Setup(m => m.Request.Method).Returns("POST");
         }
@@ -49,7 +51,7 @@ namespace DataDock.Web.Tests.Api
         {
             // No user added to request context - simulating anonymous access
             var formParserMock = new Mock<IImportFormParser>();
-            var controller = new DataController(_mockUserStore.Object, _mockRepoSettingsStore.Object, _mockJobStore.Object, formParserMock.Object);
+            var controller = new DataController(_mockUserStore.Object, _mockRepoSettingsStore.Object, _mockJobStore.Object, formParserMock.Object, _mockImportService.Object);
             var result = controller.Post().Result;
             Assert.NotNull(result);
             var unauthorizedResult = result as UnauthorizedResult;
@@ -64,7 +66,7 @@ namespace DataDock.Web.Tests.Api
             _mockHttpContext.Setup(m => m.User).Returns(testPrincipal);
             _mockUserStore.Setup(sr => sr.GetUserSettingsAsync(It.IsAny<string>())).ReturnsAsync(new UserSettings());
             var formParserMock = new Mock<IImportFormParser>();
-            var controller = new DataController(_mockUserStore.Object, _mockRepoSettingsStore.Object, _mockJobStore.Object, formParserMock.Object);
+            var controller = new DataController(_mockUserStore.Object, _mockRepoSettingsStore.Object, _mockJobStore.Object, formParserMock.Object, _mockImportService.Object);
             var result = controller.Post().Result;
             Assert.NotNull(result);
             var unauthorizedResult = result as UnauthorizedResult;
@@ -78,7 +80,7 @@ namespace DataDock.Web.Tests.Api
             _mockUserStore.Setup(x => x.GetUserSettingsAsync("test_id")).ReturnsAsync((UserSettings)null);
             var formParserMock = new Mock<IImportFormParser>();
             var controller = new DataController(_mockUserStore.Object, _mockRepoSettingsStore.Object,
-                _mockJobStore.Object, formParserMock.Object)
+                _mockJobStore.Object, formParserMock.Object, _mockImportService.Object)
             {
                 ControllerContext = new ControllerContext(new ActionContext(_mockHttpContext.Object, new RouteData(),
                     new ControllerActionDescriptor()))
@@ -99,7 +101,7 @@ namespace DataDock.Web.Tests.Api
                 .Setup(x => x.ParseImportFormAsync(It.IsAny<HttpRequest>(), "test_id",
                     It.IsAny<Func<ImportFormData, IFormCollection, Task<bool>>>()))
                 .ReturnsAsync(new ImportFormParserResult("There was some error in your form"));
-            var controller = new DataController(_mockUserStore.Object, _mockRepoSettingsStore.Object, _mockJobStore.Object, formParserMock.Object)
+            var controller = new DataController(_mockUserStore.Object, _mockRepoSettingsStore.Object, _mockJobStore.Object, formParserMock.Object, _mockImportService.Object)
             {
                 ControllerContext = new ControllerContext(new ActionContext(_mockHttpContext.Object, new RouteData(),
                     new ControllerActionDescriptor()))
@@ -129,7 +131,7 @@ namespace DataDock.Web.Tests.Api
                 _mockUserStore.Object,
                 _mockRepoSettingsStore.Object,
                 _mockJobStore.Object,
-                formParserMock.Object)
+                formParserMock.Object, _mockImportService.Object)
             {
                 ControllerContext = new ControllerContext(new ActionContext(_mockHttpContext.Object, new RouteData(),
                     new ControllerActionDescriptor()))

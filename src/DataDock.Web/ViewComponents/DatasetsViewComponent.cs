@@ -26,10 +26,10 @@ namespace DataDock.Web.ViewComponents
                 if (string.IsNullOrEmpty(selectedRepoId))
                 {
                     var datasetsList = await GetOwnerDatasets(selectedOwnerId);
-                    return View(datasetsList);
+                    return View("Default", datasetsList);
                 }
                 var repoDatasetsList = await GetRepoDatasets(selectedOwnerId, selectedRepoId);
-                return View(repoDatasetsList);
+                return View("Default", repoDatasetsList);
             }
             catch (Exception e)
             {

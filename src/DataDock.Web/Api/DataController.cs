@@ -19,15 +19,18 @@ namespace DataDock.Web.Api
         private readonly IUserStore _userStore;
         private readonly IJobStore _jobStore;
         private readonly IImportFormParser _parser;
+        private readonly IImportService _importService;
 
         public DataController(IUserStore userStore, 
             IRepoSettingsStore repoSettingsStore,
             IJobStore jobStore,
-            IImportFormParser parser)
+            IImportFormParser parser,
+            IImportService importService)
         {
             _userStore = userStore;
             _jobStore = jobStore;
             _parser = parser;
+            _importService = importService;
         }
 
         // GET: api/Data
@@ -83,8 +86,22 @@ namespace DataDock.Web.Api
                     if (!ModelState.IsValid) return BadRequest(ModelState);
                     return BadRequest(parserResult.ValidationErrors);
                 }
-                
-                var job = await _jobStore.SubmitImportJobAsync(parserResult.ImportJobRequest);
+
+                var jobRequest = parserResult.ImportJobRequest;
+                try
+                {
+                    var repoSettings =
+                        await _importService.CheckRepoSettingsAsync(User, jobRequest.OwnerId, jobRequest.RepositoryId);
+                }
+                catch (Exception e)
+                {
+                    Log.Error(
+                        $"api/data: unable to retrive repoSettings for the supplied owner '{jobRequest.OwnerId}' and repo '{jobRequest.RepositoryId}'");
+                    return BadRequest(
+                        "Repository does not exist or you do not have the required authorization to publish to it.");
+                }
+
+                var job = await _jobStore.SubmitImportJobAsync(jobRequest);
                 
                 Log.Information("api/data(POST): Conversion job started.");
 

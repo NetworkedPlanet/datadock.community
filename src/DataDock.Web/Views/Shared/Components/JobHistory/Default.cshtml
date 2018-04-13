@@ -1,7 +1,6 @@
 ﻿@model List<DataDock.Web.ViewModels.JobHistoryViewModel>
 
-<div>Owner Job List</div>
-@if (Model != null)
+@if (Model != null && Model.Count > 0)
 {
     
   <div class="ui segments">
@@ -30,5 +29,11 @@
         </div>
       </div>
     }
+  </div>
+}
+else
+{
+  <div class="ui warning message">
+    None found.
   </div>
 }

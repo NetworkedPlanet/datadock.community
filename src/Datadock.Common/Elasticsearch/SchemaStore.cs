@@ -38,6 +38,45 @@ namespace Datadock.Common.Elasticsearch
 
         }
 
+        public IReadOnlyCollection<SchemaInfo> GetSchemasByOwner(string ownerId, int skip, int take)
+        {
+            Log.Debug("GetSchemasByOwner {ownerIds}. Skip={skip}, Take={take}", ownerId, skip, take);
+            var debugQuery = new SearchDescriptor<SchemaInfo>().Query(
+                q => q.Bool(
+                    b => b.Must(
+                        bf => bf.Terms(
+                            t => t.Field(f => f.OwnerId).Terms(ownerId)
+                        )
+                    )
+                )
+            ).Skip(skip).Take(take);
+            using (var ms = new MemoryStream())
+            {
+                _client.RequestResponseSerializer.Serialize(debugQuery, ms);
+                var rawQuery = Encoding.UTF8.GetString(ms.ToArray());
+                Console.WriteLine(rawQuery);
+            }
+            var searchResponse = _client.Search<SchemaInfo>(s => s.Query(
+                    q => q.Bool(
+                        b => b.Must(
+                            bf => bf.Terms(
+                                t => t.Field(f => f.OwnerId).Terms(ownerId)
+                            )
+                        )
+                    )
+                ).Skip(skip).Take(take)
+            );
+            if (!searchResponse.IsValid)
+            {
+                Log.Error("GetSchemasByOwner Failed. OwnerId={ownerId}, Skip={skip}, Take={take}. DebugInformation: {debugInfo}",
+                    ownerId, skip, take, searchResponse.DebugInformation);
+                throw new SchemaStoreException(
+                    $"Failed to retrieve schema list by owner. Cause: {searchResponse.DebugInformation}");
+            }
+            Log.Debug("GetSchemasByOwner {ownerId}. Skip={skip}, Take={take}. Returns {docCount} results", ownerId, skip, take, searchResponse.Documents.Count);
+            return searchResponse.Documents;
+        }
+
         public IReadOnlyCollection<SchemaInfo> GetSchemasByOwnerList(string[] ownerIds, int skip, int take)
         {
             Log.Debug("GetSchemasByOwnerList [{ownerIds}]. Skip={skip}, Take={take}", ownerIds, skip, take);
@@ -77,7 +116,12 @@ namespace Datadock.Common.Elasticsearch
             return searchResponse.Documents;
         }
 
-        public IReadOnlyCollection<SchemaInfo> GetSchemasByRepositoryList(string[] repositoryIds, int skip, int take)
+        public IReadOnlyCollection<SchemaInfo> GetSchemasByRepository(string ownerId, string repositoryId, int skip, int take)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IReadOnlyCollection<SchemaInfo> GetSchemasByRepositoryList(string ownerId, string[] repositoryIds, int skip, int take)
         {
             Log.Debug("GetSchemasByRepositoryList [{repoIds}]. Skip={skip}, Take={take}", repositoryIds, skip, take);
             var searchResponse = _client.Search<SchemaInfo>(s => s.Query(
@@ -100,7 +144,7 @@ namespace Datadock.Common.Elasticsearch
             Log.Debug("GetSchemasByRepositoryList [{repoIds}]. Skip={skip}, Take={take}. Returns {docCount} results", repositoryIds, skip, take, searchResponse.Documents.Count);
             return searchResponse.Documents;
         }
-
+        
         private static QueryContainer QueryByOwnerId(QueryContainerDescriptor<SchemaInfo> q, string ownerId)
         {
             return q.Bool(

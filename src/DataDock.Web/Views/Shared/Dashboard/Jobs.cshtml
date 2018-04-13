@@ -4,8 +4,6 @@
     Model.Title = Model.Title + " Job History";
 }
 
-
-
 <div class="ui container">
   @await Component.InvokeAsync("JobHistory", new { selectedOwnerId = Model.SelectedOwnerId, selectedRepoId = Model.SelectedRepoId })
 </div>

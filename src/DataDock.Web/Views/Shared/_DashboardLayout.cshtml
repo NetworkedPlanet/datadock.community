@@ -7,11 +7,24 @@
 
 <div class="ui container">
   @await Component.InvokeAsync("DashboardMenu", new { selectedOwnerId = Model.SelectedOwnerId, selectedRepoId = Model.SelectedRepoId, area = Model.Area })
-  <div class="ui divider"></div>
 </div>
 
 <h2>@Model.Title</h2>
 
 @RenderBody()
 
-@RenderSection("scripts", required: false)
+@section Scripts {
+  
+  <script type="text/javascript">
+    /*
+    Dashboard javascript
+    */
+
+    // Repository selector to redirect to settings page
+    $("#repoSettings").click(function () {
+      var ownerId = $('#ownerId').val();
+      var repoId = $('#repoId').val();
+      window.location.href = '/' + ownerId + '/' + repoId + '/settings';
+    });
+  </script>
+}

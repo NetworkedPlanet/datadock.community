@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Datadock.Common.Stores;
 using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 namespace DataDock.Web.ViewComponents
 {
@@ -35,9 +36,17 @@ namespace DataDock.Web.ViewComponents
 
         private async Task<List<RepoSettingsViewModel>> GetOwnerRepoSettings(string selectedOwnerId)
         {
-            var repoSettings = await _repoSettingsStore.GetRepoSettingsForOwnerAsync(selectedOwnerId);
-            var repoSettingsViewModels = repoSettings.Select(r => new RepoSettingsViewModel(r)).ToList();
-            return repoSettingsViewModels;
+            try
+            {
+                var repoSettings = await _repoSettingsStore.GetRepoSettingsForOwnerAsync(selectedOwnerId);
+                var repoSettingsViewModels = repoSettings.Select(r => new RepoSettingsViewModel(r)).ToList();
+                return repoSettingsViewModels;
+            }
+            catch (RepoSettingsNotFoundException rsnf)
+            {
+                Log.Warning($"No repository settings found for '{selectedOwnerId}'");
+                return new List<RepoSettingsViewModel>();
+            }
         }
     }
 }

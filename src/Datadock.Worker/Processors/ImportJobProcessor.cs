@@ -137,8 +137,9 @@ namespace DataDock.Worker.Processors
                     RepositoryId = job.GitRepositoryFullName,
                     DatasetId = job.DatasetId,
                     LastModified = DateTime.UtcNow,
-                    Metadata = metadataJson,
-                    ShowOnHomePage = job.IsPublic
+                    CsvwMetadata = metadataJson,
+                    ShowOnHomePage = job.IsPublic,
+                    Tags = metadataJson["dcat:keyword"]?.ToObject<List<string>>()
                 });
             }
             catch (Exception ex)

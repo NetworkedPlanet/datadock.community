@@ -6,7 +6,14 @@
   <base href="/">
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>@Model.Title</title>
+  @{
+      var title = "DataDock";
+    if (!string.IsNullOrEmpty(Model?.Title))
+    {
+      title = Model.Title;
+    }
+  }
+  <title>@title</title>
 
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
@@ -123,7 +130,7 @@
     <script src="~/js/site.min.js" asp-append-version="true"></script>
   </environment>
 
-  @RenderSection("scripts", required: false)
+
 
   <script>
     $(document)
@@ -132,47 +139,35 @@
         // create sidebar and attach to menu open
         $('.ui.sidebar').sidebar('attach events', '.toc.item');
         $('.ui.accordion').accordion();
-        // load any partial views
-        $('.load-async').each(function (index, item) {
-          var i = $(item);
-          var url = i.data('url');
-          if (url && url.length > 0) {
-            i.load(url, function (response, status, xhr) {
-              if (status === 'error') {
-                var msg = "Sorry but there was an error: ";
-                i.getElementById("asyncerror").html(msg + xhr.status + " " + xhr.statusText);
-              }
-            });
-          }
-        });
-
       });
 
   </script>
 
+  @RenderSection("scripts", required: false)
 
-<environment names="Staging,Production">
-  <script type="text/javascript" src="~/vendor/cookiebar/cookiebar-latest.min.js?noGeoIp=1&remember=365&theme=altblack&top=1&privacyPage=%2Fprivacy"></script>
 
-  <script>
-    var cookie = document.cookie.match(/(;)?cookiebar=([^;]*);?/);
-    if (cookie && cookie.length > 2) {
-      var cookieValue = cookie[2];
-      if (cookieValue === 'CookieAllowed') {
-        // The user has allowed cookies, let's load our external services
-        (function (i, s, o, g, r, a, m) {
-          i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
-            (i[r].q = i[r].q || []).push(arguments)
-          }, i[r].l = 1 * new Date(); a = s.createElement(o),
-            m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
-        })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+  <environment names="Staging,Production">
+    <script type="text/javascript" src="~/vendor/cookiebar/cookiebar-latest.min.js?noGeoIp=1&remember=365&theme=altblack&top=1&privacyPage=%2Fprivacy"></script>
 
-        ga('create', 'UA-770913-5', 'auto');
-        ga('send', 'pageview');
+    <script>
+      var cookie = document.cookie.match(/(;)?cookiebar=([^;]*);?/);
+      if (cookie && cookie.length > 2) {
+        var cookieValue = cookie[2];
+        if (cookieValue === 'CookieAllowed') {
+          // The user has allowed cookies, let's load our external services
+          (function (i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+              (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date(); a = s.createElement(o),
+              m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+          })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+          ga('create', 'UA-770913-5', 'auto');
+          ga('send', 'pageview');
+        }
       }
-    }
-  </script>
-</environment>
-    
+    </script>
+  </environment>
+
 </body>
 </html>

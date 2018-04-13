@@ -8,10 +8,6 @@ using DataDock.Common;
 using Nest;
 using Serilog;
 
-namespace Datadock.Common.Repositories
-{
-}
-
 namespace Datadock.Common.Elasticsearch
 {
     public class JobStore : IJobStore
@@ -96,40 +92,112 @@ namespace Datadock.Common.Elasticsearch
             }
         }
 
-        public Task<IEnumerable<JobInfo>> GetJobsForUser(string userId, int skip = 0, int take = 20)
+        public async Task<IEnumerable<JobInfo>> GetJobsForUser(string userId, int skip = 0, int take = 20)
         {
-            throw new NotImplementedException();
+            var response = await _client.SearchAsync<JobInfo>(s => s
+                .From(0).Query(q => q.Match(m => m.Field(f => f.UserId).Query(userId)))
+            );
+
+            if (!response.IsValid)
+            {
+                throw new JobStoreException(
+                    $"Error retrieving jobs for user {userId}. Cause: {response.DebugInformation}");
+            }
+            if (response.Total < 1) throw new JobNotFoundException($"No jobs found for user '{userId}'");
+            return response.Documents;
         }
 
-        public Task<IEnumerable<JobInfo>> GetJobsForOwner(string ownerId, int skip = 0, int take = 20)
+        public async Task<IEnumerable<JobInfo>> GetJobsForOwner(string ownerId, int skip = 0, int take = 20)
         {
-            throw new NotImplementedException();
+            var response = await _client.SearchAsync<JobInfo>(s => s
+                .From(0).Query(q => q.Match(m => m.Field(f => f.OwnerId).Query(ownerId)))
+            );
+
+            if (!response.IsValid)
+            {
+                throw new JobStoreException(
+                    $"Error retrieving jobs for owner {ownerId}. Cause: {response.DebugInformation}");
+            }
+            if (response.Total < 1) throw new JobNotFoundException($"No jobs found for owner '{ownerId}'");
+            return response.Documents;
         }
 
-        public Task<IEnumerable<JobInfo>> GetJobsForRepository(string ownerId, string repositoryId, int skip = 0, int take = 20)
+        public async Task<IEnumerable<JobInfo>> GetJobsForRepository(string ownerId, string repositoryId, int skip = 0, int take = 20)
         {
-            throw new NotImplementedException();
+            var response = await _client.SearchAsync<JobInfo>(s => s
+                .From(0).Query(q => q.Match(m => m.Field(f => f.OwnerId).Query(ownerId)) &&
+                                    q.Match(m => m.Field(f => f.RepositoryId).Query(repositoryId)))
+            );
+            
+            if (!response.IsValid)
+            {
+                throw new JobStoreException(
+                    $"Error retrieving jobs for repository '{repositoryId}' of owner {ownerId}. Cause: {response.DebugInformation}");
+            }
+            if (response.Total < 1) throw new JobNotFoundException($"No jobs found for repository '{repositoryId}' of owner '{ownerId}'");
+            return response.Documents;
         }
 
         public async Task<JobInfo> GetNextJob()
         {
             // TODO: Should make sure that: (a) there aren't any jobs running for the same GitHub repository
             // (b) when we claim the job to work on it, no-one else grabbed it before us (i.e. update with If-Not-Modified)
-            var searchResults = await _client.SearchAsync<JobInfo>(s => s
+
+            var queued = (int)JobStatus.Queued;
+            var running = (int) JobStatus.Running;
+            var runningResults = await _client.SearchAsync<JobInfo>(s => s
                 .Query(q => q.Bool(b => b
                     .Filter(bf => bf
                         .Match(m => m
                             .Field(f => f.CurrentStatus)
-                            .Query(JobStatus.Queued.ToString())
-                        ))))
-                .Sort(sort => sort.Ascending(on => on.QueuedTimestamp)).Take(1));
-            if (searchResults.Hits.Any())
+                            .Query(running.ToString())
+                        )))));
+            
+
+            var queuedJobsClauses = new List<QueryContainer>
+            {
+                new TermQuery
+                {
+                    Field = new Field("currentStatus"),
+                    Value = queued.ToString()
+                }
+            };
+            var notTheseRepos = new List<QueryContainer>();
+            if (runningResults.IsValid && runningResults.Hits.Count > 0)
+            {
+                var repoClauses = new List<QueryContainer>();
+                foreach (var runningJobHit in runningResults.Hits)
+                {
+                    var runningJobInfo = runningJobHit.Source;
+                    repoClauses.Add(new TermQuery
+                    {
+                        Field = new Field("repositoryId"), Value = runningJobInfo.RepositoryId
+                    });
+                }
+                notTheseRepos.Add(new BoolQuery { MustNot = repoClauses });
+            }
+            var searchRequest = new SearchRequest<JobInfo>
+            {
+                Query = new BoolQuery { Must = queuedJobsClauses, Filter = notTheseRepos },
+                Sort = new List<ISort>
+                {
+                    new SortField { Field = "queuedTimestamp", Order = SortOrder.Ascending }
+                }
+            };
+            var queuedResults = await _client.SearchAsync<JobInfo>(searchRequest);
+
+            if (!queuedResults.IsValid)
+            {
+                throw new JobStoreException(
+                    $"Error retrieving next job. Cause: {queuedResults.DebugInformation}");
+            }
+            if (queuedResults.Hits.Any())
             {
                 // Attempt to update the job document to mark it as running
-                var hit = searchResults.Hits.First();
+                var hit = queuedResults.Hits.First();
                 var resultVersion = hit.Version;
                 var jobInfo = hit.Source;
-
+                
                 jobInfo.RefreshedTimestamp = DateTime.UtcNow.Ticks;
                 jobInfo.StartedAt = DateTime.UtcNow;
                 jobInfo.CurrentStatus = JobStatus.Running;
@@ -143,6 +211,35 @@ namespace Datadock.Common.Elasticsearch
             }
 
             return null;
+        }
+
+        public async Task<bool> DeleteJobAsync(string jobId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<bool> DeleteJobsForOwnerAsync(string ownerId)
+        {
+            var deleteResponse = await _client.DeleteByQueryAsync<JobInfo>(s => s.Query(q => QueryByOwnerId(q, ownerId)));
+            if (!deleteResponse.IsValid)
+            {
+                throw new JobStoreException(
+                    $"Failed to delete all jobs owned by {ownerId}");
+            }
+            return true;
+        }
+
+        private static QueryContainer QueryByOwnerId(QueryContainerDescriptor<JobInfo> q, string ownerId)
+        {
+            var filterClauses = new List<QueryContainer>
+            {
+                new TermQuery
+                {
+                    Field = new Field("ownerId"),
+                    Value = ownerId
+                }
+            };
+            return new BoolQuery { Filter = filterClauses };
         }
     }
 }

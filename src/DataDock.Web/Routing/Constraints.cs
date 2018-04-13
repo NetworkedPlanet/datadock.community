@@ -6,12 +6,12 @@ using System.Linq;
 namespace DataDock.Web.Routing
 {
 
-    public class NonDashboardConstraint : IRouteConstraint
+    public class OwnerIdConstraint : IRouteConstraint
     {
         public bool Match(HttpContext httpContext, IRouter route, string routeKey, RouteValueDictionary values,
             RouteDirection routeDirection)
         {
-            List<string> nonDashboardPages = new List<string>()
+            List<string> allowedPages = new List<string>()
             {
                 "",
                 "search",
@@ -27,10 +27,21 @@ namespace DataDock.Web.Routing
             };
             var ownerId = values["ownerId"].ToString().ToLower();
             // Check for a match (assumes case insensitive)
-            var match = nonDashboardPages.Any(x => x.ToLower() == ownerId);
+            var match = allowedPages.Any(x => x.ToLower() == ownerId);
             return !match;
         }
 
     }
-    
+
+    public class RepoIdConstraint : IRouteConstraint
+    {
+        public bool Match(HttpContext httpContext, IRouter route, string routeKey, RouteValueDictionary values,
+            RouteDirection routeDirection)
+        {
+            var repoId = values["repoId"].ToString().ToLower();
+            return !repoId.Equals("repositories");
+        }
+
+    }
+
 }

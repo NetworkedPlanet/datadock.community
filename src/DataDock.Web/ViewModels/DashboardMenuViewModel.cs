@@ -1,6 +1,7 @@
 ﻿using DataDock.Web.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DataDock.Web.ViewModels
 {
@@ -16,13 +17,13 @@ namespace DataDock.Web.ViewModels
         public string SelectedOwnerAvatarUrl { get; set; }
         public string ActiveArea { get; set; }
 
-        public List<Owner> Owners { get; set; }
+        public List<OwnerInfo> Owners { get; set; }
 
         public UserViewModel UserViewModel { get; set; }
 
         public DashboardMenuViewModel()
         {
-            Owners = new List<Owner>();
+            Owners = new List<OwnerInfo>();
         }
 
         /// <summary>
@@ -44,6 +45,13 @@ namespace DataDock.Web.ViewModels
         {
             if (string.IsNullOrEmpty(area)) return string.Empty;
             return area.Equals(ActiveArea, StringComparison.InvariantCultureIgnoreCase) ? "active" : string.Empty;
+        }
+
+        public OwnerInfo GetActiveOwner()
+        {
+            var owner = this.Owners.FirstOrDefault(o =>
+                o.OwnerId.Equals(this.SelectedOwnerId, StringComparison.InvariantCultureIgnoreCase));
+            return owner;
         }
     }
 }

@@ -37,6 +37,7 @@ namespace Datadock.Common.Elasticsearch
 
         public async Task<OwnerSettings> GetOwnerSettingsAsync(string ownerId)
         {
+            if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
             var response = await _client.GetAsync<OwnerSettings>(ownerId);
             if (!response.IsValid)
             {
@@ -61,6 +62,13 @@ namespace Datadock.Common.Elasticsearch
             {
                 throw new OwnerSettingsStoreException($"Error udpating owner settings for owner ID {ownerSettings.OwnerId}");
             }
+        }
+
+        public async Task<bool> DeleteOwnerSettingsAsync(string ownerId)
+        {
+            if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
+            var response = await _client.DeleteAsync<OwnerSettings>(ownerId);
+            return response.IsValid;
         }
     }
 }

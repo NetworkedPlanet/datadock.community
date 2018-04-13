@@ -21,6 +21,8 @@ namespace Datadock.Common.Stores
         /// <param name="userSettings">The settings to be updated / created</param>
         Task CreateOrUpdateUserSettingsAsync(UserSettings userSettings);
 
+        Task<bool> DeleteUserSettingsAsync(string userId);
+
         /// <summary>
         /// Create a new user account
         /// </summary>

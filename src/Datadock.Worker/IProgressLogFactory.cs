@@ -1,9 +1,10 @@
-﻿using Datadock.Common.Models;
+﻿using System.Threading.Tasks;
+using Datadock.Common.Models;
 
 namespace DataDock.Worker
 {
     public interface IProgressLogFactory
     {
-        IProgressLog MakeProgressLogForJob(JobInfo job);
+        Task<IProgressLog> MakeProgressLogForJobAsync(JobInfo job);
     }
 }

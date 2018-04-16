@@ -13,6 +13,8 @@ services:
     image: datadock.worker
     volumes:
       - dd-files:/datadock
+    environment:
+      GITHUB_HEADER: dev-datadock-io
     build:
       context: .
       dockerfile: DataDock.Worker/Dockerfile

@@ -7,11 +7,11 @@ using Xunit;
 
 namespace DataDock.IntegrationTests
 {
-    public class UserRepositoryTests : IClassFixture<ElasticsearchFixture>
+    public class UserStoreTests : IClassFixture<ElasticsearchFixture>
     {
         private readonly UserStore _userStore;
 
-        public UserRepositoryTests(ElasticsearchFixture fixture)
+        public UserStoreTests(ElasticsearchFixture fixture)
         {
             var esFixture = fixture;
             _userStore = new UserStore(esFixture.Client, fixture.Configuration);

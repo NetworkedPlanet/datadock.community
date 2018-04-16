@@ -26,7 +26,7 @@ namespace DataDock.Web.Models
         public RepositoryInfo(RepoSettings s)
         {
             this.OwnerId = s.OwnerId;
-            this.RepoId = s.RepoId;
+            this.RepoId = s.RepositoryId;
             this.DataDockImportUrl = $"/{OwnerId}/{RepoId}/import";
             this.OwnerAvatar = s.OwnerAvatar;
         }

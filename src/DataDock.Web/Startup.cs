@@ -21,6 +21,8 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.Elasticsearch;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
@@ -111,6 +113,7 @@ namespace DataDock.Web
                     options.UserInformationEndpoint = "https://api.github.com/user";
 
                     options.Scope.Clear();
+                    options.Scope.Add("user:email");
                     options.Scope.Add("read:org");
                     options.Scope.Add("public_repo");
 
@@ -119,6 +122,7 @@ namespace DataDock.Web
                     options.ClaimActions.MapJsonKey(DataDockClaimTypes.GitHubId, "id");
                     options.ClaimActions.MapJsonKey(DataDockClaimTypes.GitHubLogin, "login");
                     options.ClaimActions.MapJsonKey(DataDockClaimTypes.GitHubName, "name");
+                    options.ClaimActions.MapJsonKey(DataDockClaimTypes.GitHubEmail, "email");
                     options.ClaimActions.MapJsonKey(DataDockClaimTypes.GitHubUrl, "html_url");
                     options.ClaimActions.MapJsonKey(DataDockClaimTypes.GitHubAvatar, "avatar_url");
 
@@ -143,9 +147,8 @@ namespace DataDock.Web
                             
 
                             // check if authorized user exists in DataDock
-                            var login = user["login"];
-                            await AddOrganizationClaims(context, login.ToString());
-                            await EnsureUser(context, login.ToString());
+                            await AddOrganizationClaims(context, user);
+                            await EnsureUser(context, user);
                         }
                     };
                 });
@@ -162,8 +165,9 @@ namespace DataDock.Web
             });
         }
 
-        private async Task EnsureUser(OAuthCreatingTicketContext context, string login)
+        private async Task EnsureUser(OAuthCreatingTicketContext context, JObject user)
         {
+            var login = user?["login"]?.ToString();
             if (string.IsNullOrEmpty(login)) return;
             var userStore = context.HttpContext.RequestServices.GetService<IUserStore>();
             try
@@ -172,6 +176,8 @@ namespace DataDock.Web
                 if (existingAccount != null)
                 {
                     context.Identity.AddClaim(new Claim(DataDockClaimTypes.DataDockUserId, login));
+                    // refresh claims on user account as claims may have changed since last login
+                    await userStore.UpdateUserAsync(existingAccount.UserId, context.Identity.Claims);
                 }
             }
             catch (UserAccountNotFoundException notFound)
@@ -180,8 +186,11 @@ namespace DataDock.Web
             }
         }
 
-        private async Task AddOrganizationClaims(OAuthCreatingTicketContext context, string login)
+        
+
+        private async Task AddOrganizationClaims(OAuthCreatingTicketContext context, JObject user)
         {
+            var login = user?["login"]?.ToString();
             if (string.IsNullOrEmpty(login)) return;
             var gitHubApiService = context.HttpContext.RequestServices.GetService<IGitHubApiService>();
             if (gitHubApiService == null)

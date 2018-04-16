@@ -13,7 +13,7 @@ namespace Datadock.Common.Models
         }
 
         /// <summary>
-        /// Combined owner, repo and dataset IDs in the format {ownerId}/{repoId}/{datasetId}
+        /// Combined owner, repo and dataset IDs in the format {ownerId}/{repositoryId}/{datasetId}
         /// </summary>
         public string FullId { get; set; }
 

@@ -18,6 +18,8 @@ namespace Datadock.Common.Models
 
         public static string GitHubName => "urn:github:name";
 
+        public static string GitHubEmail => "urn:github:email";
+
         public static string GitHubUrl => "urn:github:url";
 
         public static string GitHubAvatar => "urn:github:avatar";

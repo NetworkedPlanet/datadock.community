@@ -34,9 +34,9 @@ namespace DataDock.Web.ViewModels
             if (identity.IsAuthenticated)
             {
                 GitHubName = identity.FindFirst(c => c.Type == ClaimTypes.Name)?.Value;
-                GitHubLogin = identity.FindFirst(c => c.Type == "urn:github:login")?.Value;
-                GitHubUrl = identity.FindFirst(c => c.Type == "urn:github:url")?.Value;
-                GitHubAvatar = identity.FindFirst(c => c.Type == "urn:github:avatar")?.Value;
+                GitHubLogin = identity.FindFirst(c => c.Type == DataDockClaimTypes.GitHubLogin)?.Value;
+                GitHubUrl = identity.FindFirst(c => c.Type == DataDockClaimTypes.GitHubUrl)?.Value;
+                GitHubAvatar = identity.FindFirst(c => c.Type == DataDockClaimTypes.GitHubAvatar)?.Value;
 
                 UserOwner = new OwnerInfo
                 {

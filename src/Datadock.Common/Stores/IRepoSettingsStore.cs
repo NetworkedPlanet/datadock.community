@@ -7,8 +7,8 @@ namespace Datadock.Common.Stores
     public interface IRepoSettingsStore
     {
         Task<IEnumerable<RepoSettings>> GetRepoSettingsForOwnerAsync(string ownerId);
-        Task<RepoSettings> GetRepoSettingsAsync(string ownerId, string repoId);
+        Task<RepoSettings> GetRepoSettingsAsync(string ownerId, string repositoryId);
         Task CreateOrUpdateRepoSettingsAsync(RepoSettings settings);
-        Task<bool> DeleteRepoSettingsAsync(string ownerId, string repoId);
+        Task<bool> DeleteRepoSettingsAsync(string ownerId, string repositoryId);
     }
 }

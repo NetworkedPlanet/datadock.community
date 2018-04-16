@@ -17,12 +17,14 @@ namespace DataDock.Web.Controllers
     public class ManageController : Controller
     {
         private readonly IDatasetStore _datasetStore;
+        private readonly ISchemaStore _schemaStore;
         private readonly IRepoSettingsStore _repoSettingsStore;
         private readonly IOwnerSettingsStore _ownerSettingsStore;
 
-        public ManageController(IDatasetStore datasetStore)
+        public ManageController(IDatasetStore datasetStore, ISchemaStore schemaStore)
         {
             _datasetStore = datasetStore;
+            _schemaStore = schemaStore;
         }
 
         public IActionResult Index()
@@ -41,6 +43,28 @@ namespace DataDock.Web.Controllers
                 foreach (var ds in datasets)
                 {
                     await _datasetStore.CreateOrUpdateDatasetRecordAsync(ds);
+                }
+
+                return RedirectToAction("Index");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        public async Task<IActionResult> SeedTemplates()
+        {
+            try
+            {
+                // create a few dummy datasets
+                var ownerIds = new string[] {User.Identity.Name};
+                var repoIds = new string[] {"repo-1", "repo-2", "repo-3"};
+                var templates = GetDummyTemplates(ownerIds, repoIds);
+                foreach (var t in templates)
+                {
+                    await _schemaStore.CreateOrUpdateSchemaRecordAsync(t);
                 }
 
                 return RedirectToAction("Index");
@@ -74,6 +98,30 @@ namespace DataDock.Web.Controllers
 
             datasets.Add(datasetInfo);
             return datasets;
+        }
+
+        private List<SchemaInfo> GetDummyTemplates(string[] ownerIds, string[] repositoryIds)
+        {
+            var schemas = new List<SchemaInfo>();
+            foreach (var ownerId in ownerIds)
+            {
+                foreach (var repoId in repositoryIds)
+                {
+                    var csvwJson = new JObject(new JProperty("dc:title", $"Test Dataset for {ownerId}/{repoId}"), new JProperty("dcat:keyword", new JArray("one", "two", "three")));
+
+                    var schemaInfo = new SchemaInfo
+                    {
+                        Id = Guid.NewGuid().ToString("N"),
+                        OwnerId = ownerId,
+                        RepositoryId = repoId,
+                        SchemaId = "schema_" + ownerId + "." + repoId,
+                        LastModified = DateTime.UtcNow,
+                        Schema = csvwJson
+                    };
+                    schemas.Add(schemaInfo);
+                }
+            }
+            return schemas;
         }
     }
 }

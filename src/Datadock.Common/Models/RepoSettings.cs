@@ -7,7 +7,7 @@ namespace Datadock.Common.Models
     public class RepoSettings
     {
         /// <summary>
-        /// Combined owner and repo IDs in the format {ownerId}/{repoId}
+        /// Combined owner and repo IDs in the format {ownerId}/{repositoryId}
         /// </summary>
         [Keyword]
         public string FullId { get; set; }
@@ -22,7 +22,7 @@ namespace Datadock.Common.Models
         /// The DataDock repository ID
         /// </summary>
         [Keyword]
-        public string RepoId { get; set; }
+        public string RepositoryId { get; set; }
 
         [Boolean]
         public bool OwnerIsOrg { get; set; }

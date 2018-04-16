@@ -11,12 +11,12 @@ using Xunit;
 
 namespace DataDock.IntegrationTests
 {
-    public class SchemaRepositoryTests : IClassFixture<ElasticsearchFixture>
+    public class SchemaStoreTests : IClassFixture<ElasticsearchFixture>
     {
         private readonly ElasticsearchFixture _fixture;
         private readonly SchemaStore _repo;
 
-        public SchemaRepositoryTests(ElasticsearchFixture fixture)
+        public SchemaStoreTests(ElasticsearchFixture fixture)
         {
             _fixture = fixture;
             _repo = new SchemaStore(fixture.Client, fixture.Configuration);
@@ -51,10 +51,10 @@ namespace DataDock.IntegrationTests
 
     }
 
-    public class SchemaRepositoryFixture : ElasticsearchFixture
+    public class SchemaStoreFixture : ElasticsearchFixture
     {
         public SchemaStore Store { get; }
-        public SchemaRepositoryFixture() : base()
+        public SchemaStoreFixture() : base()
         {
             Store = new SchemaStore(Client, Configuration);
             InitializeRepository().Wait();
@@ -84,11 +84,11 @@ namespace DataDock.IntegrationTests
 
     }
 
-    public class SchemaRepositorySearchTests : IClassFixture<SchemaRepositoryFixture>
+    public class SchemaStoreSearchTests : IClassFixture<SchemaStoreFixture>
     {
         private readonly SchemaStore _repo;
 
-        public SchemaRepositorySearchTests(SchemaRepositoryFixture fixture)
+        public SchemaStoreSearchTests(SchemaStoreFixture fixture)
         {
             _repo= fixture.Store;
         }

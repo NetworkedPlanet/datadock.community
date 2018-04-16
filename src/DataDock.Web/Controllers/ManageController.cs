@@ -59,7 +59,9 @@ namespace DataDock.Web.Controllers
             try
             {
                 // create a few dummy datasets
-                var templates = GetDummyTemplates(1);
+                var ownerIds = new string[] {User.Identity.Name};
+                var repoIds = new string[] {"repo-1", "repo-2", "repo-3"};
+                var templates = GetDummyTemplates(ownerIds, repoIds);
                 foreach (var t in templates)
                 {
                     await _schemaStore.CreateOrUpdateSchemaRecordAsync(t);
@@ -98,22 +100,27 @@ namespace DataDock.Web.Controllers
             return datasets;
         }
 
-        private List<SchemaInfo> GetDummyTemplates(int num)
+        private List<SchemaInfo> GetDummyTemplates(string[] ownerIds, string[] repositoryIds)
         {
             var schemas = new List<SchemaInfo>();
-
-            var csvwJson = new JObject(new JProperty("dc:title", "Test Dataset"), new JProperty("dcat:keyword", new JArray("one", "two", "three")));
-            var ownerId = User.Identity.Name;
-            var schemaInfo = new SchemaInfo()
+            foreach (var ownerId in ownerIds)
             {
-                OwnerId = ownerId,
-                RepositoryId = "repo-name",
-                SchemaId = Guid.NewGuid().ToString(),
-                LastModified = DateTime.UtcNow.Subtract(TimeSpan.FromMinutes(1)),
-                Schema = csvwJson
-            };
+                foreach (var repoId in repositoryIds)
+                {
+                    var csvwJson = new JObject(new JProperty("dc:title", $"Test Dataset for {ownerId}/{repoId}"), new JProperty("dcat:keyword", new JArray("one", "two", "three")));
 
-            schemas.Add(schemaInfo);
+                    var schemaInfo = new SchemaInfo
+                    {
+                        Id = Guid.NewGuid().ToString("N"),
+                        OwnerId = ownerId,
+                        RepositoryId = repoId,
+                        SchemaId = "schema_" + ownerId + "." + repoId,
+                        LastModified = DateTime.UtcNow,
+                        Schema = csvwJson
+                    };
+                    schemas.Add(schemaInfo);
+                }
+            }
             return schemas;
         }
     }

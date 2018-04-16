@@ -71,7 +71,7 @@ namespace DataDock.IntegrationTests
                     {
                         Id = Guid.NewGuid().ToString("N"),
                         OwnerId = "owner-" + o,
-                        RepositoryId = "owner-" + o + "/repo-" + r,
+                        RepositoryId = "repo-" + r,
                         SchemaId = "schema_" + o + "." + r,
                         LastModified = DateTime.UtcNow,
                         Schema = new { foo = "foo" }
@@ -148,7 +148,7 @@ namespace DataDock.IntegrationTests
             foreach (var r in results)
             {
                 r.OwnerId.Should().Be("owner-1");
-                r.RepositoryId.Should().BeOneOf("owner-1/repo-0", "owner-1/repo-1", "owner-1/repo-2");
+                r.RepositoryId.Should().BeOneOf("repo-0", "repo-1", "repo-2");
             }
         }
 

@@ -23,10 +23,10 @@ namespace Datadock.Common.Elasticsearch
         {
             var filterClauses = new List<QueryContainer>
             {
-                new TermQuery
+                new TermsQuery
                 {
                     Field = new Field("ownerId"),
-                    Value = ownerIds
+                    Terms = ownerIds
                 }
             };
             return new BoolQuery { Filter = filterClauses };
@@ -57,10 +57,10 @@ namespace Datadock.Common.Elasticsearch
                     Field = new Field("ownerId"),
                     Value = ownerId
                 },
-                new TermQuery
+                new TermsQuery
                 {
                     Field = new Field("repositoryId"),
-                    Value = repositoryIds
+                    Terms = repositoryIds
                 }
             };
             return new BoolQuery { Filter = filterClauses };

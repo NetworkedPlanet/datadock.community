@@ -130,8 +130,7 @@ namespace DataDock.Worker.Processors
                 $"Added {job.CsvFileName} to dataset {job.DatasetIri}", userAccount))
             {
                 await _git.PushChanges(job.GitRepositoryUrl, targetDirectory, authenticationToken);
-                await _git.MakeRelease(datasetGraph, releaseTag, job.OwnerId, job.RepositoryId,
-                    job.DatasetId, targetDirectory, authenticationToken);
+                //await _git.MakeRelease(datasetGraph, releaseTag, job.OwnerId, job.RepositoryId, job.DatasetId, targetDirectory, authenticationToken);
             }
 
             // Update the dataset repository

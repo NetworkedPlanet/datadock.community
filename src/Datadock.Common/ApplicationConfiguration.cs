@@ -50,7 +50,7 @@ namespace DataDock.Common
                 GetEnvVar("REPOSETTINGS_IX", "reposettings"),
                 GetEnvVar("DATASET_IX", "datasets"),
                 GetEnvVar("SCHEMA_IX", "schemas"),
-                GetEnvVar("FILE_STORE_PATH", "files"));
+                GetEnvVar("FILE_STORE_PATH", "/datadock/files"));
         }
 
         protected static string GetEnvVar(string var, string defaultValue)

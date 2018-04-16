@@ -62,6 +62,7 @@ var nm = {
         "signalr/dist/browser/*": ""
     }
 };
+
 gulp.task("node_modules_copy", function () {
 
     var streams = [];
@@ -69,9 +70,9 @@ gulp.task("node_modules_copy", function () {
     for (var prop in nm) {
         console.log("Prepping Scripts for: " + prop);
         for (var itemProp in nm[prop]) {
-            var 
+            var dest = prop.replace("@", "");
             streams.push(gulp.src("node_modules/" + prop + "/" + itemProp)
-                .pipe(gulp.dest("wwwroot/vendor/" + prop + "/" + nm[prop][itemProp])));
+                .pipe(gulp.dest("wwwroot/vendor/" + dest + "/" + nm[prop][itemProp])));
         }
     }
 

@@ -16,41 +16,60 @@
 @section Scripts {
 
   <environment names="Development">
-    <script src="~/vendor/signalr/jquery.signalR-2.2.2.js"></script>
+    <script src="~/vendor/aspnet/signalr.js"></script>
   </environment>
   <environment names="Staging,Production">
-    <script src="~/vendor/signalr/jquery.signalR-2.2.2.min.js"></script>
+    <script src="~/vendor/aspnet/signalr.min.js"></script>
   </environment>
-  <script src="~/signalr/hubs"></script>
   <script>
     $(function () {
-      var dd = $.connection.ProgressNotifier;
-      dd.client.progressUpdated = function (userId, jobId, progressMessage) {
-        var m = $('#' + jobId + ' > .processing-messages');
-        m.removeClass('hidden')
-          .append($('<div/>').html(progressMessage))
-          .scrollTop(m.prop('scrollHeight'));
-      }
-      dd.client.statusUpdated = function (userId, jobId, jobStatus) {
-        $('#' + jobId + ' .job-status')
-          .html(getJobStatusText(jobStatus));
-        $('#' + jobId)
-          .removeClass('positive negative info warning')
-          .addClass(getJobStatusClass(jobStatus));
-      }
-      dd.client.logUpdated = function (userId, jobId, logLink) {
-        $('#' + jobId + ' .log-link').append($("<a/>").attr('href', logLink).html('Download full log'));
-        var dsUrl = $('#' + jobId + ' p#iri').text();
-        var dsLink = $("<a />",
-          {
-            href: dsUrl,
-            text: dsUrl,
-            'style': 'font-weight:bold;'
-          });
-        $('#' + jobId + ' p#iri').text().append(dsLink);
-      }
-      $.connection.hub.logging = true;
-      $.connection.hub.start();
+      var connection = new signalR.HubConnection('/progress');
+      connection.on('progressUpdated',
+        function (userId, jobId, progressMessage) {
+          console.log('progressUpdated for job Id ' + jobId);
+          var item = $('#' + jobId);
+          if (!item) {
+            console.log('Cannot find an element with that jobId');
+          }
+          var m = $('#' + jobId + ' > .processing-messages');
+          m.removeClass('hidden')
+            .append($('<div/>').html(progressMessage))
+            .scrollTop(m.prop('scrollHeight'));
+        });
+      connection.on('statusUpdated',
+        function (userId, jobId, jobStatus) {
+          console.log('statusUpdated for job Id ' + jobId);
+          var item = $('#' + jobId);
+          if (!item) {
+            console.log('Cannot find an element with that jobId');
+          }
+          $('#' + jobId + ' .job-status')
+            .html(getJobStatusText(jobStatus));
+          $('#' + jobId)
+            .removeClass('positive negative info warning')
+            .addClass(getJobStatusClass(jobStatus));
+        });
+      connection.on('logUpdated',
+        function (userId, jobId, logLink) {
+          console.log('logUpdated for job Id ' + jobId);
+          var item = $('#' + jobId);
+          if (!item) {
+            console.log('Cannot find an element with that jobId');
+          }
+          $('#' + jobId + ' .log-link').append($("<a/>").attr('href', logLink).html('Download full log'));
+          var dsUrl = $('#' + jobId + ' p#iri').text();
+          var dsLink = $("<a />",
+            {
+              href: dsUrl,
+              text: dsUrl,
+              'style': 'font-weight:bold;'
+            });
+          $('#' + jobId + ' p#iri').text().append(dsLink);
+        });
+      
+      // $.connection.hub.logging = true;
+      //connection.logging(true);
+      connection.start();
     });
 
     function htmlEncode(value) {

@@ -50,6 +50,8 @@ namespace DataDock.Worker.Processors
         public async Task ProcessJob(JobInfo job, UserAccount userAccount, IProgressLog progressLog)
         {
             _progressLog = progressLog;
+            _progressLog.Info("Starting import job processing for " + userAccount.UserId);
+
             var authenticationClaim =
                 userAccount.Claims.FirstOrDefault(c => c.Type.Equals(DataDockClaimTypes.GitHubAccessToken));
             var authenticationToken = authenticationClaim?.Value;

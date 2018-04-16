@@ -1,5 +1,8 @@
 FROM microsoft/dotnet:2.0-runtime AS base
 WORKDIR /app
+# Install Git command-line for DD repository operations
+RUN apt-get update && apt-get install -y git-core
+ENV GIT_PATH=/usr/bin/git
 
 FROM microsoft/dotnet:2.0-sdk AS build
 WORKDIR /src

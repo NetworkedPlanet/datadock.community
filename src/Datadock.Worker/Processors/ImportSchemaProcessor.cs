@@ -48,11 +48,11 @@ namespace DataDock.Worker.Processors
                             schemaJson);
 
                         Log.Debug("Create schema: OwnerId: {ownerId} RepoId: {repoId} SchemaFileId: {schemaFileId}",
-                            job.OwnerId, job.GitRepositoryFullName, job.SchemaFileId);
+                            job.OwnerId, job.RepositoryId, job.SchemaFileId);
                         var schemaInfo = new SchemaInfo
                         {
                             OwnerId = job.OwnerId,
-                            RepositoryId = job.GitRepositoryFullName,
+                            RepositoryId = job.RepositoryId,
                             LastModified = DateTime.UtcNow,
                             SchemaId = Guid.NewGuid().ToString(),
                             Schema = schemaJson,

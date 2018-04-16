@@ -41,9 +41,9 @@ namespace DataDock.Worker
                 GetEnvVar("REPOSETTINGS_IX", "reposettings"),
                 GetEnvVar("DATASET_IX", "datasets"),
                 GetEnvVar("SCHEMA_IX", "schemas"),
-                GetEnvVar("FILE_STORE_PATH", "files"),
-                GetEnvVar("GIT_PATH", ""),
-                GetEnvVar("REPO_BASE_DIR", "repositories"),
+                GetEnvVar("FILE_STORE_PATH", "/datadock/files"),
+                GetEnvVar("GIT_PATH", "git"),
+                GetEnvVar("REPO_BASE_DIR", "/datadock/repositories"),
                 GetEnvVar("GITHUB_HEADER", ""));
         }
 

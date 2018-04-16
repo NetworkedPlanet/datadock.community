@@ -127,8 +127,9 @@ namespace DataDock.Worker.Processors
         {
             var nameClaim = userAccount.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.Name));
             var emailClaim = userAccount.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.Email));
+            var email = emailClaim?.Value ?? "noreply@datadock.io";
             // TODO: If nameClaim or emailClaim is null the user account is not properly configured
-            var commitAuthor = nameClaim.Value + " <" + emailClaim.Value + ">";
+            var commitAuthor = nameClaim.Value + " <" + email + ">";
 
             var git = _gitWrapperFactory.MakeGitWrapper(repositoryDirectory);
             ProgressLog.Info("Adding files to git repository.");
@@ -137,7 +138,7 @@ namespace DataDock.Worker.Processors
             {
                 throw new WorkerException("Commit failed: Could not configure git user name");
             }
-            configResult = await git.SetUserEmail(emailClaim.Value);
+            configResult = await git.SetUserEmail(email);
             if (!configResult.Success)
             {
                 throw new WorkerException("Commit failed: Could not configure git user email");
@@ -238,9 +239,11 @@ namespace DataDock.Worker.Processors
                 ProgressLog.Info("Generating a new release of dataset {0}", datasetId);
                 if (authenticationToken == null) throw new WorkerException("No valid GitHub access token found for your account.");
                 var client = _gitHubClientFactory.GetClient(authenticationToken);
+                client.SetRequestTimeout(TimeSpan.FromSeconds(300));
                 var releaseClient = client.Repository.Release;
                 var newRelease = new NewRelease(releaseTag) { TargetCommitish = "gh-pages" };
                 var release = await releaseClient.Create(owner, repositoryId, newRelease);
+                var start = DateTime.UtcNow;
 
                 // Attach data dump file(s) to release
                 try
@@ -249,13 +252,15 @@ namespace DataDock.Worker.Processors
                     using (var zipFileStream = File.OpenRead(ntriplesDumpFileName))
                     {
                         var upload = new ReleaseAssetUpload(Path.GetFileName(ntriplesDumpFileName), "application/gzip",
-                            zipFileStream, null);
+                            zipFileStream, TimeSpan.FromMinutes(10));
                         var releaseAsset = await releaseClient.UploadAsset(release, upload);
                         releaseInfo.DownloadLinks.Add(releaseAsset.BrowserDownloadUrl);
                     }
                 }
                 catch (Exception ex)
                 {
+                    var end = DateTime.UtcNow;
+                    var diff = end - start;
                     Log.Error(ex, "Failed to attach dump files to GitHub release");
                     throw new WorkerException(ex, "Failed to attach dump files to GitHub release");
                 }

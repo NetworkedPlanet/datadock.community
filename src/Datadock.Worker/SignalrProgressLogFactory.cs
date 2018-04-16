@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Datadock.Common.Models;
 using Datadock.Common.Stores;
+using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.SignalR.Client;
 using Serilog;
 
@@ -32,7 +33,10 @@ namespace DataDock.Worker
         private async Task<HubConnection> EnsureHubConnectionAsync()
         {
             if (_hubConnection != null) return _hubConnection;
-            _hubConnection = new HubConnectionBuilder().WithUrl("http://datadock.web/progress").Build();
+            _hubConnection = new HubConnectionBuilder()
+                .WithUrl("http://datadock.web/progress")
+                .WithTransport(TransportType.WebSockets)
+                .Build();
             _hubConnection.Closed += OnHubConnectionLost;
             var connectionStarted = false;
             while (!connectionStarted)

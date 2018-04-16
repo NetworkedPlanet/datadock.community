@@ -127,8 +127,9 @@ namespace DataDock.Worker.Processors
         {
             var nameClaim = userAccount.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.Name));
             var emailClaim = userAccount.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.Email));
+            var email = emailClaim?.Value ?? "noreply@datadock.io";
             // TODO: If nameClaim or emailClaim is null the user account is not properly configured
-            var commitAuthor = nameClaim.Value + " <" + emailClaim.Value + ">";
+            var commitAuthor = nameClaim.Value + " <" + email + ">";
 
             var git = _gitWrapperFactory.MakeGitWrapper(repositoryDirectory);
             ProgressLog.Info("Adding files to git repository.");
@@ -137,7 +138,7 @@ namespace DataDock.Worker.Processors
             {
                 throw new WorkerException("Commit failed: Could not configure git user name");
             }
-            configResult = await git.SetUserEmail(emailClaim.Value);
+            configResult = await git.SetUserEmail(email);
             if (!configResult.Success)
             {
                 throw new WorkerException("Commit failed: Could not configure git user email");

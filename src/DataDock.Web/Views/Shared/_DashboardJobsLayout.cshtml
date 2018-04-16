@@ -24,6 +24,8 @@
   <script>
     $(function () {
       var connection = new signalR.HubConnection('/progress');
+
+
       connection.on('progressUpdated',
         function (userId, jobId, progressMessage) {
           console.log('progressUpdated for job Id ' + jobId);

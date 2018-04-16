@@ -13,11 +13,6 @@ namespace DataDock.Web.Services
             // TODO: Change this to send to the specific user
             await Clients.All.SendAsync("progressUpdated", userId, jobId, progressMessage);
         }
-
-        public void Send(string userId, string jobId, string progressMessage)
-        {
-            // Call the broadcastMessage method to update clients.
-            Clients.All.SendAsync("progressUpdated", userId, jobId, progressMessage);
-        }
+        
     }
 }

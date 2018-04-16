@@ -20,6 +20,7 @@ namespace DataDock.Worker
         public IQuinceStore MakeQuinceStore(string repoDirectoryPath)
         {
             var quincePath = Path.Combine(repoDirectoryPath, _quinceSubDir);
+            if (!Directory.Exists(quincePath)) Directory.CreateDirectory(quincePath);
             return new DynamicFileStore(quincePath, _cacheThreshold);
         }
     }

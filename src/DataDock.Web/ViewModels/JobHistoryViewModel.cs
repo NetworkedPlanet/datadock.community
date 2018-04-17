@@ -37,10 +37,9 @@ namespace DataDock.Web.ViewModels
         public string RepositoryId => _jobInfo.RepositoryId;
         public string DatasetIri => _jobInfo.DatasetIri;
         public string CurrentStatus => _jobInfo.CurrentStatus.ToString();
-        public DateTime? CompletedAt => _jobInfo.CompletedAt;
+        public DateTime CompletedAt => _jobInfo.CompletedAt;
         public DateTime StartedAt => _jobInfo.StartedAt;
-        //TODO public string FullLogLink => _jobInfo;
+        public DateTime QueuedAt => _jobInfo.QueuedAt;
         public string JobType => _jobInfo.JobType.ToString();
-        // TODO public string LastLogMessage => _jobInfo.LogTail;
     }
 }

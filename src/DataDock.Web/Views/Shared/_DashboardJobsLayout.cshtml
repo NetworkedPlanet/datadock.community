@@ -23,12 +23,16 @@
   </environment>
   <script>
     $(function () {
+
       var connection = new signalR.HubConnection('/progress');
 
+      // Create a function that the hub can call to broadcast messages.
+      connection.on('sendMessage', function (userId, message) {
+        console.log(userId + ' ' + message);
+      });
 
       connection.on('progressUpdated',
         function (userId, jobId, progressMessage) {
-          console.log('progressUpdated for job Id ' + jobId);
           var item = $('#' + jobId);
           if (!item) {
             console.log('Cannot find an element with that jobId');
@@ -38,9 +42,9 @@
             .append($('<div/>').html(progressMessage))
             .scrollTop(m.prop('scrollHeight'));
         });
+
       connection.on('statusUpdated',
         function (userId, jobId, jobStatus) {
-          console.log('statusUpdated for job Id ' + jobId);
           var item = $('#' + jobId);
           if (!item) {
             console.log('Cannot find an element with that jobId');
@@ -51,9 +55,9 @@
             .removeClass('positive negative info warning')
             .addClass(getJobStatusClass(jobStatus));
         });
+
       connection.on('logUpdated',
         function (userId, jobId, logLink) {
-          console.log('logUpdated for job Id ' + jobId);
           var item = $('#' + jobId);
           if (!item) {
             console.log('Cannot find an element with that jobId');
@@ -68,10 +72,10 @@
             });
           $('#' + jobId + ' p#iri').text().append(dsLink);
         });
-      
-      // $.connection.hub.logging = true;
-      //connection.logging(true);
-      connection.start();
+
+      connection.start().then(() => {  
+        console.log('ProgressHub Connected');  
+      });  
     });
 
     function htmlEncode(value) {

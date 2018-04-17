@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Datadock.Common.Models;
+﻿using Datadock.Common.Models;
 using Microsoft.AspNetCore.SignalR;
+using System.Threading.Tasks;
 
 namespace DataDock.Web.Services
 {
@@ -19,6 +16,11 @@ namespace DataDock.Web.Services
         {
             // TODO: Change this to send to the specific user
             await Clients.All.SendAsync("statusUpdated", userId, jobId, jobStatus);
+        }
+
+        public async Task SendMessage(string userId, string message)
+        {
+            await Clients.All.SendAsync("sendMessage", userId, message);
         }
 
     }

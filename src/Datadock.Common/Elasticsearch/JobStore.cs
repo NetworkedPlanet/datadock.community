@@ -113,7 +113,12 @@ namespace Datadock.Common.Elasticsearch
         {
             if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
 
-            var search = new SearchDescriptor<JobInfo>().Query(q => QueryHelper.QueryByOwnerId(ownerId)).Skip(skip).Take(take);
+            var search = new SearchDescriptor<JobInfo>()
+                .Query(q => QueryHelper.QueryByOwnerId(ownerId))
+                .Skip(skip)
+                .Take(take)
+                .Sort(s => s
+                    .Field(f => f.Field("queuedAt").Order(SortOrder.Ascending))); 
 
             var rawQuery = "";
             using (var ms = new MemoryStream())
@@ -144,7 +149,13 @@ namespace Datadock.Common.Elasticsearch
             if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
             if (repositoryId == null) throw new ArgumentNullException(nameof(repositoryId));
 
-            var search = new SearchDescriptor<JobInfo>().Query(q => QueryHelper.QueryByOwnerIdAndRepositoryId(ownerId, repositoryId)).Skip(skip).Take(take); 
+            var search = new SearchDescriptor<JobInfo>()
+                .Query(
+                    q => QueryHelper.QueryByOwnerIdAndRepositoryId(ownerId, repositoryId))
+                .Skip(skip)
+                .Take(take)
+                .Sort(s => s
+                    .Field(f => f.Field("queuedAt").Order(SortOrder.Ascending)));
 
             var rawQuery = "";
             using (var ms = new MemoryStream())

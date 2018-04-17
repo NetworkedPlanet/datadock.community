@@ -48,7 +48,7 @@ namespace DataDock.Worker
                 jobLogger.Debug("Creating progress log factory");
                 var progressLogFactory = Services.GetRequiredService<IProgressLogFactory>();
                 var progressLog = await progressLogFactory.MakeProgressLogForJobAsync(jobInfo);
-                
+
                 // TODO: Should encapsulate this logic plus basic job info validation into its own processor factory class
                 jobLogger.Debug("Creating job processor for job type {JobType}", jobInfo.JobType);
                 IDataDockProcessor processor;
@@ -94,6 +94,7 @@ namespace DataDock.Worker
                 jobInfo.CurrentStatus = JobStatus.Completed;
                 jobInfo.CompletedAt = DateTime.UtcNow;
                 await jobStore.UpdateJobInfoAsync(jobInfo);
+                progressLog.UpdateStatus(jobInfo.CurrentStatus, "Job completed");
             }
             catch (Exception ex)
             {

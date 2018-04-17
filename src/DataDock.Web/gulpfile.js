@@ -19,13 +19,6 @@ var paths = {
     webroot: "./wwwroot/"
 };
 
-// Dependency Dirs
-var nm = {
-    "jquery": {
-        "dist/*": ""
-    }
-};
-
 paths.js = paths.webroot + "js/**/*.js";
 paths.minJs = paths.webroot + "js/**/*.min.js";
 paths.css = paths.webroot + "css/**/*.css";
@@ -59,6 +52,17 @@ gulp.task("min:css", function () {
 
 gulp.task("min", ["min:js", "min:css"]);
 
+
+// Dependency Dirs
+var nm = {
+    "jquery": {
+        "dist/*": ""
+    },
+    "@aspnet": {
+        "signalr/dist/browser/*": ""
+    }
+};
+
 gulp.task("node_modules_copy", function () {
 
     var streams = [];
@@ -66,8 +70,9 @@ gulp.task("node_modules_copy", function () {
     for (var prop in nm) {
         console.log("Prepping Scripts for: " + prop);
         for (var itemProp in nm[prop]) {
+            var dest = prop.replace("@", "");
             streams.push(gulp.src("node_modules/" + prop + "/" + itemProp)
-                .pipe(gulp.dest("wwwroot/vendor/" + prop + "/" + nm[prop][itemProp])));
+                .pipe(gulp.dest("wwwroot/vendor/" + dest + "/" + nm[prop][itemProp])));
         }
     }
 

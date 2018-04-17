@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 using Datadock.Common.Models;
 using Datadock.Common.Stores;
 using DataDock.Web.Auth;
+using DataDock.Web.Services;
 using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Linq;
 
 namespace DataDock.Web.Controllers
@@ -18,13 +20,19 @@ namespace DataDock.Web.Controllers
     {
         private readonly IDatasetStore _datasetStore;
         private readonly ISchemaStore _schemaStore;
+        private IHubContext<ProgressHub> _progresseHubContext;
+
         private readonly IRepoSettingsStore _repoSettingsStore;
         private readonly IOwnerSettingsStore _ownerSettingsStore;
+        
 
-        public ManageController(IDatasetStore datasetStore, ISchemaStore schemaStore)
+        public ManageController(IDatasetStore datasetStore, 
+            ISchemaStore schemaStore, 
+            IHubContext<ProgressHub> progresseHubContext)
         {
             _datasetStore = datasetStore;
             _schemaStore = schemaStore;
+            _progresseHubContext = progresseHubContext;
         }
 
         public IActionResult Index()
@@ -68,6 +76,23 @@ namespace DataDock.Web.Controllers
                 }
 
                 return RedirectToAction("Index");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        public async Task<IActionResult> SendMessagesToProgressLog()
+        {
+            try
+            {
+                //Broadcast message to client  
+                await _progresseHubContext.Clients.All.SendAsync("sendMessage", User.Identity.Name, "Hello from the hub server at " +
+                                                                   DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss"));
+
+                return Ok();
             }
             catch (Exception e)
             {

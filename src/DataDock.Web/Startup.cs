@@ -65,8 +65,8 @@ namespace DataDock.Web
 
             services.Configure<Config.ClientConfiguration>(Configuration.GetSection("ClientConfiguration"));
 
-
             services.AddSignalR();
+
             var client = new ElasticClient(new Uri(config.ElasticsearchUrl));
 
             services.AddScoped<AccountExistsFilter>();

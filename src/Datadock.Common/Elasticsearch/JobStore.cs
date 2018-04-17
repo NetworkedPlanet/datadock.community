@@ -118,7 +118,7 @@ namespace Datadock.Common.Elasticsearch
                 .Skip(skip)
                 .Take(take)
                 .Sort(s => s
-                    .Field(f => f.Field("queuedAt").Order(SortOrder.Ascending))); 
+                    .Field(f => f.Field("queuedAt").Order(SortOrder.Descending))); 
 
             var rawQuery = "";
             using (var ms = new MemoryStream())
@@ -155,7 +155,7 @@ namespace Datadock.Common.Elasticsearch
                 .Skip(skip)
                 .Take(take)
                 .Sort(s => s
-                    .Field(f => f.Field("queuedAt").Order(SortOrder.Ascending)));
+                    .Field(f => f.Field("queuedAt").Order(SortOrder.Descending)));
 
             var rawQuery = "";
             using (var ms = new MemoryStream())

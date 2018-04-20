@@ -25,8 +25,8 @@ namespace Datadock.Common.Models
         /// JSON of schema 
         /// e.g. { dc:title "schema title", metadata: { metadataJson } }
         /// </summary>
-        [Object(Enabled = false)]
-        public dynamic Schema { get; set; }
+        [Keyword(Index = false, Store = true)]
+        public string Schema { get; set; }
 
     }
 }

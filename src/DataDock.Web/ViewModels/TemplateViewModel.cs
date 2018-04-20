@@ -16,7 +16,7 @@ namespace DataDock.Web.ViewModels
         public TemplateViewModel(SchemaInfo schemaInfo)
         {
             _schemaInfo = schemaInfo;
-            _schema = schemaInfo.Schema as JObject;
+            _schema = JObject.Parse(_schemaInfo.Schema);
             Title = this.GetTitle();
             if (_schema == null) return;
 

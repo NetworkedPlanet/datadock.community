@@ -132,7 +132,7 @@ namespace DataDock.Web.Controllers
             {
                 foreach (var repoId in repositoryIds)
                 {
-                    var csvwJson = new JObject(new JProperty("dc:title", $"Test Dataset for {ownerId}/{repoId}"), new JProperty("dcat:keyword", new JArray("one", "two", "three")));
+                    var csvwJson = new JObject(new JProperty("dc:title", $"Test Dataset for {ownerId}/{repoId}"), new JProperty("dcat:keyword", new JArray("one", "two", "three"))).ToString();
 
                     var schemaInfo = new SchemaInfo
                     {

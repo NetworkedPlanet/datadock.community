@@ -232,9 +232,9 @@ namespace Datadock.Common.Elasticsearch
         public async Task<DatasetInfo> CreateOrUpdateDatasetRecordAsync(DatasetInfo datasetInfo)
         {
             if (datasetInfo == null) throw new ArgumentNullException();
-            if (string.IsNullOrEmpty(datasetInfo.FullId))
+            if (string.IsNullOrEmpty(datasetInfo.Id))
             {
-                datasetInfo.FullId = $"{datasetInfo.OwnerId}/{datasetInfo.RepositoryId}/{datasetInfo.DatasetId}";
+                datasetInfo.Id = $"{datasetInfo.OwnerId}.{datasetInfo.RepositoryId}.{datasetInfo.DatasetId}";
             }
             var indexResponse =await _client.IndexDocumentAsync(datasetInfo);
             if (!indexResponse.IsValid)

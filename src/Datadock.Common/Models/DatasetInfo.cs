@@ -4,22 +4,13 @@ using Nest;
 
 namespace Datadock.Common.Models
 {
-    [ElasticsearchType(Name = "datasetinfo", IdProperty = "FullId")]
+    [ElasticsearchType(Name = "datasetinfo", IdProperty = "Id")]
     public class DatasetInfo
     {
-        public DatasetInfo()
-        {
-            this.Type = "dataset";
-        }
-
         /// <summary>
-        /// Combined owner, repo and dataset IDs in the format {ownerId}/{repositoryId}/{datasetId}
+        /// Combined owner, repo and dataset IDs in the format {ownerId}.{repositoryId}.{datasetId}
         /// </summary>
-        public string FullId { get; set; }
-
         public string Id { get; set; }
-
-        public string Type { get; set; }
 
         public string OwnerId { get; set; }
 

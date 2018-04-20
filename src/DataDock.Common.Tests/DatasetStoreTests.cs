@@ -70,13 +70,13 @@ namespace DataDock.Common.Tests
                 CsvwMetadata = csvwJson,
                 VoidMetadata = voidJson
             };
-            Assert.Null(datasetInfo.FullId);
+            Assert.Null(datasetInfo.Id);
 
             var created = await datasetStore.CreateOrUpdateDatasetRecordAsync(datasetInfo);
 
             client.Verify();
             Assert.NotNull(created);
-            Assert.Equal($"{datasetInfo.OwnerId}/{datasetInfo.RepositoryId}/{datasetInfo.DatasetId}", datasetInfo.FullId);
+            Assert.Equal($"{datasetInfo.OwnerId}.{datasetInfo.RepositoryId}.{datasetInfo.DatasetId}", datasetInfo.Id);
         }
 
         [Fact]

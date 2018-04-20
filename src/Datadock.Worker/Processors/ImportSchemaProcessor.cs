@@ -15,7 +15,7 @@ namespace DataDock.Worker.Processors
         private readonly IFileStore _jobFileStore;
         private IProgressLog _progressLog;
 
-        public ImportSchemaProcessor(ISchemaStore schemaStore, IFileStore jobFileStore, IProgressLog progressLog)
+        public ImportSchemaProcessor(ISchemaStore schemaStore, IFileStore jobFileStore)
         {
             _schemaStore = schemaStore;
             _jobFileStore = jobFileStore;

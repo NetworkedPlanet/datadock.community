@@ -36,6 +36,9 @@ namespace DataDock.Worker
 
         private async Task ProcessJob(IJobStore jobStore, JobInfo jobInfo)
         {
+            var progressLogFactory = Services.GetRequiredService<IProgressLogFactory>();
+            var progressLog = await progressLogFactory.MakeProgressLogForJobAsync(jobInfo);
+
             try
             {
                 var jobLogger = Log.ForContext("JobId", jobInfo.JobId);
@@ -44,10 +47,6 @@ namespace DataDock.Worker
                 jobLogger.Debug("Retrieving user account for {UserId}", jobInfo.UserId);
                 var userRepo = Services.GetRequiredService<IUserStore>();
                 var userAccount = await userRepo.GetUserAccountAsync(jobInfo.UserId);
-
-                jobLogger.Debug("Creating progress log factory");
-                var progressLogFactory = Services.GetRequiredService<IProgressLogFactory>();
-                var progressLog = await progressLogFactory.MakeProgressLogForJobAsync(jobInfo);
 
                 // TODO: Should encapsulate this logic plus basic job info validation into its own processor factory class
                 jobLogger.Debug("Creating job processor for job type {JobType}", jobInfo.JobType);
@@ -88,8 +87,16 @@ namespace DataDock.Worker
                         throw new WorkerException($"Could not process job of type {jobInfo.JobType}");
                 }
 
+                // Log start
                 jobLogger.Debug("Start job processor");
+                jobInfo.StartedAt = DateTime.UtcNow;
+                jobInfo.CurrentStatus = JobStatus.Running;
+                await jobStore.UpdateJobInfoAsync(jobInfo);
+                progressLog.UpdateStatus(JobStatus.Running, "Job processing started");
+
                 await processor.ProcessJob(jobInfo, userAccount, progressLog);
+
+                // Log end
                 jobLogger.Information("Job processing completed");
                 jobInfo.CurrentStatus = JobStatus.Completed;
                 jobInfo.CompletedAt = DateTime.UtcNow;
@@ -102,6 +109,7 @@ namespace DataDock.Worker
                 jobInfo.CurrentStatus = JobStatus.Failed;
                 jobInfo.CompletedAt = DateTime.UtcNow;
                 await jobStore.UpdateJobInfoAsync(jobInfo);
+                progressLog.UpdateStatus(JobStatus.Failed, "Job processing failed");
             }
         }
 

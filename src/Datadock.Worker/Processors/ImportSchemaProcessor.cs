@@ -33,19 +33,16 @@ namespace DataDock.Worker.Processors
                 if (!string.IsNullOrEmpty(job.SchemaFileId))
                 {
                     // Parse the JSON metadata
-                    JObject schemaJson;
+                    string schemaJson;
                     var schemaFileStream = await _jobFileStore.GetFileAsync(job.SchemaFileId);
-                    var serializer = new JsonSerializer();
 
                     using (var sr = new StreamReader(schemaFileStream))
-                    using (var jsonTextReader = new JsonTextReader(sr))
                     {
-                        schemaJson = serializer.Deserialize(jsonTextReader) as JObject;
+                        schemaJson = await sr.ReadToEndAsync();
                     }
                     if (schemaJson != null)
                     {
-                        _progressLog.UpdateStatus(JobStatus.Running, "Schema JSON retrieved from file system: {0}",
-                            schemaJson);
+                        _progressLog.UpdateStatus(JobStatus.Running, "Retrieved DataDock schema file.");
 
                         Log.Debug("Create schema: OwnerId: {ownerId} RepositoryId: {repoId} SchemaFileId: {schemaFileId}",
                             job.OwnerId, job.RepositoryId, job.SchemaFileId);

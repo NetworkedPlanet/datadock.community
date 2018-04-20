@@ -78,10 +78,10 @@ namespace DataDock.Worker
                         break;
                     }
                     case JobType.SchemaCreate:
-                        processor = Services.GetRequiredService<ImportSchemaProcessor>();
+                        processor = new ImportSchemaProcessor(Services.GetRequiredService<ISchemaStore>(), Services.GetRequiredService<IFileStore>());
                         break;
                     case JobType.SchemaDelete:
-                        processor = Services.GetRequiredService<DeleteSchemaProcessor>();
+                        processor = new DeleteSchemaProcessor(Services.GetRequiredService<ISchemaStore>());
                         break;
                     default:
                         throw new WorkerException($"Could not process job of type {jobInfo.JobType}");

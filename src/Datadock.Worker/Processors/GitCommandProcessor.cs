@@ -243,8 +243,9 @@ namespace DataDock.Worker.Processors
                 var releaseClient = client.Repository.Release;
                 var newRelease = new NewRelease(releaseTag) { TargetCommitish = "gh-pages" };
                 var release = await releaseClient.Create(owner, repositoryId, newRelease);
-                var start = DateTime.UtcNow;
 
+                /*
+                 * TODO: This code times out when run in a linux container under .NET Core 2.0. It should be reinstated after update to .NET Core 2.1
                 // Attach data dump file(s) to release
                 try
                 {
@@ -252,18 +253,17 @@ namespace DataDock.Worker.Processors
                     using (var zipFileStream = File.OpenRead(ntriplesDumpFileName))
                     {
                         var upload = new ReleaseAssetUpload(Path.GetFileName(ntriplesDumpFileName), "application/gzip",
-                            zipFileStream, TimeSpan.FromMinutes(10));
+                            zipFileStream, null);
                         var releaseAsset = await releaseClient.UploadAsset(release, upload);
                         releaseInfo.DownloadLinks.Add(releaseAsset.BrowserDownloadUrl);
                     }
                 }
                 catch (Exception ex)
                 {
-                    var end = DateTime.UtcNow;
-                    var diff = end - start;
                     Log.Error(ex, "Failed to attach dump files to GitHub release");
                     throw new WorkerException(ex, "Failed to attach dump files to GitHub release");
                 }
+                */
             }
             catch (WorkerException)
             {

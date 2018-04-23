@@ -39,7 +39,7 @@ namespace DataDock.IntegrationTests
             await _store.CreateOrUpdateRepoSettingsAsync(repoSettings);
             Thread.Sleep(1000);
             var retrievedRepoSettings = await _store.GetRepoSettingsAsync("owner-1", "repo-1");
-            retrievedRepoSettings.FullId.Should().Be($"owner-1/repo-1");
+            retrievedRepoSettings.Id.Should().Be($"owner-1/repo-1");
             ((string)retrievedRepoSettings.OwnerId).Should().Be("owner-1");
             ((string)retrievedRepoSettings.RepositoryId).Should().Be("repo-1");
             (retrievedRepoSettings.OwnerIsOrg).Should().BeFalse();

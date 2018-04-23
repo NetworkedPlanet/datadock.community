@@ -101,9 +101,9 @@ namespace Datadock.Common.Elasticsearch
         public async Task CreateOrUpdateRepoSettingsAsync(RepoSettings settings)
         {
             if (settings == null) throw new ArgumentNullException(nameof(settings));
-            if (string.IsNullOrEmpty(settings.FullId))
+            if (string.IsNullOrEmpty(settings.Id))
             {
-                settings.FullId = $"{settings.OwnerId}/{settings.RepositoryId}";
+                settings.Id = $"{settings.OwnerId}/{settings.RepositoryId}";
             }
             var validator = new RepoSettingsValidator();
             var validationResults = await validator.ValidateAsync(settings);

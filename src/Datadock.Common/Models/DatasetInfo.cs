@@ -12,12 +12,16 @@ namespace Datadock.Common.Models
         /// </summary>
         public string Id { get; set; }
 
+        [Keyword]
         public string OwnerId { get; set; }
 
+        [Keyword]
         public string RepositoryId { get; set; }
 
+        [Keyword]
         public string DatasetId { get; set; }
 
+        [Date]
         public DateTime LastModified { get; set; }
 
         /// <summary>
@@ -30,6 +34,7 @@ namespace Datadock.Common.Models
         /// </summary>
         public dynamic VoidMetadata { get; set; }
 
+        [Boolean]
         public bool? ShowOnHomePage { get; set; }
 
         public IEnumerable<string> Tags { get; set; }

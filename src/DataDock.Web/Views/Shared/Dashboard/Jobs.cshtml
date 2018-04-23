@@ -1,9 +1,136 @@
 ﻿@model DataDock.Web.ViewModels.DashboardViewModel
 @{
-    Layout = "~/Views/Shared/_DashboardJobsLayout.cshtml";
-    Model.Title = Model.Title + " Job History";
+  Layout = "~/Views/Shared/_DashboardBaseLayout.cshtml";
+  Model.Title = Model.Title + " Job History";
 }
 
-<div class="ui container">
-  @await Component.InvokeAsync("JobHistory", new { selectedOwnerId = Model.SelectedOwnerId, selectedRepoId = Model.SelectedRepoId })
+
+<div class="ui grid">
+  <div class="sixteen wide column">
+    <div id="loadingJobs">
+      @await Html.PartialAsync("_SpinnerPartial")
+    </div>
+    <div id="jobs"></div>
+
+  </div>
 </div>
+
+@section Scripts {
+  <script type="text/javascript">
+    $( document ).ready(function() {
+      get_jobs();
+    });
+
+    function get_jobs() {
+      var jobs = $.ajax({
+        type: "GET",
+        url: 'loader/jobs?ownerId=@Model.SelectedOwnerId&repoId=@Model.SelectedRepoId'
+      }).done(function (data) {
+        $('#jobs').html(data);
+        $('#loadingJobs').hide();
+        setTimeout(function () { get_jobs();}, 5000);
+      }).responseText;
+    }
+    
+  </script>
+
+
+  <environment names="Development">
+    <script src="~/vendor/aspnet/signalr.js"></script>
+  </environment>
+  <environment names="Staging,Production">
+    <script src="~/vendor/aspnet/signalr.min.js"></script>
+  </environment>
+  <script>
+    $(function () {
+
+      var connection = new signalR.HubConnection('/progress');
+
+      // Create a function that the hub can call to broadcast messages.
+      connection.on('sendMessage', function (userId, message) {
+        console.log(userId + ' ' + message);
+      });
+
+      connection.on('progressUpdated',
+        function (userId, jobId, progressMessage) {
+          var item = $('#' + jobId);
+          if (!item) {
+            console.log('Cannot find an element with that jobId');
+          }
+          var m = $('#' + jobId + ' > .processing-messages');
+          m.removeClass('hidden')
+            .append($('<div/>').html(progressMessage))
+            .scrollTop(m.prop('scrollHeight'));
+        });
+
+      connection.on('statusUpdated',
+        function (userId, jobId, jobStatus) {
+          var item = $('#' + jobId);
+          if (!item) {
+            console.log('Cannot find an element with that jobId');
+          }
+          $('#' + jobId + ' .job-status')
+            .html(getJobStatusText(jobStatus));
+          $('#' + jobId)
+            .removeClass('positive negative info warning')
+            .addClass(getJobStatusClass(jobStatus));
+        });
+
+      connection.on('logUpdated',
+        function (userId, jobId, logLink) {
+          var item = $('#' + jobId);
+          if (!item) {
+            console.log('Cannot find an element with that jobId');
+          }
+          $('#' + jobId + ' .log-link').append($("<a/>").attr('href', logLink).html('Download full log'));
+          var dsUrl = $('#' + jobId + ' p#iri').text();
+          var dsLink = $("<a />",
+            {
+              href: dsUrl,
+              text: dsUrl,
+              'style': 'font-weight:bold;'
+            });
+          $('#' + jobId + ' p#iri').text().append(dsLink);
+        });
+
+      connection.start().then(() => {
+        console.log('ProgressHub Connected');
+      });
+    });
+
+    function htmlEncode(value) {
+      var encodedValue = $('<div/>').text(value).html();
+      return encodedValue;
+    }
+
+    function getJobStatusText(statusCode) {
+      switch (statusCode) {
+        case 0:
+          return "Queued";
+        case 1:
+          return "Running";
+        case 2:
+          return "Completed";
+        case 3:
+          return "Failed";
+        default:
+          return "--";
+      }
+    }
+
+    function getJobStatusClass(statusCode) {
+      switch (statusCode) {
+        case 0:
+          return "info";
+        case 1:
+          return "warning";
+        case 2:
+          return "positive";
+        case 3:
+          return "negative";
+        default:
+          return "info";
+      }
+    }
+  </script>
+}

@@ -5,7 +5,9 @@ using Nest;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Datadock.Common.Elasticsearch
@@ -158,17 +160,28 @@ namespace Datadock.Common.Elasticsearch
         {
             if (string.IsNullOrEmpty(ownerId)) throw new ArgumentNullException(nameof(ownerId));
             if (string.IsNullOrEmpty(repositoryId)) throw new ArgumentNullException(nameof(repositoryId));
+
+            var rawQuery = "";
+            var search = new SearchDescriptor<DatasetInfo>().Query(q => QueryHelper.QueryByOwnerIdAndRepositoryId(ownerId, repositoryId));
+            using (var ms = new MemoryStream())
+            {
+                _client.RequestResponseSerializer.Serialize(search, ms);
+                rawQuery = Encoding.UTF8.GetString(ms.ToArray());
+                Console.WriteLine(rawQuery);
+            }
+            var response = await _client.SearchAsync<DatasetInfo>(search.Skip(skip).Take(take));
             
-            var response = await _client.SearchAsync<DatasetInfo>(s => s
-                .From(0).Query(q => q.Match(m => m.Field(f => f.OwnerId).Query(ownerId)) &&
-                                    q.Match(m => m.Field(f => f.RepositoryId).Query(repositoryId)))
-            );
             if (!response.IsValid)
             {
                 throw new DatasetStoreException(
-                    $"Error retrieving datasets for repo ID {repositoryId} on owner {ownerId}. Cause: {response.DebugInformation}");
+                    $"Error retrieving datasets for repo ID {repositoryId} on owner {ownerId}. Query: {rawQuery} Cause: {response.DebugInformation}");
             }
-            if (response.Total < 1) throw new DatasetNotFoundException(ownerId, repositoryId);
+
+            if (response.Total < 1)
+            {
+                Log.Information($"No datasets found with query {rawQuery}");
+                throw new DatasetNotFoundException(ownerId, repositoryId);
+            }
             return response.Documents;
         }
         

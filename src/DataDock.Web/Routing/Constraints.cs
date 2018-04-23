@@ -24,7 +24,8 @@ namespace DataDock.Web.Routing
                 "repositories",
                 "datasets",
                 "library",
-                "progress"
+                "progress",
+                "loader"
             };
             var ownerId = values["ownerId"].ToString().ToLower();
             // Check for a match (assumes case insensitive)

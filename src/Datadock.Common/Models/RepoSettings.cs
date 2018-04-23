@@ -3,14 +3,14 @@ using Nest;
 
 namespace Datadock.Common.Models
 {
-    [ElasticsearchType(Name = "reposettings", IdProperty = "FullId")]
+    [ElasticsearchType(Name = "reposettings", IdProperty = "Id")]
     public class RepoSettings
     {
         /// <summary>
         /// Combined owner and repo IDs in the format {ownerId}/{repositoryId}
         /// </summary>
         [Keyword]
-        public string FullId { get; set; }
+        public string Id { get; set; }
 
         /// <summary>
         /// The repository owner

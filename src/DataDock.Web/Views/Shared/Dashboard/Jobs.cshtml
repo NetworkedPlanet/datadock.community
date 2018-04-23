@@ -7,8 +7,11 @@
 
 <div class="ui grid">
   <div class="sixteen wide column">
-    <h3>Jobs</h3>
+    <div id="loadingJobs">
+      @await Html.PartialAsync("_SpinnerPartial")
+    </div>
     <div id="jobs"></div>
+
   </div>
 </div>
 
@@ -16,7 +19,6 @@
   <script type="text/javascript">
     $( document ).ready(function() {
       get_jobs();
-      get_datasets();
     });
 
     function get_jobs() {
@@ -25,19 +27,11 @@
         url: 'loader/jobs?ownerId=@Model.SelectedOwnerId&repoId=@Model.SelectedRepoId'
       }).done(function (data) {
         $('#jobs').html(data);
+        $('#loadingJobs').hide();
         setTimeout(function () { get_jobs();}, 5000);
       }).responseText;
     }
-
-    function get_datasets() {
-      var datasets = $.ajax({
-        type: "GET",
-        url: 'loader/datasets?ownerId=@Model.SelectedOwnerId&repoId=@Model.SelectedRepoId'
-      }).done(function (data) {
-        $('#datasets').html(data);
-        setTimeout(function () { get_datasets();}, 5000);
-      }).responseText;
-    }
+    
   </script>
 
 

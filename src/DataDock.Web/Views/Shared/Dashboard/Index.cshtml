@@ -4,6 +4,43 @@
     Model.Title = Model.Title + " Summary";
 }
 
-<div class="ui container">
-  summary page
+<div class="ui grid">
+  <div class="eight wide column">
+    <h3>Datasets</h3>
+    <div id="datasets"></div>
+   
+  </div>
+  <div class="eight wide column">
+    <h3>Jobs</h3>
+    <div id="jobs"></div>
+  </div>
 </div>
+
+@section Scripts { 
+  <script type="text/javascript">
+    $( document ).ready(function() {
+      get_jobs();
+      get_datasets();
+    });
+
+    function get_jobs() {
+      var jobs = $.ajax({
+        type: "GET",
+        url: 'loader/jobs?ownerId=@Model.SelectedOwnerId&repoId=@Model.SelectedRepoId'
+      }).done(function (data) {
+        $('#jobs').html(data);
+        setTimeout(function () { get_jobs();}, 5000);
+        }).responseText;
+    }
+
+    function get_datasets() {
+      var datasets = $.ajax({
+        type: "GET",
+        url: 'loader/datasets?ownerId=@Model.SelectedOwnerId&repoId=@Model.SelectedRepoId'
+      }).done(function (data) {
+        $('#datasets').html(data);
+        setTimeout(function () { get_datasets();}, 5000);
+      }).responseText;
+    }
+  </script>
+}

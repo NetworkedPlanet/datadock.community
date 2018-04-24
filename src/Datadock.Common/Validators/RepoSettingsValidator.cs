@@ -7,7 +7,8 @@ namespace Datadock.Common.Validators
     {
         public RepoSettingsValidator()
         {
-            RuleFor(os => os.OwnerId).NotEmpty();
+            RuleFor(rs => rs.OwnerId).NotEmpty();
+            RuleFor(rs => rs.RepositoryId).NotEmpty();
         }
     }
 }

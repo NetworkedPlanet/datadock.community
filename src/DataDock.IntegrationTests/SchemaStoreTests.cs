@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Dynamic;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Datadock.Common.Elasticsearch;
+﻿using Datadock.Common.Elasticsearch;
 using Datadock.Common.Models;
 using FluentAssertions;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System;
+using System.Dynamic;
+using System.Threading;
+using System.Threading.Tasks;
+using Datadock.Common.Stores;
 using Xunit;
 
 namespace DataDock.IntegrationTests
@@ -51,6 +48,72 @@ namespace DataDock.IntegrationTests
             Assert.Equal("foo", schema.foo);
             Assert.Equal("baz", schema.bar.baz);
             retrievedSchema.LastModified.Should().BeCloseTo(schemaInfo.LastModified);
+        }
+
+        [Fact]
+        public void ItCannotCreateSchemaWithoutOwnerId()
+        {
+            var schemaInfo = new SchemaInfo
+            {
+                RepositoryId = "the_repo",
+                LastModified = DateTime.UtcNow,
+                SchemaId = "the_schema_id",
+                Schema = @"
+                {
+                    foo : 'foo',
+                    bar : {
+                        baz : 'baz'
+                    }
+                }"
+            };
+            var ex = Assert.ThrowsAsync<ValidationException>(async () =>
+                await _repo.CreateOrUpdateSchemaRecordAsync(schemaInfo));
+
+            Assert.StartsWith($"Invalid schema info: 'OwnerId'", ex.Result.Message);
+        }
+
+        [Fact]
+        public void ItCannotCreateSchemaWithoutRepoId()
+        {
+            var schemaInfo = new SchemaInfo
+            {
+                OwnerId = "the_owner",
+                LastModified = DateTime.UtcNow,
+                SchemaId = "the_schema_id",
+                Schema = @"
+                {
+                    foo : 'foo',
+                    bar : {
+                        baz : 'baz'
+                    }
+                }"
+            };
+            var ex = Assert.ThrowsAsync<ValidationException>(async () =>
+                await _repo.CreateOrUpdateSchemaRecordAsync(schemaInfo));
+
+            Assert.StartsWith($"Invalid schema info: 'RepositoryId'", ex.Result.Message);
+        }
+
+        [Fact]
+        public void ItCannotCreateSchemaWithoutSchemaId()
+        {
+            var schemaInfo = new SchemaInfo
+            {
+                OwnerId = "the_owner",
+                RepositoryId = "the_repo",
+                LastModified = DateTime.UtcNow,
+                Schema = @"
+                {
+                    foo : 'foo',
+                    bar : {
+                        baz : 'baz'
+                    }
+                }"
+            };
+            var ex = Assert.ThrowsAsync<ValidationException>(async () =>
+                await _repo.CreateOrUpdateSchemaRecordAsync(schemaInfo));
+
+            Assert.StartsWith($"Invalid schema info: 'SchemaId'", ex.Result.Message);
         }
 
     }

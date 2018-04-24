@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Datadock.Common.Models;
 using Datadock.Common.Stores;
+using Datadock.Common.Validators;
 using DataDock.Common;
 using Nest;
 using Serilog;
@@ -216,6 +217,17 @@ namespace Datadock.Common.Elasticsearch
 
         public async Task CreateOrUpdateSchemaRecordAsync(SchemaInfo schemaInfo)
         {
+            if (schemaInfo == null) throw new ArgumentNullException(nameof(schemaInfo));
+            if (string.IsNullOrEmpty(schemaInfo.Id))
+            {
+                schemaInfo.Id = $"{schemaInfo.OwnerId}/{schemaInfo.RepositoryId}/{schemaInfo.SchemaId}";
+            }
+            var validator = new SchemaInfoValidator();
+            var validationResults = await validator.ValidateAsync(schemaInfo);
+            if (!validationResults.IsValid)
+            {
+                throw new ValidationException("Invalid schema info", validationResults);
+            }
             var indexResponse = await _client.IndexDocumentAsync(schemaInfo);
             if (!indexResponse.IsValid)
             {

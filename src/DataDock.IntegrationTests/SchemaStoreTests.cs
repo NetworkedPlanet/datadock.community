@@ -30,7 +30,6 @@ namespace DataDock.IntegrationTests
         {
             var schemaInfo = new SchemaInfo
             {
-                Id = "simple_schema",
                 OwnerId = "the_owner",
                 RepositoryId = "the_repo",
                 LastModified = DateTime.UtcNow,
@@ -46,7 +45,7 @@ namespace DataDock.IntegrationTests
             await _repo.CreateOrUpdateSchemaRecordAsync(schemaInfo);
             Thread.Sleep(1000);
             var retrievedSchema = await _repo.GetSchemaInfoAsync("the_owner", "the_schema_id");
-            retrievedSchema.Id.Should().Be("simple_schema");
+            retrievedSchema.Id.Should().Be("the_owner/the_repo/the_schema_id");
             dynamic schema = JsonConvert.DeserializeObject<ExpandoObject>(retrievedSchema.Schema);
             //dynamic schema = JObject.Parse(retrievedSchema.Schema);
             Assert.Equal("foo", schema.foo);
@@ -74,7 +73,6 @@ namespace DataDock.IntegrationTests
                 {
                     var schemaInfo = new SchemaInfo
                     {
-                        Id = Guid.NewGuid().ToString("N"),
                         OwnerId = "owner-" + o,
                         RepositoryId = "repo-" + r,
                         SchemaId = "schema_" + o + "." + r,

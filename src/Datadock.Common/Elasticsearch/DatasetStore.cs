@@ -247,7 +247,7 @@ namespace Datadock.Common.Elasticsearch
             if (datasetInfo == null) throw new ArgumentNullException();
             if (string.IsNullOrEmpty(datasetInfo.Id))
             {
-                datasetInfo.Id = $"{datasetInfo.OwnerId}.{datasetInfo.RepositoryId}.{datasetInfo.DatasetId}";
+                datasetInfo.Id = $"{datasetInfo.OwnerId}|{datasetInfo.RepositoryId}|{datasetInfo.DatasetId}";
             }
             var indexResponse =await _client.IndexDocumentAsync(datasetInfo);
             if (!indexResponse.IsValid)

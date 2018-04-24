@@ -76,7 +76,7 @@ namespace DataDock.Common.Tests
 
             client.Verify();
             Assert.NotNull(created);
-            Assert.Equal($"{datasetInfo.OwnerId}.{datasetInfo.RepositoryId}.{datasetInfo.DatasetId}", datasetInfo.Id);
+            Assert.Equal($"{datasetInfo.OwnerId}|{datasetInfo.RepositoryId}|{datasetInfo.DatasetId}", datasetInfo.Id);
         }
 
         [Fact]

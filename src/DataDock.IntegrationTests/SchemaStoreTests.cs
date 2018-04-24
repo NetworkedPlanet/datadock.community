@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Dynamic;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Datadock.Common.Elasticsearch;
+﻿using Datadock.Common.Elasticsearch;
 using Datadock.Common.Models;
 using FluentAssertions;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System;
+using System.Dynamic;
+using System.Threading;
+using System.Threading.Tasks;
+using Datadock.Common.Stores;
 using Xunit;
 
 namespace DataDock.IntegrationTests
@@ -30,7 +27,6 @@ namespace DataDock.IntegrationTests
         {
             var schemaInfo = new SchemaInfo
             {
-                Id = "simple_schema",
                 OwnerId = "the_owner",
                 RepositoryId = "the_repo",
                 LastModified = DateTime.UtcNow,
@@ -46,12 +42,78 @@ namespace DataDock.IntegrationTests
             await _repo.CreateOrUpdateSchemaRecordAsync(schemaInfo);
             Thread.Sleep(1000);
             var retrievedSchema = await _repo.GetSchemaInfoAsync("the_owner", "the_schema_id");
-            retrievedSchema.Id.Should().Be("simple_schema");
+            retrievedSchema.Id.Should().Be("the_owner/the_repo/the_schema_id");
             dynamic schema = JsonConvert.DeserializeObject<ExpandoObject>(retrievedSchema.Schema);
             //dynamic schema = JObject.Parse(retrievedSchema.Schema);
             Assert.Equal("foo", schema.foo);
             Assert.Equal("baz", schema.bar.baz);
             retrievedSchema.LastModified.Should().BeCloseTo(schemaInfo.LastModified);
+        }
+
+        [Fact]
+        public void ItCannotCreateSchemaWithoutOwnerId()
+        {
+            var schemaInfo = new SchemaInfo
+            {
+                RepositoryId = "the_repo",
+                LastModified = DateTime.UtcNow,
+                SchemaId = "the_schema_id",
+                Schema = @"
+                {
+                    foo : 'foo',
+                    bar : {
+                        baz : 'baz'
+                    }
+                }"
+            };
+            var ex = Assert.ThrowsAsync<ValidationException>(async () =>
+                await _repo.CreateOrUpdateSchemaRecordAsync(schemaInfo));
+
+            Assert.StartsWith($"Invalid schema info: 'OwnerId'", ex.Result.Message);
+        }
+
+        [Fact]
+        public void ItCannotCreateSchemaWithoutRepoId()
+        {
+            var schemaInfo = new SchemaInfo
+            {
+                OwnerId = "the_owner",
+                LastModified = DateTime.UtcNow,
+                SchemaId = "the_schema_id",
+                Schema = @"
+                {
+                    foo : 'foo',
+                    bar : {
+                        baz : 'baz'
+                    }
+                }"
+            };
+            var ex = Assert.ThrowsAsync<ValidationException>(async () =>
+                await _repo.CreateOrUpdateSchemaRecordAsync(schemaInfo));
+
+            Assert.StartsWith($"Invalid schema info: 'RepositoryId'", ex.Result.Message);
+        }
+
+        [Fact]
+        public void ItCannotCreateSchemaWithoutSchemaId()
+        {
+            var schemaInfo = new SchemaInfo
+            {
+                OwnerId = "the_owner",
+                RepositoryId = "the_repo",
+                LastModified = DateTime.UtcNow,
+                Schema = @"
+                {
+                    foo : 'foo',
+                    bar : {
+                        baz : 'baz'
+                    }
+                }"
+            };
+            var ex = Assert.ThrowsAsync<ValidationException>(async () =>
+                await _repo.CreateOrUpdateSchemaRecordAsync(schemaInfo));
+
+            Assert.StartsWith($"Invalid schema info: 'SchemaId'", ex.Result.Message);
         }
 
     }
@@ -74,7 +136,6 @@ namespace DataDock.IntegrationTests
                 {
                     var schemaInfo = new SchemaInfo
                     {
-                        Id = Guid.NewGuid().ToString("N"),
                         OwnerId = "owner-" + o,
                         RepositoryId = "repo-" + r,
                         SchemaId = "schema_" + o + "." + r,

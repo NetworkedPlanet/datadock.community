@@ -32,11 +32,11 @@ namespace DataDock.Web.Api
                     if (string.IsNullOrEmpty(repoId))
                     {
                         //by owner
-                        var ownerDatasets = await _datasetStore.GetDatasetsForOwner(ownerId, 0, 20);
+                        var ownerDatasets = await _datasetStore.GetDatasetsForOwnerAsync(ownerId, 0, 20);
                         return new ObjectResult(ownerDatasets);
                     }
 
-                    var repoDatasets = await _datasetStore.GetDatasetsForRepository(ownerId, repoId, 0, 20);
+                    var repoDatasets = await _datasetStore.GetDatasetsForRepositoryAsync(ownerId, repoId, 0, 20);
                     return new ObjectResult(repoDatasets);
                 }
                 catch (DatasetNotFoundException dnf)

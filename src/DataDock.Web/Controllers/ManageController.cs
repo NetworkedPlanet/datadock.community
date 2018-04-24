@@ -136,7 +136,6 @@ namespace DataDock.Web.Controllers
 
                     var schemaInfo = new SchemaInfo
                     {
-                        Id = Guid.NewGuid().ToString("N"),
                         OwnerId = ownerId,
                         RepositoryId = repoId,
                         SchemaId = "schema_" + ownerId + "." + repoId,

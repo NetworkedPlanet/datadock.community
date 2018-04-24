@@ -1,11 +1,26 @@
 ﻿using Nest;
 using System.Collections.Generic;
+using TermQuery = Nest.TermQuery;
 
 namespace Datadock.Common.Elasticsearch
 {
     public static class QueryHelper
     {
-        public static QueryContainer QueryByOwnerId(string ownerId)
+        public static QueryContainer FilterByShowOnHomepage()
+        {
+            // only return those who have showOnHomepage set to true
+            var filterClauses = new List<QueryContainer>
+            {
+                new TermQuery
+                {
+                    Field = new Field("showOnHomePage"),
+                    Value = true
+                }
+            };
+            return new BoolQuery { Filter = filterClauses };
+        }
+
+        public static QueryContainer FilterByOwnerId(string ownerId)
         {
             var filterClauses = new List<QueryContainer>
             {
@@ -17,9 +32,7 @@ namespace Datadock.Common.Elasticsearch
             };
             return new BoolQuery { Filter = filterClauses };
         }
-
-
-        public static QueryContainer QueryByOwnerIds(string[] ownerIds)
+        public static QueryContainer FilterByOwnerIds(string[] ownerIds)
         {
             var filterClauses = new List<QueryContainer>
             {
@@ -31,7 +44,27 @@ namespace Datadock.Common.Elasticsearch
             };
             return new BoolQuery { Filter = filterClauses };
         }
-        public static QueryContainer QueryByOwnerIdAndRepositoryId(string ownerId, string repositoryId)
+        public static QueryContainer FilterByOwnerIds(string[] ownerIds, bool showHidden)
+        {
+            var filterClauses = new List<QueryContainer>
+            {
+                new TermsQuery
+                {
+                    Field = new Field("ownerId"),
+                    Terms = ownerIds
+                }
+            };
+            if (showHidden) return new BoolQuery {Filter = filterClauses};
+
+            var filterHiddenDatasets = new TermQuery
+            {
+                Field = new Field("showOnHomepage"),
+                Value = true
+            };
+            filterClauses.Add(filterHiddenDatasets);
+            return new BoolQuery { Filter = filterClauses };
+        }
+        public static QueryContainer FilterByOwnerIdAndRepositoryId(string ownerId, string repositoryId)
         {
             var filterClauses = new List<QueryContainer>
             {
@@ -48,7 +81,7 @@ namespace Datadock.Common.Elasticsearch
             };
             return new BoolQuery { Filter = filterClauses };
         }
-        public static QueryContainer QueryByOwnerIdAndRepositoryIds(string ownerId, string[] repositoryIds)
+        public static QueryContainer FilterByOwnerIdAndRepositoryIds(string ownerId, string[] repositoryIds)
         {
             var filterClauses = new List<QueryContainer>
             {
@@ -61,6 +94,53 @@ namespace Datadock.Common.Elasticsearch
                 {
                     Field = new Field("repositoryId"),
                     Terms = repositoryIds
+                }
+            };
+            return new BoolQuery { Filter = filterClauses };
+        }
+        public static QueryContainer FilterByOwnerIdAndRepositoryIds(string ownerId, string[] repositoryIds, bool showHidden)
+        {
+            var filterClauses = new List<QueryContainer>
+            {
+                new TermQuery
+                {
+                    Field = new Field("ownerId"),
+                    Value = ownerId
+                },
+                new TermsQuery
+                {
+                    Field = new Field("repositoryId"),
+                    Terms = repositoryIds
+                }
+            };
+            if (showHidden) return new BoolQuery { Filter = filterClauses };
+
+            var filterHiddenDatasets = new TermQuery
+            {
+                Field = new Field("showOnHomepage"),
+                Value = true
+            };
+            filterClauses.Add(filterHiddenDatasets);
+            return new BoolQuery { Filter = filterClauses };
+        }
+        public static QueryContainer FilterByOwnerIdAndRepositoryIdAndDatasetId(string ownerId, string repositoryId, string datasetId)
+        {
+            var filterClauses = new List<QueryContainer>
+            {
+                new TermQuery
+                {
+                    Field = new Field("ownerId"),
+                    Value = ownerId
+                },
+                new TermQuery
+                {
+                    Field = new Field("repositoryId"),
+                    Value = repositoryId
+                },
+                new TermQuery
+                {
+                    Field = new Field("datasetId"),
+                    Value = datasetId
                 }
             };
             return new BoolQuery { Filter = filterClauses };

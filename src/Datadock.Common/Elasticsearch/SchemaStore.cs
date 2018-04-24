@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Datadock.Common.Models;
 using Datadock.Common.Stores;
+using Datadock.Common.Validators;
 using DataDock.Common;
 using Nest;
 using Serilog;
@@ -121,7 +122,7 @@ namespace Datadock.Common.Elasticsearch
             Log.Debug("GetSchemasByRepository {repositoryId}. Skip={skip}, Take={take}", repositoryId, skip, take);
             if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
 
-            var search = new SearchDescriptor<SchemaInfo>().Query(q => QueryHelper.QueryByOwnerIdAndRepositoryId(ownerId, repositoryId));
+            var search = new SearchDescriptor<SchemaInfo>().Query(q => QueryHelper.FilterByOwnerIdAndRepositoryId(ownerId, repositoryId));
             var rawQuery = "";
             using (var ms = new MemoryStream())
             {
@@ -151,7 +152,7 @@ namespace Datadock.Common.Elasticsearch
             Log.Debug("GetSchemasByRepositoryList [{repositoryIds}]. Skip={skip}, Take={take}", repositoryIds, skip, take);
             if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
 
-            var search = new SearchDescriptor<SchemaInfo>().Query(q => QueryHelper.QueryByOwnerIdAndRepositoryIds(ownerId, repositoryIds));
+            var search = new SearchDescriptor<SchemaInfo>().Query(q => QueryHelper.FilterByOwnerIdAndRepositoryIds(ownerId, repositoryIds));
             var rawQuery = "";
             using (var ms = new MemoryStream())
             {
@@ -216,6 +217,17 @@ namespace Datadock.Common.Elasticsearch
 
         public async Task CreateOrUpdateSchemaRecordAsync(SchemaInfo schemaInfo)
         {
+            if (schemaInfo == null) throw new ArgumentNullException(nameof(schemaInfo));
+            if (string.IsNullOrEmpty(schemaInfo.Id))
+            {
+                schemaInfo.Id = $"{schemaInfo.OwnerId}/{schemaInfo.RepositoryId}/{schemaInfo.SchemaId}";
+            }
+            var validator = new SchemaInfoValidator();
+            var validationResults = await validator.ValidateAsync(schemaInfo);
+            if (!validationResults.IsValid)
+            {
+                throw new ValidationException("Invalid schema info", validationResults);
+            }
             var indexResponse = await _client.IndexDocumentAsync(schemaInfo);
             if (!indexResponse.IsValid)
             {

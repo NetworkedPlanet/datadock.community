@@ -58,7 +58,7 @@ namespace Datadock.Common.Elasticsearch
 
             var filterHiddenDatasets = new TermQuery
             {
-                Field = new Field("showOnHomepage"),
+                Field = new Field("showOnHomePage"),
                 Value = true
             };
             filterClauses.Add(filterHiddenDatasets);
@@ -117,7 +117,7 @@ namespace Datadock.Common.Elasticsearch
 
             var filterHiddenDatasets = new TermQuery
             {
-                Field = new Field("showOnHomepage"),
+                Field = new Field("showOnHomePage"),
                 Value = true
             };
             filterClauses.Add(filterHiddenDatasets);

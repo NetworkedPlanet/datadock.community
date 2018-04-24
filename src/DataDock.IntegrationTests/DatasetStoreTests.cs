@@ -163,6 +163,15 @@ namespace DataDock.IntegrationTests
         }
 
         [Fact]
+        public async void ItCanRetrieveRecentlyUpdatedVisibleDatasetsForOwners()
+        {
+            var ownerIds = new string[] { "owner-0", "owner-1" };
+            var results = await _store.GetRecentlyUpdatedDatasetsForOwnersAsync(ownerIds, 0, 1000, false);
+            results.Should().NotBeNull();
+            results.Count().Equals(40);
+        }
+
+        [Fact]
         public async void ItCanRetrieveTop20RecentlyUpdatedDatasetsForOwners()
         {
             var ownerIds = new string[] { "owner-0", "owner-1" };
@@ -195,6 +204,15 @@ namespace DataDock.IntegrationTests
             var results = await _store.GetRecentlyUpdatedDatasetsForRepositoriesAsync("owner-0", repoIds, 0, 1000, true);
             results.Should().NotBeNull();
             results.Count().Equals(15);
+        }
+
+        [Fact]
+        public async void ItCanRetrieveRecentlyUpdatedVisibleDatasetsForRepositories()
+        {
+            var repoIds = new string[] { "repo-0", "repo-1", "repo-2" };
+            var results = await _store.GetRecentlyUpdatedDatasetsForRepositoriesAsync("owner-0", repoIds, 0, 1000, false);
+            results.Should().NotBeNull();
+            results.Count().Equals(12);
         }
 
         [Fact]

@@ -122,7 +122,7 @@ namespace Datadock.Common.Elasticsearch
             Log.Debug("GetSchemasByRepository {repositoryId}. Skip={skip}, Take={take}", repositoryId, skip, take);
             if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
 
-            var search = new SearchDescriptor<SchemaInfo>().Query(q => QueryHelper.QueryByOwnerIdAndRepositoryId(ownerId, repositoryId));
+            var search = new SearchDescriptor<SchemaInfo>().Query(q => QueryHelper.FilterByOwnerIdAndRepositoryId(ownerId, repositoryId));
             var rawQuery = "";
             using (var ms = new MemoryStream())
             {
@@ -152,7 +152,7 @@ namespace Datadock.Common.Elasticsearch
             Log.Debug("GetSchemasByRepositoryList [{repositoryIds}]. Skip={skip}, Take={take}", repositoryIds, skip, take);
             if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
 
-            var search = new SearchDescriptor<SchemaInfo>().Query(q => QueryHelper.QueryByOwnerIdAndRepositoryIds(ownerId, repositoryIds));
+            var search = new SearchDescriptor<SchemaInfo>().Query(q => QueryHelper.FilterByOwnerIdAndRepositoryIds(ownerId, repositoryIds));
             var rawQuery = "";
             using (var ms = new MemoryStream())
             {

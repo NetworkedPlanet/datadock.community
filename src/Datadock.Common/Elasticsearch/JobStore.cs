@@ -114,7 +114,7 @@ namespace Datadock.Common.Elasticsearch
             if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
 
             var search = new SearchDescriptor<JobInfo>()
-                .Query(q => QueryHelper.QueryByOwnerId(ownerId))
+                .Query(q => QueryHelper.FilterByOwnerId(ownerId))
                 .Skip(skip)
                 .Take(take)
                 .Sort(s => s
@@ -151,7 +151,7 @@ namespace Datadock.Common.Elasticsearch
 
             var search = new SearchDescriptor<JobInfo>()
                 .Query(
-                    q => QueryHelper.QueryByOwnerIdAndRepositoryId(ownerId, repositoryId))
+                    q => QueryHelper.FilterByOwnerIdAndRepositoryId(ownerId, repositoryId))
                 .Skip(skip)
                 .Take(take)
                 .Sort(s => s

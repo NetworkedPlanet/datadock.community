@@ -42,7 +42,7 @@ namespace DataDock.Web.ViewComponents
         {
             try
             {
-                var datasets = await _datasetStore.GetDatasetsForOwner(selectedOwnerId, 0, 20);
+                var datasets = await _datasetStore.GetDatasetsForOwnerAsync(selectedOwnerId, 0, 20);
                 var datasetViewModels = datasets.Select(d => new DatasetViewModel(d)).ToList();
                 return datasetViewModels;
             }
@@ -57,7 +57,7 @@ namespace DataDock.Web.ViewComponents
         {
             try
             {
-                var datasets = await _datasetStore.GetDatasetsForRepository(selectedOwnerId, selectedRepoId, 0, 20);
+                var datasets = await _datasetStore.GetDatasetsForRepositoryAsync(selectedOwnerId, selectedRepoId, 0, 20);
                 var datasetViewModels = datasets.Select(d => new DatasetViewModel(d)).ToList();
                 return datasetViewModels;
             }

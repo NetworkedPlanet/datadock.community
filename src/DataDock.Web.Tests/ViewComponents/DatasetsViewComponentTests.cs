@@ -57,7 +57,7 @@ namespace DataDock.Web.Tests.ViewComponents
             var ownerId = "owner-1";
 
             var datasets = GetDummyDatasets(ownerId, string.Empty, 10);
-            _mockDatasetsStore.Setup(m => m.GetDatasetsForOwner("owner-1", It.IsAny<int>(), It.IsAny<int>()))
+            _mockDatasetsStore.Setup(m => m.GetDatasetsForOwnerAsync("owner-1", It.IsAny<int>(), It.IsAny<int>()))
                 .Returns(Task.FromResult<IEnumerable<DatasetInfo>>(datasets));
 
             var vc = new DatasetsViewComponent(_mockDatasetsStore.Object);
@@ -66,7 +66,7 @@ namespace DataDock.Web.Tests.ViewComponents
             var result = asyncResult.Result as ViewViewComponentResult;
             Assert.NotNull(result);
 
-            _mockDatasetsStore.Verify(m => m.GetDatasetsForOwner(ownerId, 0 , 20), Times.Once);
+            _mockDatasetsStore.Verify(m => m.GetDatasetsForOwnerAsync(ownerId, 0 , 20), Times.Once);
 
             var model = result.ViewData?.Model as List<DatasetViewModel>;
             Assert.NotNull(model);
@@ -82,7 +82,7 @@ namespace DataDock.Web.Tests.ViewComponents
             var repoId = "repo-1";
 
             var datasets = GetDummyDatasets(ownerId, repoId, 10);
-            _mockDatasetsStore.Setup(m => m.GetDatasetsForRepository("owner-1", "repo-1", It.IsAny<int>(), It.IsAny<int>()))
+            _mockDatasetsStore.Setup(m => m.GetDatasetsForRepositoryAsync("owner-1", "repo-1", It.IsAny<int>(), It.IsAny<int>()))
                 .Returns(Task.FromResult<IEnumerable<DatasetInfo>>(datasets));
 
             var vc = new DatasetsViewComponent(_mockDatasetsStore.Object);
@@ -91,7 +91,7 @@ namespace DataDock.Web.Tests.ViewComponents
             var result = asyncResult.Result as ViewViewComponentResult;
             Assert.NotNull(result);
 
-            _mockDatasetsStore.Verify(m => m.GetDatasetsForRepository(ownerId, repoId, 0, 20), Times.Once);
+            _mockDatasetsStore.Verify(m => m.GetDatasetsForRepositoryAsync(ownerId, repoId, 0, 20), Times.Once);
 
             var model = result.ViewData?.Model as List<DatasetViewModel>;
             Assert.NotNull(model);

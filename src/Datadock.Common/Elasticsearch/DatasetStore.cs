@@ -38,24 +38,26 @@ namespace Datadock.Common.Elasticsearch
             _client.ConnectionSettings.DefaultIndices[typeof(DatasetInfo)] = indexName;
         }
 
-        public async Task<IEnumerable<DatasetInfo>> GetRecentlyUpdatedDatasets(int limit, bool showHidden = false)
+        public async Task<IEnumerable<DatasetInfo>> GetRecentlyUpdatedDatasetsAsync(int limit, bool showHidden = false)
         {
-            var mustClauses = new List<QueryContainer>
+            var search = new SearchDescriptor<DatasetInfo>();
+            if (!showHidden)
             {
-                new TermQuery
-                {
-                    Field = new Field("showOnHomepage"),
-                    Value = showHidden
-                }
-            };
-            var searchRequest = new SearchRequest<DatasetInfo>
+                // add query to filter by only those datasets with showOnHomepage = true
+                search.Query(q => QueryHelper.FilterByShowOnHomepage());
+            }
+            var rawQuery = "";
+            using (var ms = new MemoryStream())
             {
-                Size = limit,
-                From = 0,
-                Query = new BoolQuery { Must = mustClauses }
-            };
-
-            var searchResponse = await _client.SearchAsync<DatasetInfo>(searchRequest);
+                _client.RequestResponseSerializer.Serialize(search, ms);
+                rawQuery = Encoding.UTF8.GetString(ms.ToArray());
+                Console.WriteLine(rawQuery);
+            }
+            var searchResponse =
+                await _client.SearchAsync<DatasetInfo>(search
+                    .Skip(0)
+                    .Take(limit)
+                    .Sort(s => s.Field(f => f.Field("lastModified").Order(SortOrder.Descending))));
 
             if (!searchResponse.IsValid)
             {
@@ -66,29 +68,22 @@ namespace Datadock.Common.Elasticsearch
             return searchResponse.Documents;
         }
 
-        public async Task<IEnumerable<DatasetInfo>> GetRecentlyUpdatedDatasetsForOwners(string[] ownerIds, int skip, int take, bool showHidden = false)
+        public async Task<IEnumerable<DatasetInfo>> GetRecentlyUpdatedDatasetsForOwnersAsync(string[] ownerIds, int skip, int take, bool showHidden = false)
         {
-            var mustClauses = new List<QueryContainer>
+           
+            var search = new SearchDescriptor<DatasetInfo>().Query(q => QueryHelper.FilterByOwnerIds(ownerIds, showHidden));
+            var rawQuery = "";
+            using (var ms = new MemoryStream())
             {
-                new TermQuery
-                {
-                    Field = new Field("showOnHomepage"),
-                    Value = showHidden
-                }
-            };
-            var shouldClauses = new List<QueryContainer>();
-            foreach (var repositoryId in ownerIds)
-            {
-                shouldClauses.Add(new TermQuery { Field = new Field("ownerIds"), Value = repositoryId });
+                _client.RequestResponseSerializer.Serialize(search, ms);
+                rawQuery = Encoding.UTF8.GetString(ms.ToArray());
+                Console.WriteLine(rawQuery);
             }
-            var searchRequest = new SearchRequest<DatasetInfo>
-            {
-                Size = take,
-                From = skip,
-                Query = new BoolQuery { Must = mustClauses, Should = shouldClauses }
-            };
-
-            var searchResponse = await _client.SearchAsync<DatasetInfo>(searchRequest);
+            var searchResponse =
+                await _client.SearchAsync<DatasetInfo>(search
+                    .Skip(skip)
+                    .Take(take)
+                    .Sort(s => s.Field(f => f.Field("lastModified").Order(SortOrder.Descending))));
 
             var ownerIdsString = string.Join(", ", ownerIds);
             if (!searchResponse.IsValid)
@@ -100,34 +95,22 @@ namespace Datadock.Common.Elasticsearch
             return searchResponse.Documents;
         }
 
-        public async Task<IEnumerable<DatasetInfo>> GetRecentlyUpdatedDatasetsForRepositories(string ownerId, string[] repositoryIds, int skip, int take, bool showHidden = false)
+        public async Task<IEnumerable<DatasetInfo>> GetRecentlyUpdatedDatasetsForRepositoriesAsync(string ownerId, string[] repositoryIds, int skip, int take, bool showHidden = false)
         {
-            var mustClauses = new List<QueryContainer>
+            if (string.IsNullOrEmpty(ownerId)) throw new ArgumentNullException(nameof(ownerId));
+            var search = new SearchDescriptor<DatasetInfo>().Query(q => QueryHelper.FilterByOwnerIdAndRepositoryIds(ownerId, repositoryIds, showHidden));
+            var rawQuery = "";
+            using (var ms = new MemoryStream())
             {
-                new TermQuery
-                {
-                    Field = new Field("ownerId"),
-                    Value = ownerId
-                },
-                new TermQuery
-                {
-                    Field = new Field("showOnHomepage"),
-                    Value = showHidden
-                }
-            };
-            var shouldClauses = new List<QueryContainer>();
-            foreach (var repositoryId in repositoryIds)
-            {
-                shouldClauses.Add(new TermQuery{Field = new Field("repositoryId"), Value = repositoryId});
+                _client.RequestResponseSerializer.Serialize(search, ms);
+                rawQuery = Encoding.UTF8.GetString(ms.ToArray());
+                Console.WriteLine(rawQuery);
             }
-            var searchRequest = new SearchRequest<DatasetInfo>
-            {
-                Size = take,
-                From = skip,
-                Query = new BoolQuery { Must = mustClauses, Should = shouldClauses }
-            };
-
-            var searchResponse = await _client.SearchAsync<DatasetInfo>(searchRequest);
+            var searchResponse =
+                await _client.SearchAsync<DatasetInfo>(search
+                    .Skip(skip)
+                    .Take(take)
+                    .Sort(s => s.Field(f => f.Field("lastModified").Order(SortOrder.Descending))));
 
             var repositoryIdsString = string.Join(", ", repositoryIds);
             if (!searchResponse.IsValid)
@@ -140,13 +123,21 @@ namespace Datadock.Common.Elasticsearch
 
         }
 
-        public async Task<IEnumerable<DatasetInfo>> GetDatasetsForOwner(string ownerId, int skip, int take)
+        public async Task<IEnumerable<DatasetInfo>> GetDatasetsForOwnerAsync(string ownerId, int skip, int take)
         {
             if (string.IsNullOrEmpty(ownerId)) throw new ArgumentNullException(nameof(ownerId));
 
-            var response = await _client.SearchAsync<DatasetInfo>(s => s
-                .From(0).Query(q => q.Match(m => m.Field(f => f.OwnerId).Query(ownerId)))
-            );
+            var search = new SearchDescriptor<DatasetInfo>().Query(q => QueryHelper.FilterByOwnerId(ownerId));
+            var rawQuery = "";
+            using (var ms = new MemoryStream())
+            {
+                _client.RequestResponseSerializer.Serialize(search, ms);
+                rawQuery = Encoding.UTF8.GetString(ms.ToArray());
+                Console.WriteLine(rawQuery);
+            }
+            var response =
+                await _client.SearchAsync<DatasetInfo>(search.Skip(skip).Take(take));
+            
             if (!response.IsValid)
             {
                 throw new DatasetStoreException(
@@ -156,13 +147,13 @@ namespace Datadock.Common.Elasticsearch
             return response.Documents;
         }
 
-        public async Task<IEnumerable<DatasetInfo>> GetDatasetsForRepository(string ownerId, string repositoryId, int skip, int take)
+        public async Task<IEnumerable<DatasetInfo>> GetDatasetsForRepositoryAsync(string ownerId, string repositoryId, int skip, int take)
         {
             if (string.IsNullOrEmpty(ownerId)) throw new ArgumentNullException(nameof(ownerId));
             if (string.IsNullOrEmpty(repositoryId)) throw new ArgumentNullException(nameof(repositoryId));
 
             var rawQuery = "";
-            var search = new SearchDescriptor<DatasetInfo>().Query(q => QueryHelper.QueryByOwnerIdAndRepositoryId(ownerId, repositoryId));
+            var search = new SearchDescriptor<DatasetInfo>().Query(q => QueryHelper.FilterByOwnerIdAndRepositoryId(ownerId, repositoryId));
             using (var ms = new MemoryStream())
             {
                 _client.RequestResponseSerializer.Serialize(search, ms);
@@ -192,7 +183,7 @@ namespace Datadock.Common.Elasticsearch
             if (string.IsNullOrEmpty(datasetId)) throw new ArgumentNullException(nameof(datasetId));
 
             var rawQuery = "";
-            var search = new SearchDescriptor<DatasetInfo>().Query(q => QueryHelper.QueryByOwnerIdAndRepositoryIdAndDatasetId(ownerId, repositoryId, datasetId));
+            var search = new SearchDescriptor<DatasetInfo>().Query(q => QueryHelper.FilterByOwnerIdAndRepositoryIdAndDatasetId(ownerId, repositoryId, datasetId));
             using (var ms = new MemoryStream())
             {
                 _client.RequestResponseSerializer.Serialize(search, ms);
@@ -233,17 +224,17 @@ namespace Datadock.Common.Elasticsearch
             }
         }
 
-        public async Task<IEnumerable<DatasetInfo>> GetDatasetsForTag(string tag)
+        public async Task<IEnumerable<DatasetInfo>> GetDatasetsForTagAsync(string tag)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<DatasetInfo>> GetDatasetsForTag(string ownerId, string[] tags, bool matchAll = false, bool showHidden = false)
+        public async Task<IEnumerable<DatasetInfo>> GetDatasetsForTagAsync(string ownerId, string[] tags, bool matchAll = false, bool showHidden = false)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<DatasetInfo>> GetDatasetsForTag(string ownerId, string repositoryId, string[] tags, bool matchAll = false,
+        public async Task<IEnumerable<DatasetInfo>> GetDatasetsForTagAsync(string ownerId, string repositoryId, string[] tags, bool matchAll = false,
             bool showHidden = false)
         {
             throw new NotImplementedException();

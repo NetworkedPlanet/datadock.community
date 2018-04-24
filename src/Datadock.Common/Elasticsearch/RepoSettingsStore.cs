@@ -43,7 +43,7 @@ namespace Datadock.Common.Elasticsearch
         {
             if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
             
-            var search = new SearchDescriptor<RepoSettings>().Query(q => QueryHelper.QueryByOwnerId(ownerId));
+            var search = new SearchDescriptor<RepoSettings>().Query(q => QueryHelper.FilterByOwnerId(ownerId));
             var rawQuery = "";
             using (var ms = new MemoryStream())
             {
@@ -73,7 +73,7 @@ namespace Datadock.Common.Elasticsearch
             if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
             if (repositoryId == null) throw new ArgumentNullException(nameof(repositoryId));
             var rawQuery = "";
-            var search = new SearchDescriptor<RepoSettings>().Query(q => QueryHelper.QueryByOwnerIdAndRepositoryId(ownerId, repositoryId));
+            var search = new SearchDescriptor<RepoSettings>().Query(q => QueryHelper.FilterByOwnerIdAndRepositoryId(ownerId, repositoryId));
             using (var ms = new MemoryStream())
             {
                 _client.RequestResponseSerializer.Serialize(search, ms);

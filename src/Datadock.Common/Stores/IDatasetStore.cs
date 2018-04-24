@@ -55,7 +55,9 @@ namespace Datadock.Common.Stores
         /// <returns>A list of <see cref="DatasetInfo"/> instances</returns>
         Task<IEnumerable<DatasetInfo>> GetDatasetsForRepository(string ownerId, string repositoryId, int skip, int take);
 
-        Task<DatasetInfo> GetDatasetInfo(string ownerId, string repositoryId, string datasetId);
+        Task<DatasetInfo> GetDatasetInfoAsync(string ownerId, string repositoryId, string datasetId);
+
+        Task<DatasetInfo> GetDatasetInfoByIdAsync(string id);
 
         Task<IEnumerable<DatasetInfo>> GetDatasetsForTag(string tag);
 

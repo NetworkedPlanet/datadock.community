@@ -8,7 +8,7 @@ namespace Datadock.Common.Models
     public class DatasetInfo
     {
         /// <summary>
-        /// Combined owner, repo and dataset IDs in the format {ownerId}|{repositoryId}|{datasetId}
+        /// Combined owner, repo and dataset IDs in the format {ownerId}/{repositoryId}/{datasetId}
         /// </summary>
         [Keyword]
         public string Id { get; set; }

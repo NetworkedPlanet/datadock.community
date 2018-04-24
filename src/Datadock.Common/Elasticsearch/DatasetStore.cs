@@ -185,45 +185,52 @@ namespace Datadock.Common.Elasticsearch
             return response.Documents;
         }
         
-        public async Task<DatasetInfo> GetDatasetInfo(string ownerId, string repositoryId, string datasetId)
+        public async Task<DatasetInfo> GetDatasetInfoAsync(string ownerId, string repositoryId, string datasetId)
         {
             if (string.IsNullOrEmpty(ownerId)) throw new ArgumentNullException(nameof(ownerId));
             if (string.IsNullOrEmpty(repositoryId)) throw new ArgumentNullException(nameof(repositoryId));
             if (string.IsNullOrEmpty(datasetId)) throw new ArgumentNullException(nameof(datasetId));
 
-            var mustClauses = new List<QueryContainer>
+            var rawQuery = "";
+            var search = new SearchDescriptor<DatasetInfo>().Query(q => QueryHelper.QueryByOwnerIdAndRepositoryIdAndDatasetId(ownerId, repositoryId, datasetId));
+            using (var ms = new MemoryStream())
             {
-                new TermQuery
-                {
-                    Field = new Field("ownerId"),
-                    Value = ownerId
-                },
-                new TermQuery
-                {
-                    Field = new Field("repositoryId"),
-                    Value = repositoryId
-                },
-                new TermQuery
-                {
-                    Field = new Field("datasetId"),
-                    Value = datasetId
-                }
-            };
-           
-            var searchRequest = new SearchRequest<DatasetInfo>
-            {
-                Query = new BoolQuery { Must = mustClauses}
-            };
+                _client.RequestResponseSerializer.Serialize(search, ms);
+                rawQuery = Encoding.UTF8.GetString(ms.ToArray());
+                Console.WriteLine(rawQuery);
+            }
 
-            var searchResponse = await _client.SearchAsync<DatasetInfo>(searchRequest);
+            var response =
+                await _client.SearchAsync<DatasetInfo>(search);
 
-            if (!searchResponse.IsValid)
+            if (!response.IsValid)
             {
                 throw new DatasetStoreException(
-                    $"Error retrieving dataset for owner ID {ownerId} repositoryId {repositoryId} datasetId {datasetId}. Cause: {searchResponse.DebugInformation}");
+                    $"Error retrieving dataset for dataset ID {datasetId}, repo ID {repositoryId} on owner {ownerId}. Cause: {response.DebugInformation}");
             }
-            if (searchResponse.Total < 1) throw new DatasetNotFoundException(ownerId, repositoryId, datasetId);
-            return searchResponse.Documents.FirstOrDefault();
+
+            if (response.Total < 1)
+            {
+                Log.Warning($"No settings found with query {rawQuery}");
+                throw new DatasetNotFoundException(ownerId, repositoryId, datasetId);
+            }
+            return response.Documents.FirstOrDefault();
+        }
+
+        public async Task<DatasetInfo> GetDatasetInfoByIdAsync(string id)
+        {
+            if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
+
+            try
+            {
+                var datasetInfo = await _client.GetAsync<DatasetInfo>(new DocumentPath<DatasetInfo>(id));
+                return datasetInfo.Source;
+            }
+            catch (Exception e)
+            {
+                throw new DatasetStoreException(
+                    $"Error retrieving dataset by ID {id}. Cause: {e.ToString()}");
+            }
         }
 
         public async Task<IEnumerable<DatasetInfo>> GetDatasetsForTag(string tag)
@@ -247,7 +254,7 @@ namespace Datadock.Common.Elasticsearch
             if (datasetInfo == null) throw new ArgumentNullException();
             if (string.IsNullOrEmpty(datasetInfo.Id))
             {
-                datasetInfo.Id = $"{datasetInfo.OwnerId}|{datasetInfo.RepositoryId}|{datasetInfo.DatasetId}";
+                datasetInfo.Id = $"{datasetInfo.OwnerId}/{datasetInfo.RepositoryId}/{datasetInfo.DatasetId}";
             }
             var indexResponse =await _client.IndexDocumentAsync(datasetInfo);
             if (!indexResponse.IsValid)

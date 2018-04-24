@@ -25,21 +25,21 @@ namespace DataDock.Web.Tests.ViewComponents
             {
                 OwnerId = "owner-1",
                 RepositoryId = "repo-1",
-                Id = "owner-1|repo-1",
+                Id = "owner-1/repo-1",
                 OwnerIsOrg = false
             };
             var repo2 = new RepoSettings
             {
                 OwnerId = "owner-1",
                 RepositoryId = "repo-2",
-                Id = "owner-1|repo-2",
+                Id = "owner-1/repo-2",
                 OwnerIsOrg = false
             };
             var repo3 = new RepoSettings
             {
                 OwnerId = "owner-1",
                 RepositoryId = "repo-3",
-                Id = "owner-1|repo-3",
+                Id = "owner-1/repo-3",
                 OwnerIsOrg = false
             };
             var repos = new List<RepoSettings> { repo1, repo2, repo3 };

@@ -17,8 +17,6 @@ namespace Datadock.Common.Elasticsearch
             };
             return new BoolQuery { Filter = filterClauses };
         }
-
-
         public static QueryContainer QueryByOwnerIds(string[] ownerIds)
         {
             var filterClauses = new List<QueryContainer>
@@ -61,6 +59,28 @@ namespace Datadock.Common.Elasticsearch
                 {
                     Field = new Field("repositoryId"),
                     Terms = repositoryIds
+                }
+            };
+            return new BoolQuery { Filter = filterClauses };
+        }
+        public static QueryContainer QueryByOwnerIdAndRepositoryIdAndDatasetId(string ownerId, string repositoryId, string datasetId)
+        {
+            var filterClauses = new List<QueryContainer>
+            {
+                new TermQuery
+                {
+                    Field = new Field("ownerId"),
+                    Value = ownerId
+                },
+                new TermQuery
+                {
+                    Field = new Field("repositoryId"),
+                    Value = repositoryId
+                },
+                new TermQuery
+                {
+                    Field = new Field("datasetId"),
+                    Value = datasetId
                 }
             };
             return new BoolQuery { Filter = filterClauses };

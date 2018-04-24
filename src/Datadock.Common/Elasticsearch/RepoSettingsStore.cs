@@ -98,12 +98,27 @@ namespace Datadock.Common.Elasticsearch
             return response.Documents.FirstOrDefault();
         }
 
+        public async Task<RepoSettings> GetRepoSettingsByIdAsync(string id)
+        {
+            if (id == null) throw new ArgumentNullException(nameof(id));
+            try
+            {
+                var datasetInfo = await _client.GetAsync<RepoSettings>(new DocumentPath<RepoSettings>(id));
+                return datasetInfo.Source;
+            }
+            catch (Exception e)
+            {
+                throw new RepoSettingsStoreException(
+                    $"Error retrieving dataset with ID {id}. Cause: {e.ToString()}");
+            }
+        }
+
         public async Task CreateOrUpdateRepoSettingsAsync(RepoSettings settings)
         {
             if (settings == null) throw new ArgumentNullException(nameof(settings));
             if (string.IsNullOrEmpty(settings.Id))
             {
-                settings.Id = $"{settings.OwnerId}|{settings.RepositoryId}";
+                settings.Id = $"{settings.OwnerId}/{settings.RepositoryId}";
             }
             var validator = new RepoSettingsValidator();
             var validationResults = await validator.ValidateAsync(settings);

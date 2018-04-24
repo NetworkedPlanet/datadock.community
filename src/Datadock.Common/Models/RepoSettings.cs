@@ -7,7 +7,7 @@ namespace Datadock.Common.Models
     public class RepoSettings
     {
         /// <summary>
-        /// Combined owner and repo IDs in the format {ownerId}/{repositoryId}
+        /// Combined owner and repo IDs in the format {ownerId}|{repositoryId}
         /// </summary>
         [Keyword]
         public string Id { get; set; }

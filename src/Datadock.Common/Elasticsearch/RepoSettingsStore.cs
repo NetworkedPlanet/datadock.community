@@ -103,7 +103,7 @@ namespace Datadock.Common.Elasticsearch
             if (settings == null) throw new ArgumentNullException(nameof(settings));
             if (string.IsNullOrEmpty(settings.Id))
             {
-                settings.Id = $"{settings.OwnerId}/{settings.RepositoryId}";
+                settings.Id = $"{settings.OwnerId}|{settings.RepositoryId}";
             }
             var validator = new RepoSettingsValidator();
             var validationResults = await validator.ValidateAsync(settings);

@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Security.Authentication;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Datadock.Common.Elasticsearch;
+﻿using Datadock.Common.Elasticsearch;
 using Datadock.Common.Models;
 using Datadock.Common.Stores;
 using FluentAssertions;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace DataDock.IntegrationTests
@@ -39,7 +34,7 @@ namespace DataDock.IntegrationTests
             await _store.CreateOrUpdateRepoSettingsAsync(repoSettings);
             Thread.Sleep(1000);
             var retrievedRepoSettings = await _store.GetRepoSettingsAsync("owner-1", "repo-1");
-            retrievedRepoSettings.Id.Should().Be($"owner-1/repo-1");
+            retrievedRepoSettings.Id.Should().Be($"owner-1|repo-1");
             ((string)retrievedRepoSettings.OwnerId).Should().Be("owner-1");
             ((string)retrievedRepoSettings.RepositoryId).Should().Be("repo-1");
             (retrievedRepoSettings.OwnerIsOrg).Should().BeFalse();

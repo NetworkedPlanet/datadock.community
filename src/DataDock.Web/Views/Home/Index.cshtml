@@ -28,10 +28,24 @@
             <i class="star outline icon"></i>
             Features
           </a>
-          <a class="item" href="/account/signup">
-            <i class="help icon"></i>
-            Sign up
-          </a>
+          @{
+            var identity = User?.Identity;
+          }
+          @if(identity != null && identity.IsAuthenticated) 
+          {
+            <a class="item" href="/@User.Identity.Name">
+              <i class="dashboard icon"></i>
+              Dashboard
+            </a>
+          }
+          else
+          {
+            <a class="item" href="/account/login">
+              <i class="user plus icon"></i>
+              Sign up / Login
+            </a>
+          }
+
         </div>
       </div>
     </div>

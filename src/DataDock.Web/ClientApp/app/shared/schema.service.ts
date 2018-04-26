@@ -16,7 +16,7 @@ export class SchemaService {
         params.set('schemaId', schemaId);
         let options = new RequestOptions({
             method: RequestMethod.Get,
-            url: `${this.globals.apiUrl}schema`,
+            url: `${this.globals.apiUrl}schemas`,
             params: params,
             headers: headers,
         });

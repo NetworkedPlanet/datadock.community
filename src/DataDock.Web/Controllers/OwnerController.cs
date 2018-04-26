@@ -177,14 +177,16 @@ namespace DataDock.Web.Controllers
         /// Viewable by authorized users only
         /// </summary>
         /// <param name="ownerId"></param>
+        /// <param name="schemaId"></param>
         /// <returns></returns>
         [Authorize]
         [ServiceFilter(typeof(AccountExistsFilter))]
         [ServiceFilter(typeof(OwnerAdminAuthFilter))]
-        public async Task<IActionResult> Import(string ownerId = "")
+        public async Task<IActionResult> Import(string ownerId = "", string schemaId = "")
         {
             this.DashboardViewModel.Area = "import";
             DashboardViewModel.Title = string.Format("{0} Add Data", DashboardViewModel.SelectedOwnerId);
+            DashboardViewModel.SelectedSchemaId = schemaId;
             return View("Dashboard/Import", this.DashboardViewModel);
         }
 

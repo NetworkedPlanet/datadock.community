@@ -11,5 +11,5 @@
 </div>
 
 <div class="ui text container">
-  @await Component.InvokeAsync("RepositorySelectorList", new { selectedOwnerId = Model.SelectedOwnerId, display = "link-list" })
+  @await Component.InvokeAsync("RepositorySelectorList", new { selectedOwnerId = Model.SelectedOwnerId, selectedSchemaId = Model.SelectedSchemaId, display = "link-list" })
 </div>

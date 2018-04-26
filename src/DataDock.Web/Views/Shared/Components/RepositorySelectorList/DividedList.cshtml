@@ -5,7 +5,7 @@
 {
   <div class="ui relaxed selection divided list">
     @foreach (RepositoryInfo r in Model)
-    {
+    {    
       <a class="item no-underline" href="@r.DataDockImportUrl" title="Add Data to @r.RepoId">
         @if (!string.IsNullOrEmpty(r.OwnerAvatar))
         {

@@ -22,11 +22,11 @@ namespace DataDock.Web.Api
         [HttpGet]
         public async Task<IActionResult> Get(string ownerId, string schemaId)
         {
+            if (string.IsNullOrEmpty(ownerId)) return BadRequest("Missing argument: ownerId");
+            if (string.IsNullOrEmpty(schemaId)) return BadRequest("Missing argument: schemaId");
+
             try
             {
-                if (string.IsNullOrEmpty(ownerId)) return BadRequest("Missing argument: ownerId");
-                if (string.IsNullOrEmpty(schemaId)) return BadRequest("Missing argument: schemaId");
-
                 try
                 {
                     var schema = await _schemaStore.GetSchemaInfoAsync(ownerId, schemaId);

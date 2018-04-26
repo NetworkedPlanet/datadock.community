@@ -18,13 +18,18 @@ export class SchemaHelperService {
     }
 
     public setSchema(ownerId: string, schemaId: string, schemaInfo: any) {
+        if (this.globals.config.inDebug) {
+            console.log('setSchema', ownerId, schemaId, schemaInfo["schema"]);
+        }
         if (ownerId && schemaId && schemaInfo) {
             this.schemaId = schemaId;
-            this.schemaJson = schemaInfo['schema'];
+            this.schemaJson = JSON.parse(schemaInfo["schema"]);
             this.hasSchema = true;
             if (this.schemaJson) {
                 this.schemaTitle = this.schemaJson['dc:title'];
                 this.metadataJson = this.schemaJson['metadata'];
+                console.log('schemaTitle', this.schemaTitle);
+                console.log('metadataJson', this.metadataJson);
             }
         } else {
             // one or more missing id
@@ -83,8 +88,10 @@ export class SchemaHelperService {
     }
 
     public getMetadataDescription(): string {
+        console.log('getMetadataDescription', this.hasSchema, this.metadataJson);
         if (this.hasSchema && this.metadataJson) {
             let desc = this.metadataJson['dc:description'];
+            console.log(desc);
             return desc;
         }
         return '';

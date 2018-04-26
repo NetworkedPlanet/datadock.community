@@ -54,13 +54,16 @@ export class FileComponent implements OnInit, OnDestroy  {
           this.ownerId = params['ownerId'];
           this.repoId = params['repoId'];
           this.schemaId = params['schemaId'];
-          // todo get schema title from model
       });
+
+    if (this.globals.config.inDebug) {
+      console.log('ownerId: ' + this.ownerId);
+      console.log('repoId: ' + this.repoId);
+      console.log('schemaId: ' + this.schemaId);
+    }
   }
 
-    ngOnDestroy() {
-        this.sub.unsubscribe();
-    }
+
 
   fileChangeEvent(fileInput: any) {
     this.isLoading = true;
@@ -99,6 +102,9 @@ export class FileComponent implements OnInit, OnDestroy  {
   }
 
   processFileInfoViewModelAndRedirect() {
+    if (this.globals.config.inDebug) {
+      console.log('processFileInfoViewModelAndRedirect', this.ownerId, this.schemaId);
+    }
     try {
       let csvFile = this.appService.csvFile;
       let dataSlice = csvFile.getDataSlice();
@@ -111,7 +117,7 @@ export class FileComponent implements OnInit, OnDestroy  {
               if (this.globals.config.inDebug) {
                 console.log('schema api response', apiResponse);
               }
-              if (apiResponse && apiResponse.status === 200) {
+              if (apiResponse && apiResponse.status == 200) {
                 // setting schema (can be read from the metadata view model builder?
                 this.shs.setSchema(this.ownerId, this.schemaId, apiResponse.schemaInfo);
               } else {
@@ -180,5 +186,7 @@ export class FileComponent implements OnInit, OnDestroy  {
     console.error('ERROR:', err, file);
   }
 
-
+  ngOnDestroy() {
+    this.sub.unsubscribe();
+  }
 }

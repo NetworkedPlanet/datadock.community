@@ -76,16 +76,18 @@ namespace DataDock.Web.Controllers
         /// </summary>
         /// <param name="ownerId"></param>
         /// <param name="repoId"></param>
+        /// <param name="schemaId"></param>
         /// <returns></returns>
         [Authorize]
         [ServiceFilter(typeof(AccountExistsFilter))]
         [ServiceFilter(typeof(OwnerAdminAuthFilter))]
         [GenerateAntiforgeryTokenCookieForAjax]
-        public async Task<IActionResult> Import(string ownerId, string repoId)
+        public async Task<IActionResult> Import(string ownerId, string repoId, string schemaId = "")
         {
             this.DashboardViewModel.Area = "import";
             DashboardViewModel.Title = string.Format("{0} > {1} Add Data", DashboardViewModel.SelectedOwnerId,
                 DashboardViewModel.SelectedRepoId);
+            DashboardViewModel.SelectedSchemaId = schemaId;
             return View("Import", this.DashboardViewModel);
         }
 

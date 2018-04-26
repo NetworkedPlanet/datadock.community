@@ -19,14 +19,14 @@ namespace DataDock.Web.ViewComponents
             _gitHubApiService = gitHubApiService;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(string selectedOwnerId, string display = "dropdown")
+        public async Task<IViewComponentResult> InvokeAsync(string selectedOwnerId, string selectedSchemaId, string display = "dropdown")
         {
             try
             {
                 if (string.IsNullOrEmpty(selectedOwnerId)) return View("Empty");
                 if (User?.Identity == null || !User.Identity.IsAuthenticated) return View("Empty");
 
-                var repos = await GetRepositoriesForOwner(selectedOwnerId);
+                var repos = await GetRepositoriesForOwner(selectedOwnerId, selectedSchemaId);
                 switch (display)
                 {
                     case "link-list":
@@ -41,13 +41,13 @@ namespace DataDock.Web.ViewComponents
             }
         }
 
-        public async Task<List<RepositoryInfo>> GetRepositoriesForOwner(string ownerId)
+        public async Task<List<RepositoryInfo>> GetRepositoriesForOwner(string ownerId, string schemaId)
         {
             var repoInfos = new List<RepositoryInfo>();
             var allRepositories = await _gitHubApiService.GetRepositoryListForOwnerAsync(User.Identity, ownerId);
             foreach (var r in allRepositories)
             {
-                repoInfos.Add(new RepositoryInfo(r));
+                repoInfos.Add(new RepositoryInfo(r, schemaId));
             }
             return repoInfos;
         }

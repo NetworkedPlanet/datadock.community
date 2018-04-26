@@ -15,11 +15,20 @@ namespace DataDock.Web.Models
 
         }
 
-        public RepositoryInfo(Repository r)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="r">A GitHub repo <see cref="Repository"/></param>
+        /// <param name="schemaId">optional schemaId to add to the import URL</param>
+        public RepositoryInfo(Repository r, string schemaId = "")
         {
             this.OwnerId = r.Owner?.Login;
             this.RepoId = r.Name;
             this.DataDockImportUrl = $"/{OwnerId}/{RepoId}/import";
+            if (!string.IsNullOrEmpty(schemaId))
+            {
+                this.DataDockImportUrl += $"/{schemaId}";
+            }
             this.OwnerAvatar = r.Owner?.AvatarUrl;
         }
 

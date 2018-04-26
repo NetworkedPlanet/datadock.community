@@ -24,7 +24,7 @@
     <div class="field">
       <div class="two fields">
         <div class="field">
-            @await Component.InvokeAsync("RepositorySelectorList", new { selectedOwnerId = Model.SelectedOwnerId, display = "dropdown" })
+            @await Component.InvokeAsync("RepositorySelectorList", new { selectedOwnerId = Model.SelectedOwnerId, selectedSchemaId = "", display = "dropdown" })
         </div>
         <div class="field">
           <button class="ui button" type="button" id="repoSettings">Go</button>

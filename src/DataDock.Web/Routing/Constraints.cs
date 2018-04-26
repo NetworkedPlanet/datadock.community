@@ -18,7 +18,6 @@ namespace DataDock.Web.Routing
                 "account",
                 "manage",
                 "info",
-                "dashboard",
                 "import",
                 "jobs",
                 "repositories",
@@ -41,7 +40,14 @@ namespace DataDock.Web.Routing
             RouteDirection routeDirection)
         {
             var repoId = values["repoId"].ToString().ToLower();
-            return !repoId.Equals("repositories");
+            List<string> allowedPages = new List<string>()
+            {
+                "",
+                "repositories",
+                "library"
+            };
+            var match = allowedPages.Any(x => x.ToLower() == repoId);
+            return !match;
         }
 
     }

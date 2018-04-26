@@ -18,7 +18,6 @@ namespace DataDock.Web.Routing
                 "account",
                 "manage",
                 "info",
-                "dashboard",
                 "import",
                 "jobs",
                 "repositories",

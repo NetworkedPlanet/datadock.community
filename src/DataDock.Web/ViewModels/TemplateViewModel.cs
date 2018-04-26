@@ -30,10 +30,12 @@ namespace DataDock.Web.ViewModels
             MetadataRaw = _metadata.ToString();
         }
 
-        public string Id => _schemaInfo.SchemaId;
-        public string RepositoryId => _schemaInfo.RepositoryId;
+        public string Id => _schemaInfo.Id;
         public string OwnerId => _schemaInfo.OwnerId;
-
+        public string RepositoryId => _schemaInfo.RepositoryId;
+        public string SchemaId => _schemaInfo.SchemaId;
+        
+        
         [Display(Name = "Title")]
         public string Title { get; set; }
 

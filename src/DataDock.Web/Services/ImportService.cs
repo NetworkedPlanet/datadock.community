@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Security.Principal;
-using System.Threading.Tasks;
-using Datadock.Common.Models;
+﻿using Datadock.Common.Models;
 using Datadock.Common.Stores;
 using Octokit;
 using Serilog;
+using System;
+using System.Security.Claims;
+using System.Security.Principal;
+using System.Threading.Tasks;
 
 namespace DataDock.Web.Services
 {
@@ -62,6 +60,18 @@ namespace DataDock.Web.Services
                 Log.Error($"Error checking repo settings for '{ownerId}/{repoId}", e);
                 throw;
             }
+        }
+
+        public async Task<bool> CheckUserIsAdminOfOwner(ClaimsPrincipal user, string ownerId)
+        {
+            if (user == null) return false;
+            if (string.IsNullOrEmpty(ownerId)) return false;
+            if (user.Identity.Name.Equals(ownerId))
+            {
+                return true;
+            }
+            var userHasOwner = await _gitHubApiService.UserIsAuthorizedForOrganization(user.Identity, ownerId);
+            return userHasOwner;
         }
 
         private async Task<Repository> CheckGitHubRepository(IIdentity identity, string ownerId, string repoId)

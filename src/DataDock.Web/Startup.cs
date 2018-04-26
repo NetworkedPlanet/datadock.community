@@ -1,5 +1,7 @@
 using Datadock.Common.Elasticsearch;
 using Datadock.Common.Models;
+using Datadock.Common.Stores;
+using DataDock.Common;
 using DataDock.Web.Auth;
 using DataDock.Web.Routing;
 using DataDock.Web.Services;
@@ -21,15 +23,10 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.Elasticsearch;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
-using System.Threading;
 using System.Threading.Tasks;
-using Datadock.Common.Stores;
-using DataDock.Common;
 
 namespace DataDock.Web
 {

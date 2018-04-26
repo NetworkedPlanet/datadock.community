@@ -13,6 +13,11 @@ namespace DataDock.Web.Controllers
 
         public DashboardViewModel DashboardViewModel { get; set; }
 
+        protected ActionResult ReturnUnauthorizedView()
+        {
+            return View("Unauthorized");
+        }
+
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             base.OnActionExecuting(context);
@@ -38,8 +43,7 @@ namespace DataDock.Web.Controllers
             };
             DashboardViewModel = dvm;
         }
-
-
+        
         public string GetSettingsStatusMessage(ManageMessageId? message = null)
         {
             if (message == null)

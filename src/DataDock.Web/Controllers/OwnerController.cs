@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Net;
 using DataDock.Web.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Datadock.Common.Stores;
 using DataDock.Web.Models;
+using DataDock.Web.Services;
 using DataDock.Web.ViewModels;
 using Serilog;
 
@@ -14,10 +16,14 @@ namespace DataDock.Web.Controllers
     public class OwnerController : DashboardBaseController
     {
         private readonly IOwnerSettingsStore _ownerSettingsStore;
+        private readonly IImportService _importService;
+        private readonly ISchemaStore _schemaStore;
 
-        public OwnerController(IOwnerSettingsStore ownerSettingsStore)
+        public OwnerController(IOwnerSettingsStore ownerSettingsStore, IImportService importService, ISchemaStore schemaStore)
         {
             _ownerSettingsStore = ownerSettingsStore;
+            _importService = importService;
+            _schemaStore = schemaStore;
         }
 
         /// <summary>
@@ -73,6 +79,97 @@ namespace DataDock.Web.Controllers
             this.DashboardViewModel.Area = "library";
             DashboardViewModel.Title = string.Format("{0} Template Library", DashboardViewModel.SelectedOwnerId);
             return View("Dashboard/Library", this.DashboardViewModel);
+        }
+
+        public async Task<ActionResult> DeleteSchema(string ownerId, string schemaId)
+        {
+            if (string.IsNullOrEmpty(ownerId)) return new NotFoundResult();
+            if (string.IsNullOrEmpty(schemaId)) return new NotFoundResult();
+
+            if (User?.Identity == null || !User.Identity.IsAuthenticated) return new UnauthorizedResult();
+            var model = new TemplateDeleteModel(schemaId);
+
+            try
+            {
+                model.Area = "delete";
+                model.SelectedOwnerId = ownerId;
+                model.SchemaId = schemaId;
+                model.UserId = User.Identity.Name;
+
+                // check user has permission to admin
+                var isAdmin = await _importService.CheckUserIsAdminOfOwner(User, ownerId);
+                if (!isAdmin) return ReturnUnauthorizedView();
+
+                var schemaInfo = await _schemaStore.GetSchemaInfoAsync(ownerId, schemaId);
+                if (schemaInfo == null)
+                {
+                    Log.Warning(
+                        "Schema validation failed. Could not find a schema info record for schema {0} for owner {1}",
+                        model.SchemaId, model.SelectedOwnerId);
+                    return new NotFoundResult();
+                }
+                model.SchemaInfo = schemaInfo;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error loading delete schema page");
+                ModelState.AddModelError("", "Error encountered while loading the page");
+            }
+            return View(model);
+        }
+
+        // POST: /{ownerId}/{repoId}/{datasetId}/delete
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> DeleteSchema(TemplateDeleteModel model, string returnUrl)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return View(model);
+
+                Log.Debug("/{0}/library/{1}/delete: attempting to delete template by user '{2}'", model.SelectedOwnerId, model.SchemaId, model.UserId);
+
+                // check current user has permission to admin the dataset
+                var isAdmin = await _importService.CheckUserIsAdminOfOwner(User, model.SelectedOwnerId);
+                if (!isAdmin) return ReturnUnauthorizedView();
+
+                if (string.IsNullOrEmpty(model.SchemaId))
+                {
+                    return new BadRequestResult();
+                }
+
+                var schemaInfo = await _schemaStore.GetSchemaInfoAsync(model.SelectedOwnerId, model.SchemaId);
+                if (schemaInfo == null)
+                {
+                    Log.Warning(
+                        "Schema validation failed. Could not find a schema info record for schema {0} for owner {1}",
+                        model.SchemaId, model.SelectedOwnerId);
+                    return new NotFoundResult();
+                }
+                model.SchemaInfo = schemaInfo;
+
+                try
+                {
+                    await _schemaStore.DeleteSchemaAsync(model.SelectedOwnerId, model.SchemaId);
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e, "Unexpected error when attempting to delete schema at /{0}/library/{1}/delete", model.SelectedOwnerId, model.SchemaId);
+                    model.HasErrored = true;
+                    model.Errors.Add(string.Format("Unexpected error when attempting to delete template '{0}'", model.SchemaId));
+                    return View("DeleteSchema", model);
+                }
+
+
+                return RedirectToAction("Library", new { ownerId = model.SelectedOwnerId });
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Unexpected error when attempting to retrieve schema for deletion at /{0}/library/{1}/delete", model.SelectedOwnerId, model.SchemaId);
+                model.HasErrored = true;
+                model.Errors.Add(string.Format("Unexpected error when attempting to retrieve template for deletion '{0}'", model.SchemaId));
+                return View("DeleteSchema", model);
+            }
         }
 
         /// <summary>

@@ -264,7 +264,7 @@ namespace Datadock.Common.Elasticsearch
         {
             if (tags == null) throw new ArgumentNullException(nameof(tags));
 
-            var search = new SearchDescriptor<DatasetInfo>().Query(q => QueryHelper.FilterOwnerByTags(ownerId, tags, showHidden));
+            var search = new SearchDescriptor<DatasetInfo>().Query(q => QueryHelper.FilterOwnerByTags(ownerId, tags, matchAll, showHidden));
             var rawQuery = "";
 #if DEBUG
             using (var ms = new MemoryStream())
@@ -292,7 +292,7 @@ namespace Datadock.Common.Elasticsearch
         {
             if (tags == null) throw new ArgumentNullException(nameof(tags));
 
-            var search = new SearchDescriptor<DatasetInfo>().Query(q => QueryHelper.FilterRepositoryByTags(ownerId, repositoryId, tags, showHidden));
+            var search = new SearchDescriptor<DatasetInfo>().Query(q => QueryHelper.FilterRepositoryByTags(ownerId, repositoryId, tags, matchAll, showHidden));
             var rawQuery = "";
 #if DEBUG
             using (var ms = new MemoryStream())
@@ -311,7 +311,7 @@ namespace Datadock.Common.Elasticsearch
                 throw new DatasetStoreException(
                     $"Error retrieving datasets for repository {ownerId}/{repositoryId} with tags {string.Join(", ", tags)}. Cause: {searchResponse.DebugInformation}");
             }
-            if (searchResponse.Total < 1) throw new DatasetNotFoundException($"No datasets for repository {ownerId}/{repositoryId} with tags {string.Join(", ", tags)}.");
+            if (searchResponse.Total < 1) throw new DatasetNotFoundException($"No datasets found for repository {ownerId}/{repositoryId} with tags {string.Join(", ", tags)}.");
             return searchResponse.Documents;
         }
 

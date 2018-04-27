@@ -81,6 +81,10 @@ namespace DataDock.IntegrationTests
                     {
                         count++;
                         var tags = new List<string> {"test", $"owner-{o}", $"repo-{r}", $"set-{d}"};
+                        if (d == 0)
+                        {
+                            tags.Add("foo");
+                        }
                         var csvwJson = new JObject(new JProperty("dc:title", $"Test Dataset {d} (Owner {o} Repo {r})"), new JProperty("dcat:keyword", new JArray(tags)));
                         var voidJson = new JObject(
                             new JProperty("void:triples", "100"),
@@ -317,13 +321,50 @@ namespace DataDock.IntegrationTests
         }
 
         [Fact]
-        public async void ItCanRetrieveOwnerDatasetsByTag()
+        public async void ItCanRetrieveOwnerDatasetsByTagsCanContain()
         {
-            var tags = new string[] {"repo-0", "set-0"}; // tag filter in ES works as CONTAINS not equal
-            var result = await _store.GetDatasetsForTagsAsync("owner-0", tags, 0, 200, false, true); // all datasets have the 'test' tag
+            var tags = new string[] {"repo-0", "set-0"}; 
+            var result = await _store.GetDatasetsForTagsAsync("owner-0", tags, 0, 200, false, true); 
             result.Should().NotBeNull();
             // repo-0 = 5, set-0 = 5 (1 is both repo-0 and set-0) = 9
             result.Count().Should().Be(9);
+        }
+
+        [Fact]
+        public async void ItCanRetrieveOwnerDatasetsByTagsMustContain()
+        {
+            var tags = new string[] { "repo-0", "set-0" }; 
+            var result = await _store.GetDatasetsForTagsAsync("owner-0", tags, 0, 200, true, true); 
+            result.Should().NotBeNull();
+            result.Count().Should().Be(1);
+        }
+
+        [Fact]
+        public async void ItCanRetrieveRepoDatasetsByTagsCanContain()
+        {
+            var tags = new string[] { "set-3", "foo" };
+            var result = await _store.GetDatasetsForTagsAsync("owner-0", "repo-0", tags, 0, 200, false, true);
+            result.Should().NotBeNull();
+            result.Count().Should().Be(2);
+        }
+
+        [Fact]
+        public async void ItCanRetrieveRepoDatasetsByTagsMustContain()
+        {
+            var tags = new string[] { "set-0", "foo" };
+            var result = await _store.GetDatasetsForTagsAsync("owner-0", "repo-0", tags, 0, 200, true, true);
+            result.Should().NotBeNull();
+            result.Count().Should().Be(1);
+        }
+
+        [Fact]
+        public void ItCanRetrieveRepoDatasetsByTagsMustContainNoResults()
+        {
+            var tags = new string[] { "set-3", "foo" };
+            var ex = Assert.ThrowsAsync<DatasetNotFoundException>(async () =>
+                await _store.GetDatasetsForTagsAsync("owner-0", "repo-0", tags, 0, 200, true, true));
+
+            Assert.StartsWith($"No datasets found for repository owner-0/repo-0 with tags set-3, foo", ex.Result.Message);
         }
     }
 }

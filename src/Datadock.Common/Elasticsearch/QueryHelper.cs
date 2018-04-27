@@ -166,7 +166,7 @@ namespace Datadock.Common.Elasticsearch
             filterClauses.Add(filterHiddenDatasets);
             return new BoolQuery { Filter = filterClauses };
         }
-        public static QueryContainer FilterOwnerByTags(string ownerId, string[] tags, bool showHidden)
+        public static QueryContainer FilterOwnerByTags(string ownerId, string[] tags, bool matchAll, bool showHidden)
         {
             var filterClauses = new List<QueryContainer>
             {
@@ -174,15 +174,30 @@ namespace Datadock.Common.Elasticsearch
                 {
                     Field = new Field("ownerId"),
                     Value = ownerId
-                },
-                new TermsQuery
-                {
-                    Field = new Field("tags"),
-                    Terms = tags // works as an OR
                 }
             };
-            // owner = ownerId AND ( tag = tag1 OR tag = tag2 OR tag = tag3 etc)
-            // https://www.elastic.co/guide/en/elasticsearch/guide/current/_finding_multiple_exact_values.html#_contains_but_does_not_equal
+            if (matchAll)
+            {
+                // and
+                foreach (var tag in tags)
+                {
+                    filterClauses.Add(new TermQuery
+                    {
+                        Field = new Field("tags"),
+                        Value = tag
+                    });
+                }
+            }
+            else
+            {
+                // or/contains
+                filterClauses.Add(new TermsQuery
+                {
+                    Field = new Field("tags"),
+                    Terms = tags
+                });
+            }
+            
             if (showHidden) return new BoolQuery { Filter = filterClauses };
 
             var filterHiddenDatasets = new TermQuery
@@ -193,7 +208,7 @@ namespace Datadock.Common.Elasticsearch
             filterClauses.Add(filterHiddenDatasets);
             return new BoolQuery { Filter = filterClauses };
         }
-        public static QueryContainer FilterRepositoryByTags(string ownerId, string repositoryId, string[] tags, bool showHidden)
+        public static QueryContainer FilterRepositoryByTags(string ownerId, string repositoryId, string[] tags, bool matchAll, bool showHidden)
         {
             var filterClauses = new List<QueryContainer>
             {
@@ -206,13 +221,29 @@ namespace Datadock.Common.Elasticsearch
                 {
                     Field = new Field("repositoryId"),
                     Value = repositoryId
-                },
-                new TermsQuery
-                {
-                    Field = new Field("tags"),
-                    Terms = tags
                 }
             };
+            if (matchAll)
+            {
+                // and
+                foreach (var tag in tags)
+                {
+                    filterClauses.Add(new TermQuery
+                    {
+                        Field = new Field("tags"),
+                        Value = tag
+                    });
+                }
+            }
+            else
+            {
+                // or/contains
+                filterClauses.Add(new TermsQuery
+                {
+                    Field = new Field("tags"),
+                    Terms = tags 
+                });
+            }
             if (showHidden) return new BoolQuery { Filter = filterClauses };
 
             var filterHiddenDatasets = new TermQuery

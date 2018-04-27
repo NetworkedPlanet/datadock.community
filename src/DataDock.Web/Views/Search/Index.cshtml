@@ -48,9 +48,13 @@
   }
   else
   {
-    <div class="ui hidden divider"></div>
-    <div class="ui warning message">
-      None found.
-    </div>
+    if (!string.IsNullOrEmpty(Model.SearchTag))
+    {
+      <div class="ui hidden divider"></div>
+      <div class="ui warning message">
+        None found.
+      </div>
+    }
+   
   }
 </div>

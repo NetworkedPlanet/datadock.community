@@ -7,6 +7,7 @@ using System.Dynamic;
 using System.Threading;
 using System.Threading.Tasks;
 using Datadock.Common.Stores;
+using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace DataDock.IntegrationTests
@@ -15,11 +16,13 @@ namespace DataDock.IntegrationTests
     {
         private readonly ElasticsearchFixture _fixture;
         private readonly SchemaStore _repo;
+        private readonly JObject _dummySchema;
 
         public SchemaStoreTests(ElasticsearchFixture fixture)
         {
             _fixture = fixture;
             _repo = new SchemaStore(fixture.Client, fixture.Configuration);
+            _dummySchema = JObject.Parse("{foo : 'foo',bar : {baz : 'baz'}}");
         }
 
         [Fact]
@@ -31,22 +34,14 @@ namespace DataDock.IntegrationTests
                 RepositoryId = "the_repo",
                 LastModified = DateTime.UtcNow,
                 SchemaId = "the_schema_id",
-                Schema = @"
-                {
-                    foo : 'foo',
-                    bar : {
-                        baz : 'baz'
-                    }
-                }"
+                Schema = _dummySchema
             };
             await _repo.CreateOrUpdateSchemaRecordAsync(schemaInfo);
             Thread.Sleep(1000);
             var retrievedSchema = await _repo.GetSchemaInfoAsync("the_owner", "the_schema_id");
             retrievedSchema.Id.Should().Be("the_owner/the_repo/the_schema_id");
-            dynamic schema = JsonConvert.DeserializeObject<ExpandoObject>(retrievedSchema.Schema);
-            //dynamic schema = JObject.Parse(retrievedSchema.Schema);
-            Assert.Equal("foo", schema.foo);
-            Assert.Equal("baz", schema.bar.baz);
+            Assert.Equal("foo", retrievedSchema.Schema["foo"].Value<string>());
+            Assert.Equal("baz", retrievedSchema.Schema["bar"]["baz"].Value<string>());
             retrievedSchema.LastModified.Should().BeCloseTo(schemaInfo.LastModified);
         }
 
@@ -58,13 +53,7 @@ namespace DataDock.IntegrationTests
                 RepositoryId = "the_repo",
                 LastModified = DateTime.UtcNow,
                 SchemaId = "the_schema_id",
-                Schema = @"
-                {
-                    foo : 'foo',
-                    bar : {
-                        baz : 'baz'
-                    }
-                }"
+                Schema = _dummySchema
             };
             var ex = Assert.ThrowsAsync<ValidationException>(async () =>
                 await _repo.CreateOrUpdateSchemaRecordAsync(schemaInfo));
@@ -80,13 +69,7 @@ namespace DataDock.IntegrationTests
                 OwnerId = "the_owner",
                 LastModified = DateTime.UtcNow,
                 SchemaId = "the_schema_id",
-                Schema = @"
-                {
-                    foo : 'foo',
-                    bar : {
-                        baz : 'baz'
-                    }
-                }"
+                Schema = new JObject(new JProperty("foo", "foo"), new JProperty("bar", new JObject(new JProperty("baz", "baz"))))
             };
             var ex = Assert.ThrowsAsync<ValidationException>(async () =>
                 await _repo.CreateOrUpdateSchemaRecordAsync(schemaInfo));
@@ -102,13 +85,7 @@ namespace DataDock.IntegrationTests
                 OwnerId = "the_owner",
                 RepositoryId = "the_repo",
                 LastModified = DateTime.UtcNow,
-                Schema = @"
-                {
-                    foo : 'foo',
-                    bar : {
-                        baz : 'baz'
-                    }
-                }"
+                Schema = _dummySchema
             };
             var ex = Assert.ThrowsAsync<ValidationException>(async () =>
                 await _repo.CreateOrUpdateSchemaRecordAsync(schemaInfo));
@@ -140,7 +117,7 @@ namespace DataDock.IntegrationTests
                         RepositoryId = "repo-" + r,
                         SchemaId = "schema_" + o + "." + r,
                         LastModified = DateTime.UtcNow,
-                        Schema = "{ foo : 'foo' }"
+                        Schema = new JObject(new JProperty("foo", "foo"))
                     };
                     await Store.CreateOrUpdateSchemaRecordAsync(schemaInfo);
                 }

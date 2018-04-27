@@ -2,7 +2,9 @@
 using System.IO;
 using DataDock.Common;
 using DataDock.Worker;
+using Elasticsearch.Net;
 using Nest;
+using Nest.JsonNetSerializer;
 
 namespace DataDock.IntegrationTests
 {
@@ -16,7 +18,9 @@ namespace DataDock.IntegrationTests
         public ElasticsearchFixture()
         {
             var esUrl = Environment.GetEnvironmentVariable("ELASTICSEARCH_URL") ?? "http://localhost:9200";
-            Client = new ElasticClient(new Uri(esUrl));
+            var pool = new SingleNodeConnectionPool(new Uri(esUrl));
+            var connectionSettings = new ConnectionSettings(pool, sourceSerializer: JsonNetSerializer.Default);
+            Client = new ElasticClient(connectionSettings);
             var indexSuffix = "_" + DateTime.UtcNow.Ticks;
             Configuration = new ApplicationConfiguration(esUrl,
                 "test_jobs" + indexSuffix,

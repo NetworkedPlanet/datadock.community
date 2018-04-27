@@ -27,6 +27,9 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Elasticsearch.Net;
+using Nest.JsonNetSerializer;
+using HttpMethod = System.Net.Http.HttpMethod;
 
 namespace DataDock.Web
 {
@@ -64,7 +67,10 @@ namespace DataDock.Web
 
             services.AddSignalR();
 
-            var client = new ElasticClient(new Uri(config.ElasticsearchUrl));
+            var client = new ElasticClient(
+                new ConnectionSettings(
+                    new SingleNodeConnectionPool(new Uri(config.ElasticsearchUrl)),
+                    JsonNetSerializer.Default));
 
             services.AddScoped<AccountExistsFilter>();
             services.AddScoped<OwnerAdminAuthFilter>();

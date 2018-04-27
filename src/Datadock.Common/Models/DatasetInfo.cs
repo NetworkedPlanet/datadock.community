@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Nest;
+using Newtonsoft.Json.Linq;
 
 namespace Datadock.Common.Models
 {
@@ -28,12 +29,12 @@ namespace Datadock.Common.Models
         /// <summary>
         /// CSVW Metadata
         /// </summary>
-        public dynamic CsvwMetadata { get; set; }
+        public JObject CsvwMetadata { get; set; }
 
         /// <summary>
         /// VoID Metadata
         /// </summary>
-        public dynamic VoidMetadata { get; set; }
+        public JObject VoidMetadata { get; set; }
 
         [Boolean]
         public bool? ShowOnHomePage { get; set; }

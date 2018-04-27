@@ -4,8 +4,10 @@ using Datadock.Common;
 using Datadock.Common.Elasticsearch;
 using Datadock.Common.Stores;
 using DataDock.Common;
+using Elasticsearch.Net;
 using Microsoft.Extensions.DependencyInjection;
 using Nest;
+using Nest.JsonNetSerializer;
 using NetworkedPlanet.Quince.Git;
 using Serilog;
 using Serilog.Events;
@@ -25,7 +27,10 @@ namespace DataDock.Worker
         protected IElasticClient RegisterElasticClient(IServiceCollection serviceCollection, ApplicationConfiguration config)
         {
             Log.Information("Attempting to connect to Elasticsearch at {esUrl}", config.ElasticsearchUrl);
-            var client = new ElasticClient(new Uri(config.ElasticsearchUrl));
+            var client = new ElasticClient(
+                new ConnectionSettings(
+                    new SingleNodeConnectionPool(new Uri(config.ElasticsearchUrl)),
+                    JsonNetSerializer.Default));
             WaitForElasticsearch(client);
             serviceCollection.AddSingleton<IElasticClient>(client);
             return client;

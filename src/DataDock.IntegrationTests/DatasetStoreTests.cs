@@ -56,6 +56,10 @@ namespace DataDock.IntegrationTests
             ((string)retrievedByIdDataset.RepositoryId).Should().Be("repo-1");
             ((string)retrievedByIdDataset.DatasetId).Should().Be("test.csv");
             retrievedByIdDataset.LastModified.Should().BeCloseTo(datasetInfo.LastModified);
+
+            var retrievedVoid = retrievedByIdDataset.VoidMetadata;
+            var tripleCount = retrievedVoid["void:triples"].Value<string>();
+            Assert.Equal("100", tripleCount);
         }
 
     }

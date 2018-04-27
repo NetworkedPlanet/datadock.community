@@ -33,12 +33,15 @@ namespace DataDock.Worker.Processors
                 if (!string.IsNullOrEmpty(job.SchemaFileId))
                 {
                     // Parse the JSON metadata
-                    string schemaJson;
+                    JObject schemaJson;
                     var schemaFileStream = await _jobFileStore.GetFileAsync(job.SchemaFileId);
 
                     using (var sr = new StreamReader(schemaFileStream))
                     {
-                        schemaJson = await sr.ReadToEndAsync();
+                        using (var jr = new JsonTextReader(sr))
+                        {
+                            schemaJson = JObject.Load(jr);
+                        }
                     }
                     if (schemaJson != null)
                     {

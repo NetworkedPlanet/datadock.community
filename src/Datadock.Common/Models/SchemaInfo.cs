@@ -1,5 +1,6 @@
 ﻿using System;
 using Nest;
+using Newtonsoft.Json.Linq;
 
 namespace Datadock.Common.Models
 {
@@ -25,8 +26,7 @@ namespace Datadock.Common.Models
         /// JSON of schema 
         /// e.g. { dc:title "schema title", metadata: { metadataJson } }
         /// </summary>
-        [Keyword(Index = false, Store = true)]
-        public string Schema { get; set; }
+        public JObject Schema { get; set; }
 
     }
 }

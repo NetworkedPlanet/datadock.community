@@ -306,7 +306,8 @@ namespace DataDock.IntegrationTests
         [Fact]
         public async void ItCanRetrieveAllDatasetsByTag()
         {
-            var result = await _store.GetDatasetsForTagAsync("test", 0, 200, true); // all datasets have the 'test' tag
+            var tags = new string[] { "test" };
+            var result = await _store.GetDatasetsForTagsAsync(tags, 0, 200, true, true); // all datasets have the 'test' tag
             result.Should().NotBeNull();
             result.Count().Should().Be(125);
         }
@@ -314,7 +315,8 @@ namespace DataDock.IntegrationTests
         [Fact]
         public async void ItCanRetrieveDatasetsByTag()
         {
-            var result = await _store.GetDatasetsForTagAsync("set-0", 0, 200); // all datasets have the 'test' tag
+            var tags = new string[] { "set-0" };
+            var result = await _store.GetDatasetsForTagsAsync(tags, 0, 200, false, true); // all datasets have the 'test' tag
             result.Should().NotBeNull();
             // 5 owners x 5 repos x 1 dataset = 25
             result.Count().Should().Be(25);

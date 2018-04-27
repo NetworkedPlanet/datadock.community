@@ -235,9 +235,10 @@ namespace Datadock.Common.Elasticsearch
             }
         }
 
-        public async Task<IEnumerable<DatasetInfo>> GetDatasetsForTagAsync(string tag, int skip = 0, int take = 25, bool showHidden = false)
+        public async Task<IEnumerable<DatasetInfo>> GetDatasetsForTagsAsync(string[] tags, int skip = 0, int take = 25, bool matchAll = false, bool showHidden = false)
         {
-            var search = new SearchDescriptor<DatasetInfo>().Query(q => QueryHelper.FilterByTag(tag, showHidden));
+            if (tags == null) throw new ArgumentNullException(nameof(tags));
+            var search = new SearchDescriptor<DatasetInfo>().Query(q => QueryHelper.FilterByTags(tags, matchAll, showHidden));
             var rawQuery = "";
 #if DEBUG
             using (var ms = new MemoryStream())
@@ -254,9 +255,9 @@ namespace Datadock.Common.Elasticsearch
             if (!searchResponse.IsValid)
             {
                 throw new DatasetStoreException(
-                    $"Error retrieving datasets for tag {tag}. Cause: {searchResponse.DebugInformation}");
+                    $"Error retrieving datasets for tags {string.Join(", ", tags)}. Cause: {searchResponse.DebugInformation}");
             }
-            if (searchResponse.Total < 1) throw new DatasetNotFoundException($"No datasets found for tag '{tag}'");
+            if (searchResponse.Total < 1) throw new DatasetNotFoundException($"No datasets found for tags '{string.Join(", ", tags)}'");
             return searchResponse.Documents;
         }
 

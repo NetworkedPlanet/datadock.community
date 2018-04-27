@@ -59,7 +59,7 @@ namespace Datadock.Common.Stores
 
         Task<DatasetInfo> GetDatasetInfoByIdAsync(string id);
 
-        Task<IEnumerable<DatasetInfo>> GetDatasetsForTagAsync(string tag, int skip, int take, bool showHidden = false);
+        Task<IEnumerable<DatasetInfo>> GetDatasetsForTagsAsync(string[] tags, int skip, int take, bool matchAll = false, bool showHidden = false);
 
         /// <summary>
         /// Get all datasets in repositories owned by the specified owner with a specified tag
@@ -67,8 +67,10 @@ namespace Datadock.Common.Stores
         /// <remarks>Currently implemented as an exact match on tag string</remarks>
         /// <param name="ownerId"></param>
         /// <param name="tags">An array of one or more tags to match</param>
+        /// <param name="take"></param>
         /// <param name="matchAll">True to require a matching dataset to match all of the specified tags, false to require a matching dataset to match any one of the specified tags. Defaults to false</param>
         /// <param name="showHidden">True to include datasets that are hidden from the DD homepage in the results. Default to false</param>
+        /// <param name="skip"></param>
         /// <returns></returns>
         Task<IEnumerable<DatasetInfo>> GetDatasetsForTagsAsync(string ownerId, string[] tags, int skip, int take, bool matchAll = false, bool showHidden = false);
 

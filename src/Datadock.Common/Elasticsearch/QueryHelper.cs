@@ -146,16 +146,30 @@ namespace Datadock.Common.Elasticsearch
             return new BoolQuery { Filter = filterClauses };
         }
 
-        public static QueryContainer FilterByTag(string tag, bool showHidden)
+        public static QueryContainer FilterByTags(string[] tags, bool matchAll, bool showHidden)
         {
-            var filterClauses = new List<QueryContainer>
+            var filterClauses = new List<QueryContainer>();
+            if (matchAll)
             {
-                new TermQuery
+                // and
+                foreach (var tag in tags)
+                {
+                    filterClauses.Add(new TermQuery
+                    {
+                        Field = new Field("tags"),
+                        Value = tag
+                    });
+                }
+            }
+            else
+            {
+                // or/contains
+                filterClauses.Add(new TermsQuery
                 {
                     Field = new Field("tags"),
-                    Value = tag
-                }
-            };
+                    Terms = tags
+                });
+            }
             if (showHidden) return new BoolQuery { Filter = filterClauses };
 
             var filterHiddenDatasets = new TermQuery

@@ -12,20 +12,20 @@
           <p>
             <strong>@job.DatasetIri</strong>
           </p>
-          <div class="meta">
-            @if (job.CompletedAt.Year > 2000)
-            {
-              <span>Completed At: @job.CompletedAt</span>
-            }
-            @if (job.StartedAt.Year > 2000)
-            {
-              <span>Started At: @job.StartedAt</span>
-            }
-            @if (job.QueuedAt.Year > 2000)
-            {
-              <span>Queued At: @job.StartedAt</span>
-            }
-          </div>
+            <div class="meta">
+                @if (job.QueuedAt.Year > 2000)
+                {
+                    <span>Queued At: @job.QueuedAt</span>
+                }
+                @if (job.StartedAt.Year > 2000)
+                {
+                     <span>Started At: @job.StartedAt</span>
+                }
+                @if (job.CompletedAt.Year > 2000)
+                {
+                    <span>Completed At: @job.CompletedAt</span>
+                }
+            </div>
         </div>
         <div class="processing-messages hidden"></div>
       </div>

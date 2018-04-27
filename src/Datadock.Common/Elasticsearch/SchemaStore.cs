@@ -124,12 +124,14 @@ namespace Datadock.Common.Elasticsearch
 
             var search = new SearchDescriptor<SchemaInfo>().Query(q => QueryHelper.FilterByOwnerIdAndRepositoryId(ownerId, repositoryId));
             var rawQuery = "";
+#if DEBUG
             using (var ms = new MemoryStream())
             {
                 _client.RequestResponseSerializer.Serialize(search, ms);
                 rawQuery = Encoding.UTF8.GetString(ms.ToArray());
                 Console.WriteLine(rawQuery);
             }
+#endif
             var searchResponse = _client.Search<SchemaInfo>(search.Skip(skip).Take(take));
 
             if (!searchResponse.IsValid)
@@ -154,12 +156,14 @@ namespace Datadock.Common.Elasticsearch
 
             var search = new SearchDescriptor<SchemaInfo>().Query(q => QueryHelper.FilterByOwnerIdAndRepositoryIds(ownerId, repositoryIds));
             var rawQuery = "";
+#if DEBUG
             using (var ms = new MemoryStream())
             {
                 _client.RequestResponseSerializer.Serialize(search, ms);
                 rawQuery = Encoding.UTF8.GetString(ms.ToArray());
                 Console.WriteLine(rawQuery);
             }
+#endif
             var searchResponse = _client.Search<SchemaInfo>(search.Skip(skip).Take(take));
             
             if (!searchResponse.IsValid)

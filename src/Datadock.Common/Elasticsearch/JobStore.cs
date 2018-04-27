@@ -121,12 +121,14 @@ namespace Datadock.Common.Elasticsearch
                     .Field(f => f.Field("queuedAt").Order(SortOrder.Descending))); 
 
             var rawQuery = "";
+#if DEBUG
             using (var ms = new MemoryStream())
             {
                 _client.RequestResponseSerializer.Serialize(search, ms);
                 rawQuery = Encoding.UTF8.GetString(ms.ToArray());
                 Console.WriteLine(rawQuery);
             }
+#endif
             var response =
                 await _client.SearchAsync<JobInfo>(search);
 
@@ -158,12 +160,14 @@ namespace Datadock.Common.Elasticsearch
                     .Field(f => f.Field("queuedAt").Order(SortOrder.Descending)));
 
             var rawQuery = "";
+#if DEBUG
             using (var ms = new MemoryStream())
             {
                 _client.RequestResponseSerializer.Serialize(search, ms);
                 rawQuery = Encoding.UTF8.GetString(ms.ToArray());
                 Console.WriteLine(rawQuery);
             }
+#endif
             var response =
                 await _client.SearchAsync<JobInfo>(search);
 

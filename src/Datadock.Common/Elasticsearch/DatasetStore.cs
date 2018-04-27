@@ -47,12 +47,14 @@ namespace Datadock.Common.Elasticsearch
                 search.Query(q => QueryHelper.FilterByShowOnHomepage());
             }
             var rawQuery = "";
+#if DEBUG
             using (var ms = new MemoryStream())
             {
                 _client.RequestResponseSerializer.Serialize(search, ms);
                 rawQuery = Encoding.UTF8.GetString(ms.ToArray());
                 Console.WriteLine(rawQuery);
             }
+#endif
             var searchResponse =
                 await _client.SearchAsync<DatasetInfo>(search
                     .Skip(0)
@@ -64,7 +66,7 @@ namespace Datadock.Common.Elasticsearch
                 throw new DatasetStoreException(
                     $"Error retrieving datasets. Cause: {searchResponse.DebugInformation}");
             }
-            if (searchResponse.Total < 1) throw new DatasetNotFoundException("all");
+            if (searchResponse.Total < 1) throw new DatasetNotFoundException("No datasets found");
             return searchResponse.Documents;
         }
 
@@ -73,12 +75,14 @@ namespace Datadock.Common.Elasticsearch
            
             var search = new SearchDescriptor<DatasetInfo>().Query(q => QueryHelper.FilterByOwnerIds(ownerIds, showHidden));
             var rawQuery = "";
+#if DEBUG
             using (var ms = new MemoryStream())
             {
                 _client.RequestResponseSerializer.Serialize(search, ms);
                 rawQuery = Encoding.UTF8.GetString(ms.ToArray());
                 Console.WriteLine(rawQuery);
             }
+#endif
             var searchResponse =
                 await _client.SearchAsync<DatasetInfo>(search
                     .Skip(skip)
@@ -91,7 +95,7 @@ namespace Datadock.Common.Elasticsearch
                 throw new DatasetStoreException(
                     $"Error retrieving datasets for owner IDs {ownerIdsString}. Cause: {searchResponse.DebugInformation}");
             }
-            if (searchResponse.Total < 1) throw new DatasetNotFoundException(ownerIdsString);
+            if (searchResponse.Total < 1) throw new DatasetNotFoundException($"No dataset found for owners '{ownerIdsString}'");
             return searchResponse.Documents;
         }
 
@@ -100,12 +104,14 @@ namespace Datadock.Common.Elasticsearch
             if (string.IsNullOrEmpty(ownerId)) throw new ArgumentNullException(nameof(ownerId));
             var search = new SearchDescriptor<DatasetInfo>().Query(q => QueryHelper.FilterByOwnerIdAndRepositoryIds(ownerId, repositoryIds, showHidden));
             var rawQuery = "";
+#if DEBUG
             using (var ms = new MemoryStream())
             {
                 _client.RequestResponseSerializer.Serialize(search, ms);
                 rawQuery = Encoding.UTF8.GetString(ms.ToArray());
                 Console.WriteLine(rawQuery);
             }
+#endif
             var searchResponse =
                 await _client.SearchAsync<DatasetInfo>(search
                     .Skip(skip)
@@ -118,7 +124,7 @@ namespace Datadock.Common.Elasticsearch
                 throw new DatasetStoreException(
                     $"Error retrieving datasets for repo IDs {repositoryIdsString} on owner {ownerId}. Cause: {searchResponse.DebugInformation}");
             }
-            if (searchResponse.Total < 1) throw new DatasetNotFoundException(ownerId, repositoryIdsString);
+            if (searchResponse.Total < 1) throw new DatasetNotFoundException($"No dataset found for owner '{ownerId}', repositories: '{repositoryIdsString}'");
             return searchResponse.Documents;
 
         }
@@ -129,12 +135,14 @@ namespace Datadock.Common.Elasticsearch
 
             var search = new SearchDescriptor<DatasetInfo>().Query(q => QueryHelper.FilterByOwnerId(ownerId));
             var rawQuery = "";
+#if DEBUG
             using (var ms = new MemoryStream())
             {
                 _client.RequestResponseSerializer.Serialize(search, ms);
                 rawQuery = Encoding.UTF8.GetString(ms.ToArray());
                 Console.WriteLine(rawQuery);
             }
+#endif
             var response =
                 await _client.SearchAsync<DatasetInfo>(search.Skip(skip).Take(take));
             
@@ -143,7 +151,7 @@ namespace Datadock.Common.Elasticsearch
                 throw new DatasetStoreException(
                     $"Error retrieving datasets for owner {ownerId}. Cause: {response.DebugInformation}");
             }
-            if (response.Total < 1) throw new DatasetNotFoundException(ownerId);
+            if (response.Total < 1) throw new DatasetNotFoundException($"No dataset found for owner '{ownerId}'");
             return response.Documents;
         }
 
@@ -154,12 +162,14 @@ namespace Datadock.Common.Elasticsearch
 
             var rawQuery = "";
             var search = new SearchDescriptor<DatasetInfo>().Query(q => QueryHelper.FilterByOwnerIdAndRepositoryId(ownerId, repositoryId));
+#if DEBUG
             using (var ms = new MemoryStream())
             {
                 _client.RequestResponseSerializer.Serialize(search, ms);
                 rawQuery = Encoding.UTF8.GetString(ms.ToArray());
                 Console.WriteLine(rawQuery);
             }
+#endif
             var response = await _client.SearchAsync<DatasetInfo>(search.Skip(skip).Take(take));
             
             if (!response.IsValid)
@@ -171,7 +181,7 @@ namespace Datadock.Common.Elasticsearch
             if (response.Total < 1)
             {
                 Log.Information($"No datasets found with query {rawQuery}");
-                throw new DatasetNotFoundException(ownerId, repositoryId);
+                throw new DatasetNotFoundException($"No datasets found for owner '{ownerId}', repository: '{repositoryId}'");
             }
             return response.Documents;
         }
@@ -184,13 +194,14 @@ namespace Datadock.Common.Elasticsearch
 
             var rawQuery = "";
             var search = new SearchDescriptor<DatasetInfo>().Query(q => QueryHelper.FilterByOwnerIdAndRepositoryIdAndDatasetId(ownerId, repositoryId, datasetId));
+#if DEBUG
             using (var ms = new MemoryStream())
             {
                 _client.RequestResponseSerializer.Serialize(search, ms);
                 rawQuery = Encoding.UTF8.GetString(ms.ToArray());
                 Console.WriteLine(rawQuery);
             }
-
+#endif
             var response =
                 await _client.SearchAsync<DatasetInfo>(search);
 
@@ -203,7 +214,7 @@ namespace Datadock.Common.Elasticsearch
             if (response.Total < 1)
             {
                 Log.Warning($"No settings found with query {rawQuery}");
-                throw new DatasetNotFoundException(ownerId, repositoryId, datasetId);
+                throw new DatasetNotFoundException($"No dataset found for owner '{ownerId}', repository: '{repositoryId}', dataset: '{datasetId}' ");
             }
             return response.Documents.FirstOrDefault();
         }
@@ -224,20 +235,85 @@ namespace Datadock.Common.Elasticsearch
             }
         }
 
-        public async Task<IEnumerable<DatasetInfo>> GetDatasetsForTagAsync(string tag)
+        public async Task<IEnumerable<DatasetInfo>> GetDatasetsForTagsAsync(string[] tags, int skip = 0, int take = 25, bool matchAll = false, bool showHidden = false)
         {
-            throw new NotImplementedException();
+            if (tags == null) throw new ArgumentNullException(nameof(tags));
+            var search = new SearchDescriptor<DatasetInfo>().Query(q => QueryHelper.FilterByTags(tags, matchAll, showHidden));
+            var rawQuery = "";
+#if DEBUG
+            using (var ms = new MemoryStream())
+            {
+                _client.RequestResponseSerializer.Serialize(search, ms);
+                rawQuery = Encoding.UTF8.GetString(ms.ToArray());
+                Console.WriteLine(rawQuery);
+            }
+#endif
+            var searchResponse =
+                await _client.SearchAsync<DatasetInfo>(search
+                .From(skip).Size(take));
+
+            if (!searchResponse.IsValid)
+            {
+                throw new DatasetStoreException(
+                    $"Error retrieving datasets for tags {string.Join(", ", tags)}. Cause: {searchResponse.DebugInformation}");
+            }
+            if (searchResponse.Total < 1) throw new DatasetNotFoundException($"No datasets found for tags '{string.Join(", ", tags)}'");
+            return searchResponse.Documents;
         }
 
-        public async Task<IEnumerable<DatasetInfo>> GetDatasetsForTagAsync(string ownerId, string[] tags, bool matchAll = false, bool showHidden = false)
+        public async Task<IEnumerable<DatasetInfo>> GetDatasetsForTagsAsync(string ownerId, string[] tags, int skip = 0, int take = 25, bool matchAll = false, bool showHidden = false)
         {
-            throw new NotImplementedException();
+            if (tags == null) throw new ArgumentNullException(nameof(tags));
+
+            var search = new SearchDescriptor<DatasetInfo>().Query(q => QueryHelper.FilterOwnerByTags(ownerId, tags, matchAll, showHidden));
+            var rawQuery = "";
+#if DEBUG
+            using (var ms = new MemoryStream())
+            {
+                _client.RequestResponseSerializer.Serialize(search, ms);
+                rawQuery = Encoding.UTF8.GetString(ms.ToArray());
+                Console.WriteLine(rawQuery);
+            }
+#endif
+            var searchResponse =
+                await _client.SearchAsync<DatasetInfo>(search
+                    .From(skip).Size(take));
+
+            if (!searchResponse.IsValid)
+            {
+                throw new DatasetStoreException(
+                    $"Error retrieving datasets for owner ID {ownerId} with tags {string.Join(", ", tags)}. Cause: {searchResponse.DebugInformation}");
+            }
+            if (searchResponse.Total < 1) throw new DatasetNotFoundException($"No datasets for owner ID {ownerId} with tags {string.Join(", ", tags)}.");
+            return searchResponse.Documents;
         }
 
-        public async Task<IEnumerable<DatasetInfo>> GetDatasetsForTagAsync(string ownerId, string repositoryId, string[] tags, bool matchAll = false,
+        public async Task<IEnumerable<DatasetInfo>> GetDatasetsForTagsAsync(string ownerId, string repositoryId, string[] tags, int skip = 0, int take = 25, bool matchAll = false,
             bool showHidden = false)
         {
-            throw new NotImplementedException();
+            if (tags == null) throw new ArgumentNullException(nameof(tags));
+
+            var search = new SearchDescriptor<DatasetInfo>().Query(q => QueryHelper.FilterRepositoryByTags(ownerId, repositoryId, tags, matchAll, showHidden));
+            var rawQuery = "";
+#if DEBUG
+            using (var ms = new MemoryStream())
+            {
+                _client.RequestResponseSerializer.Serialize(search, ms);
+                rawQuery = Encoding.UTF8.GetString(ms.ToArray());
+                Console.WriteLine(rawQuery);
+            }
+#endif
+            var searchResponse =
+                await _client.SearchAsync<DatasetInfo>(search
+                .From(skip).Size(take));
+
+            if (!searchResponse.IsValid)
+            {
+                throw new DatasetStoreException(
+                    $"Error retrieving datasets for repository {ownerId}/{repositoryId} with tags {string.Join(", ", tags)}. Cause: {searchResponse.DebugInformation}");
+            }
+            if (searchResponse.Total < 1) throw new DatasetNotFoundException($"No datasets found for repository {ownerId}/{repositoryId} with tags {string.Join(", ", tags)}.");
+            return searchResponse.Documents;
         }
 
         public async Task<DatasetInfo> CreateOrUpdateDatasetRecordAsync(DatasetInfo datasetInfo)
@@ -258,7 +334,8 @@ namespace Datadock.Common.Elasticsearch
 
         public async Task<bool> DeleteDatasetsForOwnerAsync(string ownerId)
         {
-            var deleteResponse = await _client.DeleteByQueryAsync<DatasetInfo>(s => s.Query(q => QueryByOwnerId(q, ownerId)));
+            if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
+            var deleteResponse = await _client.DeleteByQueryAsync<DatasetInfo>(s => s.Query(q => QueryHelper.FilterByOwnerId(ownerId)));
             if (!deleteResponse.IsValid)
             {
                 throw new DatasetStoreException(
@@ -267,22 +344,16 @@ namespace Datadock.Common.Elasticsearch
             return true;
         }
 
-        public Task DeleteDatasetAsync(string ownerId, string repositoryId, string datasetId)
+        public async Task<bool> DeleteDatasetAsync(string ownerId, string repositoryId, string datasetId)
         {
-            throw new NotImplementedException();
-        }
+            if (ownerId == null) throw new ArgumentNullException(nameof(ownerId));
+            if (repositoryId == null) throw new ArgumentNullException(nameof(repositoryId));
+            if (datasetId == null) throw new ArgumentNullException(nameof(datasetId));
 
-        private static QueryContainer QueryByOwnerId(QueryContainerDescriptor<DatasetInfo> q, string ownerId)
-        {
-            var filterClauses = new List<QueryContainer>
-            {
-                new TermQuery
-                {
-                    Field = new Field("ownerId"),
-                    Value = ownerId
-                }
-            };
-            return new BoolQuery { Filter = filterClauses };
+            string documentId = $"{ownerId}/{repositoryId}/{datasetId}";
+            var response = await _client.DeleteAsync<RepoSettings>(documentId);
+            return response.IsValid;
         }
+        
     }
 }

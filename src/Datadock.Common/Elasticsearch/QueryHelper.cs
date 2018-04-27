@@ -145,5 +145,128 @@ namespace Datadock.Common.Elasticsearch
             };
             return new BoolQuery { Filter = filterClauses };
         }
+
+        public static QueryContainer FilterByTags(string[] tags, bool matchAll, bool showHidden)
+        {
+            var filterClauses = new List<QueryContainer>();
+            if (matchAll)
+            {
+                // and
+                foreach (var tag in tags)
+                {
+                    filterClauses.Add(new TermQuery
+                    {
+                        Field = new Field("tags"),
+                        Value = tag
+                    });
+                }
+            }
+            else
+            {
+                // or/contains
+                filterClauses.Add(new TermsQuery
+                {
+                    Field = new Field("tags"),
+                    Terms = tags
+                });
+            }
+            if (showHidden) return new BoolQuery { Filter = filterClauses };
+
+            var filterHiddenDatasets = new TermQuery
+            {
+                Field = new Field("showOnHomePage"),
+                Value = true
+            };
+            filterClauses.Add(filterHiddenDatasets);
+            return new BoolQuery { Filter = filterClauses };
+        }
+        public static QueryContainer FilterOwnerByTags(string ownerId, string[] tags, bool matchAll, bool showHidden)
+        {
+            var filterClauses = new List<QueryContainer>
+            {
+                new TermQuery
+                {
+                    Field = new Field("ownerId"),
+                    Value = ownerId
+                }
+            };
+            if (matchAll)
+            {
+                // and
+                foreach (var tag in tags)
+                {
+                    filterClauses.Add(new TermQuery
+                    {
+                        Field = new Field("tags"),
+                        Value = tag
+                    });
+                }
+            }
+            else
+            {
+                // or/contains
+                filterClauses.Add(new TermsQuery
+                {
+                    Field = new Field("tags"),
+                    Terms = tags
+                });
+            }
+            
+            if (showHidden) return new BoolQuery { Filter = filterClauses };
+
+            var filterHiddenDatasets = new TermQuery
+            {
+                Field = new Field("showOnHomePage"),
+                Value = true
+            };
+            filterClauses.Add(filterHiddenDatasets);
+            return new BoolQuery { Filter = filterClauses };
+        }
+        public static QueryContainer FilterRepositoryByTags(string ownerId, string repositoryId, string[] tags, bool matchAll, bool showHidden)
+        {
+            var filterClauses = new List<QueryContainer>
+            {
+                new TermQuery
+                {
+                    Field = new Field("ownerId"),
+                    Value = ownerId
+                },
+                new TermQuery
+                {
+                    Field = new Field("repositoryId"),
+                    Value = repositoryId
+                }
+            };
+            if (matchAll)
+            {
+                // and
+                foreach (var tag in tags)
+                {
+                    filterClauses.Add(new TermQuery
+                    {
+                        Field = new Field("tags"),
+                        Value = tag
+                    });
+                }
+            }
+            else
+            {
+                // or/contains
+                filterClauses.Add(new TermsQuery
+                {
+                    Field = new Field("tags"),
+                    Terms = tags 
+                });
+            }
+            if (showHidden) return new BoolQuery { Filter = filterClauses };
+
+            var filterHiddenDatasets = new TermQuery
+            {
+                Field = new Field("showOnHomePage"),
+                Value = true
+            };
+            filterClauses.Add(filterHiddenDatasets);
+            return new BoolQuery { Filter = filterClauses };
+        }
     }
 }

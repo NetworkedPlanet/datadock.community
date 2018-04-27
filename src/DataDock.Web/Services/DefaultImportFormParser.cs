@@ -150,6 +150,7 @@ namespace DataDock.Web.Services
                 jobInfo.CsvFileName = formData.Filename;
                 jobInfo.DatasetId = formData.Filename;
             }
+            jobInfo.IsPublic = formData.ShowOnHomePage;
 
             byte[] byteArray = Encoding.UTF8.GetBytes(formData.Metadata);
             var metadataStream = new MemoryStream(byteArray);

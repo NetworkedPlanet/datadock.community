@@ -3,6 +3,7 @@ using Datadock.Common.Models;
 using Datadock.Common.Stores;
 using FluentAssertions;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -71,13 +72,16 @@ namespace DataDock.IntegrationTests
 
         private async Task InitializeStore()
         {
+            var count = 0;
             for (var o = 0; o < 5; o++)
             {
                 for (var r = 0; r < 5; r++)
                 {
                     for (var d = 0; d < 5; d++)
                     {
-                        var csvwJson = new JObject(new JProperty("dc:title", $"Test Dataset {d} (Owner {o} Repo {r})"), new JProperty("dcat:keyword", new JArray("one", "two", "three")));
+                        count++;
+                        var tags = new List<string> {"test", $"owner-{o}", $"repo-{r}", $"set-{d}"};
+                        var csvwJson = new JObject(new JProperty("dc:title", $"Test Dataset {d} (Owner {o} Repo {r})"), new JProperty("dcat:keyword", new JArray(tags)));
                         var voidJson = new JObject(
                             new JProperty("void:triples", "100"),
                             new JProperty("void:dataDump", 
@@ -94,13 +98,14 @@ namespace DataDock.IntegrationTests
                             ShowOnHomePage = d < 4,
                             LastModified = DateTime.UtcNow.Subtract(TimeSpan.FromDays(d)),
                             CsvwMetadata = csvwJson,
-                            VoidMetadata = voidJson
+                            VoidMetadata = voidJson,
+                            Tags = tags
                         };
                         await Store.CreateOrUpdateDatasetRecordAsync(datasetInfo);
                     }
                 }
             }
-
+            Console.WriteLine($"{count} datasets created");
         }
 
     }
@@ -270,7 +275,9 @@ namespace DataDock.IntegrationTests
         [Fact]
         public async void ItCanRetrieveDatasetsForSingleRepository()
         {
-            
+            var results = await _store.GetDatasetsForRepositoryAsync("owner-0", "repo-0", 0, 1000);
+            results.Should().NotBeNull();
+            results.Count().Equals(5);
         }
 
         [Fact]
@@ -279,7 +286,7 @@ namespace DataDock.IntegrationTests
             var ex = Assert.ThrowsAsync<DatasetNotFoundException>(async () =>
                 await _store.GetDatasetsForRepositoryAsync("owner-0", "repo-100", 0, 1000));
 
-            Assert.StartsWith($"No dataset found for owner 'owner-0', repository: 'repo-100'", ex.Result.Message);
+            Assert.StartsWith($"No datasets found for owner 'owner-0', repository: 'repo-100'", ex.Result.Message);
         }
 
         [Fact]
@@ -290,6 +297,33 @@ namespace DataDock.IntegrationTests
             result.OwnerId.Should().Be("owner-0");
             result.RepositoryId.Should().Be("repo-0");
             result.DatasetId.Should().Be("test-0.csv");
+        }
+
+        [Fact]
+        public async void ItCanRetrieveAllDatasetsByTag()
+        {
+            var result = await _store.GetDatasetsForTagAsync("test", 0, 200, true); // all datasets have the 'test' tag
+            result.Should().NotBeNull();
+            result.Count().Should().Be(125);
+        }
+
+        [Fact]
+        public async void ItCanRetrieveDatasetsByTag()
+        {
+            var result = await _store.GetDatasetsForTagAsync("set-0", 0, 200); // all datasets have the 'test' tag
+            result.Should().NotBeNull();
+            // 5 owners x 5 repos x 1 dataset = 25
+            result.Count().Should().Be(25);
+        }
+
+        [Fact]
+        public async void ItCanRetrieveOwnerDatasetsByTag()
+        {
+            var tags = new string[] {"repo-0", "set-0"}; // tag filter in ES works as CONTAINS not equal
+            var result = await _store.GetDatasetsForTagsAsync("owner-0", tags, 0, 200, false, true); // all datasets have the 'test' tag
+            result.Should().NotBeNull();
+            // repo-0 = 5, set-0 = 5 (1 is both repo-0 and set-0) = 9
+            result.Count().Should().Be(9);
         }
     }
 }

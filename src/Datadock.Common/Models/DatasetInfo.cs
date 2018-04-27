@@ -38,6 +38,7 @@ namespace Datadock.Common.Models
         [Boolean]
         public bool? ShowOnHomePage { get; set; }
 
+        [Keyword]
         public IEnumerable<string> Tags { get; set; }
     }
 }

@@ -45,12 +45,14 @@ namespace Datadock.Common.Elasticsearch
             
             var search = new SearchDescriptor<RepoSettings>().Query(q => QueryHelper.FilterByOwnerId(ownerId));
             var rawQuery = "";
+#if DEBUG
             using (var ms = new MemoryStream())
             {
                 _client.RequestResponseSerializer.Serialize(search, ms);
                 rawQuery = Encoding.UTF8.GetString(ms.ToArray());
                 Console.WriteLine(rawQuery);
             }
+#endif
             var response =
                 await _client.SearchAsync<RepoSettings>(search);
 
@@ -74,12 +76,14 @@ namespace Datadock.Common.Elasticsearch
             if (repositoryId == null) throw new ArgumentNullException(nameof(repositoryId));
             var rawQuery = "";
             var search = new SearchDescriptor<RepoSettings>().Query(q => QueryHelper.FilterByOwnerIdAndRepositoryId(ownerId, repositoryId));
+#if DEBUG
             using (var ms = new MemoryStream())
             {
                 _client.RequestResponseSerializer.Serialize(search, ms);
                 rawQuery = Encoding.UTF8.GetString(ms.ToArray());
                 Console.WriteLine(rawQuery);
             }
+#endif
 
             var response =
                 await _client.SearchAsync<RepoSettings>(search);

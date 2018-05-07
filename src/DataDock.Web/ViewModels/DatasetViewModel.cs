@@ -13,12 +13,14 @@ namespace DataDock.Web.ViewModels
         private readonly DatasetInfo _datasetInfo;
         private readonly JObject _csvwMetadata;
         private readonly JObject _voidMetadata;
+        private readonly string _prefLang;
 
-        public DatasetViewModel(DatasetInfo datasetInfo)
+        public DatasetViewModel(DatasetInfo datasetInfo, string prefLang=null)
         {
             _datasetInfo = datasetInfo;
             _csvwMetadata = datasetInfo.CsvwMetadata as JObject;
             _voidMetadata = datasetInfo.VoidMetadata as JObject;
+            _prefLang = prefLang;
 
             Title = this.GetTitle();
             Description = this.GetDescription();
@@ -115,25 +117,78 @@ namespace DataDock.Web.ViewModels
         }
 
 
-        private static string GetLiteralValue(JObject parentObject, string propertyName, string defaultValue = null)
+        private string GetLiteralValue(JObject parentObject, string propertyName, string defaultValue = null)
         {
-            var titles = parentObject[propertyName] as JArray;
-            if (titles != null) return GetBestLanguageMatch(titles, null);
-            var title = parentObject[propertyName] as JValue;
-            if (title != null) return GetLiteralValue(title);
+            switch (parentObject[propertyName])
+            {
+                case JArray titles:
+                    return GetBestLanguageMatch(titles);
+                case JValue title:
+                    return GetLiteralValue(title);
+            }
+
             return defaultValue;
         }
 
         private static string GetLiteralValue(JToken literalToken)
         {
-            var litObj = literalToken as JObject;
-            if (litObj != null) return (litObj["@value"] as JValue)?.Value<string>();
+            if (literalToken is JObject litObj) return (litObj["@value"] as JValue)?.Value<string>();
             return (literalToken as JValue)?.Value<string>();
         }
 
-        private static string GetBestLanguageMatch(JArray literalArray, string prefLang)
+        private string GetBestLanguageMatch(JArray literalArray)
         {
-            throw new NotImplementedException();
+            if (_prefLang == null)
+            {
+                // Just the first object with an @value property
+                return literalArray
+                    .Cast<JObject>()
+                    .Select(o => o["@value"] as JValue)
+                    .FirstOrDefault()
+                    ?.Value<string>();
+            }
+
+            JObject bestMatch = null;
+            var bestMatchCount = -2;
+            var prefToks = _prefLang.Split('-');
+            foreach (var tok in literalArray)
+            {
+                if (!(tok is JObject litObj)) continue;
+                var lang = litObj["@language"]?.Value<string>();
+                var matchCount = 0;
+                if (lang != null)
+                {
+                    var langToks = lang.Split('-');
+                    for (var i = 0; i < Math.Min(langToks.Length, prefToks.Length); i++)
+                    {
+                        if (langToks[i].Equals(prefToks[i], StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            matchCount+=2;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    // With no language code, count as a simple match
+                    matchCount = 1;
+                }
+
+                if (matchCount > bestMatchCount)
+                {
+                    bestMatchCount = matchCount;
+                    bestMatch = litObj;
+                    if (bestMatchCount == (prefToks.Length*2))
+                    {
+                        // Exit early on a perfect match
+                        break;
+                    }
+                }
+            }
+            return bestMatch?["@value"]?.Value<string>();
         }
     }
 }

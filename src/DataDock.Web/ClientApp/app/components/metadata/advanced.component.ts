@@ -14,7 +14,7 @@ export class AdvancedComponent {
     section: ViewModelSection;
 
 
-    constructor(private fm: FormManager) {
+    constructor(public fm: FormManager) {
         if (this.sectionName !== '') {
             this.section = fm.getSection(this.sectionName);
         }

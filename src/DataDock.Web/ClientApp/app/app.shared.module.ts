@@ -17,6 +17,7 @@ import { PreviewComponent } from './components/metadata/preview.component';
 import { FormFieldComponent } from './shared/form-field/form-field.component';
 import { DeveloperComponent } from './components/developer/developer.component';
 import { NotFoundComponent } from './components/not-found/not-found.component';
+import { SignalrComponent } from './components/signalr/signalr.component';
 import { TabsComponent } from './components/tabs/tabs.component';
 import { SchemaHelperService } from './shared/schema-helper.service';
 import { SchemaService } from './shared/schema.service';
@@ -32,6 +33,9 @@ import { Globals } from './globals';
 import { routing } from './app.routing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+export function loadConfig(configService: ConfigurationService) {
+    return configService.loadConfigurationData();
+}
 
 @NgModule({
     imports: [
@@ -57,7 +61,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
         FormFieldComponent,
         DeveloperComponent,
         NotFoundComponent,
-        StepsComponent
+        StepsComponent,
+        SignalrComponent
     ],
     providers: [
         Globals,
@@ -75,8 +80,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
             // Here we request that configuration loading be done at app-
             // initialization time (prior to rendering)
             provide: APP_INITIALIZER,
-            useFactory: (configService: ConfigurationService) =>
-                () => configService.loadConfigurationData(),
+            useFactory: loadConfig,
             deps: [ConfigurationService],
             multi: true
         }

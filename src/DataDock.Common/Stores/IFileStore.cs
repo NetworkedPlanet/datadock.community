@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 
-namespace Datadock.Common.Stores
+namespace DataDock.Common.Stores
 {
     public interface IFileStore
     {

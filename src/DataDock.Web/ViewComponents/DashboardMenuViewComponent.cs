@@ -4,7 +4,7 @@ using System.Security.Claims;
 using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using Datadock.Common.Stores;
+using DataDock.Common.Stores;
 using DataDock.Web.Auth;
 using DataDock.Web.Models;
 

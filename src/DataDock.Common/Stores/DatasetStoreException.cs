@@ -1,6 +1,6 @@
-﻿namespace Datadock.Common.Stores
+﻿namespace DataDock.Common.Stores
 {
-    public class DatasetStoreException : DatadockException
+    public class DatasetStoreException : DataDockException
     {
         public DatasetStoreException(string msg) : base(msg) { }
     }

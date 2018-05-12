@@ -2,7 +2,7 @@
 using System.Security.Claims;
 using Nest;
 
-namespace Datadock.Common.Models
+namespace DataDock.Common.Models
 {
     public class AccountClaim
     {

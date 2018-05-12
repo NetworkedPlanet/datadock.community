@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Nest;
 using Newtonsoft.Json.Linq;
 
-namespace Datadock.Common.Models
+namespace DataDock.Common.Models
 {
     [ElasticsearchType(Name = "datasetinfo", IdProperty = "Id")]
     public class DatasetInfo

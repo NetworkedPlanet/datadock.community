@@ -1,4 +1,4 @@
-﻿using Datadock.Common.Stores;
+﻿using DataDock.Common.Stores;
 using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System;

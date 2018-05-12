@@ -1,8 +1,8 @@
 ﻿using System;
-using Datadock.Common.Models;
+using DataDock.Common.Models;
 using FluentValidation;
 
-namespace Datadock.Common.Validators
+namespace DataDock.Common.Validators
 {
     public class JobRequestInfoValidator<T> : AbstractValidator<T> where T:JobRequestInfo
     {

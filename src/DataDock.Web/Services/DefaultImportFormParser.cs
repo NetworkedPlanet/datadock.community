@@ -2,8 +2,8 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using Datadock.Common.Models;
-using Datadock.Common.Stores;
+using DataDock.Common.Models;
+using DataDock.Common.Stores;
 using DataDock.Web.Api;
 using DataDock.Web.Models;
 using Microsoft.AspNetCore.Http;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Datadock.Common;
+using DataDock.Common;
 using DataDock.Worker.Processors;
 using NetworkedPlanet.Quince.Git;
 

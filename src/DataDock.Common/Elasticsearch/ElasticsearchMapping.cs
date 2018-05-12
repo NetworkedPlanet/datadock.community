@@ -1,7 +1,7 @@
-﻿using Datadock.Common.Models;
+﻿using DataDock.Common.Models;
 using Nest;
 
-namespace Datadock.Common.Elasticsearch
+namespace DataDock.Common.Elasticsearch
 {
     public static class ElasticsearchMapping
     {

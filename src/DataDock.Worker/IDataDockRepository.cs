@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Datadock.Common.Models;
+using DataDock.Common.Models;
 using VDS.RDF;
 
 namespace DataDock.Worker

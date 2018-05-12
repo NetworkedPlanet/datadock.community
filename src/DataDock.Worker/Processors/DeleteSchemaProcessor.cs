@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Datadock.Common.Models;
-using Datadock.Common.Stores;
+using DataDock.Common.Models;
+using DataDock.Common.Stores;
 using Serilog;
 
 namespace DataDock.Worker.Processors

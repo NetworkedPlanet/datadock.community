@@ -2,9 +2,9 @@
 using System.Linq;
 using FluentValidation.Results;
 
-namespace Datadock.Common.Stores
+namespace DataDock.Common.Stores
 {
-    public class ValidationException : DatadockException
+    public class ValidationException : DataDockException
     {
         private readonly ValidationResult _validationResult;
         public ValidationException(string baseMessage, ValidationResult validationResult) : base(baseMessage)

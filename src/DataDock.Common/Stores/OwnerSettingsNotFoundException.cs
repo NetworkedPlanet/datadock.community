@@ -1,4 +1,4 @@
-﻿namespace Datadock.Common.Stores
+﻿namespace DataDock.Common.Stores
 {
     public class OwnerSettingsNotFoundException : JobStoreException
     {

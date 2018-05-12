@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Threading;
-using Datadock.Common;
-using Datadock.Common.Elasticsearch;
-using Datadock.Common.Stores;
+using DataDock.Common.Elasticsearch;
+using DataDock.Common.Stores;
 using DataDock.Common;
 using Elasticsearch.Net;
 using Microsoft.Extensions.DependencyInjection;

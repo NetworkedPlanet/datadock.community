@@ -1,12 +1,12 @@
-﻿using Datadock.Common.Elasticsearch;
-using Datadock.Common.Models;
+﻿using DataDock.Common.Elasticsearch;
+using DataDock.Common.Models;
 using FluentAssertions;
 using Newtonsoft.Json;
 using System;
 using System.Dynamic;
 using System.Threading;
 using System.Threading.Tasks;
-using Datadock.Common.Stores;
+using DataDock.Common.Stores;
 using Newtonsoft.Json.Linq;
 using Xunit;
 

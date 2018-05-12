@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using TermQuery = Nest.TermQuery;
 
-namespace Datadock.Common.Elasticsearch
+namespace DataDock.Common.Elasticsearch
 {
     public static class QueryHelper
     {

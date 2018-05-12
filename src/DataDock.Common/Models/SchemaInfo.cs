@@ -2,7 +2,7 @@
 using Nest;
 using Newtonsoft.Json.Linq;
 
-namespace Datadock.Common.Models
+namespace DataDock.Common.Models
 {
     [ElasticsearchType(Name = "schema", IdProperty = "Id")]
     public class SchemaInfo

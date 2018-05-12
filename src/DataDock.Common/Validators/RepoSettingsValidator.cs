@@ -1,7 +1,7 @@
-﻿using Datadock.Common.Models;
+﻿using DataDock.Common.Models;
 using FluentValidation;
 
-namespace Datadock.Common.Validators
+namespace DataDock.Common.Validators
 {
     public class RepoSettingsValidator: AbstractValidator<RepoSettings>
     {

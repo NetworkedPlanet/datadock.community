@@ -1,12 +1,12 @@
 ﻿using System;
 
-namespace Datadock.Common
+namespace DataDock.Common
 {
     /// <summary>
     /// Common base-class for DD-specific exceptions
     /// </summary>
-    public class DatadockException: Exception
+    public class DataDockException: Exception
     {
-        public DatadockException(string msg) : base(msg) { }
+        public DataDockException(string msg) : base(msg) { }
     }
 }

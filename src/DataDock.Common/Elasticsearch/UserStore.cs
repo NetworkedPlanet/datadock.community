@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Datadock.Common.Models;
-using Datadock.Common.Stores;
-using Datadock.Common.Validators;
 using DataDock.Common;
+using DataDock.Common.Models;
+using DataDock.Common.Stores;
+using DataDock.Common.Validators;
 using Nest;
 using Serilog;
 
-namespace Datadock.Common.Elasticsearch
+namespace DataDock.Common.Elasticsearch
 {
     public class UserStore : IUserStore
     {
@@ -31,7 +31,7 @@ namespace Datadock.Common.Elasticsearch
                 if (!createIndexResponse.Acknowledged)
                 {
                     Log.Error("Create ES index failed for {indexName}. Cause: {detail}", userSettingsIndexName, createIndexResponse.DebugInformation);
-                    throw new DatadockException(
+                    throw new DataDockException(
                         $"Could not create index {userSettingsIndexName} for UserStore. Cause: {createIndexResponse.DebugInformation}");
                 }
             }
@@ -46,7 +46,7 @@ namespace Datadock.Common.Elasticsearch
                 if (!createIndexResponse.Acknowledged)
                 {
                     Log.Error("Create ES index failed for {indexName}. Cause: {detail}", userAccountIndexName, createIndexResponse.DebugInformation);
-                    throw new DatadockException(
+                    throw new DataDockException(
                         $"Could not create index {userAccountIndexName} for UserStore. Cause: {createIndexResponse.DebugInformation}");
                 }
             }

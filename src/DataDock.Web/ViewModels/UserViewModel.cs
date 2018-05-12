@@ -1,4 +1,4 @@
-﻿using Datadock.Common.Models;
+﻿using DataDock.Common.Models;
 using DataDock.Web.Models;
 using Newtonsoft.Json;
 using Octokit;

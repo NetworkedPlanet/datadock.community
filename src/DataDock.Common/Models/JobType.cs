@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Datadock.Common.Models
+namespace DataDock.Common.Models
 {
     public enum JobType
     {

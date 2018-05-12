@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Datadock.Common.Models;
+using DataDock.Common.Models;
 using DataDock.Web.Models;
 using System.Linq;
 using System.Security.Claims;

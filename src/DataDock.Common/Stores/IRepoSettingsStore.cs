@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Datadock.Common.Models;
+using DataDock.Common.Models;
 
-namespace Datadock.Common.Stores
+namespace DataDock.Common.Stores
 {
     public interface IRepoSettingsStore
     {

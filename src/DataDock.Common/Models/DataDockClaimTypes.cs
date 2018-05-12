@@ -1,4 +1,4 @@
-﻿namespace Datadock.Common.Models
+﻿namespace DataDock.Common.Models
 {
     public static class DataDockClaimTypes
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using Datadock.Common.Models;
+using DataDock.Common.Models;
 
 namespace DataDock.Worker
 {

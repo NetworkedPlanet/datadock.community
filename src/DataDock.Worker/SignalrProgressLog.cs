@@ -2,8 +2,8 @@
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Datadock.Common.Models;
-using Datadock.Common.Stores;
+using DataDock.Common.Models;
+using DataDock.Common.Stores;
 using Microsoft.AspNetCore.SignalR.Client;
 using Serilog;
 

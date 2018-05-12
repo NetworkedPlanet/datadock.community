@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Datadock.Common.Models
+namespace DataDock.Common.Models
 {
     /// <summary>
     /// Person / Organisation / Entity Contact Details

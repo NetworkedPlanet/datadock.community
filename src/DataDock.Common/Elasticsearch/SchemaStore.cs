@@ -4,14 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Datadock.Common.Models;
-using Datadock.Common.Stores;
-using Datadock.Common.Validators;
 using DataDock.Common;
+using DataDock.Common.Models;
+using DataDock.Common.Stores;
+using DataDock.Common.Validators;
 using Nest;
 using Serilog;
 
-namespace Datadock.Common.Elasticsearch
+namespace DataDock.Common.Elasticsearch
 {
     public class SchemaStore : ISchemaStore
     {
@@ -31,7 +31,7 @@ namespace Datadock.Common.Elasticsearch
                 if (!createIndexResponse.Acknowledged)
                 {
                     Log.Error("Create ES index failed for {indexName}. Cause: {detail}", indexName, createIndexResponse.DebugInformation);
-                    throw new DatadockException(
+                    throw new DataDockException(
                         $"Could not create index {indexName} for SchemaStore. Cause: {createIndexResponse.DebugInformation}");
                 }
             }

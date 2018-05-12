@@ -1,7 +1,7 @@
 ﻿using System;
 using Nest;
 
-namespace Datadock.Common.Models
+namespace DataDock.Common.Models
 {
     [ElasticsearchType(Name = "reposettings", IdProperty = "Id")]
     public class RepoSettings

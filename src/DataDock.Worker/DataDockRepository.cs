@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using Datadock.Common.Models;
+using DataDock.Common.Models;
 using DataDock.Worker.Templating;
 using NetworkedPlanet.Quince;
 using Serilog;

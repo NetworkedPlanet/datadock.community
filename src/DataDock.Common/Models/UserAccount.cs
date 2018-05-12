@@ -3,7 +3,7 @@ using System.Linq;
 using System.Security.Claims;
 using Nest;
 
-namespace Datadock.Common.Models
+namespace DataDock.Common.Models
 {
     [ElasticsearchType(Name = "useraccount", IdProperty = "UserId")]
     public class UserAccount

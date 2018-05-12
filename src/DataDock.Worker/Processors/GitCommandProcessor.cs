@@ -3,8 +3,8 @@ using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Datadock.Common;
-using Datadock.Common.Models;
+using DataDock.Common;
+using DataDock.Common.Models;
 using Medallion.Shell;
 using NetworkedPlanet.Quince.Git;
 using Octokit;
@@ -238,7 +238,7 @@ namespace DataDock.Worker.Processors
             {
                 ProgressLog.Info("Generating a new release of dataset {0}", datasetId);
                 if (authenticationToken == null) throw new WorkerException("No valid GitHub access token found for your account.");
-                var client = _gitHubClientFactory.GetClient(authenticationToken);
+                var client = _gitHubClientFactory.CreateClient(authenticationToken);
                 client.SetRequestTimeout(TimeSpan.FromSeconds(300));
                 var releaseClient = client.Repository.Release;
                 var newRelease = new NewRelease(releaseTag) { TargetCommitish = "gh-pages" };

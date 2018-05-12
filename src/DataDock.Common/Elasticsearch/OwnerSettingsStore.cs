@@ -1,13 +1,13 @@
-﻿using Datadock.Common.Models;
-using Nest;
+﻿using Nest;
 using Serilog;
 using System;
 using System.Threading.Tasks;
-using Datadock.Common.Stores;
-using Datadock.Common.Validators;
 using DataDock.Common;
+using DataDock.Common.Models;
+using DataDock.Common.Stores;
+using DataDock.Common.Validators;
 
-namespace Datadock.Common.Elasticsearch
+namespace DataDock.Common.Elasticsearch
 {
     public class OwnerSettingsStore : IOwnerSettingsStore
     {
@@ -27,7 +27,7 @@ namespace Datadock.Common.Elasticsearch
                 if (!createIndexResponse.Acknowledged)
                 {
                     Log.Error("Create ES index failed for {indexName}. Cause: {detail}", indexName, createIndexResponse.DebugInformation);
-                    throw new DatadockException(
+                    throw new DataDockException(
                         $"Could not create index {indexName} for owner settings repository. Cause: {createIndexResponse.DebugInformation}");
                 }
             }

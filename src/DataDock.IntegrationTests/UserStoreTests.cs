@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using Datadock.Common.Elasticsearch;
-using Datadock.Common.Models;
+using DataDock.Common.Elasticsearch;
+using DataDock.Common.Models;
 using Xunit;
 
 namespace DataDock.IntegrationTests

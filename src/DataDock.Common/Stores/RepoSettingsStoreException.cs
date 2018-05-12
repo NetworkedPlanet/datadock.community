@@ -1,6 +1,6 @@
-﻿namespace Datadock.Common.Stores
+﻿namespace DataDock.Common.Stores
 {
-    public class RepoSettingsStoreException : DatadockException
+    public class RepoSettingsStoreException : DataDockException
     {
         public RepoSettingsStoreException(string msg) : base(msg) { }
     }

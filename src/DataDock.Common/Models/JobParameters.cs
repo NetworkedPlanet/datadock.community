@@ -1,4 +1,4 @@
-﻿namespace Datadock.Common.Models
+﻿namespace DataDock.Common.Models
 {
     /// <summary>
     /// Defines constants for job parameters

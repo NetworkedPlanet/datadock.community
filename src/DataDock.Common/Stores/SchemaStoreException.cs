@@ -1,6 +1,6 @@
-﻿namespace Datadock.Common.Stores
+﻿namespace DataDock.Common.Stores
 {
-    public class SchemaStoreException : DatadockException
+    public class SchemaStoreException : DataDockException
     {
         public SchemaStoreException(string msg) : base(msg) { }
     }

@@ -1,4 +1,4 @@
-﻿using Datadock.Common.Models;
+﻿using DataDock.Common.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 

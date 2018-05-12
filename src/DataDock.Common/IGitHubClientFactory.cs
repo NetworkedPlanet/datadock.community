@@ -1,10 +1,13 @@
-﻿using Octokit;
+﻿using System.Security.Claims;
+using Octokit;
 
-namespace Datadock.Common
+namespace DataDock.Common
 {
     public interface IGitHubClientFactory
     {
-        GitHubClient GetClient(string accessToken);
+        IGitHubClient CreateClient(ClaimsIdentity identity);
+
+        GitHubClient CreateClient(string accessToken);
     }
 
 }

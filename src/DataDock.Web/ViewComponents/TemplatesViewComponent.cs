@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Datadock.Common.Stores;
+using DataDock.Common.Stores;
 using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 

@@ -32,7 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Datadock.Common\Datadock.Common.csproj" />
+    <ProjectReference Include="..\DataDock.Common\DataDock.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>

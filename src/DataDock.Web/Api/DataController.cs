@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Datadock.Common.Stores;
+using DataDock.Common.Stores;
 using DataDock.Web.Filters;
 using DataDock.Web.Services;
 using Microsoft.AspNetCore.Http;

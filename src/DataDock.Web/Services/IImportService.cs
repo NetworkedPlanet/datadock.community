@@ -1,4 +1,4 @@
-﻿using Datadock.Common.Models;
+﻿using DataDock.Common.Models;
 using System.Security.Claims;
 using System.Threading.Tasks;
 

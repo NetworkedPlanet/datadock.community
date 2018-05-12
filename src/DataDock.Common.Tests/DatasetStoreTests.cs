@@ -1,8 +1,8 @@
 using System;
 using System.Threading;
-using Datadock.Common.Elasticsearch;
-using Datadock.Common.Models;
-using Datadock.Common.Stores;
+using DataDock.Common.Elasticsearch;
+using DataDock.Common.Models;
+using DataDock.Common.Stores;
 using Moq;
 using Nest;
 using Newtonsoft.Json.Linq;

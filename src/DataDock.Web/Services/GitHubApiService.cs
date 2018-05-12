@@ -4,7 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
-using Datadock.Common.Models;
+using DataDock.Common;
 using Octokit;
 using Serilog;
 

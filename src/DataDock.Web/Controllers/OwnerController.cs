@@ -4,7 +4,7 @@ using DataDock.Web.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using Datadock.Common.Stores;
+using DataDock.Common.Stores;
 using DataDock.Web.Models;
 using DataDock.Web.Services;
 using DataDock.Web.ViewModels;

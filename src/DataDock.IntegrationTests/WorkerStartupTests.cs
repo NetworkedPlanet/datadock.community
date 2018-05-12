@@ -1,6 +1,6 @@
 ﻿using System;
-using Datadock.Common.Elasticsearch;
-using Datadock.Common.Stores;
+using DataDock.Common.Elasticsearch;
+using DataDock.Common.Stores;
 using DataDock.Worker;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;

@@ -1,4 +1,4 @@
-﻿using Datadock.Common.Models;
+﻿using DataDock.Common.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace DataDock.Web.ViewModels

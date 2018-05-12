@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
@@ -17,8 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Datadock.Common\Datadock.Common.csproj" />
-    <ProjectReference Include="..\Datadock.Worker\DataDock.Worker.csproj" />
+    <ProjectReference Include="..\DataDock.Common\DataDock.Common.csproj" />
+    <ProjectReference Include="..\DataDock.Worker\DataDock.Worker.csproj" />
   </ItemGroup>
 
   <ItemGroup>

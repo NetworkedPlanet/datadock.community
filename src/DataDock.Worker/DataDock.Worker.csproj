@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DataDock.Common\DataDock.Common.csproj" />
+    <PackageReference Include="DataDock.CsvWeb" Version="0.1.0-pre0002" />
+    <PackageReference Include="DotLiquid" Version="2.0.254" />
+    <PackageReference Include="dotNetRDF" Version="2.0.1" />
+    <PackageReference Include="Elasticsearch.Net" Version="6.0.2" />
+    <PackageReference Include="MedallionShell" Version="1.5.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="1.0.0-preview2-final" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.0.0-preview2-final" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
+    <PackageReference Include="Octokit" Version="0.29.0" />
+    <PackageReference Include="Polly" Version="5.8.0" />
+    <PackageReference Include="Quince" Version="0.4.0" />
+    <PackageReference Include="Serilog.Sinks.Elasticsearch" Version="6.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="templates\*.*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+</Project>

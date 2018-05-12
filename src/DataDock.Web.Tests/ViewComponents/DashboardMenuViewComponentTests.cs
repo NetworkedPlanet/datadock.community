@@ -1,5 +1,5 @@
-﻿using Datadock.Common.Models;
-using Datadock.Common.Stores;
+﻿using DataDock.Common.Models;
+using DataDock.Common.Stores;
 using DataDock.Web.ViewComponents;
 using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Http;

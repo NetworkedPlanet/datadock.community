@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Serilog;
 using System;
 using System.Threading.Tasks;
-using Datadock.Common.Stores;
+using DataDock.Common.Stores;
 
 namespace DataDock.Web.ViewComponents
 {

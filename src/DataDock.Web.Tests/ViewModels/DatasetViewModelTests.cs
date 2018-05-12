@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Datadock.Common.Models;
+using DataDock.Common.Models;
 using DataDock.Web.ViewModels;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;

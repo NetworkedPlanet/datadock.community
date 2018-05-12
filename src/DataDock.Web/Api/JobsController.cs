@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using Datadock.Common.Stores;
+using DataDock.Common.Stores;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Datadock.Common.Models;
+using DataDock.Common.Models;
 using Microsoft.AspNetCore.Http;
 using Serilog;
 

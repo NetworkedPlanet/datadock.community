@@ -1,5 +1,5 @@
 ﻿using System;
-using Datadock.Common.Models;
+using DataDock.Common.Models;
 using FluentAssertions;
 using VDS.RDF;
 using Xunit;

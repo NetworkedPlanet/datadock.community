@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Datadock.Common.Models;
-using Datadock.Common.Stores;
+using DataDock.Common.Models;
+using DataDock.Common.Stores;
 using DataDock.Web.Auth;
 using DataDock.Web.Services;
 using DataDock.Web.ViewModels;

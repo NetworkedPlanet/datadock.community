@@ -17,7 +17,7 @@ export class DatasetComponent implements OnInit {
     licenses = OPTIONS_LICENSES;
     licenseField;
 
-    constructor(private fm: FormManager) {
+    constructor(public fm: FormManager) {
     }
 
     ngOnInit(): void {

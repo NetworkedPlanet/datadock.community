@@ -12,7 +12,7 @@ EXPOSE 80
 
 FROM microsoft/aspnetcore-build:2.0 AS build
 WORKDIR /src
-COPY . .
+COPY DataDock.Web DataDock.Common DataDock.sln .
 RUN dotnet restore DataDock.Web
 WORKDIR /src/DataDock.Web
 RUN npm rebuild node-sass --force

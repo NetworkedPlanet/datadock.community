@@ -9,13 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation.AspNetCore" Version="7.5.0" />
-    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.5" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="7.5.2" />
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.0.0-preview2-final" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.2" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.4" />
     <PackageReference Include="Octokit" Version="0.29.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="2.0.2" />
-    <PackageReference Include="Serilog.Sinks.Elasticsearch" Version="6.3.0" />
+    <PackageReference Include="Serilog.Sinks.Elasticsearch" Version="6.5.0" />
   </ItemGroup>
 
   <ItemGroup>

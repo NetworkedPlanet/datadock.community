@@ -34,7 +34,7 @@ import { routing } from './app.routing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 export function loadConfig(configService: ConfigurationService) {
-    return configService.loadConfigurationData();
+    return () => configService.loadConfigurationData();
 }
 
 @NgModule({

@@ -293,3 +293,5 @@ src/DataDock.Web/wwwroot/css/*.min.css
 src/DataDock.Web/wwwroot/js/*.min.js
 src/DataDock.Web/wwwroot/vendor/**/*
 src/DataDock.Web/files/**/*
+src/DataDock.Web/ClientApp/**/*.js.map
+src/DataDock.Web/ClientApp/**/*js

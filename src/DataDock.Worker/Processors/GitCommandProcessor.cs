@@ -244,8 +244,6 @@ namespace DataDock.Worker.Processors
                 var newRelease = new NewRelease(releaseTag) { TargetCommitish = "gh-pages" };
                 var release = await releaseClient.Create(owner, repositoryId, newRelease);
 
-                /*
-                 * TODO: This code times out when run in a linux container under .NET Core 2.0. It should be reinstated after update to .NET Core 2.1
                 // Attach data dump file(s) to release
                 try
                 {
@@ -263,7 +261,6 @@ namespace DataDock.Worker.Processors
                     Log.Error(ex, "Failed to attach dump files to GitHub release");
                     throw new WorkerException(ex, "Failed to attach dump files to GitHub release");
                 }
-                */
             }
             catch (WorkerException)
             {

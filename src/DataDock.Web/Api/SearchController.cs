@@ -20,7 +20,7 @@ namespace DataDock.Web.Api
         }
         [Route("api/search/{owner}")]
         [HttpGet]
-        public async Task<IActionResult> SearchByOwner(string owner, [FromQuery]string[] tag, bool all = false, bool hidden = false)
+        public async Task<IActionResult> SearchByOwner(string owner, [FromQuery]string[] tag, bool all = false, bool hidden = false, int skip = 0, int take = 25)
         {
             try
             {
@@ -28,8 +28,8 @@ namespace DataDock.Web.Api
                     return BadRequest("Invalid owner ID");
                 if (tag == null || tag.Length == 0 || tag.All(string.IsNullOrEmpty))
                     return BadRequest("At least one tag must be specified");
-                // TODO get skip and take from query
-                var datasets = await _datasetStore.GetDatasetsForTagsAsync(owner, tag, 0, 25, all, hidden);
+                
+                var datasets = await _datasetStore.GetDatasetsForTagsAsync(owner, tag, skip, take, all, hidden);
                 return Ok(datasets);
             }
             catch (Exception ex)
@@ -41,7 +41,7 @@ namespace DataDock.Web.Api
 
         [Route("api/search/{owner}/{repository}")]
         [HttpGet]
-        public async Task<IActionResult> SearchByOwnerAndRepository(string owner, string repository, [FromQuery]string[] tag, bool all = false, bool hidden = false)
+        public async Task<IActionResult> SearchByOwnerAndRepository(string owner, string repository, [FromQuery]string[] tag, bool all = false, bool hidden = false, int skip = 0, int take = 25)
         {
             try
             {
@@ -49,8 +49,8 @@ namespace DataDock.Web.Api
                     return BadRequest("Invalid owner or repository ID");
                 if (tag == null || tag.Length == 0 || tag.All(string.IsNullOrEmpty))
                     return BadRequest("At least one tag must be specified");
-                // TODO get skip and take from query
-                var datasets = await  _datasetStore.GetDatasetsForTagsAsync(owner, repository, tag, 0, 25, all, hidden);
+                
+                var datasets = await  _datasetStore.GetDatasetsForTagsAsync(owner, repository, tag, skip, take, all, hidden);
                 return Ok(datasets);
             }
             catch (Exception ex)

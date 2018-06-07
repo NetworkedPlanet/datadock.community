@@ -281,9 +281,10 @@ namespace DataDock.Web.Controllers
             }
             catch (Exception e)
             {
-                // todo handle user not found
-                Console.WriteLine(e);
-                throw;
+                Log.Warning($"User account not found: '{User.Identity.Name}'");
+                var davm = new DeleteAccountViewModel();
+                ModelState.AddModelError("", $"No user found with name '{User.Identity.Name}'");
+                return View(davm);
             }
         }
 

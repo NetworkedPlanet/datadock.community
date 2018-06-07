@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using DataDock.Common.Stores;
+﻿using DataDock.Common.Stores;
 using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
+using System;
+using System.Threading.Tasks;
 
 namespace DataDock.Web.Controllers
 {
@@ -18,7 +16,7 @@ namespace DataDock.Web.Controllers
             _datasetStore = datasetStore;
         }
 
-        public async Task<IActionResult> Index(string tag)
+        public async Task<IActionResult> Index(string tag, int skip = 0, int take = 25)
         {
             var model = new SearchResultViewModel();
             try
@@ -26,8 +24,7 @@ namespace DataDock.Web.Controllers
                 if (!string.IsNullOrEmpty(tag))
                 {
                     var tags = new string[] {tag};
-                    // TODO get skip and take
-                    var results = await _datasetStore.GetDatasetsForTagsAsync(tags, 0, 25);
+                    var results = await _datasetStore.GetDatasetsForTagsAsync(tags, skip, take);
                     model = new SearchResultViewModel(tag, results);
                 }
             }

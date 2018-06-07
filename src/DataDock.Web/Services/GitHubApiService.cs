@@ -50,19 +50,24 @@ namespace DataDock.Web.Services
             var orgList = new List<Organization>();
             try
             {
-                //TODO: check for null when casting to ClaimsIdentity
-                var ghClient = _gitHubClientFactory.CreateClient(identity as ClaimsIdentity);
-
-                var orgs = await ghClient.Organization.GetAllForCurrent();
-                if (orgs == null || !orgs.Any())
+                if (identity is ClaimsIdentity claimsIdentity)
                 {
-                    Log.Warning("GetOrganizationsForUserAsync: No organizations returned for user '{0}'", identity.Name);
+                    var ghClient = _gitHubClientFactory.CreateClient(claimsIdentity);
+
+                    var orgs = await ghClient.Organization.GetAllForCurrent();
+                    if (orgs == null || !orgs.Any())
+                    {
+                        Log.Warning("GetOrganizationsForUserAsync: No organizations returned for user '{0}'", identity.Name);
+                        return orgList;
+                    }
+                    Log.Debug("GetOrganizationsForUserAsync: {0} organizations found for user '{1}'", orgs.Count(), identity.Name);
+
+                    orgList = orgs.ToList();
                     return orgList;
                 }
-                Log.Debug("GetOrganizationsForUserAsync: {0} organizations found for user '{1}'", orgs.Count(), identity.Name);
 
-                orgList = orgs.ToList();
-                return orgList;
+                Log.Error("Null reference when casting Identity to ClaimsIdentity for use in GitHub API");
+                return null;
             }
             catch (Exception ex)
             {

@@ -108,6 +108,7 @@ namespace DataDock.Web.ViewModels
 
         private static string GetLiteralValue(JObject parentObject, string propertyName, string defaultValue = null)
         {
+            if (parentObject == null) return defaultValue;
             var titles = parentObject[propertyName] as JArray;
             if (titles != null) return GetBestLanguageMatch(titles, null);
             var title = parentObject[propertyName] as JValue;

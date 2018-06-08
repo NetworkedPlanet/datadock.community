@@ -21,7 +21,9 @@ namespace DataDock.Web
             WebHost.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((webHostBuilderContext, configurationbuilder) =>
                 {
-                    configurationbuilder.AddJsonFile("appSettings.json", optional: true);
+                    IHostingEnvironment env = webHostBuilderContext.HostingEnvironment;
+                    configurationbuilder.AddJsonFile("appSettings.json", optional: true, reloadOnChange: true)
+                        .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
                     configurationbuilder.AddEnvironmentVariables();
                 })
                 .UseStartup<Startup>()

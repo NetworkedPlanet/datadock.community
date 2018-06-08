@@ -24,8 +24,7 @@ namespace DataDock.Worker
         {
             var repoPath = Path.Combine(_config.RepoBaseDir, jobInfo.JobId);
             
-            // TODO: These should not be hard-coded (issue #82)
-            var baseIri = new Uri($"http://datadock.io/{jobInfo.OwnerId}/{jobInfo.RepositoryId}/");
+            var baseIri = new Uri($"{_config.BaseUrl}/{jobInfo.OwnerId}/{jobInfo.RepositoryId}/");
             var resourceBaseIri = new Uri(baseIri, "id/");
             var rdfResourceFileMapper = new ResourceFileMapper(
                 new ResourceMapEntry(resourceBaseIri, Path.Combine(repoPath, "data")));

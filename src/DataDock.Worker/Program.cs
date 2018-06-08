@@ -16,9 +16,9 @@ namespace DataDock.Worker
         {
             Log.Information("Worker Starting");
             var builder = new ConfigurationBuilder()
-                .AddEnvironmentVariables("DD_")
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json");
+                .AddJsonFile("appsettings.json", true)
+                .AddEnvironmentVariables("DD_");
             var configuration = builder.Build();
             var workerConfig = new WorkerConfiguration();
             configuration.Bind(workerConfig);

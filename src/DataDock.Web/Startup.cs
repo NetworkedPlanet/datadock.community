@@ -78,7 +78,8 @@ namespace DataDock.Web
             services.AddScoped<AccountExistsFilter>();
             services.AddScoped<OwnerAdminAuthFilter>();
 
-            services.AddSingleton(config);
+            services.AddSingleton<WebConfiguration>(config);
+            services.AddSingleton<ApplicationConfiguration>(config);
             services.AddSingleton<IElasticClient>(client);
             services.AddSingleton<IUserStore, UserStore>();
             services.AddSingleton<IJobStore, JobStore>();

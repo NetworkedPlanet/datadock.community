@@ -1,4 +1,4 @@
-FROM microsoft/aspnetcore:2.0 AS base
+FROM microsoft/dotnet:2.1-aspnetcore-runtime AS base
 
 # install nodejs for angular, webpack middleware
 RUN apt-get -qq update && apt-get -qqy --no-install-recommends install wget gnupg \
@@ -10,7 +10,12 @@ RUN apt-get install -y nodejs
 WORKDIR /app
 EXPOSE 80
 
-FROM microsoft/aspnetcore-build:2.0 AS build
+FROM microsoft/dotnet:2.1-sdk AS build
+RUN apt-get -qq update && apt-get -qqy --no-install-recommends install wget gnupg \
+    git \
+    unzip
+RUN curl -sL https://deb.nodesource.com/setup_6.x |  bash -
+RUN apt-get install -y nodejs
 WORKDIR /src
 COPY DataDock.Web DataDock.Web/
 COPY DataDock.Common DataDock.Common/

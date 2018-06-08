@@ -27,7 +27,7 @@ namespace DataDock.Common.Tests
             connectionSettings.Setup(x => x.DefaultIndices).Returns(indexDict).Verifiable();
             client.SetupGet(x => x.ConnectionSettings).Returns(connectionSettings.Object).Verifiable();
 
-            var jobStore = new JobStore(client.Object, new ApplicationConfiguration(null, "jobs", null, null, null, null, null, null));
+            var jobStore = new JobStore(client.Object, new ApplicationConfiguration{JobsIndexName = "jobs"});
             client.Verify();
         }
 
@@ -36,7 +36,7 @@ namespace DataDock.Common.Tests
         {
             var client = new Mock<IElasticClient>();
             AssertIndexExists(client, "jobs");
-            var jobStore = new JobStore(client.Object, new ApplicationConfiguration(null, "jobs", null, null, null, null, null, null));
+            var jobStore = new JobStore(client.Object, new ApplicationConfiguration { JobsIndexName = "jobs" });
             await Assert.ThrowsAsync<ArgumentNullException>(() => jobStore.SubmitImportJobAsync(null));
         }
 
@@ -49,7 +49,7 @@ namespace DataDock.Common.Tests
             AssertIndexExists(client, "jobs");
             client.Setup(x => x.IndexDocumentAsync<JobInfo>(It.IsAny<JobInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(mockResponse.Object).Verifiable();
-            var jobStore = new JobStore(client.Object, new ApplicationConfiguration(null, "jobs", null, null, null, null, null, null));
+            var jobStore = new JobStore(client.Object, new ApplicationConfiguration { JobsIndexName = "jobs" });
                 
             var jobRequest = new ImportJobRequestInfo
             {
@@ -79,7 +79,7 @@ namespace DataDock.Common.Tests
             AssertIndexExists(client, "jobs");
             client.Setup(x => x.IndexDocumentAsync<JobInfo>(It.IsAny<JobInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(mockResponse.Object).Verifiable();
-            var jobStore = new JobStore(client.Object, new ApplicationConfiguration(null, "jobs", null, null, null, null, null, null));
+            var jobStore = new JobStore(client.Object, new ApplicationConfiguration { JobsIndexName = "jobs" });
 
             var jobRequest = new ImportJobRequestInfo
             {

@@ -26,4 +26,18 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="data\config\partialSettings.json" />
+    <Content Remove="data\config\testSettings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="data\config\partialSettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="data\config\testSettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

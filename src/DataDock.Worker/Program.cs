@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
@@ -13,11 +15,17 @@ namespace DataDock.Worker
         static void Main(string[] args)
         {
             Log.Information("Worker Starting");
-            var config = WorkerConfiguration.FromEnvironment();
-            config.LogSettings();
+            var builder = new ConfigurationBuilder()
+                .AddEnvironmentVariables("DD_")
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json");
+            var configuration = builder.Build();
+            var workerConfig = new WorkerConfiguration();
+            configuration.Bind(workerConfig);
+            workerConfig.LogSettings();
             var serviceCollection = new ServiceCollection();
             var startup = new Startup();
-            startup.ConfigureServices(serviceCollection, config);
+            startup.ConfigureServices(serviceCollection, workerConfig);
             var services = serviceCollection.BuildServiceProvider();
             var application = new Application(services);
 

@@ -23,10 +23,12 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.Elasticsearch;
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using DataDock.Web.Config;
 using Elasticsearch.Net;
 using Nest.JsonNetSerializer;
 using HttpMethod = System.Net.Http.HttpMethod;
@@ -38,16 +40,6 @@ namespace DataDock.Web
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-
-            Log.Logger = new LoggerConfiguration()
-                .Enrich.FromLogContext()
-                .WriteTo.Elasticsearch(
-                    new ElasticsearchSinkOptions(new Uri("http://elasticsearch:9200"))
-                    {
-                        MinimumLogEventLevel = LogEventLevel.Debug,
-                        AutoRegisterTemplate = true
-                    })
-                .CreateLogger();
         }
 
         public IConfiguration Configuration { get; }
@@ -55,7 +47,21 @@ namespace DataDock.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var config = ApplicationConfiguration.FromEnvironment();
+            var config = new WebConfiguration();
+            Configuration.Bind(config);
+
+            // Set up logging
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .WriteTo.Elasticsearch(
+                    new ElasticsearchSinkOptions(new Uri(config.ElasticsearchUrl))
+                    {
+                        MinimumLogEventLevel = LogEventLevel.Debug,
+                        AutoRegisterTemplate = true
+                    })
+                .CreateLogger();
+
+
             services.AddOptions();
 
             // Angular's default header name for sending the XSRF token.
@@ -63,10 +69,7 @@ namespace DataDock.Web
 
             services.AddMvc();
 
-            services.Configure<Config.ClientConfiguration>(Configuration.GetSection("ClientConfiguration"));
-
             services.AddSignalR();
-
             var client = new ElasticClient(
                 new ConnectionSettings(
                     new SingleNodeConnectionPool(new Uri(config.ElasticsearchUrl)),
@@ -88,8 +91,7 @@ namespace DataDock.Web
             services.AddSingleton<IFileStore, DirectoryFileStore>();
             services.AddScoped<DataDockCookieAuthenticationEvents>();
 
-            // TODO: This should come from environment variables, not config (issue #81)
-            var gitHubClientHeader = Configuration["DataDock:GitHubClientHeader"];
+            var gitHubClientHeader = config.GitHubClientHeader;
             services.AddSingleton<IGitHubClientFactory>(new GitHubClientFactory(gitHubClientHeader));
             services.AddTransient<IGitHubApiService, GitHubApiService>();
 
@@ -107,8 +109,8 @@ namespace DataDock.Web
                 })
                 .AddOAuth("GitHub", options =>
                 {
-                    options.ClientId = Configuration["GitHub:ClientId"];
-                    options.ClientSecret = Configuration["GitHub:ClientSecret"];
+                    options.ClientId = config.OAuthClientId;
+                    options.ClientSecret = config.OAuthClientSecret;
                     options.CallbackPath = new PathString("/signin-github");
 
                     options.AuthorizationEndpoint = "https://github.com/login/oauth/authorize";
@@ -156,7 +158,7 @@ namespace DataDock.Web
                     };
                 });
 
-            var admins = Configuration["Admin:Logins"]?.Split(",");
+            var admins = config.AdminLogins?.Split(",").Select(a=>a.Trim()).ToList();
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("User", policy => policy.RequireClaim(DataDockClaimTypes.DataDockUserId));
@@ -164,7 +166,6 @@ namespace DataDock.Web
                 {
                     options.AddPolicy("Admin", policy => policy.RequireClaim(DataDockClaimTypes.GitHubLogin, admins));
                 }
-                
             });
         }
 

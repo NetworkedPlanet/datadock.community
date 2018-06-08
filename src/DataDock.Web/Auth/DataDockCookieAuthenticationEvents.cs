@@ -38,14 +38,14 @@ namespace DataDock.Web.Auth
                 
                 if (string.IsNullOrEmpty(lastChanged))
                 {
-                    var validate = await _userStore.ValidateLastChanged(userId, lastChangedDateTime);
-                    if (!validate)
-                    {
-                        context.RejectPrincipal();
+                    //var validate = await _userStore.ValidateLastChanged(userId, lastChangedDateTime);
+                    //if (!validate)
+                    //{
+                    //    context.RejectPrincipal();
 
-                        await context.HttpContext.SignOutAsync(
-                            CookieAuthenticationDefaults.AuthenticationScheme);
-                    }
+                    //    await context.HttpContext.SignOutAsync(
+                    //        CookieAuthenticationDefaults.AuthenticationScheme);
+                    //}
 
                 }
             }

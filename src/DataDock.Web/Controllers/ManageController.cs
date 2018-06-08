@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Linq;
+using Serilog;
 
 namespace DataDock.Web.Controllers
 {
@@ -76,23 +77,6 @@ namespace DataDock.Web.Controllers
                 }
 
                 return RedirectToAction("Index");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-        }
-
-        public async Task<IActionResult> SendMessagesToProgressLog()
-        {
-            try
-            {
-                //Broadcast message to client  
-                await _progresseHubContext.Clients.All.SendAsync("sendMessage", User.Identity.Name, "Hello from the hub server at " +
-                                                                   DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss"));
-
-                return Ok();
             }
             catch (Exception e)
             {

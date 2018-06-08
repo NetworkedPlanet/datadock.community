@@ -89,13 +89,11 @@ namespace DataDock.Web
             services.AddSingleton<ISchemaStore, SchemaStore>();
             services.AddSingleton<IImportService, ImportService>();
             services.AddSingleton<IFileStore, DirectoryFileStore>();
-            services.AddScoped<DataDockCookieAuthenticationEvents>();
 
             var gitHubClientHeader = config.GitHubClientHeader;
             services.AddSingleton<IGitHubClientFactory>(new GitHubClientFactory(gitHubClientHeader));
             services.AddTransient<IGitHubApiService, GitHubApiService>();
 
-            // services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options => { options.EventsType = typeof(DataDockCookieAuthenticationEvents); });
             services.AddAuthentication(options =>
                 {
                     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;

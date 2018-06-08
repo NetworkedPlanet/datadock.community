@@ -17,15 +17,9 @@ export class ConfigurationService {
     // Call the ClientConfiguration endpoint, deserialize the response,
     // and store it in this.configData.
     loadConfigurationData(): Promise<Configuration> {
-        return this.http.get(`${this.originUrl}${this.configUrlPath}`)
-            .toPromise()
-            .then((response: Response) => {
-                this.configData = response.json();
-                return this.configData;
-            })
-            .catch(err => {
-                return Promise.reject(err);
-            });
+        const config = new Configuration();
+        config.inDebug = false;
+        return Promise.resolve(config);
     }
 
     // A helper property to return the config object

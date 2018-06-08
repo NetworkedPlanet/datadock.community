@@ -30,7 +30,7 @@ namespace DataDock.Common.Tests
             connectionSettings.Setup(x => x.DefaultIndices).Returns(indexDict).Verifiable();
             client.SetupGet(x => x.ConnectionSettings).Returns(connectionSettings.Object).Verifiable();
 
-            var datasetStore = new DatasetStore(client.Object, new ApplicationConfiguration(null, null, null, null, null, _indexName, null, null));
+            var datasetStore = new DatasetStore(client.Object, new ApplicationConfiguration{DatasetIndexName = _indexName});
             client.Verify();
         }
 
@@ -39,7 +39,7 @@ namespace DataDock.Common.Tests
         {
             var client = new Mock<IElasticClient>();
             AssertIndexExists(client, _indexName);
-            var datasetStore = new DatasetStore(client.Object, new ApplicationConfiguration(null, null, null, null, null, _indexName, null, null));
+            var datasetStore = new DatasetStore(client.Object, new ApplicationConfiguration {DatasetIndexName = _indexName});
             await Assert.ThrowsAsync<ArgumentNullException>(() => datasetStore.CreateOrUpdateDatasetRecordAsync(null));
         }
 
@@ -54,7 +54,7 @@ namespace DataDock.Common.Tests
             client.Setup(x => x.IndexDocumentAsync<DatasetInfo>(It.IsAny<DatasetInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(mockResponse.Object).Verifiable();
 
-            var datasetStore = new DatasetStore(client.Object, new ApplicationConfiguration(null, null, null, null, null, _indexName, null, null));
+            var datasetStore = new DatasetStore(client.Object, new ApplicationConfiguration{DatasetIndexName = _indexName});
 
             var csvwJson = new JObject(new JProperty("dc:title", "Test Dataset"), new JProperty("dcat:keyword", new JArray("one", "two", "three")));
             var voidJson = new JObject(
@@ -88,7 +88,7 @@ namespace DataDock.Common.Tests
             AssertIndexExists(client, _indexName);
             client.Setup(x => x.IndexDocumentAsync<DatasetInfo>(It.IsAny<DatasetInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(mockResponse.Object).Verifiable();
-            var datasetStore = new DatasetStore(client.Object, new ApplicationConfiguration(null, null, null, null, null, _indexName, null, null));
+            var datasetStore = new DatasetStore(client.Object, new ApplicationConfiguration{DatasetIndexName = _indexName});
 
             var emptyDatasetInfo = new DatasetInfo();
 

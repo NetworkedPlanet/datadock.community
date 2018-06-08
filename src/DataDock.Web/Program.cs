@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 namespace DataDock.Web
 {
@@ -21,10 +16,15 @@ namespace DataDock.Web
             WebHost.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((webHostBuilderContext, configurationbuilder) =>
                 {
-                    IHostingEnvironment env = webHostBuilderContext.HostingEnvironment;
-                    configurationbuilder.AddJsonFile("appSettings.json", optional: true, reloadOnChange: true)
-                        .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
-                    configurationbuilder.AddEnvironmentVariables();
+                    var environment = webHostBuilderContext.HostingEnvironment;
+                    var baseAppSettingsFile = Path.Combine(environment.ContentRootPath, "appsettings.json");
+                    var environmentAppSettingsFile = Path.Combine(environment.ContentRootPath,
+                        string.Format("appsettings.{0}.json", environment.EnvironmentName.ToLower()));
+                    configurationbuilder
+                        .AddJsonFile(baseAppSettingsFile, optional: true)
+                        .AddJsonFile(environmentAppSettingsFile, optional: true)
+                        .AddEnvironmentVariables("DD_")
+                        .AddEnvironmentVariables("DD_" + environment + "_");
                 })
                 .UseStartup<Startup>()
                 .Build();

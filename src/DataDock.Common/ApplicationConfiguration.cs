@@ -3,16 +3,20 @@ using Serilog;
 
 namespace DataDock.Common
 {
-    public class ApplicationConfiguration 
+    public class ApplicationConfiguration
     {
-        public string ElasticsearchUrl { get; }
-        public string JobsIndexName { get; }
-        public string UserIndexName { get; }
-        public string OwnerSettingsIndexName { get; }
-        public string RepoSettingsIndexName { get; }
-        public string DatasetIndexName { get; }
-        public string SchemaIndexName { get; }
-        public string FileStorePath { get; }
+        public string BaseUrl { get; set; } = "http://datadock.io";
+        public string GitHubClientHeader { get; set; } = "";
+        public string ElasticsearchUrl { get; set; } = "http://elasticsearch:9200";
+        public string JobsIndexName { get; set; } = "jobs";
+        public string UserIndexName { get; set; } = "users";
+        public string OwnerSettingsIndexName { get; set; } = "ownersettings";
+        public string RepoSettingsIndexName { get; set; } = "reposettings";
+        public string DatasetIndexName { get; set; } = "datasets";
+        public string SchemaIndexName { get; set; } = "schemas";
+        public string FileStorePath { get; set; } = "/datadock/repositories";
+
+        public ApplicationConfiguration() { }
 
         public ApplicationConfiguration(string esUrl, string jobsIndex, string userIndex, string ownerSettingsIndex,
             string repoSettingsIndex, string datasetIndex, string schemaIndex, string fileStorePath)

@@ -289,6 +289,7 @@ __pycache__/
 src/DataDock.Web/oauth.development.json
 src/DataDock.Web/oauth.production.json
 src/DataDock.Web/oauth.staging.json
+src/DataDock.Web/appsettings.*.json
 src/DataDock.Web/wwwroot/css/*.min.css
 src/DataDock.Web/wwwroot/js/*.min.js
 src/DataDock.Web/wwwroot/vendor/**/*

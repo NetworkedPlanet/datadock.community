@@ -22,26 +22,30 @@ namespace DataDock.IntegrationTests
             var connectionSettings = new ConnectionSettings(pool, sourceSerializer: JsonNetSerializer.Default);
             Client = new ElasticClient(connectionSettings);
             var indexSuffix = "_" + DateTime.UtcNow.Ticks;
-            Configuration = new ApplicationConfiguration(esUrl,
-                "test_jobs" + indexSuffix,
-                "test_usersettings" + indexSuffix,
-                "test_ownersettings" + indexSuffix,
-                "test_reposettings" + indexSuffix,
-                "test_datasets" + indexSuffix,
-                "test_schemas" + indexSuffix,
-                "test_files"  + indexSuffix
-                );
-            WorkerConfiguration = new WorkerConfiguration(esUrl,
-                "test_jobs" + indexSuffix,
-                "test_usersettings" + indexSuffix,
-                "test_ownersettings" + indexSuffix,
-                "test_reposettings" + indexSuffix,
-                "test_datasets" + indexSuffix,
-                "test_schemas" + indexSuffix,
-                "test_files" + indexSuffix,
-                "",
-                "test_repos" + indexSuffix,
-                "datadock_test");
+            Configuration = new ApplicationConfiguration()
+            {
+                ElasticsearchUrl = esUrl,
+                JobsIndexName = "test_jobs" + indexSuffix,
+                UserIndexName = "test_usersettings" + indexSuffix,
+                OwnerSettingsIndexName = "test_ownersettings" + indexSuffix,
+                RepoSettingsIndexName = "test_reposettings" + indexSuffix,
+                DatasetIndexName = "test_datasets" + indexSuffix,
+                SchemaIndexName = "test_schemas" + indexSuffix,
+                FileStorePath = "test_files"  + indexSuffix
+            };
+            WorkerConfiguration = new WorkerConfiguration{
+                ElasticsearchUrl = esUrl,
+                JobsIndexName = "test_jobs" + indexSuffix,
+                UserIndexName = "test_usersettings" + indexSuffix,
+                OwnerSettingsIndexName = "test_ownersettings" + indexSuffix,
+                RepoSettingsIndexName = "test_reposettings" + indexSuffix,
+                DatasetIndexName = "test_datasets" + indexSuffix,
+                SchemaIndexName = "test_schemas" + indexSuffix,
+                FileStorePath = "test_files" + indexSuffix,
+                GitPath = "",
+                RepoBaseDir = "test_repos" + indexSuffix,
+                GitHubProductHeader = "datadock_test"
+            };
         }
 
         public void Dispose()

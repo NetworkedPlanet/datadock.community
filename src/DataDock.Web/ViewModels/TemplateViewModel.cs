@@ -15,6 +15,7 @@ namespace DataDock.Web.ViewModels
 
         public TemplateViewModel(SchemaInfo schemaInfo)
         {
+            if(schemaInfo == null) return;
             _schemaInfo = schemaInfo;
             _schema = _schemaInfo.Schema;
             Title = this.GetTitle();
@@ -30,17 +31,17 @@ namespace DataDock.Web.ViewModels
             MetadataRaw = _metadata.ToString();
         }
 
-        public string Id => _schemaInfo.Id;
-        public string OwnerId => _schemaInfo.OwnerId;
-        public string RepositoryId => _schemaInfo.RepositoryId;
-        public string SchemaId => _schemaInfo.SchemaId;
+        public string Id => _schemaInfo?.Id;
+        public string OwnerId => _schemaInfo?.OwnerId;
+        public string RepositoryId => _schemaInfo?.RepositoryId;
+        public string SchemaId => _schemaInfo?.SchemaId;
         
         
         [Display(Name = "Title")]
         public string Title { get; set; }
 
         [Display(Name = "Last Modified")]
-        public DateTime LastModified => _schemaInfo.LastModified;
+        public DateTime LastModified => _schemaInfo?.LastModified ?? DateTime.MinValue;
 
         public string MetadataTitle { get; set; }
         public string MetadataDescription { get; set; }
@@ -55,7 +56,13 @@ namespace DataDock.Web.ViewModels
             {
                 return GetLiteralValue(_schema, "dc:title");
             }
-            return _schemaInfo.RepositoryId + "/" + _schemaInfo.SchemaId;
+
+            if (_schemaInfo != null)
+            {
+                return _schemaInfo.RepositoryId + "/" + _schemaInfo.SchemaId;
+            }
+
+            return string.Empty;
         }
 
         public string GetDescription()

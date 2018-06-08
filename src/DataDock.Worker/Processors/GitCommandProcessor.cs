@@ -128,7 +128,6 @@ namespace DataDock.Worker.Processors
             var nameClaim = userAccount.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.Name));
             var emailClaim = userAccount.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.Email));
             var email = emailClaim?.Value ?? "noreply@datadock.io";
-            // TODO: If nameClaim or emailClaim is null the user account is not properly configured
             var commitAuthor = nameClaim.Value + " <" + email + ">";
 
             var git = _gitWrapperFactory.MakeGitWrapper(repositoryDirectory);

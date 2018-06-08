@@ -6,7 +6,7 @@ using VDS.RDF;
 
 namespace DataDock.Worker
 {
-    // TODO: It would be better to simply do standard JSON-LD processing and then drop triples with predicates in the CSVW namespace - requires some JSON-LD support in dotNetRDF.
+    // TODO: It would be better to simply do standard JSON-LD processing and then drop triples with predicates in the CSVW namespace - requires some JSON-LD support in dotNetRDF (issue #84).
     /// <summary>
     /// 
     /// </summary>

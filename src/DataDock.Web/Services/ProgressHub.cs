@@ -9,21 +9,16 @@ namespace DataDock.Web.Services
     {
         public async Task ProgressUpdated(string userId, string jobId, string progressMessage)
         {
-            // TODO: Change this to send to the specific user
             await Clients.Group(userId).SendAsync("progressUpdated", userId, jobId, progressMessage);
-            //await Clients.All.SendAsync("progressUpdated", userId, jobId, progressMessage);
         }
 
         public async Task StatusUpdated(string userId, string jobId, JobStatus jobStatus)
         {
-            // TODO: Change this to send to the specific user
-            // await Clients.All.SendAsync("statusUpdated", userId, jobId, jobStatus);
             await Clients.Group(userId).SendAsync("statusUpdated", userId, jobId, jobStatus);
         }
 
         public async Task SendMessage(string userId, string message)
         {
-            //await Clients.All.SendAsync("sendMessage", userId, message);
             await Clients.Group(userId).SendAsync("sendMessage", userId, message);
         }
 

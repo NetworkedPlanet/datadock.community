@@ -47,6 +47,5 @@ namespace DataDock.Common.Stores
 
         Task<UserAccount> GetUserAccountAsync(string userId);
 
-        Task <bool> ValidateLastChanged(string userId, DateTime lastChanged);
     }
 }

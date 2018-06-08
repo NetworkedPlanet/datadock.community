@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using DataDock.Common;
-using DataDock.Common.Models;
+﻿using DataDock.Common.Models;
 using DataDock.Common.Stores;
 using DataDock.Common.Validators;
 using Nest;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace DataDock.Common.Elasticsearch
 {
@@ -130,9 +129,5 @@ namespace DataDock.Common.Elasticsearch
             return response.Source;
         }
 
-        public async Task<bool> ValidateLastChanged(string userId, DateTime lastChanged)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

@@ -188,7 +188,7 @@ namespace DataDock.Common.Elasticsearch
         public async Task<JobInfo> GetNextJob()
         {
             // TODO: Should make sure that: (a) there aren't any jobs running for the same GitHub repository
-            // (b) when we claim the job to work on it, no-one else grabbed it before us (i.e. update with If-Not-Modified)
+            // (b) when we claim the job to work on it, no-one else grabbed it before us (i.e. update with If-Not-Modified) (issue #87)
 
             var queued = (int)JobStatus.Queued;
             var running = (int) JobStatus.Running;
@@ -259,12 +259,7 @@ namespace DataDock.Common.Elasticsearch
 
             return null;
         }
-
-        public async Task<bool> DeleteJobAsync(string jobId)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public async Task<bool> DeleteJobsForOwnerAsync(string ownerId)
         {
             var deleteResponse = await _client.DeleteByQueryAsync<JobInfo>(s => s.Query(q => QueryByOwnerId(q, ownerId)));

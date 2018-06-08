@@ -124,7 +124,7 @@ namespace DataDock.Web.ViewModels
 
         private static string GetBestLanguageMatch(JArray literalArray, string prefLang)
         {
-            // TODO: Language matching. Currently this returns the first literal in the array
+            // TODO: Language matching. Currently this returns the first literal in the array (issue #86)
             var match = literalArray[0];
             return GetLiteralValue(match);
         }

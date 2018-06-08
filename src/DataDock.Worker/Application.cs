@@ -48,7 +48,7 @@ namespace DataDock.Worker
                 var userRepo = Services.GetRequiredService<IUserStore>();
                 var userAccount = await userRepo.GetUserAccountAsync(jobInfo.UserId);
 
-                // TODO: Should encapsulate this logic plus basic job info validation into its own processor factory class
+                // TODO: Should encapsulate this logic plus basic job info validation into its own processor factory class (issue #83)
                 jobLogger.Debug("Creating job processor for job type {JobType}", jobInfo.JobType);
                 IDataDockProcessor processor;
                 switch (jobInfo.JobType)

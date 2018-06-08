@@ -2,6 +2,7 @@
 // https://karma-runner.github.io/0.13/config/configuration-file.html
 
 module.exports = function (config) {
+
     config.set({
         basePath: '.',
         frameworks: ['jasmine'],
@@ -16,10 +17,10 @@ module.exports = function (config) {
         port: 9876,
         colors: true,
         logLevel: config.LOG_INFO,
-        autoWatch: true,
-        browsers: ['Chrome'],
+        autoWatch: false,
+        browsers: ['ChromeHeadless'],
         mime: { 'application/javascript': ['ts','tsx'] },
-        singleRun: false,
+        singleRun: true,
         webpack: require('../../webpack.config.js')().filter(config => config.target !== 'node'), // Test against client bundle, because tests run in a browser
         webpackMiddleware: { stats: 'errors-only' }
     });

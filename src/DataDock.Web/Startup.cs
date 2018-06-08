@@ -88,7 +88,7 @@ namespace DataDock.Web
             services.AddSingleton<IFileStore, DirectoryFileStore>();
             services.AddScoped<DataDockCookieAuthenticationEvents>();
 
-            // TODO: This should come from environment variables, not config
+            // TODO: This should come from environment variables, not config (issue #81)
             var gitHubClientHeader = Configuration["DataDock:GitHubClientHeader"];
             services.AddSingleton<IGitHubClientFactory>(new GitHubClientFactory(gitHubClientHeader));
             services.AddTransient<IGitHubApiService, GitHubApiService>();

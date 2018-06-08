@@ -55,11 +55,8 @@ namespace DataDock.Web.Services
                     ContentDispositionHeaderValue.TryParse(section.ContentDisposition, out var contentDisposition);
                 if (hasContentDispositionHeader)
                 {
-                    // TODO - if no file upload then badrequest
                     if (MultipartRequestHelper.HasFileContentDisposition(contentDisposition))
                     {
-
-                        // todo log file name
                         jobInfo.CsvFileName = string.Empty;
                         jobInfo.DatasetId = string.Empty;
                         Log.Information("api/data(POST): Starting conversion job. UserId='{0}', File='{1}'", userId,

@@ -34,8 +34,7 @@ namespace DataDock.Worker
         {
             if (_hubConnection != null) return _hubConnection;
             _hubConnection = new HubConnectionBuilder()
-                .WithUrl("http://datadock.web/progress")
-                .WithTransport(TransportType.WebSockets)
+                .WithUrl("http://datadock.web/progress", HttpTransportType.WebSockets)
                 .Build();
             _hubConnection.Closed += OnHubConnectionLost;
             var connectionStarted = false;
@@ -56,7 +55,7 @@ namespace DataDock.Worker
             return _hubConnection;
         }
 
-        private void OnHubConnectionLost(Exception exc)
+        private async Task OnHubConnectionLost(Exception exc)
         {
             Log.Warning(exc, "SignalR hub connection was lost.");
             _hubConnection = null;

@@ -27,7 +27,7 @@ namespace DataDock.Web.Services
             try
             {
                 var name = Context.User.Identity.Name;
-                await Groups.AddAsync(Context.ConnectionId, name);
+                await Groups.AddToGroupAsync(Context.ConnectionId, name);
             }
             catch (Exception)
             {

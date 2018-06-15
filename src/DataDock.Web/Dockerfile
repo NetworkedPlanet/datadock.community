@@ -23,7 +23,7 @@ COPY DataDock.sln .
 RUN dotnet restore DataDock.Web
 WORKDIR /src/DataDock.Web
 RUN npm rebuild node-sass --force
-RUN dotnet build -c Release -o /app
+RUN dotnet build -c Release
 
 FROM build AS publish
 RUN dotnet publish -c Release -o /app

@@ -6,12 +6,10 @@ ENV GIT_PATH=/usr/bin/git
 
 FROM microsoft/dotnet:2.1-sdk AS build
 WORKDIR /src
-COPY *.sln ./
-COPY DataDock.Worker/DataDock.Worker.csproj DataDock.Worker/
-RUN dotnet restore
 COPY . .
+RUN dotnet restore DataDock.sln
 WORKDIR /src/DataDock.Worker
-RUN dotnet build -c Release -o /app
+RUN dotnet build -c Release
 
 FROM build AS publish
 RUN dotnet publish -c Release -o /app

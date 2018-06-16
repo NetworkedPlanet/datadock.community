@@ -88,7 +88,8 @@ namespace DataDock.Worker
                     new ElasticsearchSinkOptions(new Uri(elasticsearchUrl))
                     {
                         MinimumLogEventLevel = LogEventLevel.Debug,
-                        AutoRegisterTemplate = true
+                        AutoRegisterTemplate = true,
+                        AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv6
                     })
                 .CreateLogger();
         }

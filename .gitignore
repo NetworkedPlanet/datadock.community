@@ -296,3 +296,6 @@ src/DataDock.Web/wwwroot/vendor/**/*
 src/DataDock.Web/files/**/*
 src/DataDock.Web/ClientApp/**/*.js.map
 src/DataDock.Web/ClientApp/**/*js
+docker/web/app/
+docker/worker/app
+docker/docker-compose.*.yml

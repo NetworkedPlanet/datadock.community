@@ -30,6 +30,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using DataDock.Web.Config;
 using Elasticsearch.Net;
+using Microsoft.AspNetCore.HttpOverrides;
 using Nest.JsonNetSerializer;
 using HttpMethod = System.Net.Http.HttpMethod;
 
@@ -69,6 +70,11 @@ namespace DataDock.Web
             services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
 
             services.AddMvc();
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders =
+                    ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            });
 
             services.AddSignalR();
             var client = new ElasticClient(
@@ -107,7 +113,7 @@ namespace DataDock.Web
                     options.LogoutPath = new PathString("/account/logoff/");
                     options.AccessDeniedPath = "/account/forbidden/";
                 })
-                .AddReverseProxyOAuth("GitHub", options =>
+                .AddOAuth("GitHub", options =>
                 {
                     options.ClientId = config.OAuthClientId;
                     options.ClientSecret = config.OAuthClientSecret;

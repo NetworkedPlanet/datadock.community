@@ -107,7 +107,7 @@ namespace DataDock.Web
                     options.LogoutPath = new PathString("/account/logoff/");
                     options.AccessDeniedPath = "/account/forbidden/";
                 })
-                .AddOAuth("GitHub", options =>
+                .AddReverseProxyOAuth("GitHub", options =>
                 {
                     options.ClientId = config.OAuthClientId;
                     options.ClientSecret = config.OAuthClientSecret;
@@ -130,6 +130,7 @@ namespace DataDock.Web
                     options.ClaimActions.MapJsonKey(DataDockClaimTypes.GitHubEmail, "email");
                     options.ClaimActions.MapJsonKey(DataDockClaimTypes.GitHubUrl, "html_url");
                     options.ClaimActions.MapJsonKey(DataDockClaimTypes.GitHubAvatar, "avatar_url");
+
 
                     options.Events = new OAuthEvents
                     {

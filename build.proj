@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <Target Name="BuildImages" DependsOnTargets="Build">
-	<Exec Command="docker build -t datadock.web:$(Tag) ." WorkingDirectory="$(MSBuildProjectDirectory)/docker/web" />
-	<Exec Command="docker build -t datadock.worker:$(Tag) ." WorkingDirectory="$(MSBuildProjectDirectory)/docker/worker" />
+	<Exec Command="docker build -t datadock.web -t datadock.web:$(Tag) ." WorkingDirectory="$(MSBuildProjectDirectory)/docker/web" />
+	<Exec Command="docker build -t datadock.worker -t datadock.worker:$(Tag) ." WorkingDirectory="$(MSBuildProjectDirectory)/docker/worker" />
   </Target>
 
   <Target Name="Up" DependsOnTargets="Build">
@@ -16,6 +16,7 @@
   </Target>
   
   <Target Name="Build">
+	<Exec Command="node_modules/gulp/bin/gulp.js min" WorkingDirectory="$(MSBuildProjectDirectory)/src/DataDock.Web" />
 	<Exec Command="dotnet publish -c Release src/DataDock.Web/DataDock.Web.csproj -o $(MSBuildProjectDirectory)/docker/web/app" />
 	<Exec Command="dotnet publish -c Release src/DataDock.Worker/DataDock.Worker.csproj -o $(MSBuildProjectDirectory)/docker/worker/app" />
   </Target>

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
@@ -23,90 +23,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Files not to publish (note that the 'dist' subfolders are re-added below) -->
-    <Compile Remove="wwwroot\images\NewFolder\**" />
-    <Content Remove="ClientApp\**" />
-    <Content Remove="wwwroot\images\NewFolder\**" />
-    <EmbeddedResource Remove="wwwroot\images\NewFolder\**" />
-    <None Remove="wwwroot\images\NewFolder\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\DataDock.Common\DataDock.Common.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="lib\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="wwwroot\vendor\cookiebar\browsers\chrome.png" />
-    <None Include="wwwroot\vendor\cookiebar\browsers\firefox.png" />
-    <None Include="wwwroot\vendor\cookiebar\browsers\ie.png" />
-    <None Include="wwwroot\vendor\cookiebar\browsers\opera.png" />
-    <None Include="wwwroot\vendor\cookiebar\browsers\safari.png" />
-    <None Include="wwwroot\vendor\cookiebar\cookiebar-altblack.css" />
-    <None Include="wwwroot\vendor\cookiebar\cookiebar-altblack.min.css" />
-    <None Include="wwwroot\vendor\cookiebar\cookiebar-flying.css" />
-    <None Include="wwwroot\vendor\cookiebar\cookiebar-flying.min.css" />
-    <None Include="wwwroot\vendor\cookiebar\cookiebar-grey.css" />
-    <None Include="wwwroot\vendor\cookiebar\cookiebar-grey.min.css" />
-    <None Include="wwwroot\vendor\cookiebar\cookiebar-latest.js" />
-    <None Include="wwwroot\vendor\cookiebar\cookiebar-latest.min.js" />
-    <None Include="wwwroot\vendor\cookiebar\cookiebar-white.css" />
-    <None Include="wwwroot\vendor\cookiebar\cookiebar-white.min.css" />
-    <None Include="wwwroot\vendor\cookiebar\cookiebar.css" />
-    <None Include="wwwroot\vendor\cookiebar\cookiebar.min.css" />
-    <None Include="wwwroot\vendor\cookiebar\lang\ca.html" />
-    <None Include="wwwroot\vendor\cookiebar\lang\cs.html" />
-    <None Include="wwwroot\vendor\cookiebar\lang\da.html" />
-    <None Include="wwwroot\vendor\cookiebar\lang\de.html" />
-    <None Include="wwwroot\vendor\cookiebar\lang\en.html" />
-    <None Include="wwwroot\vendor\cookiebar\lang\es.html" />
-    <None Include="wwwroot\vendor\cookiebar\lang\fr.html" />
-    <None Include="wwwroot\vendor\cookiebar\lang\hu.html" />
-    <None Include="wwwroot\vendor\cookiebar\lang\it.html" />
-    <None Include="wwwroot\vendor\cookiebar\lang\nl.html" />
-    <None Include="wwwroot\vendor\cookiebar\lang\pl.html" />
-    <None Include="wwwroot\vendor\cookiebar\lang\pt.html" />
-    <None Include="wwwroot\vendor\cookiebar\lang\ro.html" />
-    <None Include="wwwroot\vendor\cookiebar\lang\se.html" />
-    <None Include="wwwroot\vendor\cookiebar\lang\sk.html" />
-    <None Include="wwwroot\vendor\cookiebar\lang\sl.html" />
-    <None Include="wwwroot\vendor\cookiebar\logo.png" />
-    <None Include="wwwroot\vendor\cookiebar\logo_big.png" />
-    <None Include="wwwroot\vendor\cookiebar\logo_icon.png" />
-    <None Include="wwwroot\vendor\cookiebar\x.png" />
-  </ItemGroup>
-
-  <Target Name="DebugRunWebpack" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('wwwroot\dist') ">
-    <!-- Ensure Node.js is installed -->
-    <Exec Command="node --version" ContinueOnError="true">
-      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
-    </Exec>
-    <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
-
-    <!-- In development, the dist files won't exist on the first run or when cloning to
-         a different machine, so rebuild them if not already present. -->
-    <Message Importance="high" Text="Performing first-run Webpack build..." />
-    <Exec Command="node node_modules/webpack/bin/webpack.js --config webpack.config.vendor.js" />
-    <Exec Command="node node_modules/webpack/bin/webpack.js" />
-  </Target>
-
-  <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
-    <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
-    <Exec Command="npm install" />
-    <Exec Command="node node_modules/webpack/bin/webpack.js --config webpack.config.vendor.js --env.prod" />
-    <Exec Command="node node_modules/webpack/bin/webpack.js --env.prod" />
-
-    <!-- Include the newly-built files in the publish output -->
-    <ItemGroup>
-      <DistFiles Include="wwwroot\dist\**; ClientApp\dist\**" />
-      <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
-        <RelativePath>%(DistFiles.Identity)</RelativePath>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </ResolvedFileToPublish>
-    </ItemGroup>
-  </Target>
 
 </Project>

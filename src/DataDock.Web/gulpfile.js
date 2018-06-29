@@ -63,7 +63,7 @@ var nm = {
     }
 };
 
-gulp.task("node_modules_copy", function () {
+gulp.task("nm_copy", function () {
 
     var streams = [];
 

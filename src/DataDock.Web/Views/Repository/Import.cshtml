@@ -3,10 +3,49 @@
   Layout = "~/Views/Shared/_ImportLayout.cshtml";
   Model.Title = Model.Title + " Add Data";
 }
+<div class="ui grid container" id="fileSelector">
+  <div class="ui">
+    <div class="ui container">
+      <h4>Config</h4>
 
-<app>Loading...</app>
+      <p>
+        <label>Delimiter: <input type="text" size="5" placeholder="auto" id="delimiter"> <a href="javascript:" id="insert-tab">tab</a></label>
+      </p>
 
-<script src="~/dist/vendor.js" asp-append-version="true"></script>
+      <p>
+        Line Endings:
+
+        <label style="display: inline;"><input type="radio" name="newline" id="newline-auto" checked>Auto</label>
+        <label style="display: inline;"><input type="radio" name="newline" id="newline-n">\n</label>
+        <label style="display: inline;"><input type="radio" name="newline" id="newline-r">\r</label>
+        <label style="display: inline;"><input type="radio" name="newline" id="newline-rn">\r\n</label>
+      </p>
+
+      <p><label>Encoding: <input type="text" id="encoding" placeholder="default" size="10"></label></p>
+
+      <p><label>Comment char: <input type="text" size="5" maxlength="1" placeholder="default" id="comments"></label></p>
+    </div>
+    <div class="ui text container">
+      <div class="ui fluid action input">
+        <input readonly type="text" id="fileSelectTextBox" placeholder="Select CSV file for processing">
+        <input type="file" id="fileSelect" accept=".csv" style="display: none;" />
+        <div class="ui icon button" id="fileSelectButton">
+          <i class="cloud upload icon"></i>
+        </div>
+      </div>
+    </div>
+    <div class="field">
+
+    </div>
+    <div class="field">
+      <button class="ui button" type="submit" id="fileProcessButton">Go</button>
+    </div>
+  </div>
+</div>
+<div class="ui grid container" id="metadataEditor">
+  <form class="ui form" id="metadataEditorForm"></form>
+</div>
+
 @section scripts {
-  <script src="~/dist/main-client.js" asp-append-version="true"></script>
+ 
 }

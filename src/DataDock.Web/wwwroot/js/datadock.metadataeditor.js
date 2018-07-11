@@ -45,7 +45,8 @@ $(function() {
 
     $.dform.subscribe("publish", function(options, type) {
         if(type === "publishButton") {
-            this.click(function() {
+            this.click(function (e) {
+                e.preventDefault();
                 sendData(options);
                 return false;
             });
@@ -124,41 +125,41 @@ $(function() {
     });
 });
 
+function getMetadata() {
+    //TODO
+    var form = $('form');
+    return {};
+}
+
 function sendData(options){
     console.log('sendData', options);
-    var form = $('form');
+    
+    formData.append('metadata', getMetadata());
 
-
-    $.each($("input[name$='_title']", form ), function(i, fields){
-        formData.append($(fields).attr('name'), $(fields).val());
-    });
-
-    // Display the key/value pairs
-    for (var pair of formData.entries()) {
-        console.log(pair[0]+ ', ' + pair[1]);
-    }
+    console.log("formData.......");
+    console.log(JSON.stringify(formData));
 
     var apiOptions ={
-        url: apiUrl,
+        url: '/api/data',
         type: 'POST',
-        enctype: 'multipart/form-data',
         data: formData,
         processData: false,
         contentType: false,
         success: function(data)
         {
+            console.log("SUCCESS");
             console.log(data);
         },
         error: function(data)
         {
+            console.error("Error");
             console.error(data);
         }
     };
 
     console.log(apiOptions);
 
-    // $.ajax(apiOptions  );
-
+    $.ajax(apiOptions);
 
     return false;
 }

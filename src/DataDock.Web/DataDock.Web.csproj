@@ -26,5 +26,14 @@
     <ProjectReference Include="..\DataDock.Common\DataDock.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="Views\Info\Temp.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Views\Shared\_PlainLayout.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+  </ItemGroup>
+
 
 </Project>

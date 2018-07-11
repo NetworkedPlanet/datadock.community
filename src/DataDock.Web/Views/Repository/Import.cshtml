@@ -3,28 +3,80 @@
   Layout = "~/Views/Shared/_ImportLayout.cshtml";
   Model.Title = Model.Title + " Add Data";
 }
-<div class="ui grid container" id="fileSelector">
-  <div class="ui">
-    <div class="ui container">
-      <h4>Config</h4>
 
-      <p>
-        <label>Delimiter: <input type="text" size="5" placeholder="auto" id="delimiter"> <a href="javascript:" id="insert-tab">tab</a></label>
-      </p>
-
-      <p>
-        Line Endings:
-
-        <label style="display: inline;"><input type="radio" name="newline" id="newline-auto" checked>Auto</label>
-        <label style="display: inline;"><input type="radio" name="newline" id="newline-n">\n</label>
-        <label style="display: inline;"><input type="radio" name="newline" id="newline-r">\r</label>
-        <label style="display: inline;"><input type="radio" name="newline" id="newline-rn">\r\n</label>
-      </p>
-
-      <p><label>Encoding: <input type="text" id="encoding" placeholder="default" size="10"></label></p>
-
-      <p><label>Comment char: <input type="text" size="5" maxlength="1" placeholder="default" id="comments"></label></p>
+<div class="ui top attached steps">
+  <a class="step no-underline" id="step1" (click)="restart()"> <!-- TODO -->
+    <i class="search icon"></i>
+    <div class="content">
+      <div class="title">Choose</div>
+      <div class="description">Choose your CSV spreadsheet</div>
     </div>
+  </a>
+  <div class="step active" id="step2">
+    <i class="write icon"></i>
+    <div class="content">
+      <div class="title">Define</div>
+      <div class="description">Enter license and other details</div>
+    </div>
+  </div>
+  <div class="step" id="step3">
+    <i class="cloud upload icon"></i>
+    <div class="content">
+      <div class="title">Upload</div>
+      <div class="description">Upload to your data portal</div>
+    </div>
+  </div>
+</div>
+
+<!-- Warnings / Validation Messages -->
+<div class="ui attached segment">
+  <div class="ui negative message">
+    <ul class="validation">
+      <li><span>Example error</span></li>
+    </ul>
+  </div>
+  <div class="ui warning message">
+    <ul>
+      <li><span>Example warning</span></li>
+    </ul>
+  </div>
+</div>
+
+<!-- tabbed form content -->
+
+<div class="ui attached segment">
+  
+  <div id="fileSelector">
+    <div class="ui container">
+
+      <div class="ui small form">
+        <div class="inline fields">
+          <div class="four fields">
+            <div class="field">
+              <label>Delimiter:</label>
+              <input type="text" size="5" placeholder="auto" id="delimiter"> <a href="javascript:" id="insert-tab">tab</a>
+            </div>
+
+            <div class="inline fields">
+              <label>Line Endings:</label>
+              <div class="field">
+                <input type="radio" name="newline" id="newline-auto" checked><label>Auto</label>
+              </div>
+              <div class="field"><input type="radio" name="newline" id="newline-n"><label>\n</label></div>
+              <div class="field"><input type="radio" name="newline" id="newline-r"><label>\r</label></div>
+              <div class="field"><input type="radio" name="newline" id="newline-rn"><label>\r\n</label></div>
+            </div>
+
+            <div class="field"><label>Encoding: <input type="text" id="encoding" placeholder="default" size="10"></label></div>
+
+            <div class="field"><label>Comment char: <input type="text" size="5" maxlength="1" placeholder="default" id="comments"></label></div>
+          </div>
+
+        </div>
+      </div>
+      <div class="ui hidden divider"></div>
+    </div>
+
     <div class="ui text container">
       <div class="ui fluid action input">
         <input readonly type="text" id="fileSelectTextBox" placeholder="Select CSV file for processing">
@@ -34,17 +86,17 @@
         </div>
       </div>
     </div>
-    <div class="field">
-
+    
+    
     </div>
-    <div class="field">
-      <button class="ui button" type="submit" id="fileProcessButton">Go</button>
-    </div>
+  
+  <div id="metadataEditor">
+    <form class="ui form" id="metadataEditorForm"></form>
   </div>
-</div>
-<div class="ui grid container" id="metadataEditor">
-  <form class="ui form" id="metadataEditorForm"></form>
-</div>
+
+
+ </div>
+
 
 @section scripts {
  

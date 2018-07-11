@@ -7,7 +7,9 @@ using DataDock.Common.Stores;
 using DataDock.Web.Filters;
 using DataDock.Web.Models;
 using DataDock.Web.ViewModels;
+using Microsoft.IdentityModel.Protocols;
 using Serilog;
+using Microsoft.Extensions.Configuration;
 
 namespace DataDock.Web.Controllers
 {
@@ -16,10 +18,12 @@ namespace DataDock.Web.Controllers
     public class RepositoryController : DashboardBaseController
     {
         private readonly IRepoSettingsStore _repoSettingsStore;
+        private readonly IConfiguration _configuration;
 
-        public RepositoryController(IRepoSettingsStore repoSettingsStore)
+        public RepositoryController(IRepoSettingsStore repoSettingsStore, IConfiguration configuration)
         {
             _repoSettingsStore = repoSettingsStore;
+            _configuration = configuration;
         }
 
         /// <summary>
@@ -87,6 +91,11 @@ namespace DataDock.Web.Controllers
             this.DashboardViewModel.Area = "import";
             DashboardViewModel.Title = string.Format("{0} > {1} Add Data", DashboardViewModel.SelectedOwnerId,
                 DashboardViewModel.SelectedRepoId);
+
+            ViewData["OwnerId"] = DashboardViewModel.SelectedOwnerId;
+            ViewData["RepoId"] = DashboardViewModel.SelectedRepoId;
+            ViewData["DataDockBaseUrl"] = _configuration["BaseUrl"];
+
             DashboardViewModel.SelectedSchemaId = schemaId;
             return View("Import", this.DashboardViewModel);
         }

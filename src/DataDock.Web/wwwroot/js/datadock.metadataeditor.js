@@ -5,11 +5,6 @@ var pauseChecked = false;
 var printStepChecked = false;
 var header;
 
-var dataDockBaseUrl = 'http://datadock.io';
-var ownerId = 'jennet';
-var repoId = 'demo-repo';
-var apiUrl = "https://dde7858c-3da0-4783-968b-f9a3ea1d6e05.mock.pstmn.io/data";
-
 var csvData;
 var formData = new FormData();
 
@@ -55,6 +50,18 @@ $(function() {
                 return false;
             });
         }
+    });
+
+    $.dform.subscribe("changeTab", function (options, type) {
+        if (options !== "") {
+            this.click(function () {
+                hideAllTabContent();
+                $("#" + options).show();
+                $("#" + options + "Tab").addClass("active");
+                return false;
+            });
+        }
+        
     });
 
     $('#fileSelect').on('change', function()
@@ -266,23 +273,62 @@ function buildFormTemplate(){
 
     var datasetVoidFields = [
         {
-            "name": "datasetTitle",
-            "id": "datasetTitle",
-            "caption": "Title",
-            "type": "text",
-            "validate" : {
-                "required" : true,
-                "minlength" : 2,
-                "messages" : {
-                    "required" : "Required input",
+            "type": "div",
+            "class": "field",
+            "html": {
+                "name": "datasetTitle",
+                "id": "datasetTitle",
+                "caption": "Title",
+                "type": "text",
+                "validate": {
+                    "required": true,
+                    "minlength": 2,
+                    "messages": {
+                        "required": "Required input",
+                    }
                 }
             }
         },
         {
-            "name": "datasetDescription",
-            "id": "datasetDescription",
-            "caption": "Description",
-            "type": "text",
+            "type": "div",
+            "class": "field",
+            "html": {
+                "name": "datasetDescription",
+                "id": "datasetDescription",
+                "caption": "Description",
+                "type": "text",
+            }
+        },
+        {
+            "type": "div",
+            "class": "field",
+            "html": {
+                "name": "datasetLicense",
+                "id": "datasetLicense",
+                "caption": "License",
+                "type": "select",
+                "options": {
+                    "": "Please select a license",
+                    "https://creativecommons.org/publicdomain/zero/1.0/": "Public Domain (CC-0)",
+                    "https://creativecommons.org/licenses/by/4.0/": "Attribution (CC-BY)",
+                    "https://creativecommons.org/licenses/by-sa/4.0/": "Attribution-ShareAlike (CC-BY-SA)",
+                    "http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/":
+                        "Open Government License (OGL)",
+                    "https://opendatacommons.org/licenses/pddl/":
+                        "Open Data Commons Public Domain Dedication and License (PDDL)",
+                    "https://opendatacommons.org/licenses/by/": "Open Data Commons Attribution License (ODC-By)"
+                }
+            }
+        }, 
+            {
+            "type": "div",
+            "class": "field",
+            "html": {
+                "name": "keywords",
+                "id": "keywords",
+                "caption": "Keywords",
+                "type": "text",
+            }
         }
     ];
 
@@ -466,7 +512,8 @@ function buildFormTemplate(){
     );
 
     var showOnHomepage = {
-        "type" : "div",
+        "type": "div",
+        "class": "ui checkbox",
         "html" : {
             "type": "checkbox",
             "name": "showOnHomepage",
@@ -476,7 +523,8 @@ function buildFormTemplate(){
         }
     };
     var addToData = {
-        "type" : "div",
+        "type": "div",
+        "class": "ui checkbox",
         "html" : {
             "type": "checkbox",
             "name": "addToExistingData",
@@ -486,7 +534,8 @@ function buildFormTemplate(){
         }
     };
     var saveAsTemplate = {
-        "type" : "div",
+        "type": "div",
+        "class": "ui checkbox",
         "html" : {
             "type": "checkbox",
             "name": "saveAsTemplate",
@@ -495,72 +544,171 @@ function buildFormTemplate(){
             "value": false
         }
     };
+    var divider = {
+        "type": "div",
+        "class": "ui divider",
+        "html": ""
+    };
+    var hiddenDivider = {
+        "type": "div",
+        "class": "ui hidden divider",
+        "html": ""
+    };
     var configCheckboxes = {
         "type": "div",
-        "html": [addToData, showOnHomepage, saveAsTemplate]
+        "class": "ui center aligned container",
+        "html": [divider, addToData, hiddenDivider, showOnHomepage, hiddenDivider, saveAsTemplate]
     };
 
     var submitButton = {
-        "type" : "div",
-        "class": "ui buttons",
-        "html" : {
-            "type": "publishButton",
-            "id": "publish",
-            "class": "ui primary button large",
-            "publish": "yo"
-        }
+        "type": "div",
+        "class": "ui center aligned container",
+        "html": [
+            hiddenDivider, {
+                "type": "div",
+                "class": "ui buttons",
+                "html": [
+                    {
+                        "type": "publishButton",
+                        "id": "publish",
+                        "class": "ui primary button large",
+                        "publish": "yo"
+                    }
+                ]
+            }
+        ]
     };
 
     //todo button
     //dataTypeFields.push({type:"submit", value: "Dymanic Form A-go-go"});
 
-
-    var tabs = {
-        "type" : "tabs",
-        "entries" : [
-            {
-                "caption" : "Dataset Info",
-                "id" : "datasetInfo",
-                "id" : "datasetInfo",
-                "html" : datasetVoidFields
-            },
-            {
-                "caption" : "Column Definitions",
-                "id" : "columnDefinitions",
-                "html" : columnDefinitionsTable
-            },
-            {
-                "caption" : "Identifier",
-                "id" : "identifier",
-                "html" : identifierSection
-            },
-            {
-                "caption" : "Advanced",
-                "id" : "advanced",
-                "html" : advancedSection
-            },
-            {
-                "caption" : "Data Preview",
-                "id" : "preview",
-                "html" : "TODO: data-tables preview html"
-            }
-        ]
+   var tabs = {
+        "type": "div",
+        "class": "four wide column",
+        "html": {
+            "type": "div",
+            "class": "ui vertical pointing menu",
+            "html": [
+                {
+                    "type": "a",
+                    "html": "Dataset Details",
+                    "class": "item",
+                    "id": "datasetInfoTab",
+                    "changeTab": "datasetInfo"
+                },
+                {
+                    "type": "a",
+                    "html": "Column Definitions",
+                    "class": "item",
+                    "id": "columnDefinitionsTab",
+                    "changeTab": "columnDefinitions"
+                },
+                {
+                    "type": "a",
+                    "html": "Identifier",
+                    "class": "item",
+                    "id": "identifierTab",
+                    "changeTab": "identifier"
+                },
+                {
+                    "type": "a",
+                    "html": "Advanced",
+                    "class": "item",
+                    "id": "advancedTab",
+                    "changeTab": "advanced"
+                },
+                {
+                    "type": "a",
+                    "html": "Data Preview",
+                    "class": "item",
+                    "id": "previewTab",
+                    "changeTab": "preview"
+                }
+            ]
+        }
     };
+    var tabsContent = {
+        "type": "div",
+        "class": "twelve wide stretched column",
+        "html": {
+            "type": "div",
+            "class": "tabcontent",
+            "html": [
+                {
+                    "type": "div",
+                    "id": "datasetInfo",
+                    "html": datasetVoidFields
+                },
+                {
+                    "type": "div",
+                    "id": "columnDefinitions",
+                    "html": columnDefinitionsTable
+                },
+                {
+                    "type": "div",
+                    "id": "identifier",
+                    "html": identifierSection
+                },
+                {
+                    "type": "div",
+                    "id": "advanced",
+                    "html": advancedSection
+                },
+                {
+                    "type": "div",
+                    "id": "preview",
+                    "html": "TODO: data-tables preview html"
+                }
+            ]
+        }
+    };
+    var mainForm = {
+        "type": "div",
+        "class": "ui stackable two column grid container",
+        "html": [tabs, tabsContent]
+    }
 
     var formTemplate = {
         "class": "ui form",
         "method": "POST"
     };
-    formTemplate.html = [tabs, configCheckboxes, submitButton];
+    formTemplate.html = [mainForm, configCheckboxes, submitButton];
+    console.log(formTemplate);
     $("#metadataEditorForm").dform(formTemplate);
     $("#metadataEditorForm").toggle();
     $("#fileSelector").toggle();
+
+    // show first tab
+    hideAllTabContent();
+    $("#datasetInfo").show();
+    $("#datasetInfoTab").addClass("active");
+
+    // inputosaurus
+    $('#keywords').inputosaurus({
+        width: '100%',
+        change: function (ev) {
+            $('#keywords_reflect').val(ev.target.value);
+        }
+    });
 
 
     function slugify(columnName){
         var fieldName = columnName.replace(/[^A-Z0-9]+/ig, "_").replace('__','_').toLowerCase();
         return fieldName;
     }
+}
+
+function hideAllTabContent() {
+    $("#datasetInfo").hide();
+    $("#datasetInfoTab").removeClass("active");
+    $("#columnDefinitions").hide();
+    $("#columnDefinitionsTab").removeClass("active");
+    $("#identifier").hide();
+    $("#identifierTab").removeClass("active");
+    $("#advanced").hide();
+    $("#advancedTab").removeClass("active");
+    $("#preview").hide();
+    $("#previewTab").removeClass("active");
 }
 
 function sniffDatatype(){

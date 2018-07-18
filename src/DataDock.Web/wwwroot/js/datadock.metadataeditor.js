@@ -3,10 +3,11 @@ var start, end;
 var parser;
 var pauseChecked = false;
 var printStepChecked = false;
+
+var csvData;
 var header;
 var columnSet;
 
-var csvData;
 var formData = new FormData();
 
 $(function() {
@@ -747,7 +748,7 @@ function buildFormTemplate(){
                 {
                     "type": "div",
                     "id": "preview",
-                    "html": "TODO: data-tables preview html"
+                    "html": constructPreviewTabContent()
                 }
             ]
         }
@@ -784,6 +785,83 @@ function buildFormTemplate(){
 
 
    
+}
+
+function constructPreviewTabContent() {
+    
+    var ths = [];
+    for (var i = 0; i < header.length; i++) {
+        var th = {
+            "type": "th",
+            "html": header[i]
+        }
+        ths.push(th);
+    }
+    var thead = {
+        "type": "thead",
+        "html": {
+            "type": "tr",
+            html: ths
+        }
+    }
+    var rows = [];
+    var displayRowCount = 50;
+    var originalRowCount = csvData.length - 1; // row 0 is header
+    var originPlural = "s";
+    if (originalRowCount === 1) {
+        originPlural = "";
+    }
+
+    if (originalRowCount < displayRowCount) {
+        displayRowCount = originalRowCount;
+    }
+    var displayPlural = "s";
+    if (displayRowCount === 1) {
+        displayPlural = "";
+    }
+
+    for (var i = 1; i < displayRowCount + 1; i++) {
+        var rowData = csvData[i];
+        var tds = [];
+        for (var j = 0; j < rowData.length; j++) {
+            var td = {
+                "type": "td",
+                "class": "top aligned preview",
+                "html": rowData[j]
+            }
+            tds.push(td);
+        }
+        var row = {
+            "type": "tr",
+            "html": tds
+        }
+        rows.push(row);
+    }
+    var tbody = {
+        "type": "tbody",
+        "html": rows
+    }
+
+    var previewTable = {
+        "type": "table",
+        "class": "ui celled striped compact table",
+        "html": [thead, tbody]
+    }
+
+    var infoMessage = {
+        "type": "div",
+        "class": "ui info message",
+        "html":
+            "<p>The file contains " + originalRowCount + " row" + originPlural + " of data, previewing " + displayRowCount + " row" + displayPlural + " of data below: </p>"
+    };
+
+    var container = {
+        "type": "div",
+        "class": "ui container data-preview",
+        "style": "overflow-x: scroll;",
+        "html": [infoMessage, previewTable]
+    };
+    return container;
 }
 
 function slugify(original, whitespaceReplacement, specCharReplacement, casing) {

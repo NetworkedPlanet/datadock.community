@@ -13,10 +13,10 @@ $(function() {
     $("#metadataEditorForm").toggle();
 
     $("#fileSelectTextBox").click(function(e){
-        $('input:file', $(e.target).parents()).click();
+        $("input:file", $(e.target).parents()).click();
     });
     $("#fileSelectButton").click(function(e){
-        $('input:file', $(e.target).parents()).click();
+        $("input:file", $(e.target).parents()).click();
     });
 
     /*
@@ -38,10 +38,10 @@ $(function() {
 
     // add types to dForm
     $.dform.addType("tabs", function(options) {
-        return $(this).addClass('');
+        return $(this).addClass("");
     });
     $.dform.addType("publishButton", function(options) {
-        return $("<button type='button'>").dform('attr', options).html("Publish Data");
+        return $("<button type='button'>").dform("attr", options).html("Publish Data");
     });
 
     $.dform.subscribe("publish", function(options, type) {
@@ -66,7 +66,7 @@ $(function() {
         
     });
 
-    $('#fileSelect').on('change', function()
+    $("#fileSelect").on("change", function()
     {
         stepped = 0;
         chunks = 0;
@@ -74,11 +74,11 @@ $(function() {
 
                 // todo only deal with a single file
         // todo check that the file input can only select CSV
-        var files = $('#fileSelect')[0].files;
+        var files = $("#fileSelect")[0].files;
         var config = buildConfig();
 
-        pauseChecked = $('#step-pause').prop('checked');
-        printStepChecked = $('#print-steps').prop('checked');
+        pauseChecked = $("#step-pause").prop("checked");
+        printStepChecked = $("#print-steps").prop("checked");
 
 
         if (files.length > 0)
@@ -103,11 +103,11 @@ $(function() {
         }
     });
 
-    $('#submit-unparse').click(function()
+    $("#submit-unparse").click(function()
     {
-        var input = $('#input').val();
-        var delim = $('#delimiter').val();
-        var header = $('#header').prop('checked');
+        var input = $("#input").val();
+        var delim = $("#delimiter").val();
+        var header = $("#header").prop("checked");
 
         var results = Papa.unparse(input, {
             delimiter: delim,
@@ -120,9 +120,9 @@ $(function() {
         console.log("--------------------------------------");
     });
 
-    $('#insert-tab').click(function()
+    $("#insert-tab").click(function()
     {
-        $('#delimiter').val('\t');
+        $("#delimiter").val("\t");
     });
 });
 
@@ -137,7 +137,7 @@ function constructCsvwMetadata() {
 
     csvw["dc:description"] = $("#datasetDescription").val();
 
-    var keywords = $('#keywords').val();
+    var keywords = $("#keywords").val();
     if (keywords) {
         if (keywords.indexOf(",") < 0) {
             csvw["dcat:keyword"] = [keywords];
@@ -166,8 +166,8 @@ function constructCsvwtableSchema() {
     if (columnSet) {
         for (var i = 0; i < columnSet.length; i++) {
             var colName = columnSet[i];
-            var colId = '#' + colName;
-            var skip = $(colId + '_suppress').prop("checked");
+            var colId = "#" + colName;
+            var skip = $(colId + "_suppress").prop("checked");
             var col = constructCsvwColumn(colName, skip);
             columns.push(col);
         }
@@ -178,7 +178,7 @@ function constructCsvwtableSchema() {
 }
 
 function constructCsvwColumn(columnName, skip) {
-    var colId = '#' + columnName;
+    var colId = "#" + columnName;
 
     var column = {};
     column["name"] = columnName;
@@ -186,27 +186,27 @@ function constructCsvwColumn(columnName, skip) {
         column["suppressOutput"] = true;
     } else {
 
-        var columnTitle = $(colId + '_title').val();
+        var columnTitle = $(colId + "_title").val();
         column["titles"] = [columnTitle];
 
-        column["datatype"] = $(colId + '_datatype').val();
+        column["datatype"] = $(colId + "_datatype").val();
 
-        column["propertyUrl"] = $(colId + '_property_url').val();
+        column["propertyUrl"] = $(colId + "_property_url").val();
     }
     return column;
 }
 
 function sendData(options){
-    console.log('sendData', options);
+    console.log("sendData", options);
     
-    formData.append('metadata', constructCsvwMetadata());
+    formData.append("metadata", constructCsvwMetadata());
 
     console.log("formData.......");
     console.log(JSON.stringify(formData));
 
     var apiOptions ={
-        url: '/api/data',
-        type: 'POST',
+        url: "/api/data",
+        type: "POST",
         data: formData,
         processData: false,
         contentType: false,
@@ -230,7 +230,7 @@ function sendData(options){
 }
 
 function getPrefix() {
-    return dataDockBaseUrl + '/' + ownerId + '/' + repoId;
+    return dataDockBaseUrl + "/" + ownerId + "/" + repoId;
 }
 
 function buildConfig()
@@ -238,10 +238,10 @@ function buildConfig()
     var config = {
         header: false,
         preview: 0,
-        delimiter: $('#delimiter').val(),
+        delimiter: $("#delimiter").val(),
         newline: getLineEnding(),
-        comments: $('#comments').val(),
-        encoding: $('#encoding').val(),
+        comments: $("#comments").val(),
+        encoding: $("#encoding").val(),
         worker: false,
         step: undefined,
         complete: completeFn,
@@ -256,11 +256,11 @@ function buildConfig()
 
     function getLineEnding()
     {
-        if ($('#newline-n').is(':checked'))
+        if ($("#newline-n").is(":checked"))
             return "\n";
-        else if ($('#newline-r').is(':checked'))
+        else if ($("#newline-r").is(":checked"))
             return "\r";
-        else if ($('#newline-rn').is(':checked'))
+        else if ($("#newline-rn").is(":checked"))
             return "\r\n";
         else
             return "";
@@ -315,8 +315,8 @@ function errorFn(error, file)
 function completeFn()
 {
     end = performance.now();
-    if (!$('#stream').prop('checked')
-        && !$('#chunk').prop('checked')
+    if (!$("#stream").prop("checked")
+        && !$("#chunk").prop("checked")
         && arguments[0]
         && arguments[0].data)
         rows = arguments[0].data.length;
@@ -352,7 +352,8 @@ function buildFormTemplate(){
                     "required": true,
                     "minlength": 2,
                     "messages": {
-                        "required": "Required input",
+                        "required": "Please enter a title",
+                        "minlength": "The title must be at least 2 characters long",
                     }
                 }
             }
@@ -385,6 +386,12 @@ function buildFormTemplate(){
                     "https://opendatacommons.org/licenses/pddl/":
                         "Open Data Commons Public Domain Dedication and License (PDDL)",
                     "https://opendatacommons.org/licenses/by/": "Open Data Commons Attribution License (ODC-By)"
+                },
+                "validate": {
+                    "required": true,
+                    "messages": {
+                        "required": "You must select a license"
+                    }
                 }
             }
         }, 
@@ -394,8 +401,8 @@ function buildFormTemplate(){
             "html": {
                 "name": "keywords",
                 "id": "keywords",
-                "caption": "Keywords",
-                "type": "text",
+                "caption": "Keywords (separate using commas)",
+                "type": "text"
             }
         }
     ];
@@ -432,11 +439,17 @@ function buildFormTemplate(){
         columnSet.push(colName);
 
         var titleField = {
-            name: colName + '_title',
-            id: colName + '_title',
+            name: colName + "_title",
+            id: colName + "_title",
             type: "text",
-            placeholder: '',
-            value: colTitle
+            placeholder: "",
+            value: colTitle,
+            "validate": {
+                "required": true,
+                "messages": {
+                    "required": "Column '" + colName + "' is missing a title"
+                }
+            }
         };
         var tdTitle = { "type" : "td", "html": titleField};
         trElements.push(tdTitle);
@@ -445,7 +458,7 @@ function buildFormTemplate(){
             name: colName + "_datatype",
             id: colName + "_datatype",
             type: "select",
-            placeholder: '',
+            placeholder: "",
             options: {
                 "string": "Text",
                 "uri": "URI",
@@ -460,8 +473,8 @@ function buildFormTemplate(){
         trElements.push(tdDatatype);
 
         var suppressField = {
-            name: colName + '_suppress',
-            id: colName + '_suppress',
+            name: colName + "_suppress",
+            id: colName + "_suppress",
             type: "checkbox",
             "class": "center aligned"
         };
@@ -488,14 +501,14 @@ function buildFormTemplate(){
                 ]}
     );
     var prefix = getPrefix();
-    var rowIdentifier = prefix +'/id/resource/acsv.csv/row_{_row}';
+    var rowIdentifier = prefix +"/id/resource/acsv.csv/row_{_row}";
     var identifierOptions = {};
     identifierOptions[rowIdentifier] = "Row Number";
 
     for (var colIdx = 0; colIdx < columnCount; colIdx++) {
         var colTitle = header[colIdx];
         var colName = slugify(colTitle, "_", "_", "lowercase");
-        var colIdentifier = prefix + '/id/resource/acsv.csv/' + colName + '/{' + colName + '}';
+        var colIdentifier = prefix + "/id/resource/acsv.csv/" + colName + "/{" + colName + "}";
         identifierOptions[colIdentifier] = colTitle;
     }
     identifierTableElements.push(
@@ -507,10 +520,10 @@ function buildFormTemplate(){
                             "type" : "td",
                             "html" : [
                                 {
-                                    name: 'datasetIdentifier',
-                                    id: 'datasetIdentifier',
+                                    name: "datasetIdentifier",
+                                    id: "datasetIdentifier",
                                     type: "select",
-                                    placeholder: '',
+                                    placeholder: "",
                                     options: identifierOptions
                                 }
                             ]
@@ -550,14 +563,22 @@ function buildFormTemplate(){
         var tdTitle = { "type" : "td", "html": titleDiv};
         trElements.push(tdTitle);
 
-        var predicate = prefix + '/id/definition/' + colName;
+        var predicate = prefix + "/id/definition/" + colName;
         var predicateField = {
-            name: colName + '_property_url',
-            id: colName + '_property_url',
+            name: colName + "_property_url",
+            id: colName + "_property_url",
             type: "text",
-            placeholder: '',
+            placeholder: "",
             "value": predicate,
-            "class": "pred-field"
+            "class": "pred-field",
+            "validate": {
+                "required": true,
+                "pattern": /^https?:\/\/\S+[^#\/]$/i,
+                "messages": {
+                    "required": "Column '" + colName + "' is missing a property URL.",
+                    "pattern": "Column '" + colName + "' must have a property URL that is a URL that does not end with a hash or slash."
+                }
+            }
         };
         var predDiv = {"type": "div", "class": "field", "html": predicateField};
         var tdPredicate = { "type" : "td", "html": predDiv};
@@ -640,19 +661,17 @@ function buildFormTemplate(){
                 "class": "ui buttons",
                 "html": [
                     {
-                        "type": "publishButton",
+                        "type": "submit",
                         "id": "publish",
                         "class": "ui primary button large",
-                        "publish": "yo"
+                        "publish": "sendData",
+                        "value": "Publish Data"
                     }
                 ]
             }
         ]
     };
-
-    //todo button
-    //dataTypeFields.push({type:"submit", value: "Dymanic Form A-go-go"});
-
+    
    var tabs = {
         "type": "div",
         "class": "four wide column",
@@ -755,10 +774,11 @@ function buildFormTemplate(){
     $("#datasetInfoTab").addClass("active");
 
     // inputosaurus
-    $('#keywords').inputosaurus({
-        width: '100%',
+    $("#keywords").inputosaurus({
+        inputDelimiters: [",", ";"],
+        width: "100%",
         change: function (ev) {
-            $('#keywords_reflect').val(ev.target.value);
+            $("#keywords_reflect").val(ev.target.value);
         }
     });
 
@@ -767,7 +787,7 @@ function buildFormTemplate(){
 }
 
 function slugify(original, whitespaceReplacement, specCharReplacement, casing) {
-    var slugged = original.replace(/\s+/g, whitespaceReplacement).replace(/[^A-Z0-9]+/ig, specCharReplacement).replace('__', '_');
+    var slugged = original.replace(/\s+/g, whitespaceReplacement).replace(/[^A-Z0-9]+/ig, specCharReplacement).replace("__", "_");
     switch (casing)
     {
         case "lowercase":

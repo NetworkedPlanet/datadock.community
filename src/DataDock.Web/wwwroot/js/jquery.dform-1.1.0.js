@@ -782,7 +782,21 @@
 							$(input).removeClass("ui-state-highlight");
 						}
 					};
-				}
+                }
+                if (this.hasClass("ui") && this.hasClass("form")) {
+                    // semantic UI
+                    defaults = {
+                        errorContainer: "#error-messages",
+                        errorLabelContainer: "#error-messages ul",
+                        wrapper: "li",
+			            highlight: function (element, errorClass, validClass) {
+			                $(element).parents(".field").addClass(errorClass);
+			            },
+			            unhighlight: function (element, errorClass, validClass) {
+                            $(element).parents(".field").removeClass(errorClass);
+			            }
+			        };
+			    }
 				if (typeof (options.validate) == 'object') {
 					$.extend(defaults, options.validate);
 				}

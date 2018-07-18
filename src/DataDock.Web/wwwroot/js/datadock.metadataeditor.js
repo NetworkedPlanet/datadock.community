@@ -67,6 +67,19 @@ $(function() {
         
     });
 
+    $.dform.subscribe("updateDatasetId", function (options, type) {
+        if (options !== "") {
+            this.keyup(function () {
+                var title = $("#datasetTitle").val();
+                var slug = slugify(title, "", "", "camelCase");
+                var datasetId = getPrefix() + "/id/dataset/" + slug;
+                $("#datasetId").val(datasetId);
+                return false;
+            });
+        }
+
+    });
+
     $("#fileSelect").on("change", function()
     {
         stepped = 0;
@@ -131,8 +144,7 @@ function constructCsvwMetadata() {
     var csvw = {};
     csvw["@context"] = "http://www.w3.org/ns/csvw";
 
-    // slugify title url //TODO do this in UI (identifier tab)
-    csvw["url"] = "http://todo";
+    csvw["url"] = $("#datasetId").val();
 
     csvw["dc:title"] = $("#datasetTitle").val();
 
@@ -349,6 +361,7 @@ function buildFormTemplate(){
                 "id": "datasetTitle",
                 "caption": "Title",
                 "type": "text",
+                "updateDatasetId": "this",
                 "validate": {
                     "required": true,
                     "minlength": 2,
@@ -485,7 +498,54 @@ function buildFormTemplate(){
         var tr = { "type" : "tr", "html": trElements};
         columnDefinitionsTableElements.push(tr);
     }
-    var columnDefinitionsTable = {"type" : "table", "html": columnDefinitionsTableElements, "class": "ui celled table"};
+    var columnDefinitionsTable = { "type": "table", "html": columnDefinitionsTableElements, "class": "ui celled table" };
+
+    
+    var dsIdTable = {
+        "type": "table",
+        "class": "ui celled table",
+        "html": [
+            {
+                "type": "thead",
+                "html": {
+                    "type": "tr",
+                    "html": {
+                        "type": "th",
+                        "html": "Dataset Identifier (readonly)"
+                    }
+                }
+            },
+            {
+                "type": "tbody",
+                "html": [
+                    {
+                        "type": "tr",
+                        "html": {
+                            "type": "td",
+                            "html": {
+                                "type": "div",
+                                "class": "field",
+                                "html": {
+                                    "type": "text",
+                                    "readonly": true,
+                                    "id": "datasetId",
+                                    "name": "datasetId",
+                                    "disabled": true
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "tr",
+                        "html": {
+                            "type": "td",
+                            "html": "The identifier for the dataset is constructed from the chosen title, the GitHub repository, and the GitHub user or organisation you're uploading the data to."
+                        }
+                    }
+                ]
+            }
+        ]
+    };
 
 
     var identifierTableElements = [];
@@ -496,7 +556,7 @@ function buildFormTemplate(){
                     "html" : [
                         {
                             "type" : "th",
-                            "html" : "Identifier"
+                            "html": "Construct individual record identifiers from which column's values?"
                         }
                     ] }
                 ]}
@@ -529,7 +589,17 @@ function buildFormTemplate(){
                                 }
                             ]
                         }
-                    ] }
+                    ]
+                },
+                    {
+                        "type": "tr",
+                        "html": [
+                            {
+                                "type": "td",
+                                "html": "You must be sure that there are no empty values in the data to use it as the basis for a record's identifier. We suggest using an ID field if you have one. If in doubt, use the default (the row number). <br />Identifiers can be crucial when it comes to linking between records of different datasets; <a href=\"http://datadock.io/docs/user-guide/selecting-an-identifier.html\" title=\"DataDock Documentation: Identifiers\" target=\"_blank\">You can read more about identifiers here (opens in new window)</a>. (TODO: Need documentation link)"
+                            }
+                        ]
+                    }
                 ]}
     );
     var identifierTable = {"type" : "table", "html": identifierTableElements, "class": "ui celled table"};
@@ -594,7 +664,7 @@ function buildFormTemplate(){
     identifierSection.push(
         { "type" : "div",
             "html" :
-                [identifierTable]}
+                [dsIdTable, identifierTable]}
     );
 
     var advancedSection = [];
@@ -689,17 +759,17 @@ function buildFormTemplate(){
                 },
                 {
                     "type": "a",
+                    "html": "Identifiers",
+                    "class": "item",
+                    "id": "identifierTab",
+                    "changeTab": "identifier"
+                },
+                {
+                    "type": "a",
                     "html": "Column Definitions",
                     "class": "item",
                     "id": "columnDefinitionsTab",
                     "changeTab": "columnDefinitions"
-                },
-                {
-                    "type": "a",
-                    "html": "Identifier",
-                    "class": "item",
-                    "id": "identifierTab",
-                    "changeTab": "identifier"
                 },
                 {
                     "type": "a",
@@ -865,14 +935,30 @@ function constructPreviewTabContent() {
 }
 
 function slugify(original, whitespaceReplacement, specCharReplacement, casing) {
-    var slugged = original.replace(/\s+/g, whitespaceReplacement).replace(/[^A-Z0-9]+/ig, specCharReplacement).replace("__", "_");
     switch (casing)
     {
         case "lowercase":
-            slugged = slugged.toLowerCase();
-            break;
+            var lowercase = original.replace(/\s+/g, whitespaceReplacement).replace(/[^A-Z0-9]+/ig, specCharReplacement).replace("__", "_").toLowerCase();
+            return lowercase;
+
+        case "camelCase":
+            var camelCase = camelize(original);
+            return camelCase;
+
+        default:
+            var slug = original.replace(/\s+/g, whitespaceReplacement).replace(/[^A-Z0-9]+/ig, specCharReplacement).replace("__", "_");
+            return slug;
     }
-    return slugged;
+}
+function camelize(str) {
+    var camelised = str.split(" ").map(function (word, index) {
+        if (index === 0) {
+            return word.toLowerCase();
+        }
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    }).join("");
+    var slug = camelised.replace(/[^A-Z0-9]+/ig, "");
+    return slug;
 }
 
 function hideAllTabContent() {

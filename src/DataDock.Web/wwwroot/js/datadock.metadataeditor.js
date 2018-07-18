@@ -4,6 +4,7 @@ var parser;
 var pauseChecked = false;
 var printStepChecked = false;
 var header;
+var columnSet;
 
 var csvData;
 var formData = new FormData();
@@ -125,16 +126,80 @@ $(function() {
     });
 });
 
-function getMetadata() {
-    //TODO
-    var form = $('form');
-    return {};
+function constructCsvwMetadata() {
+    var csvw = {};
+    csvw["@context"] = "http://www.w3.org/ns/csvw";
+
+    // slugify title url //TODO do this in UI (identifier tab)
+    csvw["url"] = "http://todo";
+
+    csvw["dc:title"] = $("#datasetTitle").val();
+
+    csvw["dc:description"] = $("#datasetDescription").val();
+
+    var keywords = $('#keywords').val();
+    if (keywords) {
+        if (keywords.indexOf(",") < 0) {
+            csvw["dcat:keyword"] = [keywords];
+        } else {
+            var keywordsArray = keywords.split(",");
+            csvw["dcat:keyword"] = keywordsArray;
+        }
+    } 
+
+    csvw["dc:license"] = $("#datasetLicense").val();
+
+    csvw["aboutUrl"] = $("#datasetIdentifier").val();
+
+    csvw["tableSchema"] = constructCsvwtableSchema();
+
+    console.log(csvw);
+    return csvw;
+}
+
+function constructCsvwtableSchema() {
+    var tableSchema = {};
+
+    var columns = [];
+
+    console.log(columnSet);
+    if (columnSet) {
+        for (var i = 0; i < columnSet.length; i++) {
+            var colName = columnSet[i];
+            var colId = '#' + colName;
+            var skip = $(colId + '_suppress').prop("checked");
+            var col = constructCsvwColumn(colName, skip);
+            columns.push(col);
+        }
+    }
+    tableSchema["columns"] = columns;
+
+    return tableSchema;
+}
+
+function constructCsvwColumn(columnName, skip) {
+    var colId = '#' + columnName;
+
+    var column = {};
+    column["name"] = columnName;
+    if (skip) {
+        column["suppressOutput"] = true;
+    } else {
+
+        var columnTitle = $(colId + '_title').val();
+        column["titles"] = [columnTitle];
+
+        column["datatype"] = $(colId + '_datatype').val();
+
+        column["propertyUrl"] = $(colId + '_property_url').val();
+    }
+    return column;
 }
 
 function sendData(options){
     console.log('sendData', options);
     
-    formData.append('metadata', getMetadata());
+    formData.append('metadata', constructCsvwMetadata());
 
     console.log("formData.......");
     console.log(JSON.stringify(formData));
@@ -272,6 +337,8 @@ function completeFn()
 function buildFormTemplate(){
     console.log("Header:", header, "Columns:", columnCount);
 
+    columnSet = [];
+
     var datasetVoidFields = [
         {
             "type": "div",
@@ -360,7 +427,9 @@ function buildFormTemplate(){
 
         var trElements = [];
         var colTitle = header[colIdx];
-        var colName = slugify(colTitle);
+        var colName = slugify(colTitle, "_", "_", "lowercase");
+
+        columnSet.push(colName);
 
         var titleField = {
             name: colName + '_title',
@@ -420,11 +489,12 @@ function buildFormTemplate(){
     );
     var prefix = getPrefix();
     var rowIdentifier = prefix +'/id/resource/acsv.csv/row_{_row}';
-    var identifierOptions = { rowIdentifier : "Row Number" };
+    var identifierOptions = {};
+    identifierOptions[rowIdentifier] = "Row Number";
 
     for (var colIdx = 0; colIdx < columnCount; colIdx++) {
         var colTitle = header[colIdx];
-        var colName = slugify(colTitle);
+        var colName = slugify(colTitle, "_", "_", "lowercase");
         var colIdentifier = prefix + '/id/resource/acsv.csv/' + colName + '/{' + colName + '}';
         identifierOptions[colIdentifier] = colTitle;
     }
@@ -437,8 +507,8 @@ function buildFormTemplate(){
                             "type" : "td",
                             "html" : [
                                 {
-                                    name: 'identifier',
-                                    id: 'identifier',
+                                    name: 'datasetIdentifier',
+                                    id: 'datasetIdentifier',
                                     type: "select",
                                     placeholder: '',
                                     options: identifierOptions
@@ -471,7 +541,7 @@ function buildFormTemplate(){
 
         var trElements = [];
         var colTitle = header[colIdx];
-        var colName = slugify(colTitle);
+        var colName = slugify(colTitle, "_", "_", "lowercase");
 
         var titleDiv = {
             type: "div",
@@ -693,10 +763,18 @@ function buildFormTemplate(){
     });
 
 
-    function slugify(columnName){
-        var fieldName = columnName.replace(/[^A-Z0-9]+/ig, "_").replace('__','_').toLowerCase();
-        return fieldName;
+   
+}
+
+function slugify(original, whitespaceReplacement, specCharReplacement, casing) {
+    var slugged = original.replace(/\s+/g, whitespaceReplacement).replace(/[^A-Z0-9]+/ig, specCharReplacement).replace('__', '_');
+    switch (casing)
+    {
+        case "lowercase":
+            slugged = slugged.toLowerCase();
+            break;
     }
+    return slugged;
 }
 
 function hideAllTabContent() {

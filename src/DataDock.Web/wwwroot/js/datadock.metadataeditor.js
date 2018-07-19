@@ -17,6 +17,8 @@ var templateMetadata;
 $(function() {
     $("#metadataEditorForm").toggle();
 
+    $("#loading").hide();
+
     $("#fileSelectTextBox").click(function(e){
         $("input:file", $(e.target).parents()).click();
     });
@@ -228,16 +230,18 @@ function sendData(e){
         data: formData,
         processData: false,
         contentType: false,
-        success: function(r) {
+        success: function (r) {
             sendDataSuccess(r);
         },
-        error: function(r) {
+        error: function (r) {
             sendDataFailure(r);
         }
     };
 
     console.log(apiOptions);
 
+    $("#metadataEditor").hide();
+    $("#loading").show();
     $.ajax(apiOptions);
 
     return false;
@@ -263,6 +267,9 @@ function sendDataSuccess(response) {
 }
 
 function sendDataFailure(response) {
+    $("#metadataEditor").show();
+    $("#loading").hide();
+
     if (response) {
         var responseMsg = response["responseText"];
         $("#error-messages ul li:last")
@@ -542,8 +549,7 @@ function buildFormTemplate() {
     $("#metadataEditorForm").toggle();
     $("#fileSelector").toggle();
 
-    $("#step1").removeClass("active");
-    $("#step2").addClass("active");
+   s
 
     // show first tab
     hideAllTabContent();
@@ -559,7 +565,7 @@ function buildFormTemplate() {
         }
     });
   
-}
+}s
 
 function constructBasicTabContent() {
     var datasetVoidFields = [

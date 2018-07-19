@@ -254,6 +254,7 @@ function sendDataSuccess(response) {
         window.location.href = jobsUrl;
     } else {
         $("#warning-messages ul li:last").append("<li><span>The job has been successfully started but we cannot redirect you automatically, please check the job history page for more information on the publishing process.</span></li>");
+        //todo show warnings
     }
     
 }
@@ -563,7 +564,7 @@ function constructBasicTabContent() {
                     "required": true,
                     "minlength": 2,
                     "messages": {
-                        "required": "Please enter a title",
+                        "required": "You must enter a title",
                         "minlength": "The title must be at least 2 characters long"
                     }
                 }
@@ -1108,8 +1109,9 @@ function showLoading() {
 }
 
 function displaySingleError(error) {
+    //console.error(error);
     $("#error-messages").append("<div><i class=\"warning sign icon\"></i><span>" + error + "</span></div>");
-    $("#error-messages").show();
+    $("#error-messages").show();  
 }
 function displayErrors(errors) {
     if (errors) {
@@ -1124,8 +1126,8 @@ function displayErrors(errors) {
 }
 
 function clearErrors() {
-    $("#error-messages").html("");
-    $("#error-messages").hide();
+   $("#error-messages").html("");
+   $("#error-messages").hide();
 }
 
 function chooseFile() {

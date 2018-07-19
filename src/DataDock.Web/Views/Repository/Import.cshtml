@@ -31,13 +31,21 @@
 
 <!-- tabbed form content -->
 
-<div class="ui attached segment">
+<div class="ui attached segment" id="importContainer">
+  
+  <div id="validation-container">
+    <!-- Validation Messages -->
+    <div class="ui negative message" id="validation-messages" style="display: none;">
+      <ul></ul>
+    </div>
+    
+  </div>
+  <div id="errors">
+    <div class="ui negative message" id="error-messages" style="display: none;">
 
-  <!-- Warnings / Validation Messages -->
-  <div class="ui negative message" id="error-messages" style="display: none;">
+    </div>    
   </div>
-  <div class="ui warning message" id="warning-messages" style="display: none;">
-  </div>
+  <div class="ui hidden divider"></div>
 
   <div id="fileSelector">
     <div class="ui container">

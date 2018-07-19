@@ -786,9 +786,9 @@
                 if (this.is("#metadataEditorForm")) {
                     // DataDock specific jquery.validate configuration
                     defaults = {
-                        errorContainer: "#error-messages",
-                        errorLabelContainer: "#error-messages",
-                        wrapper: "div",
+                        errorContainer: "#validation-messages",
+                        errorLabelContainer: "ul",
+                        wrapper: "li",
                         highlight: function(element, errorClass, validClass) {
                             $(element).parents(".field").addClass(errorClass);
                         },

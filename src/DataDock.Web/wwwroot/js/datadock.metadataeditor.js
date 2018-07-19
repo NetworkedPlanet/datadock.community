@@ -8,6 +8,7 @@ var csvData;
 var header;
 var columnSet;
 
+
 var formData = new FormData();
 
 $(function() {
@@ -16,6 +17,7 @@ $(function() {
     $("#fileSelectTextBox").click(function(e){
         $("input:file", $(e.target).parents()).click();
     });
+    
     $("#fileSelectButton").click(function(e){
         $("input:file", $(e.target).parents()).click();
     });
@@ -86,7 +88,6 @@ $(function() {
         chunks = 0;
         rows = 0;
 
-                // todo only deal with a single file
         // todo check that the file input can only select CSV
         var files = $("#fileSelect")[0].files;
         var config = buildConfig();
@@ -125,7 +126,7 @@ $(function() {
 
         var results = Papa.unparse(input, {
             delimiter: delim,
-            header: header,
+            header: header
         });
 
         console.log("Unparse complete!");
@@ -211,6 +212,9 @@ function constructCsvwColumn(columnName, skip) {
 
 function sendData(options){
     console.log("sendData", options);
+
+    $("#step2").removeClass("active");
+    $("#step3").addClass("active");
     
     formData.append("metadata", constructCsvwMetadata());
 
@@ -263,7 +267,7 @@ function buildConfig()
         skipEmptyLines: true,
         //chunk: $('#chunk').prop('checked') ? chunkFn : undefined,
         chunk: undefined,
-        beforeFirstChunk: undefined,
+        beforeFirstChunk: undefined
     };
     return config;
 
@@ -367,7 +371,7 @@ function buildFormTemplate(){
                     "minlength": 2,
                     "messages": {
                         "required": "Please enter a title",
-                        "minlength": "The title must be at least 2 characters long",
+                        "minlength": "The title must be at least 2 characters long"
                     }
                 }
             }
@@ -379,7 +383,7 @@ function buildFormTemplate(){
                 "name": "datasetDescription",
                 "id": "datasetDescription",
                 "caption": "Description",
-                "type": "text",
+                "type": "text"
             }
         },
         {
@@ -827,7 +831,7 @@ function buildFormTemplate(){
         "type": "div",
         "class": "ui stackable two column grid container",
         "html": [tabs, tabsContent]
-    }
+    };
 
     var formTemplate = {
         "class": "ui form",
@@ -838,6 +842,9 @@ function buildFormTemplate(){
     $("#metadataEditorForm").dform(formTemplate);
     $("#metadataEditorForm").toggle();
     $("#fileSelector").toggle();
+
+    $("#step1").removeClass("active");
+    $("#step2").addClass("active");
 
     // show first tab
     hideAllTabContent();
@@ -864,7 +871,7 @@ function constructPreviewTabContent() {
         var th = {
             "type": "th",
             "html": header[i]
-        }
+        };
         ths.push(th);
     }
     var thead = {
@@ -873,7 +880,7 @@ function constructPreviewTabContent() {
             "type": "tr",
             html: ths
         }
-    }
+    };
     var rows = [];
     var displayRowCount = 50;
     var originalRowCount = csvData.length - 1; // row 0 is header
@@ -898,25 +905,25 @@ function constructPreviewTabContent() {
                 "type": "td",
                 "class": "top aligned preview",
                 "html": rowData[j]
-            }
+            };
             tds.push(td);
         }
         var row = {
             "type": "tr",
             "html": tds
-        }
+        };
         rows.push(row);
     }
     var tbody = {
         "type": "tbody",
         "html": rows
-    }
+    };
 
     var previewTable = {
         "type": "table",
         "class": "ui celled striped compact table",
         "html": [thead, tbody]
-    }
+    };
 
     var infoMessage = {
         "type": "div",
@@ -976,4 +983,11 @@ function hideAllTabContent() {
 
 function sniffDatatype(){
 
+}
+
+function chooseFile() {
+    var prefix = getPrefix();
+    if (prefix) {
+        window.location.href = prefix + "/import";
+    }
 }

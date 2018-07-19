@@ -5,15 +5,14 @@
 }
 
 <div class="ui top attached steps">
-  <a class="step no-underline" id="step1" (click)="restart()">
-    <!-- TODO -->
+  <a class="step active no-underline" id="step1" onclick="chooseFile()">
     <i class="search icon"></i>
     <div class="content">
       <div class="title">Choose</div>
       <div class="description">Choose your CSV spreadsheet</div>
     </div>
   </a>
-  <div class="step active" id="step2">
+  <div class="step" id="step2">
     <i class="write icon"></i>
     <div class="content">
       <div class="title">Define</div>

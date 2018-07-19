@@ -138,6 +138,13 @@ namespace DataDock.Web.Services
                 return new ImportFormParserResult("No dataset IRI supplied in metadata");
             }
 
+            var datasetId = formData.Filename;
+            var datasetIriSplit = datasetIri.Split("/");
+            if (datasetIriSplit != null && datasetIriSplit.Length > 1)
+            {
+                datasetId = datasetIriSplit[datasetIriSplit.Length - 1];
+            }
+
             Log.Debug("DataController: datasetIri = '{0}'", datasetIri);
             jobInfo.DatasetIri = datasetIri;
 
@@ -145,7 +152,7 @@ namespace DataDock.Web.Services
             if (string.IsNullOrEmpty(jobInfo.CsvFileName))
             {
                 jobInfo.CsvFileName = formData.Filename;
-                jobInfo.DatasetId = formData.Filename;
+                jobInfo.DatasetId = datasetId;
             }
             jobInfo.IsPublic = formData.ShowOnHomePage;
 

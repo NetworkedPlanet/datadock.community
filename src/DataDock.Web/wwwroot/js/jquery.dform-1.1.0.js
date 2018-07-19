@@ -787,8 +787,8 @@
                     // DataDock specific jquery.validate configuration
                     defaults = {
                         errorContainer: "#error-messages",
-                        errorLabelContainer: "#error-messages ul",
-                        wrapper: "li",
+                        errorLabelContainer: "#error-messages",
+                        wrapper: "div",
                         highlight: function(element, errorClass, validClass) {
                             $(element).parents(".field").addClass(errorClass);
                         },

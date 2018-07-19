@@ -26,23 +26,6 @@ $(function() {
         $("input:file", $(e.target).parents()).click();
     });
 
-    /*
-    $("#fileSelect").on('change', function (e) {
-        var caption = '';
-        if(e.target.files[0]){
-            var kb = 1;
-            var name = e.target.files[0].name;
-            var size = e.target.files[0].size;
-            if (size > 1024) {
-                kb = size / 1024;
-            }
-            caption = name + ' (' + Math.round(kb) + 'KB)';
-        }
-
-        $('#fileSelectTextBox', $(e.target).parent()).val(caption);
-    });
-    */
-
     // Note: DataDock specific jquery-validate configuration is in jquery.dform-1.1.0.js (line 786)
 
     // add types to dForm
@@ -71,8 +54,8 @@ $(function() {
 
     });
 
-    $("#fileSelect").on("change", function()
-    {
+    $("#fileSelect").on("change", function() {
+        clearErrors();
         stepped = 0;
         chunks = 0;
         rows = 0;
@@ -88,11 +71,9 @@ $(function() {
         if (files.length > 0)
         {
             var file = files[0];
-            // todo check max file size if (file.size > 1024 * 1024 * 4)
-
-            if (file.size > 1024 * 1024 * 10)
-            {
-                config.step = stepFn;
+            if (file.size > 1024 * 1024 * 10) {
+                displaySingleError("File size is over the 4MB limit. Reduce file size before trying again.");
+                return false;
             }
 
             start = performance.now();
@@ -100,10 +81,7 @@ $(function() {
         }
         else
         {
-            //start = performance.now();
-            //var results = Papa.parse(txt, config);
-            //console.log("Synchronous parse results:", results);
-            console.error("No file selected");
+            displaySingleError("No file found. Please try again.");
         }
     });
 
@@ -225,7 +203,7 @@ function constructCsvwColumn(columnName, skip) {
 }
 
 function sendData(e){
-    console.log("sendData", e);  
+    clearErrors();
 
     $("#step2").removeClass("active");
     $("#step3").addClass("active");
@@ -240,9 +218,6 @@ function sendData(e){
     formData.append("saveAsSchema", JSON.stringify($("#saveAsTemplate").prop("checked")));
     formData.append("addToExisting", JSON.stringify($("#addToExistingData").prop("checked")));
     
-    console.log("formData.......");
-    console.log(JSON.stringify(formData));
-
     var apiOptions ={
         url: "/api/data",
         type: "POST",
@@ -252,12 +227,10 @@ function sendData(e){
         success: function (r) {
             sendDataSuccess(r);
         },
-        error: function (r) {
+        error: function (r) {co
             sendDataFailure(r);
         }
     };
-
-    console.log(apiOptions);
 
     $("#metadataEditor").hide();
     $("#loading").show();
@@ -291,11 +264,9 @@ function sendDataFailure(response) {
 
     if (response) {
         var responseMsg = response["responseText"];
-        $("#error-messages ul li:last")
-            .append("<li><span>Publish data API has reported an error: " + responseMsg + "</span></li>");
-
+        displaySingleError("Publish data API has reported an error: " + responseMsg);
     } else {
-        $("#error-messages ul li:last").append("<li><span>Publish data API has resulted in an unspecified error</span></li>");
+        displaySingleError("Publish data API has resulted in an unspecified error.");
     }
 }
 
@@ -345,13 +316,15 @@ function stepFn(results, parserHandle)
 
     if (pauseChecked)
     {
-        console.log(results, results.data[0]);
+        //console.log(results, results.data[0]);
         parserHandle.pause();
         return;
     }
 
-    if (printStepChecked)
-        console.log(results, results.data[0]);
+    if (printStepChecked) {
+        //console.log(results, results.data[0]);
+    }
+        
 }
 
 function chunkFn(results, streamer, file)
@@ -397,8 +370,8 @@ function completeFn()
         header = csvData[0];
         columnCount = header.length;
     }
-    console.log("Finished input (async). Time:", end-start, arguments);
-    console.log("Rows:", rows, "Stepped:", stepped, "Chunks:", chunks);
+    // console.log("Finished input (async). Time:", end-start, arguments);
+    // console.log("Rows:", rows, "Stepped:", stepped, "Chunks:", chunks);
     loadEditor();
 }
 //end papaparse
@@ -534,7 +507,7 @@ function loadEditor() {
         "method": "POST"
     };
     formTemplate.html = [mainForm, configCheckboxes, submitButton];
-    console.log(formTemplate);
+    
     $("#metadataEditorForm").dform(formTemplate);
 
     // set selected license from template
@@ -1134,6 +1107,27 @@ function showLoading() {
     $("#loading").show();
 }
 
+function displaySingleError(error) {
+    $("#error-messages").append("<div><i class=\"warning sign icon\"></i><span>" + error + "</span></div>");
+    $("#error-messages").show();
+}
+function displayErrors(errors) {
+    if (errors) {
+        $("#error-messages").append("<div><i class=\"warning sign icon\"></i></div>");
+        var list = $("<ul/>");
+        $.each(errors, function (i) {
+            $('<li />', { html: errors[i] }).appendTo(list);
+        });
+        list.appendTo("#error-messages");
+    }
+    $("#error-messages").show();
+}
+
+function clearErrors() {
+    $("#error-messages").html("");
+    $("#error-messages").hide();
+}
+
 function chooseFile() {
     var prefix = getPrefix();
     if (prefix) {
@@ -1184,7 +1178,7 @@ function loadSchemaBeforeDisplay() {
                 console.error("Unable to retrieve template from DataDock schema API");
                 console.error(response);
                 // build form without schema 
-                // todo show error message
+                // todo show error message about missing schema
                 displayFileSelector();
             }
         };

@@ -94,6 +94,7 @@ namespace DataDock.Web.Controllers
 
             ViewData["OwnerId"] = DashboardViewModel.SelectedOwnerId;
             ViewData["RepoId"] = DashboardViewModel.SelectedRepoId;
+            ViewData["SchemaId"] = schemaId;
             ViewData["DataDockBaseUrl"] = _configuration["BaseUrl"];
 
             DashboardViewModel.SelectedSchemaId = schemaId;

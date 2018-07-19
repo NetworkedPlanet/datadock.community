@@ -10,6 +10,9 @@ var csvData;
 var header;
 var columnSet;
 
+var schemaTitle;
+var templateMetadata;
+
 
 $(function() {
     $("#metadataEditorForm").toggle();
@@ -203,14 +206,14 @@ function sendData(e){
     $("#step3").addClass("active");
     
     var formData = new FormData();
-    formData.append('ownerId', ownerId); // global variable set on Import.cshtml
-    formData.append('repoId', repoId); // global variable set on Import.cshtml
-    formData.append('file', csvFile, filename);
-    formData.append('filename', filename);
-    formData.append('metadata', JSON.stringify(constructCsvwMetadata()));
-    formData.append('showOnHomePage', JSON.stringify($("#showOnHomepage").prop("checked")));
-    formData.append('saveAsSchema', JSON.stringify($("#saveAsTemplate").prop("checked")));
-    formData.append('addToExisting', JSON.stringify($("#addToExistingData").prop("checked")));
+    formData.append("ownerId", ownerId); // global variable set on Import.cshtml
+    formData.append("repoId", repoId); // global variable set on Import.cshtml
+    formData.append("file", csvFile, filename);
+    formData.append("filename", filename);
+    formData.append("metadata", JSON.stringify(constructCsvwMetadata()));
+    formData.append("showOnHomePage", JSON.stringify($("#showOnHomepage").prop("checked")));
+    formData.append("saveAsSchema", JSON.stringify($("#saveAsTemplate").prop("checked")));
+    formData.append("addToExisting", JSON.stringify($("#addToExistingData").prop("checked")));
     
     console.log("formData.......");
     console.log(JSON.stringify(formData));
@@ -222,7 +225,7 @@ function sendData(e){
         processData: false,
         contentType: false,
         success: function(r) {
-            sendDataSuccess();
+            sendDataSuccess(r);
         },
         error: function(r) {
             sendDataFailure(r);
@@ -236,10 +239,23 @@ function sendData(e){
     return false;
 }
 
-function sendDataSuccess() {
+function sendDataSuccess(response) {
     var prefix = getPrefix();
     var jobsUrl = prefix + "/jobs";
-    window.location.href = jobsUrl;
+    if (response) {
+        if (response["statusCode"] === 200) {
+            var jobId = response["jobId"];
+            if (jobId) {
+                jobsUrl = jobsUrl + "/" + jobId;
+            } else {
+                jobsUrl = jobsUrl + "/latest";
+            }
+        }
+        window.location.href = jobsUrl;
+    } else {
+        $("#warning-messages ul li:last").append("<li><span>The job has been successfully started but we cannot redirect you automatically, please check the job history page for more information on the publishing process.</span></li>");
+    }
+    
 }
 
 function sendDataFailure(response) {
@@ -251,10 +267,6 @@ function sendDataFailure(response) {
     } else {
         $("#error-messages ul li:last").append("<li><span>Publish data API has resulted in an unspecified error</span></li>");
     }
-}
-
-function getPrefix() {
-    return dataDockBaseUrl + "/" + ownerId + "/" + repoId;
 }
 
 //papaparse
@@ -357,395 +369,40 @@ function completeFn()
     }
     console.log("Finished input (async). Time:", end-start, arguments);
     console.log("Rows:", rows, "Stepped:", stepped, "Chunks:", chunks);
-    buildFormTemplate();
+    loadEditor();
 }
 //end papaparse
 
-//jqeury.dform
-function buildFormTemplate(){
-    console.log("Header:", header, "Columns:", columnCount);
+function loadEditor() {
+    // check for template in global variable
+    if (schemaId) {
+        loadSchemaBeforeBuild();
+    } else {
+        buildFormTemplate();
+    }
+}
 
+//jquery.dform
+function buildFormTemplate() {
+    
     columnSet = [];
 
-    var datasetVoidFields = [
-        {
-            "type": "div",
-            "class": "field",
-            "html": {
-                "name": "datasetTitle",
-                "id": "datasetTitle",
-                "caption": "Title",
-                "type": "text",
-                "updateDatasetId": "this",
-                "value": filename,
-                "validate": {
-                    "required": true,
-                    "minlength": 2,
-                    "messages": {
-                        "required": "Please enter a title",
-                        "minlength": "The title must be at least 2 characters long"
-                    }
-                }
-            }
-        },
-        {
-            "type": "div",
-            "class": "field",
-            "html": {
-                "name": "datasetDescription",
-                "id": "datasetDescription",
-                "caption": "Description",
-                "type": "text"
-            }
-        },
-        {
-            "type": "div",
-            "class": "field",
-            "html": {
-                "name": "datasetLicense",
-                "id": "datasetLicense",
-                "caption": "License",
-                "type": "select",
-                "options": {
-                    "": "Please select a license",
-                    "https://creativecommons.org/publicdomain/zero/1.0/": "Public Domain (CC-0)",
-                    "https://creativecommons.org/licenses/by/4.0/": "Attribution (CC-BY)",
-                    "https://creativecommons.org/licenses/by-sa/4.0/": "Attribution-ShareAlike (CC-BY-SA)",
-                    "http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/":
-                        "Open Government License (OGL)",
-                    "https://opendatacommons.org/licenses/pddl/":
-                        "Open Data Commons Public Domain Dedication and License (PDDL)",
-                    "https://opendatacommons.org/licenses/by/": "Open Data Commons Attribution License (ODC-By)"
-                },
-                "validate": {
-                    "required": true,
-                    "messages": {
-                        "required": "You must select a license"
-                    }
-                }
-            }
-        }, 
-            {
-            "type": "div",
-            "class": "field",
-            "html": {
-                "name": "keywords",
-                "id": "keywords",
-                "caption": "Keywords (separate using commas)",
-                "type": "text"
-            }
-        }
-    ];
-
-    var columnDefinitionsTableElements = [];
-
-    columnDefinitionsTableElements.push(
-        { "type" : "thead",
-            "html" :
-                [{ "type" : "tr",
-                "html" : [
-                    {
-                        "type" : "th",
-                        "html" : "Title"
-                    },
-                    {
-                        "type" : "th",
-                        "html" : "DataType"
-                    }
-                    ,
-                    {
-                        "type" : "th",
-                        "html" : "Suppress In Output"
-                    }
-                ] }
-            ]}
-    );
-    for (var colIdx = 0; colIdx < columnCount; colIdx++) {
-
-        var trElements = [];
-        var colTitle = header[colIdx];
-        var colName = slugify(colTitle, "_", "_", "lowercase");
-
-        columnSet.push(colName);
-
-        var titleField = {
-            name: colName + "_title",
-            id: colName + "_title",
-            type: "text",
-            placeholder: "",
-            value: colTitle,
-            "validate": {
-                "required": true,
-                "messages": {
-                    "required": "Column '" + colName + "' is missing a title"
-                }
-            }
-        };
-        var tdTitle = { "type" : "td", "html": titleField};
-        trElements.push(tdTitle);
-
-        var datatypeField = {
-            name: colName + "_datatype",
-            id: colName + "_datatype",
-            type: "select",
-            placeholder: "",
-            options: {
-                "string": "Text",
-                "uri": "URI",
-                "integer": "Whole Number",
-                "decimal": "Decimal Number",
-                "date": "Date",
-                "datetime": "Data & Time",
-                "boolean": "True/False"
-            }
-        };
-        var tdDatatype = { "type" : "td", "html": datatypeField};
-        trElements.push(tdDatatype);
-
-        var suppressField = {
-            name: colName + "_suppress",
-            id: colName + "_suppress",
-            type: "checkbox",
-            "class": "center aligned"
-        };
-        var tdSuppress = { "type" : "td", "html": suppressField};
-        trElements.push(tdSuppress);
-
-        var tr = { "type" : "tr", "html": trElements};
-        columnDefinitionsTableElements.push(tr);
-    }
-    var columnDefinitionsTable = { "type": "table", "html": columnDefinitionsTableElements, "class": "ui celled table" };
-
-    var datasetIdDefaultValue = getPrefix() + "/id/dataset/" + slugify(filename, "", "", "camelCase");
-    
-    var dsIdTable = {
-        "type": "table",
-        "class": "ui celled table",
-        "html": [
-            {
-                "type": "thead",
-                "html": {
-                    "type": "tr",
-                    "html": {
-                        "type": "th",
-                        "html": "Dataset Identifier (readonly)"
-                    }
-                }
-            },
-            {
-                "type": "tbody",
-                "html": [
-                    {
-                        "type": "tr",
-                        "html": {
-                            "type": "td",
-                            "html": {
-                                "type": "div",
-                                "class": "field",
-                                "html": {
-                                    "type": "text",
-                                    "readonly": true,
-                                    "id": "datasetId",
-                                    "name": "datasetId",
-                                    "value": datasetIdDefaultValue,
-                                    "disabled": true
-                                }
-                            }
-                        }
-                    },
-                    {
-                        "type": "tr",
-                        "html": {
-                            "type": "td",
-                            "html": "The identifier for the dataset is constructed from the chosen title, the GitHub repository, and the GitHub user or organisation you're uploading the data to."
-                        }
-                    }
-                ]
-            }
-        ]
-    };
-
-
-    var identifierTableElements = [];
-    identifierTableElements.push(
-        { "type" : "thead",
-            "html" :
-                [{ "type" : "tr",
-                    "html" : [
-                        {
-                            "type" : "th",
-                            "html": "Construct individual record identifiers from which column's values?"
-                        }
-                    ] }
-                ]}
-    );
-    var prefix = getPrefix();
-    var rowIdentifier = prefix +"/id/resource/acsv.csv/row_{_row}";
-    var identifierOptions = {};
-    identifierOptions[rowIdentifier] = "Row Number";
-
-    for (var colIdx = 0; colIdx < columnCount; colIdx++) {
-        var colTitle = header[colIdx];
-        var colName = slugify(colTitle, "_", "_", "lowercase");
-        var colIdentifier = prefix + "/id/resource/acsv.csv/" + colName + "/{" + colName + "}";
-        identifierOptions[colIdentifier] = colTitle;
-    }
-    identifierTableElements.push(
-        { "type" : "tbody",
-            "html" :
-                [{ "type" : "tr",
-                    "html" : [
-                        {
-                            "type" : "td",
-                            "html" : [
-                                {
-                                    name: "datasetIdentifier",
-                                    id: "datasetIdentifier",
-                                    type: "select",
-                                    placeholder: "",
-                                    options: identifierOptions
-                                }
-                            ]
-                        }
-                    ]
-                },
-                    {
-                        "type": "tr",
-                        "html": [
-                            {
-                                "type": "td",
-                                "html": "You must be sure that there are no empty values in the data to use it as the basis for a record's identifier. We suggest using an ID field if you have one. If in doubt, use the default (the row number). <br />Identifiers can be crucial when it comes to linking between records of different datasets; <a href=\"http://datadock.io/docs/user-guide/selecting-an-identifier.html\" title=\"DataDock Documentation: Identifiers\" target=\"_blank\">You can read more about identifiers here (opens in new window)</a>. (TODO: Need documentation link)"
-                            }
-                        ]
-                    }
-                ]}
-    );
-    var identifierTable = {"type" : "table", "html": identifierTableElements, "class": "ui celled table"};
-
-    var predicateTableElements = [];
-    predicateTableElements.push(
-        { "type" : "thead",
-            "html" :
-                [{ "type" : "tr",
-                    "html" : [
-                        {
-                            "type" : "th",
-                            "html" : "Column"
-                        },
-                        {
-                            "type" : "th",
-                            "html" : "Property (URL)"
-                        }
-                    ] }
-                ]}
-    );
-    for (var colIdx = 0; colIdx < columnCount; colIdx++) {
-
-        var trElements = [];
-        var colTitle = header[colIdx];
-        var colName = slugify(colTitle, "_", "_", "lowercase");
-
-        var titleDiv = {
-            type: "div",
-            html: colTitle
-        };
-        var tdTitle = { "type" : "td", "html": titleDiv};
-        trElements.push(tdTitle);
-
-        var predicate = prefix + "/id/definition/" + colName;
-        var predicateField = {
-            name: colName + "_property_url",
-            id: colName + "_property_url",
-            type: "text",
-            placeholder: "",
-            "value": predicate,
-            "class": "pred-field",
-            "validate": {
-                "required": true,
-                "pattern": /^https?:\/\/\S+[^#\/]$/i,
-                "messages": {
-                    "required": "Column '" + colName + "' is missing a property URL.",
-                    "pattern": "Column '" + colName + "' must have a property URL that is a URL that does not end with a hash or slash."
-                }
-            }
-        };
-        var predDiv = {"type": "div", "class": "field", "html": predicateField};
-        var tdPredicate = { "type" : "td", "html": predDiv};
-        trElements.push(tdPredicate);
-
-        var tr = { "type" : "tr", "html": trElements};
-        predicateTableElements.push(tr);
-    }
-    var predicateTable = {"type" : "table", "html": predicateTableElements, "class": "ui celled table"};
-
-    var identifierSection = [];
-    identifierSection.push(
-        { "type" : "div",
-            "html" :
-                [dsIdTable, identifierTable]}
-    );
-
-    var advancedSection = [];
-    advancedSection.push(
-        { "type" : "div",
-            "html" :
-                [predicateTable]}
-    );
-
-    var showOnHomepage = {
-        "type": "div",
-        "class": "ui checkbox",
-        "html" : {
-            "type": "checkbox",
-            "name": "showOnHomepage",
-            "id": "showOnHomepage",
-            "caption": "Include my published dataset on DataDock homepage and search",
-            "value": true
-        }
-    };
-    var addToData = {
-        "type": "div",
-        "class": "ui checkbox",
-        "html" : {
-            "type": "checkbox",
-            "name": "addToExistingData",
-            "id": "addToExistingData",
-            "caption": "Add to existing data if dataset already exists (default is to overwrite existing data)",
-            "value": false
-        }
-    };
-    var saveAsTemplate = {
-        "type": "div",
-        "class": "ui checkbox",
-        "html" : {
-            "type": "checkbox",
-            "name": "saveAsTemplate",
-            "id": "saveAsTemplate",
-            "caption": "Save this information as a template for future imports",
-            "value": false
-        }
-    };
-    var divider = {
-        "type": "div",
-        "class": "ui divider",
-        "html": ""
-    };
-    var hiddenDivider = {
-        "type": "div",
-        "class": "ui hidden divider",
-        "html": ""
-    };
-    var configCheckboxes = {
-        "type": "div",
-        "class": "ui center aligned container",
-        "html": [divider, addToData, hiddenDivider, showOnHomepage, hiddenDivider, saveAsTemplate]
-    };
+    var datasetInfoTabContent = constructBasicTabContent();
+    var identifiersTabContent = constructIdentifiersTabContent();
+    var columnDefinitionsTabContent = constructColumnDefinitionsTabContent();
+    var advancedTabContent = constructAdvancedTabContent();
+    var previewTabContent = constructPreviewTabContent();
 
     var submitButton = {
         "type": "div",
         "class": "ui center aligned container",
         "html": [
-            hiddenDivider, {
+            {
+                "type": "div",
+                "class": "ui hidden divider",
+                "html": ""
+            },
+            {
                 "type": "div",
                 "class": "ui buttons",
                 "html": [
@@ -761,7 +418,7 @@ function buildFormTemplate(){
         ]
     };
     
-   var tabs = {
+    var tabs = {
         "type": "div",
         "class": "four wide column",
         "html": {
@@ -816,36 +473,40 @@ function buildFormTemplate(){
                 {
                     "type": "div",
                     "id": "datasetInfo",
-                    "html": datasetVoidFields
-                },
-                {
-                    "type": "div",
-                    "id": "columnDefinitions",
-                    "html": columnDefinitionsTable
+                    "html": datasetInfoTabContent
                 },
                 {
                     "type": "div",
                     "id": "identifier",
-                    "html": identifierSection
+                    "html": identifiersTabContent
+                },
+                {
+                    "type": "div",
+                    "id": "columnDefinitions",
+                    "html": columnDefinitionsTabContent
                 },
                 {
                     "type": "div",
                     "id": "advanced",
-                    "html": advancedSection
+                    "html": advancedTabContent
                 },
                 {
                     "type": "div",
                     "id": "preview",
-                    "html": constructPreviewTabContent()
+                    "html": previewTabContent
                 }
             ]
         }
     };
+
+
     var mainForm = {
         "type": "div",
         "class": "ui stackable two column grid container",
         "html": [tabs, tabsContent]
     };
+
+    var configCheckboxes = constructPublishOptionsCheckboxes();
 
     var formTemplate = {
         "class": "ui form",
@@ -854,6 +515,17 @@ function buildFormTemplate(){
     formTemplate.html = [mainForm, configCheckboxes, submitButton];
     console.log(formTemplate);
     $("#metadataEditorForm").dform(formTemplate);
+
+    // set selected license from template
+    if (templateMetadata) {
+        var licenseFromTemplate = getMetadataLicenseUri();
+        if (licenseFromTemplate) {
+            $("#datasetLicense").val(licenseFromTemplate);
+        }
+    }
+    // set the column datatypes from the template
+    setDatatypesFromTemplate();
+
     $("#metadataEditorForm").toggle();
     $("#fileSelector").toggle();
 
@@ -873,11 +545,370 @@ function buildFormTemplate(){
             $("#keywords_reflect").val(ev.target.value);
         }
     });
-
-
-   
+  
 }
 
+function constructBasicTabContent() {
+    var datasetVoidFields = [
+        {
+            "type": "div",
+            "class": "field",
+            "html": {
+                "name": "datasetTitle",
+                "id": "datasetTitle",
+                "caption": "Title",
+                "type": "text",
+                "updateDatasetId": "this",
+                "value": getMetadataTitle(filename) || filename,
+                "validate": {
+                    "required": true,
+                    "minlength": 2,
+                    "messages": {
+                        "required": "Please enter a title",
+                        "minlength": "The title must be at least 2 characters long"
+                    }
+                }
+            }
+        },
+        {
+            "type": "div",
+            "class": "field",
+            "html": {
+                "name": "datasetDescription",
+                "id": "datasetDescription",
+                "caption": "Description",
+                "type": "text",
+                "value": getMetadataDescription() || ""
+            }
+        },
+        {
+            "type": "div",
+            "class": "field",
+            "html": {
+                "name": "datasetLicense",
+                "id": "datasetLicense",
+                "caption": "License",
+                "type": "select",
+                "options": {
+                    "": "Please select a license",
+                    "https://creativecommons.org/publicdomain/zero/1.0/": "Public Domain (CC-0)",
+                    "https://creativecommons.org/licenses/by/4.0/": "Attribution (CC-BY)",
+                    "https://creativecommons.org/licenses/by-sa/4.0/": "Attribution-ShareAlike (CC-BY-SA)",
+                    "http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/":
+                        "Open Government License (OGL)",
+                    "https://opendatacommons.org/licenses/pddl/":
+                        "Open Data Commons Public Domain Dedication and License (PDDL)",
+                    "https://opendatacommons.org/licenses/by/": "Open Data Commons Attribution License (ODC-By)"
+                },
+                "validate": {
+                    "required": true,
+                    "messages": {
+                        "required": "You must select a license"
+                    }
+                }
+            }
+        },
+        {
+            "type": "div",
+            "class": "field",
+            "html": {
+                "name": "keywords",
+                "id": "keywords",
+                "caption": "Keywords (separate using commas)",
+                "type": "text",
+                "value": getMetadataTags()
+            }
+        }
+    ];
+    return datasetVoidFields;
+}
+function constructIdentifiersTabContent() {
+    var datasetIdDefaultValue = getPrefix() + "/id/dataset/" + slugify(filename, "", "", "camelCase");
+
+    var dsIdTable = {
+        "type": "table",
+        "class": "ui celled table",
+        "html": [
+            {
+                "type": "thead",
+                "html": {
+                    "type": "tr",
+                    "html": {
+                        "type": "th",
+                        "html": "Dataset Identifier (readonly)"
+                    }
+                }
+            },
+            {
+                "type": "tbody",
+                "html": [
+                    {
+                        "type": "tr",
+                        "html": {
+                            "type": "td",
+                            "html": {
+                                "type": "div",
+                                "class": "field",
+                                "html": {
+                                    "type": "text",
+                                    "readonly": true,
+                                    "id": "datasetId",
+                                    "name": "datasetId",
+                                    "value": datasetIdDefaultValue,
+                                    "disabled": true
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "tr",
+                        "html": {
+                            "type": "td",
+                            "html": "The identifier for the dataset is constructed from the chosen title, the GitHub repository, and the GitHub user or organisation you're uploading the data to."
+                        }
+                    }
+                ]
+            }
+        ]
+    };
+
+
+    var identifierTableElements = [];
+    identifierTableElements.push(
+        {
+            "type": "thead",
+            "html":
+                [{
+                    "type": "tr",
+                    "html": [
+                        {
+                            "type": "th",
+                            "html": "Construct individual record identifiers from which column's values?"
+                        }
+                    ]
+                }
+                ]
+        }
+    );
+    var prefix = getPrefix();
+    var rowIdentifier = prefix + "/id/resource/acsv.csv/row_{_row}";
+    var identifierOptions = {};
+    identifierOptions[rowIdentifier] = "Row Number";
+
+    for (var colIdx = 0; colIdx < columnCount; colIdx++) {
+        var colTitle = header[colIdx];
+        var colName = slugify(colTitle, "_", "_", "lowercase");
+        var colIdentifier = prefix + "/id/resource/acsv.csv/" + colName + "/{" + colName + "}";
+        identifierOptions[colIdentifier] = colTitle;
+    }
+    identifierTableElements.push(
+        {
+            "type": "tbody",
+            "html":
+                [{
+                    "type": "tr",
+                    "html": [
+                        {
+                            "type": "td",
+                            "html": [
+                                {
+                                    name: "datasetIdentifier",
+                                    id: "datasetIdentifier",
+                                    type: "select",
+                                    placeholder: "",
+                                    options: identifierOptions
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "tr",
+                    "html": [
+                        {
+                            "type": "td",
+                            "html": "You must be sure that there are no empty values in the data to use it as the basis for a record's identifier. We suggest using an ID field if you have one. If in doubt, use the default (the row number). <br />Identifiers can be crucial when it comes to linking between records of different datasets; <a href=\"http://datadock.io/docs/user-guide/selecting-an-identifier.html\" title=\"DataDock Documentation: Identifiers\" target=\"_blank\">You can read more about identifiers here (opens in new window)</a>. (TODO: Need documentation link)"
+                        }
+                    ]
+                }
+                ]
+        }
+    );
+    var identifierTable = { "type": "table", "html": identifierTableElements, "class": "ui celled table" };
+    var identifierSection = [];
+    identifierSection.push(
+        {
+            "type": "div",
+            "html":
+                [dsIdTable, identifierTable]
+        }
+    );
+    return identifierSection;
+}
+function constructColumnDefinitionsTabContent() {
+    var columnDefinitionsTableElements = [];
+
+    columnDefinitionsTableElements.push(
+        {
+            "type": "thead",
+            "html":
+                [{
+                    "type": "tr",
+                    "html": [
+                        {
+                            "type": "th",
+                            "html": "Title"
+                        },
+                        {
+                            "type": "th",
+                            "html": "DataType"
+                        }
+                        ,
+                        {
+                            "type": "th",
+                            "html": "Suppress In Output"
+                        }
+                    ]
+                }
+                ]
+        }
+    );
+    for (var colIdx = 0; colIdx < columnCount; colIdx++) {
+
+        var trElements = [];
+        var colTitle = header[colIdx];
+        var colName = slugify(colTitle, "_", "_", "lowercase");
+
+        columnSet.push(colName);
+
+        var colTemplate = getMetadataColumnTemplate(colName);
+        var defaultTitleValue = getColumnTitle(colTemplate, colTitle);
+        var titleField = {
+            name: colName + "_title",
+            id: colName + "_title",
+            type: "text",
+            placeholder: "",
+            value: defaultTitleValue,
+            "validate": {
+                "required": true,
+                "messages": {
+                    "required": "Column '" + colName + "' is missing a title"
+                }
+            }
+        };
+        var tdTitle = { "type": "td", "html": titleField };
+        trElements.push(tdTitle);
+
+        var datatypeField = {
+            name: colName + "_datatype",
+            id: colName + "_datatype",
+            type: "select",
+            placeholder: "",
+            options: {
+                "string": "Text",
+                "uri": "URI",
+                "integer": "Whole Number",
+                "decimal": "Decimal Number",
+                "date": "Date",
+                "datetime": "Data & Time",
+                "boolean": "True/False"
+            }
+        };
+        var tdDatatype = { "type": "td", "html": datatypeField };
+        trElements.push(tdDatatype);
+
+        var suppressField = {
+            name: colName + "_suppress",
+            id: colName + "_suppress",
+            type: "checkbox",
+            "class": "center aligned"
+        };
+        var suppressedInTemplate = getColumnSuppressed(colTemplate);
+        if (suppressedInTemplate) {
+            suppressField["checked"] = "checked";
+        }
+        var tdSuppress = { "type": "td", "html": suppressField };
+        trElements.push(tdSuppress);
+
+        var tr = { "type": "tr", "html": trElements };
+        columnDefinitionsTableElements.push(tr);
+    }
+    var columnDefinitionsTable = { "type": "table", "html": columnDefinitionsTableElements, "class": "ui celled table" };
+    return columnDefinitionsTable;
+}
+function constructAdvancedTabContent() {
+    var predicateTableElements = [];
+    predicateTableElements.push(
+        {
+            "type": "thead",
+            "html":
+                [{
+                    "type": "tr",
+                    "html": [
+                        {
+                            "type": "th",
+                            "html": "Column"
+                        },
+                        {
+                            "type": "th",
+                            "html": "Property (URL)"
+                        }
+                    ]
+                }
+                ]
+        }
+    );
+    for (var colIdx = 0; colIdx < columnCount; colIdx++) {
+
+        var trElements = [];
+        var colTitle = header[colIdx];
+        var colName = slugify(colTitle, "_", "_", "lowercase");
+        
+        var titleDiv = {
+            type: "div",
+            html: colTitle
+        };
+        var tdTitle = { "type": "td", "html": titleDiv };
+        trElements.push(tdTitle);
+
+        var predicate = getPrefix() + "/id/definition/" + colName;
+        var colTemplate = getMetadataColumnTemplate(colName);
+        var defaultValue = getColumnPropertyUrl(colTemplate, predicate);
+        var predicateField = {
+            name: colName + "_property_url",
+            id: colName + "_property_url",
+            type: "text",
+            placeholder: "",
+            "value": defaultValue,
+            "class": "pred-field",
+            "validate": {
+                "required": true,
+                "pattern": /^https?:\/\/\S+[^#\/]$/i,
+                "messages": {
+                    "required": "Column '" + colName + "' is missing a property URL.",
+                    "pattern": "Column '" + colName + "' must have a property URL that is a URL that does not end with a hash or slash."
+                }
+            }
+        };
+        var predDiv = { "type": "div", "class": "field", "html": predicateField };
+        var tdPredicate = { "type": "td", "html": predDiv };
+        trElements.push(tdPredicate);
+
+        var tr = { "type": "tr", "html": trElements };
+        predicateTableElements.push(tr);
+    }
+    var predicateTable = { "type": "table", "html": predicateTableElements, "class": "ui celled table" };
+    var advancedSection = [];
+    advancedSection.push(
+        {
+            "type": "div",
+            "html":
+                [predicateTable]
+        }
+    );
+    return advancedSection;
+
+}
 function constructPreviewTabContent() {
     
     var ths = [];
@@ -954,9 +985,64 @@ function constructPreviewTabContent() {
     };
     return container;
 }
+function constructPublishOptionsCheckboxes() {
+
+    var showOnHomepage = {
+        "type": "div",
+        "class": "ui checkbox",
+        "html": {
+            "type": "checkbox",
+            "name": "showOnHomepage",
+            "id": "showOnHomepage",
+            "caption": "Include my published dataset on DataDock homepage and search",
+            "value": true
+        }
+    };
+    var addToData = {
+        "type": "div",
+        "class": "ui checkbox",
+        "html": {
+            "type": "checkbox",
+            "name": "addToExistingData",
+            "id": "addToExistingData",
+            "caption": "Add to existing data if dataset already exists (default is to overwrite existing data)",
+            "value": false
+        }
+    };
+    var saveAsTemplate = {
+        "type": "div",
+        "class": "ui checkbox",
+        "html": {
+            "type": "checkbox",
+            "name": "saveAsTemplate",
+            "id": "saveAsTemplate",
+            "caption": "Save this information as a template for future imports",
+            "value": false
+        }
+    };
+    var divider = {
+        "type": "div",
+        "class": "ui divider",
+        "html": ""
+    };
+    var hiddenDivider = {
+        "type": "div",
+        "class": "ui hidden divider",
+        "html": ""
+    };
+    var configCheckboxes = {
+        "type": "div",
+        "class": "ui center aligned container",
+        "html": [divider, addToData, hiddenDivider, showOnHomepage, hiddenDivider, saveAsTemplate]
+    };
+    return configCheckboxes;
+}
 //end jquery.dform
 
 //helper functions
+function getPrefix() {
+    return dataDockBaseUrl + "/" + ownerId + "/" + repoId;
+}
 function slugify(original, whitespaceReplacement, specCharReplacement, casing) {
     switch (casing)
     {
@@ -983,9 +1069,13 @@ function camelize(str) {
     var slug = camelised.replace(/[^A-Z0-9]+/ig, "");
     return slug;
 }
+
+function sniffDatatype() {
+
+}
 //end helper functions
 
-//ui functions
+//ui and window location functions
 function hideAllTabContent() {
     $("#datasetInfo").hide();
     $("#datasetInfoTab").removeClass("active");
@@ -999,10 +1089,6 @@ function hideAllTabContent() {
     $("#previewTab").removeClass("active");
 }
 
-function sniffDatatype(){
-
-}
-
 function chooseFile() {
     var prefix = getPrefix();
     if (prefix) {
@@ -1010,3 +1096,57 @@ function chooseFile() {
     }
 }
 
+function setDatatypesFromTemplate() {
+    if (columnSet && templateMetadata) {
+        for (var i = 0; i < columnSet.length; i++) {
+            var colName = columnSet[i];
+            var colTemplate = getMetadataColumnTemplate(colName);
+            var colDatatype = getColumnDatatype(colTemplate);
+            if (colDatatype) {
+                var selector = $("#" + colName + "_datatype");
+                if (selector) {
+                    selector.val(colDatatype);
+                }
+            }
+        }
+    }
+}
+//end ui functions
+
+//schema/template functions 
+function loadSchemaBeforeBuild() {
+    if (schemaId) {
+        var options = {
+            url: "/api/schemas",
+            type: "get",
+            data: {
+                "ownerId": ownerId,
+                "schemaId": schemaId
+            },
+            success: function(response) {
+                console.log("Template returned from DataDock schema API");
+                console.log(response);
+                if (response["schema"] && response["schema"]["metadata"]) {
+                    templateMetadata = response["schema"]["metadata"];
+                } else {
+                    console.error("Could not find a template in the response");
+                }
+                // now build form
+                buildFormTemplate();
+            },
+            error: function(response) {
+                console.error("Unable to retrieve template from DataDock schema API");
+                console.error(response);
+                // build form without schema 
+                // todo show error message
+                buildFormTemplate();
+            }
+        };
+        $.ajax(options);
+    } else {
+        buildFormTemplate();
+    }
+    
+}
+
+//end schema/template functions

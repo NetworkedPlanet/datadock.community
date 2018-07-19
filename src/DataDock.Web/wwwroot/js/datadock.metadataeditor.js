@@ -623,7 +623,9 @@ function constructBasicTabContent() {
     return datasetVoidFields;
 }
 function constructIdentifiersTabContent() {
-    var datasetIdDefaultValue = getPrefix() + "/id/dataset/" + slugify(filename, "", "", "camelCase");
+    var prefix = getPrefix();
+    var idFromFilename = prefix + "/id/dataset/" + slugify(filename, "", "", "camelCase");
+    var defaultValue = getMetadataDatasetId(idFromFilename);
 
     var dsIdTable = {
         "type": "table",
@@ -654,7 +656,7 @@ function constructIdentifiersTabContent() {
                                     "readonly": true,
                                     "id": "datasetId",
                                     "name": "datasetId",
-                                    "value": datasetIdDefaultValue,
+                                    "value": defaultValue,
                                     "disabled": true
                                 }
                             }

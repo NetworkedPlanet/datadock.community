@@ -1,4 +1,14 @@
-﻿function getMetadataIdentifier(aboutUrlPrefix, ifNotFound) {
+﻿function getMetadataDatasetId(ifNotFound) {
+    if (templateMetadata) {
+        var templatePrefix = templateMetadata["url"];
+        if (templatePrefix) {
+            return templatePrefix;
+        }
+    }
+    return ifNotFound;
+}
+
+function getMetadataIdentifier(aboutUrlPrefix, ifNotFound) {
     if (templateMetadata) {
         var templateIdentifier = templateMetadata["aboutUrl"];
         var templatePrefix = templateMetadata["url"];

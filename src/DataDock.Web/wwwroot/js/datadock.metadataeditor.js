@@ -40,24 +40,9 @@ $(function() {
     });
     */
 
+    // Note: DataDock specific jquery-validate configuration is in jquery.dform-1.1.0.js (line 786)
+
     // add types to dForm
-    $.dform.addType("tabs", function(options) {
-        return $(this).addClass("");
-    });
-    $.dform.addType("publishButton", function(options) {
-        return $("<button type='button'>").dform("attr", options).html("Publish Data");
-    });
-
-    $.dform.subscribe("publish", function(options, type) {
-        if(type === "publishButton") {
-            this.click(function (e) {
-                e.preventDefault();
-                sendData(options);
-                return false;
-            });
-        }
-    });
-
     $.dform.subscribe("changeTab", function (options, type) {
         if (options !== "") {
             this.click(function () {
@@ -140,6 +125,7 @@ $(function() {
     {
         $("#delimiter").val("\t");
     });
+
 });
 
 function constructCsvwMetadata() {
@@ -211,8 +197,8 @@ function constructCsvwColumn(columnName, skip) {
     return column;
 }
 
-function sendData(options){
-    console.log("sendData", options);
+function sendData(e){
+    console.log("sendData", e);  
 
     $("#step2").removeClass("active");
     $("#step3").addClass("active");
@@ -251,6 +237,7 @@ function getPrefix() {
     return dataDockBaseUrl + "/" + ownerId + "/" + repoId;
 }
 
+//papaparse
 function buildConfig()
 {
     var config = {
@@ -352,7 +339,9 @@ function completeFn()
     console.log("Rows:", rows, "Stepped:", stepped, "Chunks:", chunks);
     buildFormTemplate();
 }
+//end papaparse
 
+//jqeury.dform
 function buildFormTemplate(){
     console.log("Header:", header, "Columns:", columnCount);
 
@@ -945,7 +934,9 @@ function constructPreviewTabContent() {
     };
     return container;
 }
+//end jquery.dform
 
+//helper functions
 function slugify(original, whitespaceReplacement, specCharReplacement, casing) {
     switch (casing)
     {
@@ -972,7 +963,9 @@ function camelize(str) {
     var slug = camelised.replace(/[^A-Z0-9]+/ig, "");
     return slug;
 }
+//end helper functions
 
+//ui functions
 function hideAllTabContent() {
     $("#datasetInfo").hide();
     $("#datasetInfoTab").removeClass("active");
@@ -996,3 +989,4 @@ function chooseFile() {
         window.location.href = prefix + "/import";
     }
 }
+

@@ -783,19 +783,22 @@
 						}
 					};
                 }
-                if (this.hasClass("ui") && this.hasClass("form")) {
-                    // semantic UI
+                if (this.is("#metadataEditorForm")) {
+                    // DataDock specific jquery.validate configuration
                     defaults = {
                         errorContainer: "#error-messages",
                         errorLabelContainer: "#error-messages ul",
                         wrapper: "li",
-			            highlight: function (element, errorClass, validClass) {
-			                $(element).parents(".field").addClass(errorClass);
-			            },
-			            unhighlight: function (element, errorClass, validClass) {
+                        highlight: function(element, errorClass, validClass) {
+                            $(element).parents(".field").addClass(errorClass);
+                        },
+                        unhighlight: function(element, errorClass, validClass) {
                             $(element).parents(".field").removeClass(errorClass);
-			            }
-			        };
+                        },
+                        submitHandler: function (e) {
+                            sendData(e);
+                        }
+                };
 			    }
 				if (typeof (options.validate) == 'object') {
 					$.extend(defaults, options.validate);

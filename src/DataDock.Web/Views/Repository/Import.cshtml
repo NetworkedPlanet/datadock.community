@@ -1,12 +1,121 @@
 ﻿@model DataDock.Web.ViewModels.DashboardViewModel
 @{
-  Layout = "~/Views/Shared/_ImportLayout.cshtml";
+  Layout = "~/Views/Shared/_DashboardBaseLayout.cshtml";
   Model.Title = Model.Title + " Add Data";
 }
 
-<app>Loading...</app>
+<div class="ui top attached steps">
+  <a class="step active no-underline" id="step1" onclick="chooseFile()">
+    <i class="search icon"></i>
+    <div class="content">
+      <div class="title">Choose</div>
+      <div class="description">Choose your CSV spreadsheet</div>
+    </div>
+  </a>
+  <div class="step" id="step2">
+    <i class="write icon"></i>
+    <div class="content">
+      <div class="title">Define</div>
+      <div class="description">Enter license and other details</div>
+    </div>
+  </div>
+  <div class="step" id="step3">
+    <i class="cloud upload icon"></i>
+    <div class="content">
+      <div class="title">Upload</div>
+      <div class="description">Upload to your data portal</div>
+    </div>
+  </div>
+</div>
 
-<script src="~/dist/vendor.js" asp-append-version="true"></script>
+
+<!-- tabbed form content -->
+
+<div class="ui attached segment">
+
+  <!-- Warnings / Validation Messages -->
+  <div class="ui negative message" id="error-messages" style="display: none;">
+  </div>
+  <div class="ui warning message" id="warning-messages" style="display: none;">
+  </div>
+
+  <div id="fileSelector">
+    <div class="ui container">
+
+      <div class="ui small form">
+        <div class="inline fields">
+          <div class="four fields">
+            <div class="field">
+              <label>Delimiter:</label>
+              <input type="text" size="5" placeholder="auto" id="delimiter"> <a href="javascript:" id="insert-tab">tab</a>
+            </div>
+
+            <div class="inline fields">
+              <label>Line Endings:</label>
+              <div class="field">
+                <input type="radio" name="newline" id="newline-auto" checked><label>Auto</label>
+              </div>
+              <div class="field"><input type="radio" name="newline" id="newline-n"><label>\n</label></div>
+              <div class="field"><input type="radio" name="newline" id="newline-r"><label>\r</label></div>
+              <div class="field"><input type="radio" name="newline" id="newline-rn"><label>\r\n</label></div>
+            </div>
+
+            <div class="field"><label>Encoding: <input type="text" id="encoding" placeholder="default" size="10"></label></div>
+
+            <div class="field"><label>Comment char: <input type="text" size="5" maxlength="1" placeholder="default" id="comments"></label></div>
+          </div>
+
+        </div>
+      </div>
+      <div class="ui hidden divider"></div>
+    </div>
+    
+    <div class="ui text container">
+      
+      <div class="ui fluid action input">
+        <input readonly type="text" id="fileSelectTextBox" placeholder="Select CSV file for processing">
+        <input type="file" id="fileSelect" accept=".csv" style="display: none;"/>
+        <div class="ui icon button" id="fileSelectButton">
+          <i class="cloud upload icon"></i>
+        </div>
+      </div>
+      
+      <div class="ui info message" style="display: none;" id="templateInfoMessage">
+        <div class="header">Template loaded</div>
+        <p>You are using the template "<span id="templateTitle"></span>" from your library to pre-fill the editor in the next step. Choose a new file to continue.</p>
+      </div>
+    </div>
+
+
+  </div>
+
+  <div id="metadataEditor">
+    <form class="ui form" id="metadataEditorForm"></form>
+  </div>
+  
+  <div id="loading" class="ui text container">
+    <img src="/images/cube.gif" alt="Loading..." class="ui centered image"/>
+  </div>
+
+
+</div>
+
+
 @section scripts {
-  <script src="~/dist/main-client.js" asp-append-version="true"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.17.0/dist/jquery.validate.min.js" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.17.0/dist/additional-methods.min.js" type="text/javascript"></script>
+  <script src="/js/inputosaurus.js" type="text/javascript"></script>
+  <script src="/js/jquery.dform-1.1.0.js" type="text/javascript"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.5.0/papaparse.min.js" type="text/javascript"></script>
+
+  <script>
+    var dataDockBaseUrl = "@Html.Raw(ViewData["DataDockBaseUrl"])";
+    var ownerId = "@Html.Raw(ViewData["OwnerId"])";
+    var repoId = "@Html.Raw(ViewData["RepoId"])";
+    var schemaId = "@Html.Raw(ViewData["SchemaId"])";
+    var apiUrl = dataDockBaseUrl + "/api/data";
+  </script>
+
+  <script src="/js/datadock.metadataeditor.js" type="text/javascript"></script>
+  <script src="/js/datadock.schemahelper.js" type="text/javascript"></script>
 }

@@ -21,6 +21,11 @@ namespace DataDock.Web.Controllers
             return View("Help");
         }
 
+        public IActionResult Temp()
+        {
+            return View("Temp");
+        }
+
         public IActionResult Privacy()
         {
             return View("Privacy");

@@ -45,7 +45,7 @@ namespace DataDock.Web.Api
 
         [HttpPost]
         [DisableFormValueModelBinding]
-        [ValidateAntiForgeryToken]
+        //[ValidateAntiForgeryToken]
         public async Task<IActionResult> Post()
         {
             try
@@ -119,7 +119,7 @@ namespace DataDock.Web.Api
                     }
                 }
 
-                return Ok(new DataControllerResult { Message = "API called successfully", Metadata = parserResult.Metadata, JobId = job.JobId});
+                return Ok(new DataControllerResult { StatusCode = 200, Message = "API called successfully", Metadata = parserResult.Metadata, JobId = job.JobId});
             }
             catch (Exception ex)
             {
@@ -134,6 +134,7 @@ namespace DataDock.Web.Api
     /// </summary>
     public class DataControllerResult
     {
+        public int StatusCode { get; set; }
         public string Message { get; set; }
         public string Metadata { get; set; }
         public string JobId { get; set; }

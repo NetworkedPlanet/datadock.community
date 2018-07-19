@@ -69,6 +69,10 @@ h1.ui.header {
     margin-top: 0.5em;
 }
 
+ui.form .field.error {
+    margin-bottom: 0;
+}
+
 .container p {
     padding: 0.5em 0;
 }

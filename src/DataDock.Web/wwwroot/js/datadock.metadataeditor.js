@@ -15,9 +15,8 @@ var templateMetadata;
 
 
 $(function() {
-    $("#metadataEditorForm").toggle();
 
-    $("#loading").hide();
+    // event subscriptions
 
     $("#fileSelectTextBox").click(function(e){
         $("input:file", $(e.target).parents()).click();
@@ -130,7 +129,27 @@ $(function() {
         $("#delimiter").val("\t");
     });
 
+    begin();
+
 });
+
+function begin() {
+    showLoading();
+    if (schemaId) {
+        loadSchemaBeforeDisplay();
+    } else {
+        displayFileSelector();
+    }
+}
+
+function displayFileSelector() {
+    if (schemaTitle) {
+        $("#templateTitle").html(schemaTitle);
+        $("#metadataEditorForm").addClass("info");
+        $("#templateInfoMessage").show();
+    }
+    showStep1();
+}
 
 function constructCsvwMetadata() {
     var csvw = {};
@@ -384,17 +403,8 @@ function completeFn()
 }
 //end papaparse
 
-function loadEditor() {
-    // check for template in global variable
-    if (schemaId) {
-        loadSchemaBeforeBuild();
-    } else {
-        buildFormTemplate();
-    }
-}
-
 //jquery.dform
-function buildFormTemplate() {
+function loadEditor() {
     
     columnSet = [];
 
@@ -546,10 +556,7 @@ function buildFormTemplate() {
         $("#aboutUrlSuffix").val(valToUse);
     }
 
-    $("#metadataEditorForm").toggle();
-    $("#fileSelector").toggle();
-
-   s
+    showStep2();
 
     // show first tab
     hideAllTabContent();
@@ -565,7 +572,7 @@ function buildFormTemplate() {
         }
     });
   
-}s
+}
 
 function constructBasicTabContent() {
     var datasetVoidFields = [
@@ -1109,6 +1116,24 @@ function hideAllTabContent() {
     $("#previewTab").removeClass("active");
 }
 
+function showStep1() {
+    $("#fileSelector").show();
+    $("#metadataEditor").hide();
+    $("#loading").hide();
+}
+
+function showStep2() {
+    $("#fileSelector").hide();
+    $("#metadataEditor").show();
+    $("#loading").hide();
+}
+
+function showLoading() {
+    $("#fileSelector").hide();
+    $("#metadataEditor").hide();
+    $("#loading").show();
+}
+
 function chooseFile() {
     var prefix = getPrefix();
     if (prefix) {
@@ -1134,7 +1159,7 @@ function setDatatypesFromTemplate() {
 //end ui functions
 
 //schema/template functions 
-function loadSchemaBeforeBuild() {
+function loadSchemaBeforeDisplay() {
     if (schemaId) {
         var options = {
             url: "/api/schemas",
@@ -1147,26 +1172,26 @@ function loadSchemaBeforeBuild() {
                 console.log("Template returned from DataDock schema API");
                 console.log(response);
                 if (response["schema"] && response["schema"]["metadata"]) {
+                    schemaTitle = response["schema"]["dc:title"] || "";
                     templateMetadata = response["schema"]["metadata"];
                 } else {
                     console.error("Could not find a template in the response");
                 }
                 // now build form
-                buildFormTemplate();
+                displayFileSelector();
             },
             error: function(response) {
                 console.error("Unable to retrieve template from DataDock schema API");
                 console.error(response);
                 // build form without schema 
                 // todo show error message
-                buildFormTemplate();
+                displayFileSelector();
             }
         };
         $.ajax(options);
     } else {
-        buildFormTemplate();
+        displayFileSelector();
     }
-    
 }
 
 //end schema/template functions

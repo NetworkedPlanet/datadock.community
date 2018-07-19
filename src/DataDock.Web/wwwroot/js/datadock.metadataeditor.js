@@ -202,9 +202,16 @@ function sendData(e){
 
     $("#step2").removeClass("active");
     $("#step3").addClass("active");
-    
-    formData.append("metadata", constructCsvwMetadata());
 
+    formData.append('ownerId', ownerId); // global variable set on Import.cshtml
+    formData.append('repoId', repoId); // global variable set on Import.cshtml
+//    formData.append('file', this.appService.csvFile.file, this.appService.csvFile.filename);
+//    formData.append('filename', this.appService.csvFile.filename);
+    formData.append('metadata', JSON.stringify(constructCsvwMetadata()));
+    formData.append('showOnHomePage', JSON.stringify($("#showOnHomepage").prop("checked")));
+    formData.append('saveAsSchema', JSON.stringify($("#saveAsTemplate").prop("checked")));
+    formData.append('addToExisting', JSON.stringify($("#addToExistingData").prop("checked")));
+    
     console.log("formData.......");
     console.log(JSON.stringify(formData));
 

@@ -134,7 +134,9 @@ function constructCsvwMetadata() {
     var csvw = {};
     csvw["@context"] = "http://www.w3.org/ns/csvw";
 
-    csvw["url"] = $("#datasetId").val();
+    var datasetId = $("#datasetId").val();
+
+    csvw["url"] = datasetId;
 
     csvw["dc:title"] = $("#datasetTitle").val();
 
@@ -152,7 +154,9 @@ function constructCsvwMetadata() {
 
     csvw["dc:license"] = $("#datasetLicense").val();
 
-    csvw["aboutUrl"] = $("#datasetIdentifier").val();
+    var suffix = $("#aboutUrlSuffix").val();
+    var aboutUrl = datasetId.replace("/dataset/", "/resource/") + "/" + suffix;
+    csvw["aboutUrl"] = aboutUrl;
 
     csvw["tableSchema"] = constructCsvwtableSchema();
 
@@ -525,6 +529,15 @@ function buildFormTemplate() {
     }
     // set the column datatypes from the template
     setDatatypesFromTemplate();
+    // set the aboutUrl from the template
+    if (templateMetadata) {
+        var colToUse = getMetadataIdentifierColumnName();
+        var valToUse = "row_{_row}";
+        if (colToUse !== "") {
+            valToUse = colToUse + "/{" + colToUse + "}";
+        }
+        $("#aboutUrlSuffix").val(valToUse);
+    }
 
     $("#metadataEditorForm").toggle();
     $("#fileSelector").toggle();
@@ -692,15 +705,14 @@ function constructIdentifiersTabContent() {
                 ]
         }
     );
-    var prefix = getPrefix();
-    var rowIdentifier = prefix + "/id/resource/acsv.csv/row_{_row}";
+    var rowIdentifier = "row_{_row}";
     var identifierOptions = {};
     identifierOptions[rowIdentifier] = "Row Number";
 
     for (var colIdx = 0; colIdx < columnCount; colIdx++) {
         var colTitle = header[colIdx];
         var colName = slugify(colTitle, "_", "_", "lowercase");
-        var colIdentifier = prefix + "/id/resource/acsv.csv/" + colName + "/{" + colName + "}";
+        var colIdentifier = colName + "/{" + colName + "}";
         identifierOptions[colIdentifier] = colTitle;
     }
     identifierTableElements.push(
@@ -714,8 +726,8 @@ function constructIdentifiersTabContent() {
                             "type": "td",
                             "html": [
                                 {
-                                    name: "datasetIdentifier",
-                                    id: "datasetIdentifier",
+                                    name: "aboutUrlSuffix",
+                                    id: "aboutUrlSuffix",
                                     type: "select",
                                     placeholder: "",
                                     options: identifierOptions

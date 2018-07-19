@@ -28,7 +28,7 @@ function getMetadataIdentifierColumnName() {
         if (templateIdentifier) {
             try {
                 // get chars between { and }
-                var col = identifier.substring(identifier.lastIndexOf("{") + 1, identifier.lastIndexOf("}"));
+                var col = templateIdentifier.substring(templateIdentifier.lastIndexOf("{") + 1, templateIdentifier.lastIndexOf("}"));
                 if (col !== "_row") {
                     // ignore _row as that is not a col
                     return col;

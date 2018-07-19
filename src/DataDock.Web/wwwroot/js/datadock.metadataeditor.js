@@ -4,6 +4,7 @@ var parser;
 var pauseChecked = false;
 var printStepChecked = false;
 
+var filename = "";
 var csvData;
 var header;
 var columnSet;
@@ -341,10 +342,11 @@ function completeFn()
     csvData = arguments[0].data;
     // arguments[0] .data [][] | .errors [] | meta (aborted, cursor, delimiter, linebreak, truncated)
     var file = arguments[1];
+    filename = file.name; // save in global variable
     if (csvData) {
         header = csvData[0];
         columnCount = header.length;
-        formData.append(file.name, file);
+        formData.append(filename, file);
     }
     console.log("Finished input (async). Time:", end-start, arguments);
     console.log("Rows:", rows, "Stepped:", stepped, "Chunks:", chunks);
@@ -366,6 +368,7 @@ function buildFormTemplate(){
                 "caption": "Title",
                 "type": "text",
                 "updateDatasetId": "this",
+                "value": filename,
                 "validate": {
                     "required": true,
                     "minlength": 2,
@@ -504,6 +507,7 @@ function buildFormTemplate(){
     }
     var columnDefinitionsTable = { "type": "table", "html": columnDefinitionsTableElements, "class": "ui celled table" };
 
+    var datasetIdDefaultValue = getPrefix() + "/id/dataset/" + slugify(filename, "", "", "camelCase");
     
     var dsIdTable = {
         "type": "table",
@@ -534,6 +538,7 @@ function buildFormTemplate(){
                                     "readonly": true,
                                     "id": "datasetId",
                                     "name": "datasetId",
+                                    "value": datasetIdDefaultValue,
                                     "disabled": true
                                 }
                             }

@@ -5,12 +5,11 @@ var pauseChecked = false;
 var printStepChecked = false;
 
 var filename = "";
+var csvFile;
 var csvData;
 var header;
 var columnSet;
 
-
-var formData = new FormData();
 
 $(function() {
     $("#metadataEditorForm").toggle();
@@ -202,11 +201,12 @@ function sendData(e){
 
     $("#step2").removeClass("active");
     $("#step3").addClass("active");
-
+    
+    var formData = new FormData();
     formData.append('ownerId', ownerId); // global variable set on Import.cshtml
     formData.append('repoId', repoId); // global variable set on Import.cshtml
-//    formData.append('file', this.appService.csvFile.file, this.appService.csvFile.filename);
-//    formData.append('filename', this.appService.csvFile.filename);
+    formData.append('file', csvFile, filename);
+    formData.append('filename', filename);
     formData.append('metadata', JSON.stringify(constructCsvwMetadata()));
     formData.append('showOnHomePage', JSON.stringify($("#showOnHomepage").prop("checked")));
     formData.append('saveAsSchema', JSON.stringify($("#saveAsTemplate").prop("checked")));
@@ -221,15 +221,11 @@ function sendData(e){
         data: formData,
         processData: false,
         contentType: false,
-        success: function(data)
-        {
-            console.log("SUCCESS");
-            console.log(data);
+        success: function(r) {
+            sendDataSuccess();
         },
-        error: function(data)
-        {
-            console.error("Error");
-            console.error(data);
+        error: function(r) {
+            sendDataFailure(r);
         }
     };
 
@@ -238,6 +234,23 @@ function sendData(e){
     $.ajax(apiOptions);
 
     return false;
+}
+
+function sendDataSuccess() {
+    var prefix = getPrefix();
+    var jobsUrl = prefix + "/jobs";
+    window.location.href = jobsUrl;
+}
+
+function sendDataFailure(response) {
+    if (response) {
+        var responseMsg = response["responseText"];
+        $("#error-messages ul li:last")
+            .append("<li><span>Publish data API has reported an error: " + responseMsg + "</span></li>");
+
+    } else {
+        $("#error-messages ul li:last").append("<li><span>Publish data API has resulted in an unspecified error</span></li>");
+    }
 }
 
 function getPrefix() {
@@ -337,10 +350,10 @@ function completeFn()
     // arguments[0] .data [][] | .errors [] | meta (aborted, cursor, delimiter, linebreak, truncated)
     var file = arguments[1];
     filename = file.name; // save in global variable
+    csvFile = file;
     if (csvData) {
         header = csvData[0];
         columnCount = header.length;
-        formData.append(filename, file);
     }
     console.log("Finished input (async). Time:", end-start, arguments);
     console.log("Rows:", rows, "Stepped:", stepped, "Chunks:", chunks);

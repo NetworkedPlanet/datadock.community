@@ -334,6 +334,12 @@ namespace DataDock.Web
                     constraints: new { ownerId = new OwnerIdConstraint(), repoId = new RepoIdConstraint() }
                 );
                 routes.MapRoute(
+                    name: "JobLog",
+                    template: "{ownerId}/{repoId}/job/{jobId}",
+                    defaults: new { controller = "Repository", action = "Job" },
+                    constraints: new { ownerId = new OwnerIdConstraint(), repoId = new RepoIdConstraint() }
+                );
+                routes.MapRoute(
                     name: "RepoLibrary",
                     template: "{ownerId}/{repoId}/library",
                     defaults: new { controller = "Repository", action = "Library" },

@@ -95,7 +95,8 @@ namespace DataDock.Web.Controllers
             ViewData["OwnerId"] = DashboardViewModel.SelectedOwnerId;
             ViewData["RepoId"] = DashboardViewModel.SelectedRepoId;
             ViewData["SchemaId"] = schemaId;
-            ViewData["DataDockBaseUrl"] = _configuration["BaseUrl"];
+            ViewData["BaseUrl"] = _configuration["BaseUrl"];
+            ViewData["PublishUrl"] = _configuration["PublishUrl"];
 
             DashboardViewModel.SelectedSchemaId = schemaId;
             return View("Import", this.DashboardViewModel);
@@ -107,15 +108,17 @@ namespace DataDock.Web.Controllers
         /// </summary>
         /// <param name="ownerId"></param>
         /// <param name="repoId"></param>
+        /// <param name="jobId"></param>
         /// <returns></returns>
         [Authorize]
         [ServiceFilter(typeof(AccountExistsFilter))]
         [ServiceFilter(typeof(OwnerAdminAuthFilter))]
-        public async Task<IActionResult> Jobs(string ownerId, string repoId)
+        public async Task<IActionResult> Jobs(string ownerId, string repoId, string jobId = "")
         {
             this.DashboardViewModel.Area = "jobs";
             DashboardViewModel.Title = string.Format("{0} > {1} Job History", DashboardViewModel.SelectedOwnerId,
                 DashboardViewModel.SelectedRepoId);
+            ViewData["JobId"] = jobId;
             return View("Dashboard/Jobs", this.DashboardViewModel);
         }
 

@@ -15,11 +15,14 @@ namespace DataDock.Common
         public string DatasetIndexName { get; set; } = "datasets";
         public string SchemaIndexName { get; set; } = "schemas";
         public string FileStorePath { get; set; } = "/datadock/repositories";
+        public string LogStorePath { get; set; } = "/datadock/logs";
+        public int LogTimeToLive { get; set; } = 90;
 
         public ApplicationConfiguration() { }
 
         public ApplicationConfiguration(string esUrl, string jobsIndex, string userIndex, string ownerSettingsIndex,
-            string repoSettingsIndex, string datasetIndex, string schemaIndex, string fileStorePath)
+            string repoSettingsIndex, string datasetIndex, string schemaIndex, string fileStorePath,
+            string logStorePath, int logTimeToLive)
         {
             ElasticsearchUrl = esUrl;
             JobsIndexName = jobsIndex;
@@ -29,6 +32,8 @@ namespace DataDock.Common
             DatasetIndexName = datasetIndex;
             SchemaIndexName = schemaIndex;
             FileStorePath = fileStorePath;
+            LogStorePath = logStorePath;
+            LogTimeToLive = logTimeToLive;
         }
 
         public virtual void LogSettings()
@@ -54,7 +59,9 @@ namespace DataDock.Common
                 GetEnvVar("REPOSETTINGS_IX", "reposettings"),
                 GetEnvVar("DATASET_IX", "datasets"),
                 GetEnvVar("SCHEMA_IX", "schemas"),
-                GetEnvVar("FILE_STORE_PATH", "/datadock/files"));
+                GetEnvVar("FILE_STORE_PATH", "/datadock/files"),
+                GetEnvVar("LOG_STORE_PATH", "/datadock/files"),
+                90);
         }
 
         protected static string GetEnvVar(string var, string defaultValue)

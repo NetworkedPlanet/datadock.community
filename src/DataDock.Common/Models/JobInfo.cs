@@ -202,6 +202,12 @@ namespace DataDock.Common.Models
         [Keyword(Index = false, Store = true)]
         public string SchemaId { get; set; }
 
+        /// <summary>
+        /// The identifier of the persistent log file for this job
+        /// </summary>
+        [Keyword(Index=false, Store=true)]
+        public string LogId { get; set; }
+
         [Ignore]
         public string GitRepositoryUrl => $"https://github.com/{OwnerId}/{RepositoryId}.git";
     }

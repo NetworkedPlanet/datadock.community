@@ -5,35 +5,11 @@
 }
 
 
-<div class="ui grid">
-  <div class="sixteen wide column">
-    <div id="loadingJobs">
-      @await Html.PartialAsync("_SpinnerPartial")
-    </div>
-    <div id="jobs"></div>
-
-  </div>
+<div class="ui container">
+  @await Component.InvokeAsync("JobHistory", new { selectedOwnerId = Model.SelectedOwnerId, selectedRepoId = Model.SelectedRepoId, currentJobId = ViewData["JobId"] })
 </div>
 
 @section Scripts {
-  <script type="text/javascript">
-    $( document ).ready(function() {
-      get_jobs();
-    });
-
-    function get_jobs() {
-      var jobs = $.ajax({
-        type: "GET",
-        url: 'loader/jobs?ownerId=@Model.SelectedOwnerId&repoId=@Model.SelectedRepoId'
-      }).done(function (data) {
-        $('#jobs').html(data);
-        $('#loadingJobs').hide();
-        setTimeout(function () { get_jobs();}, 5000);
-      }).responseText;
-    }
-    
-  </script>
-
 
   <environment names="Development">
     <script src="~/vendor/aspnet/signalr.js"></script>

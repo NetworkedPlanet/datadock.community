@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
+﻿using DataDock.Common.Stores;
 using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using DataDock.Common.Stores;
-using DataDock.Web.Models;
+using Serilog;
 
 namespace DataDock.Web.ViewComponents
 {
@@ -19,7 +18,7 @@ namespace DataDock.Web.ViewComponents
             _jobStore = jobStore;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(string selectedOwnerId, string selectedRepoId)
+        public async Task<IViewComponentResult> InvokeAsync(string selectedOwnerId, string selectedRepoId, string currentJobId = "")
         {
             try
             {
@@ -27,10 +26,10 @@ namespace DataDock.Web.ViewComponents
 
                 if (string.IsNullOrEmpty(selectedRepoId))
                 {
-                    var jobList = await GetOwnerJobHistory(selectedOwnerId);
+                    var jobList = await GetOwnerJobHistory(selectedOwnerId, currentJobId);
                     return View(jobList);
                 }
-                var repoJobList = await GetRepoJobHistory(selectedOwnerId, selectedRepoId);
+                var repoJobList = await GetRepoJobHistory(selectedOwnerId, selectedRepoId, currentJobId);
                 return View(repoJobList);
             }
             catch (Exception e)
@@ -40,7 +39,7 @@ namespace DataDock.Web.ViewComponents
             
         }
 
-        private async Task<List<JobHistoryViewModel>> GetOwnerJobHistory(string selectedOwnerId)
+        private async Task<List<JobHistoryViewModel>> GetOwnerJobHistory(string selectedOwnerId, string currentJobId = "")
         {
             try
             {
@@ -54,13 +53,37 @@ namespace DataDock.Web.ViewComponents
             }
         }
 
-        private async Task<List<JobHistoryViewModel>> GetRepoJobHistory(string selectedOwnerId, string selectedRepoId)
+        private async Task<List<JobHistoryViewModel>> GetRepoJobHistory(string selectedOwnerId, string selectedRepoId, string checkJobIds = "")
         {
             try
             {
                 var jobs = await _jobStore.GetJobsForRepository(selectedOwnerId, selectedRepoId);
                 var jobHistoriesHistoryViewModels = jobs.Select(j => new JobHistoryViewModel(j)).ToList();
-                return jobHistoriesHistoryViewModels;
+                if (!string.IsNullOrEmpty(checkJobIds))
+                {
+                    var currentJobIds = checkJobIds.Split(",");
+                    foreach (var cjid in currentJobIds)
+                    {
+                        //check current job has been loaded
+                        var currentJob = jobs.FirstOrDefault(j => j.JobId.Equals(cjid));
+                        if (currentJob == null)
+                        {
+                            try
+                            {
+                                currentJob = await _jobStore.GetJobInfoAsync(cjid);
+                                var cjvm = new JobHistoryViewModel(currentJob);
+                                jobHistoriesHistoryViewModels.Add(cjvm);
+                            }
+                            catch (JobNotFoundException jnf)
+                            {
+                                // do nothing except log
+                                Log.Warning($"Unable to load specific job ID '{cjid}' as it could not be found in the database.");
+                            }
+                        }
+                    }
+
+                }
+                return jobHistoriesHistoryViewModels.OrderByDescending(j => j.QueuedAt).ToList();
             }
             catch (JobNotFoundException jnf)
             {

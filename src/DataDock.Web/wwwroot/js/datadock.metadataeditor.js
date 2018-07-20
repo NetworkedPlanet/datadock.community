@@ -240,13 +240,15 @@ function sendData(e){
 }
 
 function sendDataSuccess(response) {
-    var prefix = getPrefix();
-    var jobsUrl = prefix + "/jobs";
+    var jobsUrl = "/" + ownerId + "/" + repoId + "/jobs";
+    if (baseUrl) {
+        jobsUrl = baseUrl + jobsUrl;
+    }
     if (response) {
         if (response["statusCode"] === 200) {
-            var jobId = response["jobId"];
-            if (jobId) {
-                jobsUrl = jobsUrl + "/" + jobId;
+            var jobIds = response["jobIds"];
+            if (jobIds) {
+                jobsUrl = jobsUrl + "/" + jobIds;
             } else {
                 jobsUrl = jobsUrl + "/latest";
             }
@@ -1042,7 +1044,7 @@ function constructPublishOptionsCheckboxes() {
 
 //helper functions
 function getPrefix() {
-    return dataDockBaseUrl + "/" + ownerId + "/" + repoId;
+    return publishUrl + "/" + ownerId + "/" + repoId;
 }
 function slugify(original, whitespaceReplacement, specCharReplacement, casing) {
     switch (casing)
@@ -1069,6 +1071,10 @@ function camelize(str) {
     }).join("");
     var slug = camelised.replace(/[^A-Z0-9]+/ig, "");
     return slug;
+}
+
+function isArray(value) {
+    return value && typeof value === 'object' && value.constructor === Array;
 }
 
 function sniffDatatype() {
@@ -1131,10 +1137,11 @@ function clearErrors() {
 }
 
 function chooseFile() {
-    var prefix = getPrefix();
-    if (prefix) {
-        window.location.href = prefix + "/import";
+    var restartLocation = "/" + ownerId + "/" + repoId + "/import";
+    if (baseUrl) {
+        window.location.href = baseUrl + restartLocation;
     }
+    window.location.href = restartLocation;
 }
 
 function setDatatypesFromTemplate() {

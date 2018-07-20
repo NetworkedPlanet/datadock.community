@@ -117,11 +117,12 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.5.0/papaparse.min.js" type="text/javascript"></script>
 
   <script>
-    var dataDockBaseUrl = "@Html.Raw(ViewData["DataDockBaseUrl"])";
+    var baseUrl = "@Html.Raw(ViewData["BaseUrl"])";
+    var publishUrl = "@Html.Raw(ViewData["PublishUrl"])";
     var ownerId = "@Html.Raw(ViewData["OwnerId"])";
     var repoId = "@Html.Raw(ViewData["RepoId"])";
     var schemaId = "@Html.Raw(ViewData["SchemaId"])";
-    var apiUrl = dataDockBaseUrl + "/api/data";
+    var apiUrl = baseUrl + "/api/data";
   </script>
 
   <script src="/js/datadock.metadataeditor.js" type="text/javascript"></script>

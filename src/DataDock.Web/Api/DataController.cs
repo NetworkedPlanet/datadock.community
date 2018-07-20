@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -105,13 +106,16 @@ namespace DataDock.Web.Api
                 
                 Log.Information("api/data(POST): Conversion job started.");
 
+                var queuedJobIds = new List<string> {job.JobId};
+
                 if (parserResult.SchemaImportJobRequest != null)
                 {
                     try
                     {
-                        await _jobStore.SubmitSchemaImportJobAsync(parserResult.SchemaImportJobRequest);
+                        var schemaJob = await _jobStore.SubmitSchemaImportJobAsync(parserResult.SchemaImportJobRequest);
 
                         Log.Information("api/data(POST): Schema creation job started.");
+                        queuedJobIds.Add(schemaJob.JobId);
                     }
                     catch (Exception)
                     {
@@ -119,7 +123,7 @@ namespace DataDock.Web.Api
                     }
                 }
 
-                return Ok(new DataControllerResult { StatusCode = 200, Message = "API called successfully", Metadata = parserResult.Metadata, JobId = job.JobId});
+                return Ok(new DataControllerResult { StatusCode = 200, Message = "API called successfully", Metadata = parserResult.Metadata, JobIds = queuedJobIds });
             }
             catch (Exception ex)
             {
@@ -137,7 +141,7 @@ namespace DataDock.Web.Api
         public int StatusCode { get; set; }
         public string Message { get; set; }
         public string Metadata { get; set; }
-        public string JobId { get; set; }
+        public List<string> JobIds { get; set; }
     }
 
 }

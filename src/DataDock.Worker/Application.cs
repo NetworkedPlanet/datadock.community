@@ -5,6 +5,7 @@ using DataDock.Common.Models;
 using DataDock.Common.Stores;
 using DataDock.Worker.Processors;
 using Microsoft.Extensions.DependencyInjection;
+using Nest;
 using Serilog;
 using VDS.RDF;
 
@@ -38,7 +39,7 @@ namespace DataDock.Worker
         {
             var progressLogFactory = Services.GetRequiredService<IProgressLogFactory>();
             var progressLog = await progressLogFactory.MakeProgressLogForJobAsync(jobInfo);
-
+            var logStore = Services.GetService<ILogStore>();
             try
             {
                 var jobLogger = Log.ForContext("JobId", jobInfo.JobId);
@@ -98,14 +99,20 @@ namespace DataDock.Worker
 
                 // Log end
                 jobLogger.Information("Job processing completed");
+                var logId = await logStore.AddLogAsync(jobInfo.OwnerId, jobInfo.RepositoryId, jobInfo.JobId,
+                    progressLog.GetLogText());
                 jobInfo.CurrentStatus = JobStatus.Completed;
                 jobInfo.CompletedAt = DateTime.UtcNow;
+                jobInfo.LogId = logId;
                 await jobStore.UpdateJobInfoAsync(jobInfo);
                 progressLog.UpdateStatus(jobInfo.CurrentStatus, "Job completed");
             }
             catch (Exception ex)
             {
                 Log.Error(ex, "Job processing failed for job {JobId}", jobInfo.JobId);
+                var logId = await logStore.AddLogAsync(jobInfo.OwnerId, jobInfo.RepositoryId, jobInfo.JobId,
+                    progressLog.GetLogText());
+                jobInfo.LogId = logId;
                 jobInfo.CurrentStatus = JobStatus.Failed;
                 jobInfo.CompletedAt = DateTime.UtcNow;
                 await jobStore.UpdateJobInfoAsync(jobInfo);

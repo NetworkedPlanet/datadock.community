@@ -97,6 +97,7 @@ namespace DataDock.Web
             services.AddSingleton<ISchemaStore, SchemaStore>();
             services.AddSingleton<IImportService, ImportService>();
             services.AddSingleton<IFileStore, DirectoryFileStore>();
+            services.AddSingleton<ILogStore, DirectoryLogStore>();
 
             var gitHubClientHeader = config.GitHubClientHeader;
             services.AddSingleton<IGitHubClientFactory>(new GitHubClientFactory(gitHubClientHeader));

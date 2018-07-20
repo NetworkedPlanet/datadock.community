@@ -20,6 +20,14 @@ namespace DataDock.Common.Stores
             _basePath = basePath;
             LogTimeToLive = timeToLive;
         }
+
+        public DirectoryLogStore(ApplicationConfiguration applicationConfiguration)
+        {
+            _timeProvider = new DefaultTimeProvider();
+            _basePath = applicationConfiguration.LogStorePath;
+            LogTimeToLive = applicationConfiguration.LogTimeToLive;
+        }
+
         public async Task<string> AddLogAsync(string ownerId, string repoId, string jobId, string logText)
         {
             try

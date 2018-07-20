@@ -69,7 +69,7 @@ namespace DataDock.Web.ViewComponents
                         jobHistoriesHistoryViewModels.Add(cjvm);
                     }
                 }
-                return jobHistoriesHistoryViewModels;
+                return jobHistoriesHistoryViewModels.OrderByDescending(j => j.QueuedAt).ToList();
             }
             catch (JobNotFoundException jnf)
             {

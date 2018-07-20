@@ -246,9 +246,9 @@ function sendDataSuccess(response) {
     }
     if (response) {
         if (response["statusCode"] === 200) {
-            var jobId = response["jobId"];
-            if (jobId) {
-                jobsUrl = jobsUrl + "/" + jobId;
+            var jobIds = response["jobIds"];
+            if (jobIds) {
+                jobsUrl = jobsUrl + "/" + jobIds;
             } else {
                 jobsUrl = jobsUrl + "/latest";
             }
@@ -1071,6 +1071,10 @@ function camelize(str) {
     }).join("");
     var slug = camelised.replace(/[^A-Z0-9]+/ig, "");
     return slug;
+}
+
+function isArray(value) {
+    return value && typeof value === 'object' && value.constructor === Array;
 }
 
 function sniffDatatype() {

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace DataDock.Web.ViewComponents
 {
@@ -52,22 +53,35 @@ namespace DataDock.Web.ViewComponents
             }
         }
 
-        private async Task<List<JobHistoryViewModel>> GetRepoJobHistory(string selectedOwnerId, string selectedRepoId, string currentJobId = "")
+        private async Task<List<JobHistoryViewModel>> GetRepoJobHistory(string selectedOwnerId, string selectedRepoId, string checkJobIds = "")
         {
             try
             {
                 var jobs = await _jobStore.GetJobsForRepository(selectedOwnerId, selectedRepoId);
                 var jobHistoriesHistoryViewModels = jobs.Select(j => new JobHistoryViewModel(j)).ToList();
-                if (!string.IsNullOrEmpty(currentJobId))
+                if (!string.IsNullOrEmpty(checkJobIds))
                 {
-                    //check current job has been loaded
-                    var currentJob = jobs.FirstOrDefault(j => j.JobId.Equals(currentJobId));
-                    if (currentJob == null)
+                    var currentJobIds = checkJobIds.Split(",");
+                    foreach (var cjid in currentJobIds)
                     {
-                        currentJob = await _jobStore.GetJobInfoAsync(currentJobId);
-                        var cjvm = new JobHistoryViewModel(currentJob);
-                        jobHistoriesHistoryViewModels.Add(cjvm);
+                        //check current job has been loaded
+                        var currentJob = jobs.FirstOrDefault(j => j.JobId.Equals(cjid));
+                        if (currentJob == null)
+                        {
+                            try
+                            {
+                                currentJob = await _jobStore.GetJobInfoAsync(cjid);
+                                var cjvm = new JobHistoryViewModel(currentJob);
+                                jobHistoriesHistoryViewModels.Add(cjvm);
+                            }
+                            catch (JobNotFoundException jnf)
+                            {
+                                // do nothing except log
+                                Log.Warning($"Unable to load specific job ID '{cjid}' as it could not be found in the database.");
+                            }
+                        }
                     }
+
                 }
                 return jobHistoriesHistoryViewModels.OrderByDescending(j => j.QueuedAt).ToList();
             }

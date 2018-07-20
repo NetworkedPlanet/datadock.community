@@ -146,7 +146,7 @@ namespace DataDock.Web.Tests.Api
             var resultValue = okResult.Value as DataControllerResult;
             Assert.NotNull(resultValue);
             Assert.Equal(@"{'foo':'bar'}", resultValue.Metadata);
-            Assert.Equal("test_job", resultValue.JobId);
+            Assert.Equal("test_job", resultValue.JobIds[0]);
 
             // Check dependency calls
             // Import Form parser should be invoked once

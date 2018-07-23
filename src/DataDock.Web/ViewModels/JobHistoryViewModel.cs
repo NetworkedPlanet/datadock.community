@@ -41,5 +41,6 @@ namespace DataDock.Web.ViewModels
         public DateTime StartedAt => _jobInfo.StartedAt;
         public DateTime QueuedAt => _jobInfo.QueuedAt;
         public string JobType => _jobInfo.JobType.ToString();
+        public string LogId => _jobInfo.LogId;
     }
 }

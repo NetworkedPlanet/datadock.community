@@ -53,7 +53,7 @@
             .addClass(getJobStatusClass(jobStatus));
           if (statusText === "Failed" || statusText === "Completed") {
             var ll = $('#' + jobId + ' > .log-link');
-            ll.show();
+            ll.removeClass('hidden');
             var m = $('#' + jobId + ' > .processing-messages');
             m.addClass('hidden');
           }

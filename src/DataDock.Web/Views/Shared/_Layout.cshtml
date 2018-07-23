@@ -4,7 +4,7 @@
 <html>
 <head>
   <base href="/">
-  <meta charset="utf-8"/>
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   @{
     var title = "DataDock";
@@ -23,20 +23,21 @@
   <meta name="theme-color" content="#ffffff">
   <meta name="format-detection" content="telephone=no">
 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
   <environment include="Development">
-    <link rel="stylesheet" href="~/semantic-ui/dist/semantic.css"/>
-    <link rel="stylesheet" href="~/css/site.css"/>
+    <link rel="stylesheet" href="~/semantic-ui/dist/semantic.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
 
   </environment>
   <environment include="Staging, Production">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.0/semantic.min.css"
           asp-fallback-href="~/semantic-ui/dist/semantic.min.css"
-          asp-fallback-test-class="transition" asp-fallback-test-property="animation-iteration-count" asp-fallback-test-value="1"/>
-    <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true"/>
+          asp-fallback-test-class="transition" asp-fallback-test-property="animation-iteration-count" asp-fallback-test-value="1" />
+    <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
 
   </environment>
-  <link rel="stylesheet" href="~/css/inputosaurus.css"/>
-  <link rel="stylesheet" href="~/css/spinner.css"/>
+  <link rel="stylesheet" href="~/css/inputosaurus.css" />
+  <link rel="stylesheet" href="~/css/spinner.css" />
 </head>
 <body>
 

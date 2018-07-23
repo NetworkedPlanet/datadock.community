@@ -1105,6 +1105,8 @@ function showStep1() {
 function showStep2() {
     $("#fileSelector").hide();
     $("#metadataEditor").show();
+    $("#step1").removeClass("active");
+    $("#step2").addClass("active");
     $("#loading").hide();
 }
 

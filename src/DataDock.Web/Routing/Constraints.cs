@@ -20,6 +20,7 @@ namespace DataDock.Web.Routing
                 "info",
                 "import",
                 "jobs",
+                "job",
                 "repositories",
                 "datasets",
                 "library",

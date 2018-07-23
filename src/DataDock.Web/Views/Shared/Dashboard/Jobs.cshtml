@@ -45,11 +45,18 @@
           if (!item) {
             console.log('Cannot find an element with that jobId');
           }
+          var statusText = getJobStatusText(jobStatus);
           $('#' + jobId + ' .job-status')
-            .html(getJobStatusText(jobStatus));
+            .html(statusText);
           $('#' + jobId)
             .removeClass('positive negative info warning')
             .addClass(getJobStatusClass(jobStatus));
+          if (statusText === "Failed" || statusText === "Completed") {
+            var ll = $('#' + jobId + ' > .log-link');
+            ll.removeClass('hidden');
+            var m = $('#' + jobId + ' > .processing-messages');
+            m.addClass('hidden');
+          }
         });
 
       connection.on('logUpdated',

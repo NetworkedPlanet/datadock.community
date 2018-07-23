@@ -122,6 +122,21 @@ namespace DataDock.Web.Controllers
             return View("Dashboard/Jobs", this.DashboardViewModel);
         }
 
+        [Authorize]
+        [ServiceFilter(typeof(AccountExistsFilter))]
+        [ServiceFilter(typeof(OwnerAdminAuthFilter))]
+        public async Task<IActionResult> Job(string ownerId, string repoId, string jobId)
+        {
+            this.DashboardViewModel.Area = "jobs";
+            DashboardViewModel.Title = string.Format("{0} > {1} Job Log", DashboardViewModel.SelectedOwnerId,
+                DashboardViewModel.SelectedRepoId);
+            ViewData["JobId"] = jobId;
+
+            // get log ID, view job log
+
+            return View("Dashboard/Job", this.DashboardViewModel);
+        }
+
         /// <summary>
         /// org/user settings for a partcular repo
         /// Viewable by authorized users only

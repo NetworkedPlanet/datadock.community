@@ -13,10 +13,10 @@
       <a asp-controller="Account" asp-action="Settings" class="item"><i class="user icon"></i> Account</a>
     </div>
   </div>
-  <a asp-action="LogOff" asp-controller="Account" class="item" id="logoffLink" asp-route-returnUrl="@returnUrl">Log Off</a>
+  <a asp-action="LogOff" asp-controller="Account" class="item" id="logoffLinkSubMenu" asp-route-returnUrl="@returnUrl">Log Off</a>
 }
 else
 {
 
-  <a asp-action="Login" asp-controller="Account" class="item" id="loginLink" asp-route-returnUrl="@returnUrl">Log In</a>
+  <a asp-action="Login" asp-controller="Account" class="item" id="loginLinkSubMenu" asp-route-returnUrl="@returnUrl">Log In</a>
 }

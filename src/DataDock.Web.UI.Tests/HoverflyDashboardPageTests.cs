@@ -1,6 +1,9 @@
 using System;
 using System.IO;
 using System.Reflection;
+using Hoverfly.Core;
+using Hoverfly.Core.Configuration;
+using Hoverfly.Core.Resources;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
@@ -8,7 +11,7 @@ using Xunit;
 
 namespace DataDock.Web.UI.Tests
 {
-    public class DashboardPageTests
+    public class HoverflyDashboardPageTests
     {
         private string _gituser;
         private string _gitpwd;
@@ -18,6 +21,10 @@ namespace DataDock.Web.UI.Tests
         [Fact]
         public void ItShouldHaveADashboardMenu()
         {
+
+            var hoverfly = new Hoverfly.Core.Hoverfly(HoverflyMode.Capture);
+            hoverfly.Start();
+
             try
             {
                 var option = new ChromeOptions();
@@ -77,9 +84,17 @@ namespace DataDock.Web.UI.Tests
             }
             catch (Exception e)
             {
+                hoverfly.Stop();
                 Console.WriteLine(e);
                 throw;
             }
+           
+
+            
+            var timestamp = DateTime.UtcNow.ToString("YYYYmmddHHMMSS");
+            var export = new FileSimulationSource($"test_{timestamp}_simulation.json");
+            hoverfly.ExportSimulation(export);
+            hoverfly.Stop();
         }
     }
 }

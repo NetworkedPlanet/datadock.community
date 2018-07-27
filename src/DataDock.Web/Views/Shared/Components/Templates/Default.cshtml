@@ -16,31 +16,41 @@
           </div>
           <div class="header">@template.Title</div>
           <div class="meta">Last Modified: @template.LastModified.ToString("d", CultureInfo.CurrentUICulture)</div>
-          <div class="content">
-            <h4>Template Metadata:</h4>
-            <div class="">
-              <p><b>Title:</b> <span id="mTitle">@template.MetadataTitle</span></p>
-              <p><b>Description:</b> <span id="mDesc">@template.MetadataDescription</span></p>
-              <p><b>License:</b> <span id="mLicense">@template.MetadataLicenseUri</span></p>
-              <p>
-                <b>Tags:</b>
-                @foreach (var t in template.MetadataTags)
-                {
-                  <a class="ui tag label" href="/search?tag=@t">@t</a>
-                }
-              </p>
+          @{
+              if (!string.IsNullOrEmpty(template.MetadataRaw))
+              {
+                <div class="content">
+                  <h4>Template Metadata:</h4>
+                  <div class="">
+                    <p><b>Title:</b> <span id="mTitle">@template.MetadataTitle</span></p>
+                    <p><b>Description:</b> <span id="mDesc">@template.MetadataDescription</span></p>
+                    <p><b>License:</b> <span id="mLicense">@template.MetadataLicenseUri</span></p>
+                    <p>
+                      <b>Tags:</b>
+                      @foreach (var t in template.MetadataTags)
+                      {
+                        <a class="ui tag label" href="/search?tag=@t">@t</a>
+                      }
+                    </p>
               
-            </div>
-            <div class="ui accordion">
-              <div class="title">
-                <i class="dropdown icon"></i>
-                <b>Raw Metadata</b>
-              </div>
-              <div class="content">
-                <pre id="raw" class="rawJson">@template.MetadataRaw</pre>
-              </div>
-            </div>       
-          </div>
+                  </div>
+                  <div class="ui accordion">
+                    <div class="title">
+                      <i class="dropdown icon"></i>
+                      <b>Raw Metadata</b>
+                    </div>
+                    <div class="content">
+                      <pre id="raw" class="rawJson">@template.MetadataRaw</pre>
+                    </div>
+                  </div>       
+                </div>
+              }
+              else
+              {
+                <div class="ui error compact message">ERROR: No Metadata Found. Please delete this template from your library.</div>
+              }
+          }
+          
         </div>
       </div>
     }

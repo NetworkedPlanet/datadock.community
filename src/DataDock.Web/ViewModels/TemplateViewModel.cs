@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Serilog;
 
 namespace DataDock.Web.ViewModels
 {
@@ -15,20 +16,33 @@ namespace DataDock.Web.ViewModels
 
         public TemplateViewModel(SchemaInfo schemaInfo)
         {
-            if(schemaInfo == null) return;
-            _schemaInfo = schemaInfo;
-            _schema = _schemaInfo.Schema;
-            Title = this.GetTitle();
-            if (_schema == null) return;
+            try
+            {
+                if (schemaInfo == null) return;
+                _schemaInfo = schemaInfo;
+                _schema = _schemaInfo.Schema;
+                Title = this.GetTitle();
+                if (_schema == null) return;
 
-            _metadata = _schema["metadata"] as JObject;
-            // set basic metadata properties
-            MetadataTitle = GetLiteralValue(_metadata, "dc:title");
-            MetadataDescription = GetLiteralValue(_metadata, "dc:description");
-            MetadataTags = GetTags();
-            MetadataLicenseUri = GetLicenseUri(_metadata);
-            MetadataLicenseIcon = GetLicenseIcon(_metadata);
-            MetadataRaw = _metadata.ToString();
+                _metadata = _schema["metadata"] as JObject;
+                // set basic metadata properties
+                if (_metadata != null)
+                {
+                    MetadataRaw = _metadata.ToString();
+                    MetadataTitle = GetLiteralValue(_metadata, "dc:title");
+                    MetadataDescription = GetLiteralValue(_metadata, "dc:description");
+                    MetadataTags = GetMetadataTags();
+                    MetadataLicenseUri = GetLicenseUri(_metadata);
+                    MetadataLicenseIcon = GetLicenseIcon(_metadata);
+                }
+               
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Error converting schemaInfo into TemplateViewModel");
+                throw;
+            }
+            
         }
 
         public string Id => _schemaInfo?.Id;
@@ -67,15 +81,16 @@ namespace DataDock.Web.ViewModels
 
         public string GetDescription()
         {
-            if (_metadata != null)
+            if (_schema != null)
             {
-                return GetLiteralValue(_metadata, "dc:description");
+                return GetLiteralValue(_schema, "dc:description");
             }
             return string.Empty;
         }
         
-        public IEnumerable<string> GetTags()
+        public IEnumerable<string> GetMetadataTags()
         {
+            if(_metadata == null) return new List<string>();
             var tags = _metadata?["dcat:keyword"] as JArray;
             if (tags != null)
             {
@@ -95,6 +110,7 @@ namespace DataDock.Web.ViewModels
 
         public string GetLicenseIcon(JObject parentObject)
         {
+            if (parentObject == null) return string.Empty;
             switch (GetLicenseUri(parentObject))
             {
                 case "https://creativecommons.org/publicdomain/zero/1.0/":

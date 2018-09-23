@@ -32,7 +32,7 @@ namespace DataDock.Worker.Tests
             appConfig.RepoSettingsIndexName.Should().Be("reposettings");
             appConfig.UserIndexName.Should().Be("users");
             appConfig.GitPath.Should().Be("git");
-            appConfig.GitHubProductHeader.Should().Be("");
+            appConfig.GitHubClientHeader.Should().Be("");
             appConfig.PublishUrl.Should().Be("http://datadock.io/");
             appConfig.RepoBaseDir.Should().Be("/datadock/repositories");
 
@@ -57,7 +57,7 @@ namespace DataDock.Worker.Tests
             appConfig.UserIndexName.Should().Be("TestUsers");
             appConfig.FileStorePath.Should().Be("/path/to/file/store");
             appConfig.GitPath.Should().Be("/usr/bin/git");
-            appConfig.GitHubProductHeader.Should().Be("MyDataDock");
+            appConfig.GitHubClientHeader.Should().Be("MyDataDock");
             appConfig.PublishUrl.Should().Be("http://mydatadock.com/");
             appConfig.RepoBaseDir.Should().Be("/data/repos");
         }

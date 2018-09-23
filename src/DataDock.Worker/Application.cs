@@ -22,6 +22,7 @@ namespace DataDock.Worker
 
         public async Task Run()
         {
+            Log.Information("Worker application started");
             var jobRepo = Services.GetRequiredService<IJobStore>();
             while (true)
             {

@@ -44,7 +44,7 @@ namespace DataDock.IntegrationTests
                 FileStorePath = "test_files" + indexSuffix,
                 GitPath = "",
                 RepoBaseDir = "test_repos" + indexSuffix,
-                GitHubProductHeader = "datadock_test"
+                GitHubClientHeader = "datadock_test"
             };
         }
 

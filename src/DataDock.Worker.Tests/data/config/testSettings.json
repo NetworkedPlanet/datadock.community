@@ -10,5 +10,5 @@
   "PublishUrl": "http://mydatadock.com/",
   "GitPath": "/usr/bin/git",
   "RepoBaseDir": "/data/repos",
-  "GitHubProductHeader": "MyDataDock" 
+  "GitHubClientHeader": "MyDataDock" 
 }

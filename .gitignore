@@ -299,3 +299,4 @@ src/DataDock.Web/ClientApp/**/*js
 docker/web/app/
 docker/worker/app
 docker/docker-compose.*.yml
+src/DataDock.Worker/appsettings.development.json

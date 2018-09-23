@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Serilog;
 using System;
 using System.Threading.Tasks;
+using DataDock.Common.Models;
 
 namespace DataDock.Web.Controllers
 {
@@ -28,9 +29,9 @@ namespace DataDock.Web.Controllers
                     model = new SearchResultViewModel(tag, results);
                 }
             }
-            catch (DatasetNotFoundException dnf)
+            catch (DatasetNotFoundException)
             {
-                // none found, no special action needed
+                model = new SearchResultViewModel(tag, new DatasetInfo[0]);
             }
             catch (Exception e)
             {

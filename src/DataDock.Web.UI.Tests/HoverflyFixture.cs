@@ -1,59 +1,56 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Net;
 using Hoverfly.Core;
-using Hoverfly.Core.Resources;
-using Xunit;
+using Hoverfly.Core.Dsl;
+using static Hoverfly.Core.Dsl.HoverflyDsl;
+using static Hoverfly.Core.Dsl.ResponseCreators;
+using static Hoverfly.Core.Dsl.DslSimulationSource;
 
 namespace DataDock.Web.UI.Tests
 {
     public class HoverflyFixture : IDisposable
     {
-        public Hoverfly.Core.Hoverfly hf;      
+        private readonly Hoverfly.Core.Hoverfly _hoverfly;
+
+        public int ProxyPort => _hoverfly.GetProxyPort();
 
         public HoverflyFixture()
         {
-           CaptureStart();
+            _hoverfly = new Hoverfly.Core.Hoverfly(HoverflyMode.Simulate);
+            _hoverfly.Start();
+            SetupSimulation();
+        }
+
+        private void SetupSimulation()
+        {
+            _hoverfly.ImportSimulation(
+                Dsl(
+                    Service("https://github.com")
+                        .Get("/")
+                        .WillReturn(Success("<h1 class='title'>Awesome</h1>", "text/html"))));
+            _hoverfly.ImportSimulation(
+                Dsl(
+                    Service("https://github.com")
+                        .Get("/login/oauth/authorize")
+                        .QueryParam("client_id", "test_client_id")
+                        .WillReturn(ResponseBuilder.Response()
+                            .Status(HttpStatusCode.Redirect)
+                            .Header("Location", "http://localhost:5000/signin-github?code=test_code"))));
         }
 
         public void Dispose()
         {
-            CaptureEnd();
-        }
+            if (_hoverfly != null)
+            {
+                try
+                {
+                    _hoverfly.Stop();
+                }
+                catch (TimeoutException) { }
 
-        public void CaptureStart()
-        {
-            hf = new Hoverfly.Core.Hoverfly(HoverflyMode.Capture);
-            hf.Start();
+                _hoverfly.Dispose();
+            }
         }
-
-        public void CaptureEnd()
-        {
-            var timestamp = DateTime.UtcNow.ToString("YYYYmmddHHMMSS");
-            hf.ExportSimulation(new FileSimulationSource($"test_{timestamp}_simulation.json"));
-            hf.Stop();
-        }
-
-        public void SimulateStart()
-        {
-            hf = new Hoverfly.Core.Hoverfly(HoverflyMode.Simulate);
-            var timestamp = DateTime.UtcNow.ToString("YYYYmmddHHMMSS");
-            hf.ImportSimulation(new FileSimulationSource($"test_{timestamp}_simulation.json"));
-            hf.Start();
-        }
-
-        public void SimulateEnd()
-        {
-            hf.Stop();
-        }
-       
     }
 
-    [CollectionDefinition("Hoverfly Simulation")]
-    public class DatabaseCollection : ICollectionFixture<HoverflyFixture>
-    {
-        // This class has no code, and is never created. Its purpose is simply
-        // to be the place to apply [CollectionDefinition] and all the
-        // ICollectionFixture<> interfaces.
-    }
 }

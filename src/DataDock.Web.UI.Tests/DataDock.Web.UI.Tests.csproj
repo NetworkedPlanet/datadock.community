@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
@@ -26,14 +26,23 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
-    <PackageReference Include="Selenium.Chrome.WebDriver" Version="2.40.0" />
-    <PackageReference Include="Selenium.Support" Version="3.13.1" />
-    <PackageReference Include="Selenium.WebDriver" Version="3.13.1" />
-    <PackageReference Include="SpectoLabs.Hoverfly" Version="0.15.0" />
-    <PackageReference Include="WireMock.Net" Version="1.0.4.8" />
+    <PackageReference Include="Selenium.Chrome.WebDriver" Version="2.41.0" />
+    <PackageReference Include="Selenium.Support" Version="3.14.0" />
+    <PackageReference Include="Selenium.WebDriver" Version="3.14.0" />
+    <PackageReference Include="SpectoLabs.Hoverfly" Version="0.17.0" />
+    <PackageReference Include="WireMock.Net" Version="1.0.4.16" />
     <PackageReference Include="xunit" Version="2.4.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
     <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <Hoverfly>$(NuGetPackageRoot)spectolabs.hoverfly\0.17.0\tools\hoverfly.exe</Hoverfly>
+  </PropertyGroup>
+
+  <Target Name="CopyHoverfly" AfterTargets="AfterBuild">
+    <Message Text="Copy the hoverfly exe"/>
+    <Copy SourceFiles="$(Hoverfly)" DestinationFiles="$(OutputPath)hoverfly.exe"/>
+  </Target>
 
 </Project>

@@ -999,35 +999,44 @@ function constructPublishOptionsCheckboxes() {
 
     var showOnHomepage = {
         "type": "div",
-        "class": "ui checkbox",
         "html": {
-            "type": "checkbox",
-            "name": "showOnHomepage",
-            "id": "showOnHomepage",
-            "caption": "Include my published dataset on DataDock homepage and search",
-            "value": true
+            "type": "div",
+            "class": "ui checkbox",
+            "html": {
+                "type": "checkbox",
+                "name": "showOnHomepage",
+                "id": "showOnHomepage",
+                "caption": "Include my published dataset on DataDock homepage and search",
+                "value": true
+            }
         }
     };
     var addToData = {
         "type": "div",
-        "class": "ui checkbox",
         "html": {
-            "type": "checkbox",
-            "name": "addToExistingData",
-            "id": "addToExistingData",
-            "caption": "Add to existing data if dataset already exists (default is to overwrite existing data)",
-            "value": false
+            "type": "div",
+            "class": "ui checkbox",
+            "html": {
+                "type": "checkbox",
+                "name": "addToExistingData",
+                "id": "addToExistingData",
+                "caption": "Add to existing data if dataset already exists (default is to overwrite existing data)",
+                "value": false
+            }
         }
     };
     var saveAsTemplate = {
         "type": "div",
-        "class": "ui checkbox",
         "html": {
-            "type": "checkbox",
-            "name": "saveAsTemplate",
-            "id": "saveAsTemplate",
-            "caption": "Save this information as a template for future imports",
-            "value": false
+            "type": "div",
+            "class": "ui checkbox",
+            "html": {
+                "type": "checkbox",
+                "name": "saveAsTemplate",
+                "id": "saveAsTemplate",
+                "caption": "Save this information as a template for future imports",
+                "value": false
+            }
         }
     };
     var divider = {

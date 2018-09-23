@@ -243,8 +243,8 @@ namespace DataDock.Worker.Processors
             }
             catch (MetadataParseException ex)
             {
-                Log.Error(ex, "Unable to parse CSV table metadata");
-                throw new WorkerException(ex, "CSV conversion failed. Unable to parse CSV table metadata.");
+                Log.Error(ex, "Invalid CSV table metadata: " + ex.Message);
+                throw new WorkerException(ex, "CSV conversion failed. Invalid CSV table metadata: " + ex.Message);
             }
 
             var graph = new Graph();
@@ -254,6 +254,10 @@ namespace DataDock.Worker.Processors
             converter.Convert(csvReader);
             if (converter.Errors.Any())
             {
+                foreach (var e in converter.Errors)
+                {
+                    _progressLog.Error(e);
+                }
                 throw new WorkerException("One or more errors where encountered during the CSV to RDF conversion.");
             }
             return graph;

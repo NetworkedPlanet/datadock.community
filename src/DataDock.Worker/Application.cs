@@ -109,7 +109,16 @@ namespace DataDock.Worker
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Job processing failed for job {JobId}", jobInfo.JobId);
+                if (ex is WorkerException wex)
+                {
+                    progressLog.UpdateStatus(JobStatus.Failed, wex.Message);
+                    Log.Error(wex, "WorkerException raised for job {JobId}", jobInfo.JobId);
+                }
+                else
+                {
+                    Log.Error(ex, "Job processing failed for job {JobId}", jobInfo.JobId);
+                }
+
                 var logId = await logStore.AddLogAsync(jobInfo.OwnerId, jobInfo.RepositoryId, jobInfo.JobId,
                     progressLog.GetLogText());
                 jobInfo.LogId = logId;

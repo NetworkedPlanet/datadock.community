@@ -586,7 +586,7 @@ function constructBasicTabContent() {
                 "name": "datasetDescription",
                 "id": "datasetDescription",
                 "caption": "Description",
-                "type": "text",
+                "type": "textarea",
                 "value": getMetadataDescription() || ""
             }
         },

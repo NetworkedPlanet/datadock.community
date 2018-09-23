@@ -547,6 +547,13 @@ function loadEditor() {
             $("#keywords_reflect").val(ev.target.value);
         }
     });
+
+    // Prevent form submission when the user presses enter
+    $("#metadataEditorForm").on("keypress", ":input:not(textarea)", function (event) {
+        if (event.keyCode === 13) {
+            event.preventDefault();
+        }
+    });
   
 }
 

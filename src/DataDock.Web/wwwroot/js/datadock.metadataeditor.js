@@ -185,7 +185,7 @@ function constructCsvwtableSchema() {
 
 function constructCsvwColumn(columnName, skip) {
     var colId = "#" + columnName;
-
+    var datatype = $(colId + "_datatype").val();
     var column = {};
     column["name"] = columnName;
     if (skip) {
@@ -195,7 +195,11 @@ function constructCsvwColumn(columnName, skip) {
         var columnTitle = $(colId + "_title").val();
         column["titles"] = [columnTitle];
 
-        column["datatype"] = $(colId + "_datatype").val();
+        if (datatype === "uri") {
+            column["valueUrl"] = "{" + columnName + "}";
+        } else {
+            column["datatype"] = $(colId + "_datatype").val();
+        }
 
         column["propertyUrl"] = $(colId + "_property_url").val();
     }

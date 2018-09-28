@@ -1,4 +1,5 @@
 ﻿using System;
+using DataDock.Common;
 using DataDock.Common.Elasticsearch;
 using DataDock.Common.Stores;
 using DataDock.Worker;
@@ -28,6 +29,7 @@ namespace DataDock.IntegrationTests
         [InlineData(typeof(IDataDockRepositoryFactory), typeof(DataDockRepositoryFactory))]
         [InlineData(typeof(IGitCommandProcessorFactory), typeof(GitCommandProcessorFactory))]
         [InlineData(typeof(IProgressLogFactory), typeof(SignalrProgressLogFactory))]
+        [InlineData(typeof(IDataDockUriService), typeof(DataDockUriService))]
         public void ItProvidesExpectedServices(Type serviceType, Type expectImplType)
         {
             var service = _services.GetService(serviceType);

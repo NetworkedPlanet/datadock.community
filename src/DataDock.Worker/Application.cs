@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using DataDock.Common;
 using DataDock.Common.Models;
 using DataDock.Common.Stores;
 using DataDock.Worker.Processors;
@@ -65,7 +66,8 @@ namespace DataDock.Worker
                             Services.GetRequiredService<IFileStore>(),
                             Services.GetRequiredService<IOwnerSettingsStore>(),
                             Services.GetRequiredService<IRepoSettingsStore>(),
-                            Services.GetRequiredService<IDataDockRepositoryFactory>());
+                            Services.GetRequiredService<IDataDockRepositoryFactory>(),
+                            Services.GetRequiredService<IDataDockUriService>());
                         break;
                     }
                     case JobType.Delete:

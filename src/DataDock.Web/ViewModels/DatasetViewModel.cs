@@ -10,13 +10,15 @@ namespace DataDock.Web.ViewModels
 {
     public class DatasetViewModel
     {
+        private readonly IDataDockUriService _uriService;
         private readonly DatasetInfo _datasetInfo;
         private readonly JObject _csvwMetadata;
         private readonly JObject _voidMetadata;
         private readonly string _prefLang;
 
-        public DatasetViewModel(DatasetInfo datasetInfo, string prefLang=null)
+        public DatasetViewModel(IDataDockUriService uriService, DatasetInfo datasetInfo, string prefLang=null)
         {
+            _uriService = uriService;
             _datasetInfo = datasetInfo;
             _csvwMetadata = datasetInfo.CsvwMetadata as JObject;
             _voidMetadata = datasetInfo.VoidMetadata as JObject;
@@ -56,7 +58,7 @@ namespace DataDock.Web.ViewModels
             {
                 return _csvwMetadata["url"].ToString();
             }
-            return DataDockUrlHelper.GetDatasetIdentifier(_datasetInfo.OwnerId, _datasetInfo.RepositoryId, _datasetInfo.DatasetId);
+            return _uriService.GetDatasetIdentifier(_datasetInfo.OwnerId, _datasetInfo.RepositoryId, _datasetInfo.DatasetId);
         }
 
         public string GetTitle()
@@ -108,8 +110,7 @@ namespace DataDock.Web.ViewModels
 
         public IEnumerable<string> GetTags()
         {
-            var tags = _csvwMetadata?["dcat:keyword"] as JArray;
-            if (tags != null)
+            if (_csvwMetadata?["dcat:keyword"] is JArray tags)
             {
                 return tags.Select(t => (t as JValue)?.Value<string>());
             }

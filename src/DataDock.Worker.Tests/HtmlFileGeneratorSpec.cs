@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using DataDock.Common;
 using DataDock.Worker;
 using FluentAssertions;
 using Moq;
@@ -11,11 +12,13 @@ namespace DataDock.Worker.Tests
 {
     public class HtmlFileGeneratorSpec
     {
-        private IGraph _g;
+        private readonly IGraph _g;
+        private readonly IDataDockUriService _uriService;
 
         public HtmlFileGeneratorSpec()
         {
             _g = new Graph();
+            _uriService = new DataDockUriService("http://datadock.io/");
         }
 
         [Fact]
@@ -26,7 +29,7 @@ namespace DataDock.Worker.Tests
             var resourceMapperMock = new Mock<IResourceFileMapper>();
             var s = new Uri("http://datadock.io/someother/repo/data/s0");
             resourceMapperMock.Setup(x => x.GetPathFor(s)).Returns((string)null).Verifiable();
-            var htmlGenerator = new HtmlFileGenerator(resourceMapperMock.Object, viewEngineMock.Object, new MockProgressLog(), 100);
+            var htmlGenerator = new HtmlFileGenerator(_uriService, resourceMapperMock.Object, viewEngineMock.Object, new MockProgressLog(), 100);
 
             htmlGenerator.HandleResource(_g.CreateUriNode(s), GetMockTripleCollection(s), GetMockObjectTripleCollection(s));
 
@@ -42,7 +45,7 @@ namespace DataDock.Worker.Tests
             var resourceMapperMock = new Mock<IResourceFileMapper>();
             resourceMapperMock.Setup(x => x.GetPathFor(null)).Returns((string)null).Verifiable();
             var tripleCollection = GetMockTripleCollection(null);
-            var htmlGenerator = new HtmlFileGenerator(resourceMapperMock.Object, viewEngineMock.Object, new MockProgressLog(), 100);
+            var htmlGenerator = new HtmlFileGenerator(_uriService, resourceMapperMock.Object, viewEngineMock.Object, new MockProgressLog(), 100);
 
             htmlGenerator.HandleResource(tripleCollection[0].Subject, tripleCollection, new List<Triple>());
             resourceMapperMock.Verify(x=>x.GetPathFor(null), Times.Once);
@@ -57,7 +60,7 @@ namespace DataDock.Worker.Tests
             var resourceMapperMock = new Mock<IResourceFileMapper>();
             resourceMapperMock.Setup(x => x.GetPathFor(It.IsAny<Uri>())).Returns("data\\s0").Verifiable();
             var s = new Uri("http://datadock.io/test/repo/data/s0");
-            var htmlGenerator = new HtmlFileGenerator(resourceMapperMock.Object, viewEngineMock.Object,
+            var htmlGenerator = new HtmlFileGenerator(_uriService, resourceMapperMock.Object, viewEngineMock.Object,
                 new MockProgressLog(), 100);
 
             htmlGenerator.HandleResource(_g.CreateUriNode(s), GetMockTripleCollection(s), GetMockObjectTripleCollection(s));
@@ -77,7 +80,7 @@ namespace DataDock.Worker.Tests
             var resourceMapperMock = new Mock<IResourceFileMapper>();
             var s = new Uri("http://datadock.io/test/repo/data/nested/path/s0");
             resourceMapperMock.Setup(x => x.GetPathFor(s)).Returns("tmp\\data\\nested\\path\\s0").Verifiable();
-            var htmlGenerator = new HtmlFileGenerator(resourceMapperMock.Object, viewEngineMock.Object, new MockProgressLog(), 100);
+            var htmlGenerator = new HtmlFileGenerator(_uriService, resourceMapperMock.Object, viewEngineMock.Object, new MockProgressLog(), 100);
 
             htmlGenerator.HandleResource(_g.CreateUriNode(s), GetMockTripleCollection(s), GetMockObjectTripleCollection(s));
 
@@ -98,7 +101,7 @@ namespace DataDock.Worker.Tests
             var resourceMapperMock = new Mock<IResourceFileMapper>();
             var s = new Uri("http://datadock.io/test/repo/data/s1");
             resourceMapperMock.Setup(x => x.GetPathFor(s)).Returns("tmp\\data\\s1").Verifiable();
-            var htmlGenerator = new HtmlFileGenerator(resourceMapperMock.Object, viewEngineMock.Object, new MockProgressLog(), 100);
+            var htmlGenerator = new HtmlFileGenerator(_uriService, resourceMapperMock.Object, viewEngineMock.Object, new MockProgressLog(), 100);
 
             htmlGenerator.HandleResource(_g.CreateUriNode(s), GetMockTripleCollection(s), GetMockObjectTripleCollection(s));
 

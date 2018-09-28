@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using DataDock.Common;
 using Moq;
 using NetworkedPlanet.Quince;
 using VDS.RDF;
@@ -12,9 +13,12 @@ namespace DataDock.Worker.Tests
     public class CsvConverionSpec : IDisposable
     {
         private readonly string _tmpDir;
+        private readonly IDataDockUriService _uriService;
+
         public CsvConverionSpec()
         {
             _tmpDir = Path.GetFullPath(DateTime.UtcNow.Ticks.ToString());
+            _uriService = new DataDockUriService("http://datadock.io/");
         }
 
         public void Dispose()
@@ -52,7 +56,7 @@ namespace DataDock.Worker.Tests
             var ddRepository = new DataDockRepository(
                 _tmpDir, new Uri("http://example.org/"), new MockProgressLog(),
                 mockQuinceFactory.Object, fileGeneratorFactoryMock.Object, 
-                rdfResourceFileMapper, htmlResourceFileMapper);
+                rdfResourceFileMapper, htmlResourceFileMapper, _uriService);
             ddRepository.GenerateRdf(new[] {new Uri("http://example.org/g/g1")});
 
             // Should be invoked to generate files for subject IRIs

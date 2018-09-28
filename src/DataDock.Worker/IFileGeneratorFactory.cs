@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DataDock.Common;
 using NetworkedPlanet.Quince;
 
 namespace DataDock.Worker
@@ -12,6 +13,11 @@ namespace DataDock.Worker
             IProgressLog progressLog,
             int reportInterval);
 
-        IResourceStatementHandler MakeHtmlFileGenerator(IResourceFileMapper resourceMap, IViewEngine viewEngine, IProgressLog progressLog, int reportInterval);
+        IResourceStatementHandler MakeHtmlFileGenerator(
+            IDataDockUriService uriService, 
+            IResourceFileMapper resourceMap, 
+            IViewEngine viewEngine, 
+            IProgressLog progressLog, 
+            int reportInterval);
     }
 }

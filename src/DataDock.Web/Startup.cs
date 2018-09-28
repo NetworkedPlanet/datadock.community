@@ -98,6 +98,7 @@ namespace DataDock.Web
             services.AddSingleton<IImportService, ImportService>();
             services.AddSingleton<IFileStore, DirectoryFileStore>();
             services.AddSingleton<ILogStore, DirectoryLogStore>();
+            services.AddSingleton<IDataDockUriService>(new DataDockUriService(config.PublishUrl));
 
             var gitHubClientHeader = config.GitHubClientHeader;
             services.AddSingleton<IGitHubClientFactory>(new GitHubClientFactory(gitHubClientHeader));

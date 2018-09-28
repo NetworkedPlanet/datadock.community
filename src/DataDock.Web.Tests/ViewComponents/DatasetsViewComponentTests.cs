@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using DataDock.Common;
 using DataDock.Common.Models;
 using DataDock.Common.Stores;
 using DataDock.Web.ViewComponents;
@@ -17,17 +18,19 @@ namespace DataDock.Web.Tests.ViewComponents
     {
         private readonly Mock<HttpContext> _mockHttpContext;
         private readonly Mock<IDatasetStore> _mockDatasetsStore;
+        private readonly IDataDockUriService _uriService;
 
         public DatasetsViewComponentTests()
         {
             _mockHttpContext = new Mock<HttpContext>();
             _mockDatasetsStore = new Mock<IDatasetStore>();
+            _uriService = new DataDockUriService("http://datadock.io/");
         }
 
         [Fact]
         public void NoOwnerIdReturnsEmptyView()
         {
-            var vc = new DatasetsViewComponent(_mockDatasetsStore.Object);
+            var vc = new DatasetsViewComponent(_mockDatasetsStore.Object, _uriService);
             var asyncResult = vc.InvokeAsync(string.Empty, string.Empty);
             Assert.NotNull(asyncResult.Result);
             var result = asyncResult.Result as ViewViewComponentResult;
@@ -60,7 +63,7 @@ namespace DataDock.Web.Tests.ViewComponents
             _mockDatasetsStore.Setup(m => m.GetDatasetsForOwnerAsync("owner-1", It.IsAny<int>(), It.IsAny<int>()))
                 .Returns(Task.FromResult<IEnumerable<DatasetInfo>>(datasets));
 
-            var vc = new DatasetsViewComponent(_mockDatasetsStore.Object);
+            var vc = new DatasetsViewComponent(_mockDatasetsStore.Object, _uriService);
             var asyncResult = vc.InvokeAsync(ownerId, string.Empty);
             Assert.NotNull(asyncResult.Result);
             var result = asyncResult.Result as ViewViewComponentResult;
@@ -85,7 +88,7 @@ namespace DataDock.Web.Tests.ViewComponents
             _mockDatasetsStore.Setup(m => m.GetDatasetsForRepositoryAsync("owner-1", "repo-1", It.IsAny<int>(), It.IsAny<int>()))
                 .Returns(Task.FromResult<IEnumerable<DatasetInfo>>(datasets));
 
-            var vc = new DatasetsViewComponent(_mockDatasetsStore.Object);
+            var vc = new DatasetsViewComponent(_mockDatasetsStore.Object, _uriService);
             var asyncResult = vc.InvokeAsync(ownerId, repoId);
             Assert.NotNull(asyncResult.Result);
             var result = asyncResult.Result as ViewViewComponentResult;

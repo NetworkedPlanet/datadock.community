@@ -64,6 +64,7 @@ namespace DataDock.Worker
             serviceCollection.AddSingleton<ApplicationConfiguration>(config);
             serviceCollection.AddScoped<IFileStore, DirectoryFileStore>();
 
+            serviceCollection.AddSingleton<IDataDockUriService>(new DataDockUriService(config.PublishUrl));
             serviceCollection.AddSingleton<IDatasetStore, DatasetStore>();
             serviceCollection.AddSingleton<IJobStore, JobStore>();
             serviceCollection.AddSingleton<IUserStore, UserStore>();

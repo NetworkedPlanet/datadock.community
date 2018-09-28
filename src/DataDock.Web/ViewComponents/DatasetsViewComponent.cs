@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DataDock.Common;
 
 namespace DataDock.Web.ViewComponents
 {
@@ -12,9 +13,12 @@ namespace DataDock.Web.ViewComponents
     public class DatasetsViewComponent : ViewComponent
     {
         private readonly IDatasetStore _datasetStore;
-        public DatasetsViewComponent(IDatasetStore datasetStore)
+        private readonly IDataDockUriService _uriService;
+
+        public DatasetsViewComponent(IDatasetStore datasetStore, IDataDockUriService uriService)
         {
             _datasetStore = datasetStore;
+            _uriService = uriService;
         }
         
         public async Task<IViewComponentResult> InvokeAsync(string selectedOwnerId, string selectedRepoId)
@@ -43,10 +47,10 @@ namespace DataDock.Web.ViewComponents
             try
             {
                 var datasets = await _datasetStore.GetDatasetsForOwnerAsync(selectedOwnerId, 0, 20);
-                var datasetViewModels = datasets.Select(d => new DatasetViewModel(d)).ToList();
+                var datasetViewModels = datasets.Select(d => new DatasetViewModel(_uriService, d)).ToList();
                 return datasetViewModels;
             }
-            catch (DatasetNotFoundException dnf)
+            catch (DatasetNotFoundException)
             {
                 return new List<DatasetViewModel>();
             }
@@ -58,10 +62,10 @@ namespace DataDock.Web.ViewComponents
             try
             {
                 var datasets = await _datasetStore.GetDatasetsForRepositoryAsync(selectedOwnerId, selectedRepoId, 0, 20);
-                var datasetViewModels = datasets.Select(d => new DatasetViewModel(d)).ToList();
+                var datasetViewModels = datasets.Select(d => new DatasetViewModel(_uriService, d)).ToList();
                 return datasetViewModels;
             }
-            catch (DatasetNotFoundException dnf)
+            catch (DatasetNotFoundException)
             {
                 return new List<DatasetViewModel>();
             }

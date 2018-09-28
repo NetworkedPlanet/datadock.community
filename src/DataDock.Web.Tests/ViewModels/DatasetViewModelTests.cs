@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using DataDock.Common;
 using DataDock.Common.Models;
 using DataDock.Web.ViewModels;
 using FluentAssertions;
@@ -23,7 +24,8 @@ namespace DataDock.Web.Tests.ViewModels
             "en", "a title")]
         public void BestLanguageMatchReturnsUnscopedLiteralWhenNoMatch(string json, string prefLang, string expect)
         {
-            var testModel = new DatasetViewModel(new DatasetInfo{CsvwMetadata = JObject.Parse(json)}, prefLang);
+            var uriService = new DataDockUriService("http://datadock.io/");
+            var testModel = new DatasetViewModel(uriService, new DatasetInfo{CsvwMetadata = JObject.Parse(json)}, prefLang);
             testModel.Title.Should().Be(expect);
         }
     }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Text.RegularExpressions;
 using DataDock.Common;
 using NetworkedPlanet.Quince;
 using VDS.RDF;
@@ -15,16 +14,16 @@ namespace DataDock.Worker
         private readonly IViewEngine _viewEngine;
         private readonly IProgressLog _progressLog;
         private int _numFilesGenerated;
-        private readonly Regex _idRegex;
+        private readonly IDataDockUriService _uriService;
         private readonly int _reportInterval;
 
-        public HtmlFileGenerator(IResourceFileMapper resourceMap, IViewEngine viewEngine, IProgressLog progressLog, int reportInterval)
+        public HtmlFileGenerator(IDataDockUriService uriService, IResourceFileMapper resourceMap, IViewEngine viewEngine, IProgressLog progressLog, int reportInterval)
         {
             _resourceMap = resourceMap;
             _viewEngine = viewEngine;
             _progressLog = progressLog;
             _numFilesGenerated = 0;
-            _idRegex = DataDockUrlHelper.IdentifierRegex;
+            _uriService = uriService;
             _reportInterval = reportInterval;
         }
 
@@ -33,7 +32,7 @@ namespace DataDock.Worker
         {
             if (subjectStatements == null || subjectStatements.Count == 0) return true;
             var subject = (resourceNode as IUriNode)?.Uri;
-            var nquads = subject == null ? null : _idRegex.Replace(subject.ToString(), DataDockUrlHelper.PublishSite + "$1/$2/data/$3.nq");
+            var nquads = subject == null ? null : _uriService.GetSubjectDataUrl(subject.ToString(), "nq");
             try
             {
                 var targetPath = _resourceMap.GetPathFor(subject);

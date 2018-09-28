@@ -6,11 +6,6 @@ namespace DataDock.Worker
     public class WorkerConfiguration : ApplicationConfiguration
     {
         /// <summary>
-        /// The root URL for published datasets
-        /// </summary>
-        public string PublishUrl { get; set; } = "http://datadock.io/";
-
-        /// <summary>
         /// The path to the Git executable
         /// </summary>
         public string GitPath { get; set; } = "git";

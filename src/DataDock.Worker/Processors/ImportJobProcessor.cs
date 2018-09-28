@@ -27,6 +27,7 @@ namespace DataDock.Worker.Processors
         private readonly IFileStore _jobFileStore;
         private IProgressLog _progressLog;
         private readonly IDataDockRepositoryFactory _dataDataDockRepositoryFactory;
+        private readonly IDataDockUriService _dataDockUriService;
         private const int CsvConversionReportInterval = 250;
 
         public ImportJobProcessor(
@@ -36,7 +37,8 @@ namespace DataDock.Worker.Processors
             IFileStore jobFileStore,
             IOwnerSettingsStore ownerSettingsStore,
             IRepoSettingsStore repoSettingsStore,
-            IDataDockRepositoryFactory dataDockRepositoryFactory)
+            IDataDockRepositoryFactory dataDockRepositoryFactory,
+            IDataDockUriService dataDockUriService)
         {
             _configuration = configuration;
             _git = gitProcessor;
@@ -45,6 +47,7 @@ namespace DataDock.Worker.Processors
             _repoSettingsStore = repoSettingsStore;
             _jobFileStore = jobFileStore;
             _dataDataDockRepositoryFactory = dataDockRepositoryFactory;
+            _dataDockUriService = dataDockUriService;
         }
 
         public async Task ProcessJob(JobInfo job, UserAccount userAccount, IProgressLog progressLog)
@@ -86,12 +89,12 @@ namespace DataDock.Worker.Processors
             }
 
             // Run the CSV to RDF conversion
-            var repositoryUri = new Uri(DataDockUrlHelper.GetRepositoryUri(job.OwnerId, job.RepositoryId));
-            var publisherIri = new Uri(repositoryUri, "id/dataset/publisher");
+            var repositoryUri = new Uri(_dataDockUriService.GetRepositoryUri(job.OwnerId, job.RepositoryId));
+            var publisherIri = new Uri(_dataDockUriService.GetRepositoryPublisherIdentifier(job.OwnerId, job.RepositoryId));
             var datasetUri = new Uri(job.DatasetIri);
             var datasetMetadataGraphIri = new Uri(datasetUri + "/metadata");
-            var rootMetadataGraphIri = new Uri(repositoryUri, "metadata");
-            var definitionsGraphIri = new Uri(repositoryUri, "definitions");
+            var rootMetadataGraphIri = new Uri(_dataDockUriService.GetMetadataGraphIdentifier(job.OwnerId, job.RepositoryId));
+            var definitionsGraphIri = new Uri(_dataDockUriService.GetDefinitionsGraphIdentifier(job.OwnerId, job.RepositoryId));
             var dateTag = DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
             var releaseTag = MakeSafeTag(job.DatasetId + "_" + dateTag);
             var publisher = await GetPublisherContactInfo(job.OwnerId, job.RepositoryId);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DataDock.Common;
 using NetworkedPlanet.Quince;
 
 namespace DataDock.Worker
@@ -15,9 +16,14 @@ namespace DataDock.Worker
             return new RdfFileGenerator(resourceMap, graphFilter, progressLog, reportInterval);
         }
 
-        public IResourceStatementHandler MakeHtmlFileGenerator(IResourceFileMapper resourceMap, IViewEngine viewEngine, IProgressLog progressLog, int reportInterval)
+        public IResourceStatementHandler MakeHtmlFileGenerator(
+            IDataDockUriService uriService, 
+            IResourceFileMapper resourceMap, 
+            IViewEngine viewEngine, 
+            IProgressLog progressLog, 
+            int reportInterval)
         {
-            return new HtmlFileGenerator(resourceMap, viewEngine, progressLog, reportInterval);
+            return new HtmlFileGenerator(uriService, resourceMap, viewEngine, progressLog, reportInterval);
         }
     }
 }

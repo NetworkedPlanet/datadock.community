@@ -39,7 +39,7 @@ namespace DataDock.Import
                 await _datasetStore.CreateOrUpdateDatasetRecordAsync(new DatasetInfo
                 {
                     OwnerId = ds.OwnerId,
-                    RepositoryId = ds.RepositoryId,
+                    RepositoryId = FixRepositoryId(ds.RepositoryId),
                     DatasetId = ds.DatasetId,
                     LastModified = ds.LastModified,
                     ShowOnHomePage = ds.ShowOnHomePage,
@@ -47,6 +47,13 @@ namespace DataDock.Import
                     Tags = ds.Metadata["dcat:keyword"]?.ToObject<List<string>>()
                 });
             }
+        }
+
+        private string FixRepositoryId(string repositoryId)
+        {
+            var fix = repositoryId.Contains('/') ? repositoryId.Split('/')[1] : repositoryId;
+            Console.WriteLine("FixRepositoryId: {0} => {1}", repositoryId, fix);
+            return fix;
         }
 
         private async Task ImportSchemasAsync()
@@ -58,7 +65,7 @@ namespace DataDock.Import
                 await _schemaStore.CreateOrUpdateSchemaRecordAsync(new SchemaInfo
                 {
                     OwnerId = s.OwnerId,
-                    RepositoryId = s.RepositoryId,
+                    RepositoryId = FixRepositoryId(s.RepositoryId),
                     SchemaId = s.SchemaId,
                     Schema = s.Schema
                 });

@@ -39,7 +39,7 @@ namespace DataDock.Import
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine("Error running import process: " + ex.ToString());
+                Console.Error.WriteLine("Error running import process: " + ex);
             }
         }
 

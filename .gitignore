@@ -300,3 +300,4 @@ docker/web/app/
 docker/worker/app
 docker/docker-compose.*.yml
 src/DataDock.Worker/appsettings.development.json
+src/DataDock.Import/data/*.json

@@ -360,7 +360,7 @@ namespace DataDock.Web
                 );
                 routes.MapRoute(
                     name: "Dataset",
-                    template: "{ownerId}/{repoId}/{datasetId}/view",
+                    template: "{ownerId}/{repoId}/{datasetId}",
                     defaults: new { controller = "Repository", action = "Dataset" },
                     constraints: new { ownerId = new OwnerIdConstraint(), repoId = new RepoIdConstraint() }
                 );

@@ -11,6 +11,8 @@ namespace DataDock.Web.Controllers
         public string RequestedOwnerId { get; set; }
         public string RequestedRepoId { get; set; }
 
+        public string RequestedDatasetId { get; set; }
+
         public DashboardViewModel DashboardViewModel { get; set; }
 
         protected ActionResult ReturnUnauthorizedView()

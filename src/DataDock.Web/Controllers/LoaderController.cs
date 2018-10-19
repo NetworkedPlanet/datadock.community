@@ -13,5 +13,11 @@ namespace DataDock.Web.Controllers
         {
             return ViewComponent("Datasets", new { selectedOwnerId = ownerId, selectedRepoId = repoId });
         }
+
+        public IActionResult Dataset(string ownerId, string repoId, string datasetId)
+        {
+            return ViewComponent("Dataset",
+                new {selectedOwnerId = ownerId, selectedRepoId = repoId, selectedDatasetId = datasetId});
+        }
     }
 }

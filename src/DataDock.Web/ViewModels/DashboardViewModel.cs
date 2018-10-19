@@ -63,5 +63,10 @@
         /// Optional SchemaId for when a template has been selected for use on a new import
         /// </summary>
         public string SelectedSchemaId { get; set; }
+
+        /// <summary>
+        /// Optional DatasetId for when a dataset has been selected for view/admin
+        /// </summary>
+        public string SelectedDatasetId { get; set; }
     }
 }

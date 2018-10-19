@@ -16,7 +16,7 @@ namespace DataDock.Web.ViewModels
         private readonly JObject _voidMetadata;
         private readonly string _prefLang;
 
-        public DatasetViewModel(IDataDockUriService uriService, DatasetInfo datasetInfo, string prefLang=null)
+        public DatasetViewModel(IDataDockUriService uriService, DatasetInfo datasetInfo, string prefLang=null, bool isOwner = false)
         {
             _uriService = uriService;
             _datasetInfo = datasetInfo;
@@ -26,6 +26,7 @@ namespace DataDock.Web.ViewModels
 
             Title = this.GetTitle();
             Description = this.GetDescription();
+            IsOwner = isOwner;
         }
 
         [Display(Name = "Identifier")]
@@ -51,6 +52,8 @@ namespace DataDock.Web.ViewModels
         public DateTime LastModified => _datasetInfo.LastModified;
 
         public bool? ShowOnHomePage => _datasetInfo.ShowOnHomePage;
+
+        public bool IsOwner { get; set; }
 
         public string GetIri()
         {

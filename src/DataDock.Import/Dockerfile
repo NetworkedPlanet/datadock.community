@@ -14,6 +14,8 @@ FROM build AS publish
 RUN dotnet publish DataDock.Import.csproj -c Release -o /app
 
 FROM base AS final
+WORKDIR /data
+COPY DataDock.Import/data .
 WORKDIR /app
 COPY --from=publish /app .
 ENTRYPOINT ["dotnet", "DataDock.Import.dll"]

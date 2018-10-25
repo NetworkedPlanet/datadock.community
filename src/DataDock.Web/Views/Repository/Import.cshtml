@@ -35,8 +35,7 @@
   
   <div id="validation-container">
     <!-- Validation Messages -->
-    <div class="ui negative message" id="validation-messages" style="display: none;">
-      <ul></ul>
+    <div class="ui negative message validation-messages" id="validation-messages" style="display: none;">
     </div>
     
   </div>
@@ -55,22 +54,22 @@
           <div class="four fields">
             <div class="field">
               <label>Delimiter:</label>
-              <input type="text" size="5" placeholder="auto" id="delimiter"> <a href="javascript:" id="insert-tab">tab</a>
+              <input type="text" size="5" placeholder="auto" id="delimiter" name="delimiter" class="skip-validation"> <a href="javascript:" id="insert-tab">tab</a>
             </div>
 
             <div class="inline fields">
               <label>Line Endings:</label>
               <div class="field">
-                <input type="radio" name="newline" id="newline-auto" checked><label>Auto</label>
+                <input type="radio" name="newline" id="newline-auto" checked class="skip-validation"><label>Auto</label>
               </div>
-              <div class="field"><input type="radio" name="newline" id="newline-n"><label>\n</label></div>
-              <div class="field"><input type="radio" name="newline" id="newline-r"><label>\r</label></div>
-              <div class="field"><input type="radio" name="newline" id="newline-rn"><label>\r\n</label></div>
+              <div class="field"><input type="radio" name="newline" id="newline-n" class="skip-validation"><label>\n</label></div>
+              <div class="field"><input type="radio" name="newline" id="newline-r" class="skip-validation"><label>\r</label></div>
+              <div class="field"><input type="radio" name="newline" id="newline-rn" class="skip-validation"><label>\r\n</label></div>
             </div>
 
-            <div class="field"><label>Encoding: <input type="text" id="encoding" placeholder="default" size="10"></label></div>
+            <div class="field"><label>Encoding: <input type="text" id="encoding" name="encoding" placeholder="default" size="10" class="skip-validation"></label></div>
 
-            <div class="field"><label>Comment char: <input type="text" size="5" maxlength="1" placeholder="default" id="comments"></label></div>
+            <div class="field"><label>Comment char: <input type="text" size="5" maxlength="1" placeholder="default" id="comments" name="comments" class="skip-validation"></label></div>
           </div>
 
         </div>

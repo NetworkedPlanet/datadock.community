@@ -74,7 +74,7 @@
 
 			// Create the elements
 			els.ul = $('<ul class="inputosaurus-container">');
-			els.input = $('<input type="text" />');
+			els.input = $('<input type="text" class="skip-validation" />');
 			els.inputCont = $('<li class="inputosaurus-input inputosaurus-required"></li>');
 			els.origInputCont = $('<li class="inputosaurus-input-hidden inputosaurus-required">');
 			

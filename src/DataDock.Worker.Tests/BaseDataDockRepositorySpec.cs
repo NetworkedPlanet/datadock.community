@@ -45,7 +45,8 @@ namespace DataDock.Worker.Tests
             FileGeneratorFactory.Setup(x => x.MakeHtmlFileGenerator(
                     It.IsAny<IDataDockUriService>(),
                     It.IsAny<IResourceFileMapper>(), It.IsAny<IViewEngine>(), It.IsAny<IProgressLog>(),
-                    It.IsAny<int>()))
+                    It.IsAny<int>(),
+                    It.IsAny<Dictionary<string, object>>()))
                 .Returns(MockHtmlFileGenerator.Object);
 
             var uriService = new DataDockUriService("http://datadock.io/");

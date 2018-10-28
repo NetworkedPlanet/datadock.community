@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DataDock.Worker.Liquid;
 using Moq;
 using VDS.RDF;
 using Xunit;
@@ -51,6 +52,18 @@ namespace DataDock.Worker.Tests
                 x => x.HandleResource(
                     It.Is<INode>(n => (n as IUriNode).Uri.Equals(_publishedSubject)),
                     It.IsAny<IList<Triple>>(), It.IsAny<IList<Triple>>()), 
+                Times.Once);
+        }
+
+        [Fact]
+        public void PublishWithPortalInfoInvokesHtmlFileGenerator()
+        {
+            var portalInfo = new PortalInfoDrop {OwnerId = "owner", RepositoryName = "repo-id"};
+            Repo.Publish(null, portalInfo);
+            MockHtmlFileGenerator.Verify(
+                x => x.HandleResource(
+                    It.Is<INode>(n => (n as IUriNode).Uri.Equals(_publishedSubject)),
+                    It.IsAny<IList<Triple>>(), It.IsAny<IList<Triple>>()),
                 Times.Once);
         }
     }

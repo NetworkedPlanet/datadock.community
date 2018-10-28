@@ -29,7 +29,8 @@ namespace DataDock.Worker.Tests
             var resourceMapperMock = new Mock<IResourceFileMapper>();
             var s = new Uri("http://datadock.io/someother/repo/data/s0");
             resourceMapperMock.Setup(x => x.GetPathFor(s)).Returns((string)null).Verifiable();
-            var htmlGenerator = new HtmlFileGenerator(_uriService, resourceMapperMock.Object, viewEngineMock.Object, new MockProgressLog(), 100);
+            var templateVariables = new Dictionary<string, object>();
+            var htmlGenerator = new HtmlFileGenerator(_uriService, resourceMapperMock.Object, viewEngineMock.Object, new MockProgressLog(), 100, templateVariables);
 
             htmlGenerator.HandleResource(_g.CreateUriNode(s), GetMockTripleCollection(s), GetMockObjectTripleCollection(s));
 
@@ -45,7 +46,8 @@ namespace DataDock.Worker.Tests
             var resourceMapperMock = new Mock<IResourceFileMapper>();
             resourceMapperMock.Setup(x => x.GetPathFor(null)).Returns((string)null).Verifiable();
             var tripleCollection = GetMockTripleCollection(null);
-            var htmlGenerator = new HtmlFileGenerator(_uriService, resourceMapperMock.Object, viewEngineMock.Object, new MockProgressLog(), 100);
+            var templateVariables = new Dictionary<string, object>();
+            var htmlGenerator = new HtmlFileGenerator(_uriService, resourceMapperMock.Object, viewEngineMock.Object, new MockProgressLog(), 100, templateVariables);
 
             htmlGenerator.HandleResource(tripleCollection[0].Subject, tripleCollection, new List<Triple>());
             resourceMapperMock.Verify(x=>x.GetPathFor(null), Times.Once);
@@ -60,8 +62,9 @@ namespace DataDock.Worker.Tests
             var resourceMapperMock = new Mock<IResourceFileMapper>();
             resourceMapperMock.Setup(x => x.GetPathFor(It.IsAny<Uri>())).Returns("data\\s0").Verifiable();
             var s = new Uri("http://datadock.io/test/repo/data/s0");
+            var templateVariables = new Dictionary<string, object>();
             var htmlGenerator = new HtmlFileGenerator(_uriService, resourceMapperMock.Object, viewEngineMock.Object,
-                new MockProgressLog(), 100);
+                new MockProgressLog(), 100, templateVariables);
 
             htmlGenerator.HandleResource(_g.CreateUriNode(s), GetMockTripleCollection(s), GetMockObjectTripleCollection(s));
 
@@ -80,7 +83,8 @@ namespace DataDock.Worker.Tests
             var resourceMapperMock = new Mock<IResourceFileMapper>();
             var s = new Uri("http://datadock.io/test/repo/data/nested/path/s0");
             resourceMapperMock.Setup(x => x.GetPathFor(s)).Returns("tmp\\data\\nested\\path\\s0").Verifiable();
-            var htmlGenerator = new HtmlFileGenerator(_uriService, resourceMapperMock.Object, viewEngineMock.Object, new MockProgressLog(), 100);
+            var templateVariables = new Dictionary<string, object>();
+            var htmlGenerator = new HtmlFileGenerator(_uriService, resourceMapperMock.Object, viewEngineMock.Object, new MockProgressLog(), 100, templateVariables);
 
             htmlGenerator.HandleResource(_g.CreateUriNode(s), GetMockTripleCollection(s), GetMockObjectTripleCollection(s));
 
@@ -101,7 +105,8 @@ namespace DataDock.Worker.Tests
             var resourceMapperMock = new Mock<IResourceFileMapper>();
             var s = new Uri("http://datadock.io/test/repo/data/s1");
             resourceMapperMock.Setup(x => x.GetPathFor(s)).Returns("tmp\\data\\s1").Verifiable();
-            var htmlGenerator = new HtmlFileGenerator(_uriService, resourceMapperMock.Object, viewEngineMock.Object, new MockProgressLog(), 100);
+            var templateVariables = new Dictionary<string, object>();
+            var htmlGenerator = new HtmlFileGenerator(_uriService, resourceMapperMock.Object, viewEngineMock.Object, new MockProgressLog(), 100, templateVariables);
 
             htmlGenerator.HandleResource(_g.CreateUriNode(s), GetMockTripleCollection(s), GetMockObjectTripleCollection(s));
 

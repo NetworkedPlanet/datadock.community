@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using DataDock.Common;
 using DataDock.Common.Models;
+using DataDock.Worker.Liquid;
 using DataDock.Worker.Templating;
 using NetworkedPlanet.Quince;
 using Serilog;
@@ -231,10 +232,11 @@ namespace DataDock.Worker
         /// Update or create the statically generated HTML and RDF for the DataDock repository
         /// </summary>
         /// <param name="graphFilter">An optional enumeration of the IRIs of the graphs to be published.</param>
-        public void Publish(IEnumerable<Uri> graphFilter = null)
+        /// <param name="portalInfo">Additional info for data portal page templates</param>
+        public void Publish(IEnumerable<Uri> graphFilter = null, PortalInfoDrop portalInfo = null)
         {
             GenerateRdf(graphFilter);
-            GenerateHtml();
+            GenerateHtml(portalInfo);
             GenerateVoidMetadata();
         }
 
@@ -264,7 +266,7 @@ namespace DataDock.Worker
         }
 
 
-        private void GenerateHtml()
+        private void GenerateHtml(PortalInfoDrop portalInfo)
         {
             try
             {
@@ -282,7 +284,15 @@ namespace DataDock.Worker
                     RemoveDirectory(resourcePath);
                 }
 
-                var generator = _fileGeneratorFactory.MakeHtmlFileGenerator(_uriService, _htmlResourceFileMapper, templateEngine, _progressLog, HtmlFileGenerationReportInterval);
+                var additionalVariables =
+                    new Dictionary<string, object>
+                    {
+                        {"ownerId", portalInfo?.OwnerId},
+                        {"repoName", portalInfo?.RepositoryName},
+                        {"portalInfo", portalInfo},
+                    };
+
+                var generator = _fileGeneratorFactory.MakeHtmlFileGenerator(_uriService, _htmlResourceFileMapper, templateEngine, _progressLog, HtmlFileGenerationReportInterval, additionalVariables);
 
                 _quinceStore.EnumerateSubjects(generator);
             }

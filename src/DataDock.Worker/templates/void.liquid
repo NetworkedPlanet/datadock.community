@@ -7,10 +7,10 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 		<title>
-			{% if repoName -%}
-				Repository: {{repoName}}
-			{% elsif portalInfo.repo-name -%}
-				Repository: {{portalInfo.repo-name}}
+			{% if repo-id -%}
+				Repository: {{repo-id}}
+			{% elsif portal-info.repo-name -%}
+				Repository: {{portal-info.repo-name}}
             {% elsif title -%}
 				Repository: {{title.object}}
 		    {% else -%}
@@ -21,8 +21,8 @@
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/semantic.min.css" integrity="sha256-/Z28yXtfBv/6/alw+yZuODgTbKZm86IKbPE/5kjO/xY=" crossorigin="anonymous" />
 
 		<!-- DataDock Theme Extensions -->
-		<link rel="stylesheet" href="{{datadockUrl}}/css/portal.css" />
-		<link rel="stylesheet" href="{{datadockUrl}}/Content/datadock-portal.css" />
+		<link rel="stylesheet" href="{{datadock-publish-url}}/css/portal.css" />
+		<link rel="stylesheet" href="{{datadock-publish-url}}/Content/datadock-portal.css" />
 
 		<link rel="alternate" type="application/n-quads" href="{{nquads}}"/>
 
@@ -34,14 +34,14 @@
   <div class="ui grid container">
     <header>
       <div class="ui huge breadcrumb">
-        <a class="section" href="{{datadockUrl}}/{{portalInfo.owner_id}}" title="{{portalInfo.owner_display_name}} data portal homepage">{{portalInfo.owner_display_name}}</a>
+        <a class="section" href="{{datadock-publish-url}}/{{portal-info.owner_id}}" title="{{portal-info.owner_display_name}} data portal homepage">{{portal-info.owner_display_name}}</a>
         <i class="right chevron icon divider"></i>
         <div class="active section">
           <h1>
-			{% if repoName -%}
-				Repository: {{repoName}}
-            {% elsif portalInfo.repo-name -%}
-            {{portalInfo.repo-name}}
+			{% if repo-id -%}
+				Repository: {{repo-id}}
+            {% elsif portal-info.repo-name -%}
+            {{portal-info.repo-name}}
             {% elsif title -%}
             {{title.object}}
             {% elsif name -%}
@@ -61,60 +61,60 @@
   <div class="ui hidden divider"></div>
   <div class="ui grid container">
     <div class="mobile only row">
-		{% if portalInfo.logo_url -%}
+		{% if portal-info.logo_url -%}
 			<div class="two wide column">
-			  <img class="ui tiny rounded bordered image" src="{{portalInfo.logo_url}}" alt="{{portalInfo.owner_display_name}} GitHub avatar picture" />
+			  <img class="ui tiny rounded bordered image" src="{{portal-info.logo_url}}" alt="{{portal-info.owner_display_name}} GitHub avatar picture" />
 			</div>
 		{% endif -%}
 
 		<div class="seven wide column">
-			{% if portalInfo.description -%}
-				{{portalInfo.description}}
+			{% if portal-info.description -%}
+				{{portal-info.description}}
 			{% endif -%}
 
 			<div class="ui list">
 
-				{% if portalInfo.show_dashboard_link -%}
+				{% if portal-info.show_dashboard_link -%}
 					<div class="item">
 					  <i class="dashboard icon"></i>
 					  <div class="content">
-						<a href="http://manage.datadock.io/{{ownerId}}/{{repoName}}" title="View this repository on DataDock">DataDock Dashboard</a>
+						<a href="http://manage.datadock.io/{{owner-id}}/{{repo-id}}" title="View this repository on DataDock">DataDock Dashboard</a>
 					  </div>
 					</div>
 				{% endif -%}
 
-				{% if portalInfo.show_issues_link -%}
+				{% if portal-info.show_issues_link -%}
 					<div class="item">
 					  <i class="github icon"></i>
 					  <div class="content">
-						<a href="{{portalInfo.git_hub_html_url}}/{{repoName}}/issues" title="Start conversation about this data">Start conversation about this data</a>
+						<a href="{{portal-info.git_hub_html_url}}/{{repo-id}}/issues" title="Start conversation about this data">Start conversation about this data</a>
 					  </div>
 					</div>
 				{% endif -%}
 
-				{% if portalInfo.location -%}
+				{% if portal-info.location -%}
 					<div class="item">
 					  <i class="marker icon"></i>
 					  <div class="content">
-						{{portalInfo.location}}
+						{{portal-info.location}}
 					  </div>
 					</div>
 				{% endif -%}
 
-				{% if portalInfo.website -%}
+				{% if portal-info.website -%}
 					<div class="item">
 					  <i class="linkify icon"></i>
 					  <div class="content">
-						<a href="{{portalInfo.website}}">{{portalInfo.website}}</a>
+						<a href="{{portal-info.website}}">{{portal-info.website}}</a>
 					  </div>
 					</div>
 				{% endif -%}
 
-				{% if portalInfo.twitter -%}
+				{% if portal-info.twitter -%}
 					<div class="item">
 					  <i class="twitter icon"></i>
 					  <div class="content">
-						<a href="https://twitter.com/{{portalInfo.twitter}}">{{portalInfo.twitter}}</a>
+						<a href="https://twitter.com/{{portal-info.twitter}}">{{portal-info.twitter}}</a>
 					  </div>
 					</div>
 				{% endif -%}
@@ -170,16 +170,16 @@
 
     <div class="row">
       <div class="four wide computer only column">
-	    {% if portalInfo.logo_url -%}
+	    {% if portal-info.logo_url -%}
 			<div class="row">
-			  <img class="ui medium rounded bordered image" src="{{portalInfo.logo_url}}" alt="{{portalInfo.owner_display_name}} GitHub avatar picture" />
+			  <img class="ui medium rounded bordered image" src="{{portal-info.logo_url}}" alt="{{portal-info.owner_display_name}} GitHub avatar picture" />
 				<div class="ui hidden divider"></div>
 			</div>
 		{% endif -%}
 
-		{% if portalInfo.description -%}
+		{% if portal-info.description -%}
 			<div class="row">
-				{{portalInfo.description}}
+				{{portal-info.description}}
 				<div class="ui hidden divider"></div>
 			</div>
 		{% endif -%}
@@ -187,47 +187,47 @@
         <div class="row">
           <div class="ui list">
 
-			{% if portalInfo.show_dashboard_link -%}
+			{% if portal-info.show_dashboard_link -%}
 					<div class="item">
 					  <i class="dashboard icon"></i>
 					  <div class="content">
-						<a href="http://manage.datadock.io/{{ownerId}}/{{repoName}}" title="View this repository on DataDock">DataDock Dashboard</a>
+						<a href="http://manage.datadock.io/{{owner-id}}/{{repo-id}}" title="View this repository on DataDock">DataDock Dashboard</a>
 					  </div>
 					</div>
 				{% endif -%}
 
-				{% if portalInfo.show_issues_link -%}
+				{% if portal-info.show_issues_link -%}
 					<div class="item">
 					  <i class="github icon"></i>
 					  <div class="content">
-						<a href="{{portalInfo.git_hub_html_url}}/{{repoName}}/issues" title="Start conversation about this data">Start conversation about this data</a>
+						<a href="{{portal-info.git_hub_html_url}}/{{repo-id}}/issues" title="Start conversation about this data">Start conversation about this data</a>
 					  </div>
 					</div>
 				{% endif -%}
 
-			{% if portalInfo.location -%}
+			{% if portal-info.location -%}
 				<div class="item">
 				  <i class="marker icon"></i>
 				  <div class="content">
-					{{portalInfo.location}}
+					{{portal-info.location}}
 				  </div>
 				</div>
 			{% endif -%}
 
-			{% if portalInfo.website -%}
+			{% if portal-info.website -%}
 				<div class="item">
 				  <i class="linkify icon"></i>
 				  <div class="content">
-					<a href="{{portalInfo.website}}">{{portalInfo.website}}</a>
+					<a href="{{portal-info.website}}">{{portal-info.website}}</a>
 				  </div>
 				</div>
 			{% endif -%}
 
-			{% if portalInfo.twitter -%}
+			{% if portal-info.twitter -%}
 				<div class="item">
 					<i class="twitter icon"></i>
 					<div class="content">
-					<a href="https://twitter.com/{{portalInfo.twitter}}">{{portalInfo.twitter}}</a>
+					<a href="https://twitter.com/{{portal-info.twitter}}">{{portal-info.twitter}}</a>
 					</div>
 				</div>
 			{% endif -%}
@@ -281,10 +281,10 @@
 	  <!-- content -->
       <div class="sixteen wide mobile twelve wide computer column">
 		
-		 {% if portalInfo.repo_search_buttons -%}
+		 {% if portal-info.repo_search_buttons -%}
 			<div class="ui center aligned container search-buttons" id="buttons">
 				<div class="ui link four cards">
-				{% for button in portalInfo.repo_search_buttons %}
+				{% for button in portal-info.repo_search_buttons %}
 
 					{% if button.tag -%}
 
@@ -387,7 +387,7 @@
 									<dd class="ds-tags">
 										<ul>
 										{% for keyword in keywords %}
-											<li><a href="{{datadockUrl}}/search?tag={{keyword.object|urlencode}}" class="ui tag label"><span about=""{{dataset.object}}"" property=""dcat:keyword"">{{keyword.object}}</span></a></li>
+											<li><a href="{{datadock-publish-url}}/search?tag={{keyword.object|urlencode}}" class="ui tag label"><span about=""{{dataset.object}}"" property=""dcat:keyword"">{{keyword.object}}</span></a></li>
 										{% endfor %}
 										 </ul>
 									</dd>
@@ -452,9 +452,9 @@
   <div class="ui hidden divider"></div>
   <div class="ui container">
     <footer class="ui raised segment center aligned text-muted">
-	  <img class="ui tiny left floated image" src="{{datadockUrl}}/images/DataDock_Colour_120.png" alt="DataDock logo: a hexagonal green and blue icon" />
+	  <img class="ui tiny left floated image" src="{{datadock-publish-url}}/images/DataDock_Colour_120.png" alt="DataDock logo: a hexagonal green and blue icon" />
 
-      Page generated by <a href="{{datadockUrl}}/">DataDock</a> for <strong>{{subject}}</strong>.
+      Page generated by <a href="{{datadock-publish-url}}/">DataDock</a> for <strong>{{subject}}</strong>.
     </footer>
   </div>
 
@@ -469,7 +469,7 @@
 			$('#search').click();
 		});
     });
-    var searchUri = '{{datadockUrl}}/api/search/{{ownerId}}/{{repoName}}';
+    var searchUri = '{{datadock-publish-url}}/api/search/{{owner-id}}/{{repo-id}}';
   </script>
   <script src="https://cdn.jsdelivr.net/gh/jennet/datadockjs@v0.1-alpha/datadock.portal.js" crossorigin="anonymous"></script>
 

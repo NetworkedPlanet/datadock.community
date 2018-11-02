@@ -134,12 +134,14 @@ namespace DataDock.Worker.Processors
                 rootMetadataGraphIri);
 
             var portalInfo = await GetPortalSettingsInfo(job.OwnerId, job.RepositoryId, authenticationToken);
+            //TODO get datadock-publish-url from config? page template are always remote as they are pushed to github
             var templateVariables =
                 new Dictionary<string, object>
                 {
-                    {"ownerId", job.OwnerId},
-                    {"repoName", job.RepositoryId},
-                    {"portalInfo", portalInfo},
+                    {"datadock-publish-url", "https://datadock.io" }, 
+                    {"owner-id", job.OwnerId},
+                    {"repo-id", job.RepositoryId},
+                    {"portal-info", portalInfo},
                 };
 
             dataDataDockRepository.Publish(

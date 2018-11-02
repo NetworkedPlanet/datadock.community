@@ -122,7 +122,7 @@ namespace DataDock.Worker.Processors
 
             IGraph definitionsGraph = GenerateDefinitionsGraph(metadataJson);
 
-            var portalInfo = await GetPortalSettingsInfo(job.OwnerId, job.RepositoryId, authenticationToken);
+            
 
             var dataDataDockRepository = _dataDataDockRepositoryFactory.GetRepositoryForJob(job, progressLog);
             dataDataDockRepository.UpdateDataset(
@@ -133,9 +133,18 @@ namespace DataDock.Worker.Processors
                 "", "",
                 rootMetadataGraphIri);
 
+            var portalInfo = await GetPortalSettingsInfo(job.OwnerId, job.RepositoryId, authenticationToken);
+            var templateVariables =
+                new Dictionary<string, object>
+                {
+                    {"ownerId", job.OwnerId},
+                    {"repoName", job.RepositoryId},
+                    {"portalInfo", portalInfo},
+                };
+
             dataDataDockRepository.Publish(
-                new[] { datasetUri, datasetMetadataGraphIri, rootMetadataGraphIri }, 
-                portalInfo);
+                new[] { datasetUri, datasetMetadataGraphIri, rootMetadataGraphIri },
+                templateVariables);
 
             // Add and Commit all changes
             if (await _git.CommitChanges(targetDirectory,

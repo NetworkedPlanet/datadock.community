@@ -56,10 +56,18 @@ namespace DataDock.Worker.Tests
         }
 
         [Fact]
-        public void PublishWithPortalInfoInvokesHtmlFileGenerator()
+        public void PublishWithTemplateInvokesHtmlFileGenerator()
         {
-            var portalInfo = new PortalInfoDrop {OwnerId = "owner", RepositoryName = "repo-id"};
-            Repo.Publish(null, portalInfo);
+            var portalInfo = new PortalInfoDrop {OwnerId = "git-user", RepositoryName = "repo-id", OwnerDisplayName = "Git User"};
+            var templateVariables =
+                new Dictionary<string, object>
+                {
+                    {"ownerId", portalInfo?.OwnerId},
+                    {"repoName", portalInfo?.RepositoryName},
+                    {"portalInfo", portalInfo},
+                };
+
+            Repo.Publish(null, templateVariables);
             MockHtmlFileGenerator.Verify(
                 x => x.HandleResource(
                     It.Is<INode>(n => (n as IUriNode).Uri.Equals(_publishedSubject)),

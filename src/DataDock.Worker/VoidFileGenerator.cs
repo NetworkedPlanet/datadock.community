@@ -17,8 +17,9 @@ namespace DataDock.Worker
         private readonly IGraph _graph;
         private readonly IUriNode _voidSubset;
         private IUriNode _dctermsPublisher;
+        private readonly Dictionary<string, object> _addVariables;
 
-        public VoidFileGenerator(IViewEngine viewEngine, IQuinceStore quinceStore, Uri repositoryUri, IProgressLog progressLog)
+        public VoidFileGenerator(IViewEngine viewEngine, IQuinceStore quinceStore, Uri repositoryUri, IProgressLog progressLog, Dictionary<string, object> addVariables)
         {
             _viewEngine = viewEngine;
             _quinceStore = quinceStore;
@@ -27,6 +28,7 @@ namespace DataDock.Worker
             _graph = new Graph();
             _voidSubset = _graph.CreateUriNode(new Uri("http://rdfs.org/ns/void#subset"));
             _dctermsPublisher = _graph.CreateUriNode(new Uri("http://purl.org/dc/terms/publisher"));
+            _addVariables = addVariables ?? new Dictionary<string, object>();
         }
 
         public void GenerateVoidHtml(string targetFileName)
@@ -35,8 +37,13 @@ namespace DataDock.Worker
             try
             {
                 var voidLink = new Uri(_repositoryUri, "data/void.nq");
+                _addVariables.Remove("nquads");
+                _addVariables.Add("nquads", voidLink.ToString());
+                _addVariables.Remove("htmlPath");
+                _addVariables.Add("htmlPath", targetFileName);
+
                 var voidHtml = _viewEngine.Render(_repositoryUri, rootTripleCollection, new List<Triple>(),
-                    new Dictionary<string, object> { { "nquads", voidLink.ToString() } });
+                    _addVariables);
                 using (var output = File.Open(targetFileName, FileMode.Create, FileAccess.Write))
                 {
                     using (var writer = new StreamWriter(output))

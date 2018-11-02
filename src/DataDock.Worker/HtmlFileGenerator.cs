@@ -91,12 +91,17 @@ namespace DataDock.Worker
                         }
                         stream.Close();
                     }
+                    _numFilesGenerated++;
+                    if (_numFilesGenerated % _reportInterval == 0)
+                    {
+                        _progressLog.Info("Generating static HTML files - {0} files created/updated.", _numFilesGenerated);
+                    }
                 }
-                _numFilesGenerated++;
-                if (_numFilesGenerated % _reportInterval == 0)
+                else
                 {
-                    _progressLog.Info("Generating static HTML files - {0} files created/updated.", _numFilesGenerated);
+                    _progressLog.Warn("No target path for {0}, skipping static HTML file generation.", subject);
                 }
+                
             }
             catch (Exception ex)
             {

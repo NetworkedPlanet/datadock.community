@@ -18,6 +18,7 @@ namespace DataDock.Worker
             IResourceFileMapper resourceMap, 
             IViewEngine viewEngine, 
             IProgressLog progressLog, 
-            int reportInterval);
+            int reportInterval,
+            Dictionary<string, object> addVariables);
     }
 }

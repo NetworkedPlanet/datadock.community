@@ -21,9 +21,10 @@ namespace DataDock.Worker
             IResourceFileMapper resourceMap, 
             IViewEngine viewEngine, 
             IProgressLog progressLog, 
-            int reportInterval)
+            int reportInterval,
+            Dictionary<string, object> addVariables)
         {
-            return new HtmlFileGenerator(uriService, resourceMap, viewEngine, progressLog, reportInterval);
+            return new HtmlFileGenerator(uriService, resourceMap, viewEngine, progressLog, reportInterval, addVariables);
         }
     }
 }

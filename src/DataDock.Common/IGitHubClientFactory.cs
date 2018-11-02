@@ -8,6 +8,7 @@ namespace DataDock.Common
         IGitHubClient CreateClient(ClaimsIdentity identity);
 
         GitHubClient CreateClient(string accessToken);
+
     }
 
 }

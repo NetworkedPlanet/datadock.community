@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using DataDock.Common;
 using NetworkedPlanet.Quince;
@@ -16,8 +17,9 @@ namespace DataDock.Worker
         private int _numFilesGenerated;
         private readonly IDataDockUriService _uriService;
         private readonly int _reportInterval;
+        private readonly Dictionary<string, object> _addVariables;
 
-        public HtmlFileGenerator(IDataDockUriService uriService, IResourceFileMapper resourceMap, IViewEngine viewEngine, IProgressLog progressLog, int reportInterval)
+        public HtmlFileGenerator(IDataDockUriService uriService, IResourceFileMapper resourceMap, IViewEngine viewEngine, IProgressLog progressLog, int reportInterval, Dictionary<string, object> addVariables)
         {
             _resourceMap = resourceMap;
             _viewEngine = viewEngine;
@@ -25,6 +27,22 @@ namespace DataDock.Worker
             _numFilesGenerated = 0;
             _uriService = uriService;
             _reportInterval = reportInterval;
+            _addVariables = addVariables ?? new Dictionary<string, object>();
+        }
+
+        private void UpdateVariables(string nquads, string parentDataset)
+        {
+            if (_addVariables.ContainsKey("nquads"))
+            {
+                _addVariables.Remove("nquads");
+            }
+            _addVariables.Add("nquads", nquads);
+
+            if (_addVariables.ContainsKey("parentDataset"))
+            {
+                _addVariables.Remove("parentDataset");
+            }
+            _addVariables.Add("parentDataset", parentDataset);
         }
 
 
@@ -44,8 +62,27 @@ namespace DataDock.Worker
                     {
                         Directory.CreateDirectory(targetDir);
                     }
-                    var html = _viewEngine.Render(subject, subjectStatements, objectStatements,
-                        new Dictionary<string, object> {{"nquads", nquads}});
+
+                    var parentDataset = string.Format("{0}://{1}", subject.Scheme, subject.Authority);
+                    if (subject.ToString().IndexOf("id/resource", StringComparison.InvariantCultureIgnoreCase) > 0)
+                    {
+                        var datasetSegments = subject.Segments.Take(subject.Segments.Length - 1).ToArray();
+                        foreach (var segment in datasetSegments)
+                        {
+                            if (segment.Equals("resource/"))
+                            {
+                                parentDataset += "dataset/";
+                            }
+                            else
+                            {
+                                parentDataset += segment;
+                            }
+                        }
+                        parentDataset = parentDataset.Trim("/".ToCharArray());
+                    }
+                    UpdateVariables(nquads, parentDataset);
+
+                    var html = _viewEngine.Render(subject, subjectStatements, objectStatements, _addVariables);
                     using (var stream = File.Open(targetPath, FileMode.Create, FileAccess.ReadWrite))
                     {
                         using (var writer = new StreamWriter(stream, Encoding.UTF8))
@@ -54,12 +91,17 @@ namespace DataDock.Worker
                         }
                         stream.Close();
                     }
+                    _numFilesGenerated++;
+                    if (_numFilesGenerated % _reportInterval == 0)
+                    {
+                        _progressLog.Info("Generating static HTML files - {0} files created/updated.", _numFilesGenerated);
+                    }
                 }
-                _numFilesGenerated++;
-                if (_numFilesGenerated % _reportInterval == 0)
+                else
                 {
-                    _progressLog.Info("Generating static HTML files - {0} files created/updated.", _numFilesGenerated);
+                    _progressLog.Warn("No target path for {0}, skipping static HTML file generation.", subject);
                 }
+                
             }
             catch (Exception ex)
             {

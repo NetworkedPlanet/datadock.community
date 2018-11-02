@@ -62,6 +62,7 @@ namespace DataDock.Worker
                         processor = new ImportJobProcessor(
                             Services.GetRequiredService<WorkerConfiguration>(),
                             cmdProcessorFactory.MakeGitCommandProcessor(progressLog),
+                            Services.GetRequiredService<IGitHubClientFactory>(),
                             Services.GetRequiredService<IDatasetStore>(),
                             Services.GetRequiredService<IFileStore>(),
                             Services.GetRequiredService<IOwnerSettingsStore>(),

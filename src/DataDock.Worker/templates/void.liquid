@@ -2,199 +2,476 @@
 	{% assign title = triples | where:"predicate", dcterms.title | first -%}
 	{% assign description = triples | where:"predicate", dcterms.description | first -%}
 	<head>
-		<meta  http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta  http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 		<title>
-			{% if title -%}
-				{{title.object}}
-			{% else -%}
-				Dataset: {{subject}}
+			{% if repoName -%}
+				Repository: {{repoName}}
+			{% elsif portalInfo.repo-name -%}
+				Repository: {{portalInfo.repo-name}}
+            {% elsif title -%}
+				Repository: {{title.object}}
+		    {% else -%}
+				Repository: {{subject}}
 			{% endif -%}
 		</title>
 
-		<!-- Bootstrap CSS, Theme and JS -->
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/semantic.min.css" integrity="sha256-/Z28yXtfBv/6/alw+yZuODgTbKZm86IKbPE/5kjO/xY=" crossorigin="anonymous" />
 
-		<!-- Lodlab Theme Extensions -->
-		<link rel="stylesheet" href="http://datadock.io/static/css/lodlab.css" />
-		<script src="http://datadock.io/static/js/lodlab.presentation.js"></script>
+		<!-- DataDock Theme Extensions -->
+		<link rel="stylesheet" href="{{datadockUrl}}/css/portal.css" />
+		<link rel="stylesheet" href="{{datadockUrl}}/Content/datadock-portal.css" />
 
 		<link rel="alternate" type="application/n-quads" href="{{nquads}}"/>
 
 	</head>
 <body prefix="dc: http://purl.org/dc/terms/ void: http://rdfs.org/ns/void# dcat: http://www.w3.org/ns/dcat#" resource="{{subject}}">
-	<div class="container">
-		<header class="page-header">
-			{% if title -%}
-				<h1>{{title.object}}</h1>
-			{% else -%}
-				<h1>Dataset: {{subject}}</h1>
+
+<!-- breadcrumb -->
+  <div class="ui hidden divider"></div>
+  <div class="ui grid container">
+    <header>
+      <div class="ui huge breadcrumb">
+        <a class="section" href="{{datadockUrl}}/{{portalInfo.owner_id}}" title="{{portalInfo.owner_display_name}} data portal homepage">{{portalInfo.owner_display_name}}</a>
+        <i class="right chevron icon divider"></i>
+        <div class="active section">
+          <h1>
+			{% if repoName -%}
+				Repository: {{repoName}}
+            {% elsif portalInfo.repo-name -%}
+            {{portalInfo.repo-name}}
+            {% elsif title -%}
+            {{title.object}}
+            {% elsif name -%}
+            {{name.object}}
+            {% elsif label -%}
+            {{label.object}}
+            {% else -%}
+            {{subject}}
+            {% endif -%}
+          </h1>
+		</div>
+      </div>
+    </header>
+  </div>
+  
+  <!-- user/organization details -->
+  <div class="ui hidden divider"></div>
+  <div class="ui grid container">
+    <div class="mobile only row">
+		{% if portalInfo.logo_url -%}
+			<div class="two wide column">
+			  <img class="ui tiny rounded bordered image" src="{{portalInfo.logo_url}}" alt="{{portalInfo.owner_display_name}} GitHub avatar picture" />
+			</div>
+		{% endif -%}
+
+		<div class="seven wide column">
+			{% if portalInfo.description -%}
+				{{portalInfo.description}}
 			{% endif -%}
-			{% if description -%}
-				<p>{{ description.object | newline_to_br }}</p>
-			{% endif -%}
-		</header>
-		<div class="row">
-			<div class="col-md-6">
-				<table id="triples-table" class="table table-condensed table-bordered">
-					<tr>
-						<td>Publisher</td>
-						<td>
-							{% assign publisher = triples | where:"predicate", dcterms.publisher | first -%}
-							{% if publisher -%}
-								{% assign publisher_triples = publisher.nested_triples -%}
-								{% assign publisher_type = publisher_triples | where:"predicate", rdf:type | first -%}
-								<table property="dc:publisher" resource="{{publisher.object}}" typeof="{{publisher_type.object}}">
-									<tr>
-										<td>Name:</td>
-										<td>
-											{% assign name = publisher_triples | where:"predicate", foaf.name | first -%}
-											<span property="foaf:name">{{name.object|default: "Not specified."|escape}}</span>
-										</td>
-									</tr>
-									<tr>
-										<td>Website:</td>
-										<td>
-											{% assign web = publisher_triples | where:"predicate", foaf.homepage | first -%}
-											{% if web -%}
-												<a property="foaf:homepage" href="{{web.object}}">{{web.object|escape}}</a>
-											{% else -%}
-												Not specified.
-											{% endif -%}
-										</td>
-									</tr>
-									<tr>
-										<td>Contact:</td>
-										<td>
-											{% assign email = publisher_triples | where:"predicate", foaf.mbox | first -%}
-											<span property="foaf:mbox">{{email.object|default: "Not specified."|escape}}</span>
-										</td>
-									</tr>
-								</table>
-							{% endif -%}
-						</td>
-					</tr>
-				</table>
+
+			<div class="ui list">
+
+				{% if portalInfo.show_dashboard_link -%}
+					<div class="item">
+					  <i class="dashboard icon"></i>
+					  <div class="content">
+						<a href="http://manage.datadock.io/{{ownerId}}/{{repoName}}" title="View this repository on DataDock">DataDock Dashboard</a>
+					  </div>
+					</div>
+				{% endif -%}
+
+				{% if portalInfo.show_issues_link -%}
+					<div class="item">
+					  <i class="github icon"></i>
+					  <div class="content">
+						<a href="{{portalInfo.git_hub_html_url}}/{{repoName}}/issues" title="Start conversation about this data">Start conversation about this data</a>
+					  </div>
+					</div>
+				{% endif -%}
+
+				{% if portalInfo.location -%}
+					<div class="item">
+					  <i class="marker icon"></i>
+					  <div class="content">
+						{{portalInfo.location}}
+					  </div>
+					</div>
+				{% endif -%}
+
+				{% if portalInfo.website -%}
+					<div class="item">
+					  <i class="linkify icon"></i>
+					  <div class="content">
+						<a href="{{portalInfo.website}}">{{portalInfo.website}}</a>
+					  </div>
+					</div>
+				{% endif -%}
+
+				{% if portalInfo.twitter -%}
+					<div class="item">
+					  <i class="twitter icon"></i>
+					  <div class="content">
+						<a href="https://twitter.com/{{portalInfo.twitter}}">{{portalInfo.twitter}}</a>
+					  </div>
+					</div>
+				{% endif -%}
 			</div>
 		</div>
 
-		{% assign datasets = triples | where:"predicate", void.subset %}
+      <div class="seven wide column">
+	  	{% assign publisher = triples | where:"predicate", dcterms.publisher | first -%}
+			{% if publisher -%}
+				<div class="ui list">
+					<div class="item">
+						<i class="user icon"></i>
+						<div class="content">
+						<div class="header">Publisher</div>
+							<div>
+						
+								{% assign publisher_triples = publisher.nested_triples -%}
+								{% assign publisher_type = publisher_triples | where:"predicate", rdf:type | first -%}
+								<div class="list" property="dc:publisher" resource="{{publisher.object}}" typeof="{{publisher_type.object}}">
+									<div class="item">
+										<div class="content">
+											{% assign name = publisher_triples | where:"predicate", foaf.name | first -%}
+											  <span property="foaf:name">{{name.object|default: "Not specified."|escape}}</span>
+										</div>
+									</div>
+									<div class="item">
+										<div class="content">
+											  {% assign web = publisher_triples | where:"predicate", foaf.homepage | first -%}
+											  {% if web -%}
+											  <a property="foaf:homepage" href="{{web.object}}">{{web.object|escape}}</a>
+											  {% else -%}
+											  Not specified.
+											  {% endif -%}
+										</div>
+									</div>
+									<div class="item">
+										<div class="content">
+										  {% assign email = publisher_triples | where:"predicate", foaf.mbox | first -%}
+										  <span property="foaf:mbox">{{email.object|default: "Not specified."|escape}}</span>
+										</div>
+									</div>
+								</div><!-- list -->
+
+								</div>
+						</div><!-- content -->
+					</div><!-- item -->
+				</div><!-- list -->
+			{% endif -%}
+        
+      </div><!-- column -->
+    </div> <!-- mobile row -->
+
+
+    <div class="row">
+      <div class="four wide computer only column">
+	    {% if portalInfo.logo_url -%}
+			<div class="row">
+			  <img class="ui medium rounded bordered image" src="{{portalInfo.logo_url}}" alt="{{portalInfo.owner_display_name}} GitHub avatar picture" />
+				<div class="ui hidden divider"></div>
+			</div>
+		{% endif -%}
+
+		{% if portalInfo.description -%}
+			<div class="row">
+				{{portalInfo.description}}
+				<div class="ui hidden divider"></div>
+			</div>
+		{% endif -%}
+
+        <div class="row">
+          <div class="ui list">
+
+			{% if portalInfo.show_dashboard_link -%}
+					<div class="item">
+					  <i class="dashboard icon"></i>
+					  <div class="content">
+						<a href="http://manage.datadock.io/{{ownerId}}/{{repoName}}" title="View this repository on DataDock">DataDock Dashboard</a>
+					  </div>
+					</div>
+				{% endif -%}
+
+				{% if portalInfo.show_issues_link -%}
+					<div class="item">
+					  <i class="github icon"></i>
+					  <div class="content">
+						<a href="{{portalInfo.git_hub_html_url}}/{{repoName}}/issues" title="Start conversation about this data">Start conversation about this data</a>
+					  </div>
+					</div>
+				{% endif -%}
+
+			{% if portalInfo.location -%}
+				<div class="item">
+				  <i class="marker icon"></i>
+				  <div class="content">
+					{{portalInfo.location}}
+				  </div>
+				</div>
+			{% endif -%}
+
+			{% if portalInfo.website -%}
+				<div class="item">
+				  <i class="linkify icon"></i>
+				  <div class="content">
+					<a href="{{portalInfo.website}}">{{portalInfo.website}}</a>
+				  </div>
+				</div>
+			{% endif -%}
+
+			{% if portalInfo.twitter -%}
+				<div class="item">
+					<i class="twitter icon"></i>
+					<div class="content">
+					<a href="https://twitter.com/{{portalInfo.twitter}}">{{portalInfo.twitter}}</a>
+					</div>
+				</div>
+			{% endif -%}
+
+			{% assign publisher = triples | where:"predicate", dcterms.publisher | first -%}
+			{% if publisher -%}
+				<div class="item">
+					<i class="user icon"></i>
+					<div class="content">
+					<div class="header">Publisher</div>
+						<div>
+						
+							{% assign publisher_triples = publisher.nested_triples -%}
+							{% assign publisher_type = publisher_triples | where:"predicate", rdf:type | first -%}
+							<div class="list" property="dc:publisher" resource="{{publisher.object}}" typeof="{{publisher_type.object}}">
+								<div class="item">
+									<div class="content">
+										{% assign name = publisher_triples | where:"predicate", foaf.name | first -%}
+										  <span property="foaf:name">{{name.object|default: "Not specified."|escape}}</span>
+									</div>
+								</div>
+								<div class="item">
+									<div class="content">
+										  {% assign web = publisher_triples | where:"predicate", foaf.homepage | first -%}
+										  {% if web -%}
+										  <a property="foaf:homepage" href="{{web.object}}">{{web.object|escape}}</a>
+										  {% else -%}
+										  Not specified.
+										  {% endif -%}
+									</div>
+								</div>
+								<div class="item">
+									<div class="content">
+									  {% assign email = publisher_triples | where:"predicate", foaf.mbox | first -%}
+									  <span property="foaf:mbox">{{email.object|default: "Not specified."|escape}}</span>
+									</div>
+								</div>
+							</div><!-- list -->
+
+							</div>
+					</div><!-- content -->
+				</div>
+			{% endif -%}
+					
+           </div><!-- end list -->
+            </div><!-- end row -->
+        </div><!-- end four wide column -->
+
+
+
+	  <!-- content -->
+      <div class="sixteen wide mobile twelve wide computer column">
+		
+		 {% if portalInfo.repo_search_buttons -%}
+			<div class="ui center aligned container search-buttons" id="buttons">
+				<div class="ui link four cards">
+				{% for button in portalInfo.repo_search_buttons %}
+
+					{% if button.tag -%}
+
+						<div class="primary card" onclick="buttonSearch('{{ button.tag }}')" id="{{button.tag}}">
+							<div class="content">
+								<div class="header">
+								{% if button.icon -%}
+									<i class="fa fa-{{button.icon}} mr"></i>
+								{% endif -%}
+								{% if button.text -%}
+									{{ button.text }}
+								{% else -%}
+									{{ button.tag }}
+								{% endif -%}</div><!-- end header -->
+							</div><!-- end content -->
+						</div><!-- end card -->
+					{% endif -%}
+				{% endfor %}
+				</div><!-- end cards -->
+		  </div><!-- end #buttons -->
+		  <div class="ui hidden divider"></div>
+		{% endif -%}
+
+		<div class="ui center aligned container">
+            <div class="ui big action input">
+              <input type="text" placeholder="{{searchPlaceholder}}" id="tags" />
+              <button class="ui button" onclick="find();" id="search" tabindex="0">Search</button>
+            </div>
+			<div class="ui divider"></div>
+          </div>			
+
+          <div class="ui hidden divider"></div>
+
+          <div class="" id="results">
+          </div>
+
+		  <div class="" id="toc">
+		    {% assign datasets = triples | where:"predicate", void.subset %}
 		{% if datasets.size > 0 %}
 			<div class="page-header">
 				<h2>Datasets</h2>
+				<div class="ui hidden divider"></div>
 			</div>
+			 <div class="ui two cards">
 			{% for dataset in datasets %}
 				{% assign ds_triples = dataset.nested_triples %}
-				<div class="row" property="void:subset" resource="{{dataset.object}}">
-					<div class="panel panel-default" about="{{dataset.object}}">
+				<div class="card" property="void:subset" resource="{{dataset.object}}">
+					<div class="content" about="{{dataset.object}}">
 						{% assign title = ds_triples | where:"predicate", dcterms.title | first %}
-						<div class="panel-heading">
+						<div class="header">
 							<h3 property="dc:title"><a href="{{dataset.object}}">{{title.object | default:dataset.object }}</a></h3>
 						</div>
-						<div class="panel-content">
-							<table class="table table-condensed">
-								<tr>
-									<td>Description:</td>
-									<td>
-										{%assign description = ds_triples | where:"predicate", dcterms.description | first %}
-										{% if description.object %}
-											<span property="dc:description">{{description.object | newline_to_br }}</span>
+						<div class="">
+						<dl>
+							<dt>Identifier:</dt>
+							<dd>{{dataset.object}}</dd>
+							<dt>Modified:</dt>
+							<dd>
+								{%assign modified = ds_triples | where:"predicate", dcterms.modified | first -%}
+								{% if modified.object %}
+									<span property="dc:modified" datatype="{{modified.object_datatype}}">{{modified.object}}</span>
+								{% else %}
+									Not specified.
+								{% endif %}
+							</dd>
+							<dt>License:</dt>
+							<dd>
+								{% assign license = ds_triples | where:"predicate", dcterms.license | first %}
+								{% if license.object %}
+									{% case license.object %}
+										{% when "https://creativecommons.org/publicdomain/zero/1.0/" %}
+											<a property="dc:license" href="https://creativecommons.org/publicdomain/zero/1.0/">CC-0 (Public Domain)</a>
+										{% when "https://creativecommons.org/licenses/by/4.0/" %}
+											<a property="dc:license" href="https://creativecommons.org/licenses/by/4.0/">CC-BY (Attribution Required)</a>
+										{% when "https://creativecommons.org/licenses/by-sa/4.0/" %}
+											<a property="dc:license" href="https://creativecommons.org/licenses/by-sa/4.0/">CC-BY-SA (Attribution Required, Sharealike)</a>
+										{% when "http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" %}
+											<a property="dc:license" href="http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/">Open Government License (Attribution Required)</a>
 										{% else %}
-											Not specified.
-										{% endif %}
-									</td>
-								</tr>
-								<tr>
-									<td>Modified:</td>
-									<td>
-										{%assign modified = ds_triples | where:"predicate", dcterms.modified | first -%}
-										{% if modified.object %}
-											<span property="dc:modified" datatype="{{modified.object_datatype}}">{{modified.object}}</span>
-										{% else %}
-											Not specified.
-										{% endif %}
-									</td>
-								</tr>
-								<tr>
-									<td>License:</td>
-									<td>
-										{% assign license = ds_triples | where:"predicate", dcterms.license | first %}
-										{% if license.object %}
-											{% case license.object %}
-												{% when "https://creativecommons.org/publicdomain/zero/1.0/" %}
-													<a property="dc:license" href="https://creativecommons.org/publicdomain/zero/1.0/">CC-0 (Public Domain)</a>
-												{% when "https://creativecommons.org/licenses/by/4.0/" %}
-													<a property="dc:license" href="https://creativecommons.org/licenses/by/4.0/">CC-BY (Attribution Required)</a>
-												{% when "https://creativecommons.org/licenses/by-sa/4.0/" %}
-													<a property="dc:license" href="https://creativecommons.org/licenses/by-sa/4.0/">CC-BY-SA (Attribution Required, Sharealike)</a>
-												{% when "http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" %}
-													<a property="dc:license" href="http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/">Open Government License (Attribution Required)</a>
-												{% else %}
-													<a property="dc:license" href="{{license.object}}">{{license.object}}</a>
-											{% endcase %}
-										{% else %}
-											Not specified.
-										{% endif %}
-									</td>
-								</tr>
-								<tr>
-									<td>Triple Count:</td>
-									<td>
-										{% assign triple_count = ds_triples | where:"predicate", void.triples | first %}
-										{% if triple_count.object %}
-											<span property="void:triples" datatype="{{triple_count.object_datatype}}">{{triple_count.object}}</span>
-										{% else %}
-											Not specified.
-										{% endif %}
-									</td>
-								</tr>
-								{% assign keywords = ds_triples | where:"predicate", dcat.keyword -%}
-								{% if keywords.size > 0 -%}
-									<tr>
-										<td>Keywords:</td>
-										<td>
-											{% for keyword in keywords %}
-												<a href="http://datadock.io/search?tag={{keyword.object|urlencode}}" class="btn btn-primary"><span about="{{dataset.object}}" property="dcat:keyword">{{keyword.object}}</span></a>
-											{% endfor %}
-										</td>
-									</tr>
-								{% endif -%}
-								{% assign downloads = ds_triples | where:"predicate", void.dataDump -%}
-								{% if downloads.size > 0 -%}
-									<tr>
-										<td>Download:</td>
-										<td>
-											{% for download in downloads %}
-												<a property="void:dataDump" href="{{download.object}}">{{download.object|split:"/"|last}}</a><br/>
-											{% endfor %}
-										</td>
-									</tr>
-								{% endif -%}
-							</table>
+											<a property="dc:license" href="{{license.object}}">{{license.object}}</a>
+									{% endcase %}
+								{% else %}
+									Not specified.
+								{% endif %}
+							</dd>
+							<dt>Description:</dt>
+							<dd>
+								{%assign description = ds_triples | where:"predicate", dcterms.description | first %}
+								{% if description.object %}
+									<span property="dc:description">{{description.object | newline_to_br }}</span>
+								{% else %}
+									Not specified.
+								{% endif %}
+							</dd>
+						
+
+							{% assign keywords = triples | where:"predicate", dcat.keyword -%}
+							{% if keywords.size > 0 -%}
+								<dt class="ds-tags">Tags:</dt>
+									<dd class="ds-tags">
+										<ul>
+										{% for keyword in keywords %}
+											<li><a href="{{datadockUrl}}/search?tag={{keyword.object|urlencode}}" class="ui tag label"><span about=""{{dataset.object}}"" property=""dcat:keyword"">{{keyword.object}}</span></a></li>
+										{% endfor %}
+										 </ul>
+									</dd>
+							{% endif -%}
+						</dl>
 						</div>
-					</div>
-				</div>
-			{% endfor %}
+                        </div><!-- end content -->
+
+					<div class="extra content">
+						<span class="right floated">
+							  <div class="ui mini statistic">
+								<div class="value">
+									{% assign triple_count = ds_triples | where:"predicate", void.triples | first %}
+									{% if triple_count.object %}
+										<span property="void:triples" datatype="{{triple_count.object_datatype}}">{{triple_count.object}}</span>
+									{% else %}
+										Not specified.
+									{% endif %}
+								</div>
+								<div class="label">
+									Triples
+								</div>
+							</div>
+							</span> 
+
+						  {% assign downloads = ds_triples | where:"predicate", void.dataDump -%}
+							{% if downloads.size > 0 -%}
+							
+
+								{% for download in downloads %}
+									{% assign downloadParts = download.object | split: "." -%}
+
+									{% if downloadParts.last == "csv" -%}
+										<a property="void:dataDump" class="ui primary button mr" href="{{download.object}}"><i class="download icon"></i>CSV</a>
+									{% elsif downloadParts.last == "gz" -%}
+										<a property="void:dataDump" class="ui primary button mr" href="{{download.object}}"><i class="download icon"></i>N-QUADS</a>
+									{% endif -%}
+								{% endfor %}
+							{% endif -%}
+					</div> <!-- end extra content -->
+
+                    </div><!-- end card -->
+                    {% endfor %}
+
+		</div>
 		{% endif %}
 		{% if nquads -%}
-			<p class="pull-right">Download the data on this page as RDF: <a href="{{nquads}}">NQuads</a></p>
+			<div class="ui hidden divider"></div>
+			<p class="">Download the data on this page as RDF: <a href="{{nquads}}">NQuads</a></p>
 		{% endif -%}
-	</div>
+		  </div>
 
+          <div class="ui hidden divider"></div>
 
-	<footer class="container">
-		<div class="row">
-			<div class="col-md-8 col-md-offset-2">
-				<p class="text-muted" style="text-align:center">
-					Page generated for resource {{subject}} by <a href="http://datadock.io/">DataDock</a><br/>
-					A service provided by <a href="http://networkedplanet.com/">NetworkedPlanet Ltd</a>.
-				</p>
-			</div>
-		</div>
+      </div><!-- end content -->
+	  </div><!-- end column -->
+  </div><!-- end row -->
+
+  </div><!-- end grid container -->
+
+  <!-- footer -->
+  <div class="ui hidden divider"></div>
+  <div class="ui container">
+    <footer class="ui raised segment center aligned text-muted">
+	  <img class="ui tiny left floated image" src="{{datadockUrl}}/images/DataDock_Colour_120.png" alt="DataDock logo: a hexagonal green and blue icon" />
+
+      Page generated by <a href="{{datadockUrl}}/">DataDock</a> for <strong>{{subject}}</strong>.
     </footer>
+  </div>
+
+  <!-- Jquery, Semantic-UI JS -->
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/semantic.min.js" integrity="sha256-Bhi6GMQ/72uYZcJXCJ2LToOIcN3+Cx47AZnq/Bw1f7A=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.js" integrity="sha256-2/3+Q1kMYR8MDaqFPNBgmLgiqWJjySkg1wqLx/iE5Zo=" crossorigin="anonymous"></script>
+  <script>
+    $(document).ready(function(){
+		$('#tags').keypress(function(e){
+		if(e.keyCode==13)
+			$('#search').click();
+		});
+    });
+    var searchUri = '{{datadockUrl}}/api/search/{{ownerId}}/{{repoName}}';
+  </script>
+  <script src="https://cdn.jsdelivr.net/gh/jennet/datadockjs@v0.1-alpha/datadock.portal.js" crossorigin="anonymous"></script>
+
 </body>
 </html>

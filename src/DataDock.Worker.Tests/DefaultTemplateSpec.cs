@@ -28,10 +28,10 @@ namespace DataDock.Worker.Tests
         }
 
         [Fact]
-        public void ItDefaultsToTheSubjectIriAsThePageHeader()
+        public void ItDefaultsToTheSubjectIriAsThePageH1()
         {
             _fixture.RenderResult.Should()
-                .MatchRegex(@"<header>\s*<h1>\s*http://datadock.io/networkedplanet/test/dataset.csv/id/resource/row_1\s*</h1>\s*</header>");
+                .MatchRegex(@"<h1>\s*http://datadock.io/networkedplanet/test/dataset.csv/id/resource/row_1\s*</h1>");
         }
 
         [Fact]

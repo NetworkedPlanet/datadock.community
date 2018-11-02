@@ -10,6 +10,7 @@ using DataDock.Common;
 using DataDock.CsvWeb.Metadata;
 using DataDock.CsvWeb.Parsing;
 using DataDock.CsvWeb.Rdf;
+using DataDock.Worker.Liquid;
 using Newtonsoft.Json.Linq;
 using Serilog;
 using VDS.RDF;
@@ -21,6 +22,7 @@ namespace DataDock.Worker.Processors
     {
         private readonly WorkerConfiguration _configuration;
         private readonly GitCommandProcessor _git;
+        private readonly IGitHubClientFactory _gitHubClientFactory;
         private readonly IDatasetStore _datasetStore;
         private readonly IOwnerSettingsStore _ownerSettingsStore;
         private readonly IRepoSettingsStore _repoSettingsStore;
@@ -33,6 +35,7 @@ namespace DataDock.Worker.Processors
         public ImportJobProcessor(
             WorkerConfiguration configuration,
             GitCommandProcessor gitProcessor,
+            IGitHubClientFactory gitHubClientFactory,
             IDatasetStore datasetStore,
             IFileStore jobFileStore,
             IOwnerSettingsStore ownerSettingsStore,
@@ -42,6 +45,7 @@ namespace DataDock.Worker.Processors
         {
             _configuration = configuration;
             _git = gitProcessor;
+            _gitHubClientFactory = gitHubClientFactory;
             _datasetStore = datasetStore;
             _ownerSettingsStore = ownerSettingsStore;
             _repoSettingsStore = repoSettingsStore;
@@ -118,6 +122,8 @@ namespace DataDock.Worker.Processors
 
             IGraph definitionsGraph = GenerateDefinitionsGraph(metadataJson);
 
+            var portalInfo = await GetPortalSettingsInfo(job.OwnerId, job.RepositoryId, authenticationToken);
+
             var dataDataDockRepository = _dataDataDockRepositoryFactory.GetRepositoryForJob(job, progressLog);
             dataDataDockRepository.UpdateDataset(
                 datasetGraph, datasetUri, job.OverwriteExistingData,
@@ -128,7 +134,8 @@ namespace DataDock.Worker.Processors
                 rootMetadataGraphIri);
 
             dataDataDockRepository.Publish(
-                new[] { datasetUri, datasetMetadataGraphIri, rootMetadataGraphIri });
+                new[] { datasetUri, datasetMetadataGraphIri, rootMetadataGraphIri }, 
+                portalInfo);
 
             // Add and Commit all changes
             if (await _git.CommitChanges(targetDirectory,
@@ -230,6 +237,103 @@ namespace DataDock.Worker.Processors
                 return null;
             }
 
+        }
+
+        private async Task<PortalInfoDrop> GetPortalSettingsInfo(string ownerId, string repoId, string authenticationToken)
+        {
+            try
+            {
+                _progressLog.Info("Attempting to retrieve portal settings information from owner settings");
+                if (ownerId != null)
+                {
+                    var portalInfo = new PortalInfoDrop
+                    {
+                        OwnerId = ownerId,
+                        RepositoryName = repoId
+                    };
+
+                    _progressLog.Info("Attempting to retrieve publisher contact information from repository owner's settings");
+                    var ownerSettings = await _ownerSettingsStore.GetOwnerSettingsAsync(ownerId);
+                    if (ownerSettings != null)
+                    {
+                        portalInfo.IsOrg = ownerSettings.IsOrg;
+                        portalInfo.ShowDashboardLink = ownerSettings.DisplayDataDockLink;
+                        if (!string.IsNullOrEmpty(ownerSettings.TwitterHandle)) portalInfo.Twitter = ownerSettings.TwitterHandle;
+
+                        var client = _gitHubClientFactory.CreateClient(authenticationToken);
+                        if (ownerSettings.IsOrg)
+                        {
+                            var org = await client.Organization.Get(ownerId);
+                            if (org == null) return portalInfo;
+
+                            portalInfo.OwnerDisplayName = org.Name;
+                            if (ownerSettings.DisplayGitHubBlogUrl) portalInfo.Website = org.Blog;
+                            if (ownerSettings.DisplayGitHubAvatar) portalInfo.LogoUrl = org.AvatarUrl;
+                            if (ownerSettings.DisplayGitHubDescription) portalInfo.Description = org.Bio;
+                            if (ownerSettings.DisplayGitHubBlogUrl) portalInfo.Website = org.Blog;
+                            if (ownerSettings.DisplayGitHubLocation) portalInfo.Location = org.Location;
+                            if (ownerSettings.DisplayGitHubIssuesLink) portalInfo.GitHubHtmlUrl = org.HtmlUrl;
+                        }
+                        else
+                        {
+                            var user = await client.User.Get(ownerId);
+                            if (user == null) return portalInfo;
+
+                            portalInfo.OwnerDisplayName = user.Name;
+                            if (ownerSettings.DisplayGitHubBlogUrl) portalInfo.Website = user.Blog;
+                            if (ownerSettings.DisplayGitHubAvatar) portalInfo.LogoUrl = user.AvatarUrl;
+                            if (ownerSettings.DisplayGitHubDescription) portalInfo.Description = user.Bio;
+                            if (ownerSettings.DisplayGitHubBlogUrl) portalInfo.Website = user.Blog;
+                            if (ownerSettings.DisplayGitHubLocation) portalInfo.Location = user.Location;
+                            if (ownerSettings.DisplayGitHubIssuesLink) portalInfo.GitHubHtmlUrl = user.HtmlUrl;
+                        }
+                    }
+                    _progressLog.Info("Looking up repository portal search buttons from settings for {0} repository.", repoId);
+
+                    var repoSettings = await _repoSettingsStore.GetRepoSettingsAsync(ownerId, repoId);
+                    var repoSearchButtons = repoSettings?.SearchButtons;
+                    if (!string.IsNullOrEmpty(repoSearchButtons))
+                    {
+
+                        portalInfo.RepoSearchButtons = GetSearchButtons(repoSearchButtons);
+
+                    }
+                    return portalInfo;
+                }
+                // no settings 
+                _progressLog.Info("No owner settings found");
+                return null;
+            }
+            catch (Exception e)
+            {
+                _progressLog.Error("Error when attempting to retrieve portal information from owner settings");
+                return null;
+            }
+
+        }
+
+        private List<SearchButtonDrop> GetSearchButtons(string searchButtonsString)
+        {
+            var sbSplit = searchButtonsString.Split(',');
+            var searchButtons = new List<SearchButtonDrop>();
+            foreach (var b in sbSplit)
+            {
+                var sb = new SearchButtonDrop();
+                if (b.IndexOf(';') >= 0)
+                {
+                    // has different button text
+                    var bSplit = b.Split(';');
+                    sb.Tag = bSplit[0];
+                    sb.Text = bSplit[1];
+                    searchButtons.Add(sb);
+                }
+                else
+                {
+                    sb.Tag = b;
+                    searchButtons.Add(sb);
+                }
+            }
+            return searchButtons;
         }
 
         private Graph GenerateDatasetGraph(TextReader csvReader, JObject metadataJson)

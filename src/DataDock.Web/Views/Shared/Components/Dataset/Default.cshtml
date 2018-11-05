@@ -11,7 +11,7 @@
                 <a href="@Model.GetIri()" target="_blank" class="ui small basic primary button" title="Explore"><i class="external icon"></i>Explore</a>
                 @if (Model.IsOwner)
                 {
-                    <a href="/@Model.OwnerId/@Model.RepositoryId/@Model.Id/delete" class="ui small basic negative button" title="Delete"><i class="delete icon"></i>Delete</a>
+                    <a href="@Url.RouteUrl("DeleteDataset", new {ownerId=@Model.OwnerId, repoId=@Model.RepositoryId, datasetId=@Model.Id})" class="ui small basic negative button" title="Delete"><i class="delete icon"></i>Delete</a>
                 }
             </div>
           </div>

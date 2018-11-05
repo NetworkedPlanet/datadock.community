@@ -350,8 +350,8 @@ namespace DataDock.Common.Elasticsearch
             if (repositoryId == null) throw new ArgumentNullException(nameof(repositoryId));
             if (datasetId == null) throw new ArgumentNullException(nameof(datasetId));
 
-            string documentId = $"{ownerId}/{repositoryId}/{datasetId}";
-            var response = await _client.DeleteAsync<RepoSettings>(documentId);
+            var documentId = $"{ownerId}/{repositoryId}/{datasetId}";
+            var response = await _client.DeleteAsync<DatasetInfo>(documentId);
             return response.IsValid;
         }
         

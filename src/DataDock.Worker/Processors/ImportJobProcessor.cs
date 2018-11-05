@@ -122,7 +122,7 @@ namespace DataDock.Worker.Processors
 
             IGraph definitionsGraph = GenerateDefinitionsGraph(metadataJson);
 
-            var portalInfo = await GetPortalSettingsInfo(job.OwnerId, job.RepositoryId, authenticationToken);
+            
 
             var dataDataDockRepository = _dataDataDockRepositoryFactory.GetRepositoryForJob(job, progressLog);
             dataDataDockRepository.UpdateDataset(
@@ -133,9 +133,20 @@ namespace DataDock.Worker.Processors
                 "", "",
                 rootMetadataGraphIri);
 
+            var portalInfo = await GetPortalSettingsInfo(job.OwnerId, job.RepositoryId, authenticationToken);
+            //TODO get datadock-publish-url from config? page template are always remote as they are pushed to github
+            var templateVariables =
+                new Dictionary<string, object>
+                {
+                    {"datadock-publish-url", "https://datadock.io" }, 
+                    {"owner-id", job.OwnerId},
+                    {"repo-id", job.RepositoryId},
+                    {"portal-info", portalInfo},
+                };
+
             dataDataDockRepository.Publish(
-                new[] { datasetUri, datasetMetadataGraphIri, rootMetadataGraphIri }, 
-                portalInfo);
+                new[] { datasetUri, datasetMetadataGraphIri, rootMetadataGraphIri },
+                templateVariables);
 
             // Add and Commit all changes
             if (await _git.CommitChanges(targetDirectory,

@@ -370,6 +370,18 @@ namespace DataDock.Web
                     constraints: new { ownerId = new OwnerIdConstraint(), repoId = new RepoIdConstraint() }
                 );
 
+                // Loader
+                routes.MapRoute(
+                    "JobsLoader",
+                    "dashboard/loader/jobs",
+                    new {controller = "Loader", action = "Jobs"}
+                );
+                routes.MapRoute(
+                    "DatasetsLoader",
+                    "dashboard/loader/datasets",
+                    new { controller = "Loader", action = "Datasets" }
+                );
+
                 // account
                 routes.MapRoute(
                     name: "SignUp",

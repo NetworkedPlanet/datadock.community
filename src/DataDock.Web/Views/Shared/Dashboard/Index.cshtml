@@ -42,28 +42,5 @@
             });
             setTimeout(function() { refresh(); }, 5000);
         }
-
-        function get_jobs() {
-            var jobs = $.ajax({
-                type: "GET",
-                url: '@Url.RouteUrl("JobsLoader", new {ownerId = @Model.SelectedOwnerId, repoId = @Model.SelectedRepoId})'
-            }).done(function(data) {
-                $('#jobs').html(data);
-                $('#loadingJobs').hide();
-                setTimeout(function() { get_jobs(); }, 5000);
-            }).responseText;
-        }
-
-        function get_datasets() {
-            var datasets = $.ajax({
-                type: "GET",
-                url:
-                    '@Url.RouteUrl("DatasetsLoader", new {ownerId = @Model.SelectedOwnerId, repoId = @Model.SelectedRepoId})'
-            }).done(function(data) {
-                $('#datasets').html(data);
-                $('#loadingDatasets').hide();
-                setTimeout(function() { get_datasets(); }, 5000);
-            }).responseText;
-        }
     </script>
 }

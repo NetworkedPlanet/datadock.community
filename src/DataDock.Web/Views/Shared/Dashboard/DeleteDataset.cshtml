@@ -15,7 +15,7 @@
         </div>
         <div class="ui center aligned container">
             <div class="ui buttons">
-                <a href="@Url.RouteUrl("RepoDatasets", new {ownerId=Model.SelectedOwnerId, repoId=Model.SelectedRepoId})" class="ui button">Cancel</a>
+                <a href="@Url.RouteUrl("Dataset", new {ownerId=Model.SelectedOwnerId, repoId=Model.SelectedRepoId, datasetId=Model.SelectedDatasetId})" class="ui button">Cancel</a>
                 <div class="or"></div>
                 <a href="@Url.RouteUrl("DeleteDataset", new {ownerId=Model.SelectedOwnerId, repoId=Model.SelectedRepoId, datasetId=Model.SelectedDatasetId, confirmed=true})" class="ui primary button">Delete Dataset</a>
             </div>

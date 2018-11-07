@@ -20,11 +20,11 @@
 
         <div class="ui hidden divider"></div>
         <div class="ui compact menu">
-          <a class="item" href="/about">
+          <a class="item" href="@Url.Action("about", "info")">
             <i class="info icon"></i>
             About
           </a>
-          <a class="item" href="/features">
+          <a class="item" href="@Url.Action("features", "info")">
             <i class="star outline icon"></i>
             Features
           </a>
@@ -33,14 +33,14 @@
           }
           @if(identity != null && identity.IsAuthenticated) 
           {
-            <a class="item" href="/@User.Identity.Name">
+            <a class="item" href="@Url.RouteUrl("OwnerProfile", new {ownerId=User.Identity.Name})">
               <i class="dashboard icon"></i>
               Dashboard
             </a>
           }
           else
           {
-            <a class="item" href="/account/login">
+            <a class="item" href="@Url.Action("login", "Account")">
               <i class="user plus icon"></i>
               Sign up / Login
             </a>

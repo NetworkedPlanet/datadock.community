@@ -10,7 +10,7 @@
 	<Exec Command="docker build -t datadock.worker -t datadock.worker:$(Tag) ." WorkingDirectory="$(MSBuildProjectDirectory)/docker/worker" />
   </Target>
 
-  <Target Name="Up" DependsOnTargets="Build">
+  <Target Name="Up" DependsOnTargets="BuildImages">
 	<Exec Command="docker-compose -f docker-compose.yml -f docker-compose.$(Environment).yml -p $(Environment) up -d"
 	      WorkingDirectory="$(MSBuildProjectDirectory)/docker" />
   </Target>

@@ -1,24 +1,6 @@
 version: '3.4'
 
 services:
-  datadock.web:
-    image: datadock.web
-    volumes:
-      - dd-files:/datadock
-    build:
-      context: web
-      dockerfile: Dockerfile
-
-  datadock.worker:
-    image: datadock.worker
-    volumes:
-      - dd-files:/datadock
-    environment:
-      GITHUB_HEADER: dev-datadock-io
-    build:
-      context: worker
-      dockerfile: Dockerfile
-
   elasticsearch:
     image: elasticsearch
     volumes:
@@ -29,8 +11,32 @@ services:
       context: ../src/Elasticsearch
       dockerfile: Dockerfile
 
+  datadock.web:
+    image: datadock.web
+    depends_on:
+      - elasticsearch
+    volumes:
+      - dd-files:/datadock
+    build:
+      context: web
+      dockerfile: Dockerfile
+
+  datadock.worker:
+    image: datadock.worker
+    depends_on:
+      - elasticsearch
+    volumes:
+      - dd-files:/datadock
+    environment:
+      GITHUB_HEADER: dev-datadock-io
+    build:
+      context: worker
+      dockerfile: Dockerfile
+
   kibana:
     image: docker.elastic.co/kibana/kibana-oss:6.2.2
+    depends_on:
+      - elasticsearch
     environment:
       ELASTICSEARCH_URL: http://elasticsearch:9200/
 

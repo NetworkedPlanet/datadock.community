@@ -381,13 +381,13 @@
 							</dd>
 						
 
-							{% assign keywords = triples | where:"predicate", dcat.keyword -%}
+							{% assign keywords = ds_triples | where:"predicate", dcat.keyword -%}
 							{% if keywords.size > 0 -%}
 								<dt class="ds-tags">Tags:</dt>
 									<dd class="ds-tags">
 										<ul>
 										{% for keyword in keywords %}
-											<li><a href="{{datadock-publish-url}}/search?tag={{keyword.object|urlencode}}" class="ui tag label"><span about=""{{dataset.object}}"" property=""dcat:keyword"">{{keyword.object}}</span></a></li>
+											<li><a href="{{datadock-publish-url}}/search?tag={{keyword.object|urlencode}}" class="ui tag label"><span about="{{dataset.object}}" property="dcat:keyword">{{keyword.object}}</span></a></li>
 										{% endfor %}
 										 </ul>
 									</dd>

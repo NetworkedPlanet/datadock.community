@@ -97,7 +97,7 @@ namespace DataDock.Web.Tests.ViewComponents
             Assert.Equal(userName, model.UserViewModel.GitHubName);
             Assert.NotNull(model.Owners);
             Assert.Single(model.Owners);
-            Assert.Equal("/owner-1", model.GetDashContext());
+            Assert.Equal("owner-1", model.GetDashContext());
 
             _mockRepoSettingsStore.Verify(m => m.GetRepoSettingsForOwnerAsync(ownerId), Times.Once);
         }
@@ -130,7 +130,7 @@ namespace DataDock.Web.Tests.ViewComponents
             Assert.Equal(userName, model.UserViewModel.GitHubName);
             Assert.NotNull(model.Owners);
             Assert.Single(model.Owners);
-            Assert.Equal("/owner-1/repo-1", model.GetDashContext());
+            Assert.Equal("owner-1/repo-1", model.GetDashContext());
 
             _mockRepoSettingsStore.Verify(m => m.GetRepoSettingsForOwnerAsync(ownerId), Times.Once);
         }

@@ -26,7 +26,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataDock.Worker.Tests", "Da
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataDock.Web.Tests", "DataDock.Web.Tests\DataDock.Web.Tests.csproj", "{DED25EC1-781D-4C03-A80A-EBF54EBC802A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataDock.Import", "DataDock.Import\DataDock.Import.csproj", "{F7387540-90AA-42A2-89C5-171EC8E3AA0B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataDock.Import", "DataDock.Import\DataDock.Import.csproj", "{F7387540-90AA-42A2-89C5-171EC8E3AA0B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

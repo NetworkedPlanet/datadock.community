@@ -8,8 +8,8 @@
   <div class="item">
     <div class="header">@userId</div>
     <div class="menu">
-      <a class="item" href="/@userId"><i class="dashboard icon"></i> Dashboard</a>
-      <a class="item" href="/@userId/import"><i class="upload icon"></i> Add Data</a>
+      <a class="item" href="@Url.RouteUrl("OwnerProfile", new {ownerId=@userId})"><i class="dashboard icon"></i> Dashboard</a>
+      <a class="item" href="@Url.RouteUrl("OwnerImport", new {ownerId=@userId})"><i class="upload icon"></i> Add Data</a>
       <a asp-controller="Account" asp-action="Settings" class="item"><i class="user icon"></i> Account</a>
     </div>
   </div>

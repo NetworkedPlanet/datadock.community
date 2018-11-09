@@ -8,7 +8,7 @@
   @{
     if (Model.Owners.Count == 1)
     {
-      <a class="item @Model.AreaIsActive("summary")" href="@Model.SelectedOwnerId" title="Dashboard"><img class="ui avatar image" src="@Model.SelectedOwnerAvatarUrl">
+      <a class="item @Model.AreaIsActive("summary")" href="@Url.RouteUrl("OwnerProfile",new {ownerId=Model.SelectedOwnerId})" title="Dashboard"><img class="ui avatar image" src="@Model.SelectedOwnerAvatarUrl">
         @Model.SelectedOwnerId</a>
     }
     else
@@ -24,7 +24,7 @@
           <div class="menu">
             @foreach (var owner in Model.Owners)
             {
-              <a class="item no-underline" href="@owner.OwnerId" title="@owner.OwnerId Dashboard">
+              <a class="item no-underline" href="@Url.RouteUrl("OwnerProfile",new {ownerId=owner.OwnerId})" title="@owner.OwnerId Dashboard">
                 <img class="ui avatar image" src="@owner.AvatarUrl" alt="@owner.OwnerId"/>
                 @owner.OwnerId
               </a>
@@ -41,7 +41,7 @@
 
     if (activeOwner.Repositories.Count < 1)
     {
-      <a class="item @Model.AreaIsActive("repositories")" href="@Model.SelectedOwnerId/repositories" title="Repositories"><i class="hdd icon"></i> Repositories</a>
+      <a class="item @Model.AreaIsActive("repositories")" href="@Url.RouteUrl("OwnerRepos", new {ownerId=@Model.SelectedOwnerId})" title="Repositories"><i class="hdd icon"></i> Repositories</a>
 }
 else
 {
@@ -68,19 +68,22 @@ else
       {
         <i class="dropdown icon"></i>
         <div class="menu">
-          <a class="item @Model.AreaIsActive("repositories")" href="@Model.SelectedOwnerId/repositories" title="Repositories"><i class="cubes icon"></i> All</a>
+          <a class="item @Model.AreaIsActive("repositories")" href="@Url.RouteUrl("OwnerRepos", new {ownerId=@Model.SelectedOwnerId})" title="Repositories"><i class="cubes icon"></i> All</a>
 
           @foreach (var repo in repos)
     {
+        /*
       var repoLink = $"/{repo.OwnerId}/{repo.RepoId}";
      
       if (!Model.ActiveArea.Equals("summary", StringComparison.InvariantCultureIgnoreCase) && !Model.ActiveArea.Equals("repositories", StringComparison.InvariantCultureIgnoreCase))
       {
         repoLink += $"/{Model.ActiveArea}";
       }
+      */
       var repoLinkTitle = $"Go to {repo.OwnerId}/{repo.RepoId} {Model.ActiveArea}";
+      
 
-      <a class="item no-underline" href="@repoLink" title="@repoLinkTitle">
+      <a class="item no-underline" href="@Url.RouteUrl("RepoSummary", new {ownerId=repo.OwnerId, repoId=repo.RepoId})" title="@repoLinkTitle">
         <i class="large hdd outline icon"></i>
         @repo.RepoId
       </a>
@@ -95,19 +98,19 @@ else
         }
         <!-- end repo list menu item-->
         <!-- datasets list menu item-->
-        <a class="item @Model.AreaIsActive("datasets")" href="@Model.GetDashContext()/datasets" title="Datasets"><i class="cubes icon"></i> Datasets</a>
+        <a class="item @Model.AreaIsActive("datasets")" href="/dashboard/datasets/@Model.GetDashContext()" title="Datasets"><i class="cubes icon"></i> Datasets</a>
         <!-- end datasets list menu item-->
         <!-- add data menu item-->
-        <a class="item @Model.AreaIsActive("import")" href="@Model.GetDashContext()/import" title="Add Data"><i class="upload icon"></i> Add Data</a>
+        <a class="item @Model.AreaIsActive("import")" href="/dashboard/import/@Model.GetDashContext()" title="Add Data"><i class="upload icon"></i> Add Data</a>
         <!-- end add data menu item-->
         <!-- datasets list menu item-->
-        <a class="item @Model.AreaIsActive("jobs")" href="@Model.GetDashContext()/jobs" title="Jobs"><i class="history icon"></i> Job History</a>
+        <a class="item @Model.AreaIsActive("jobs")" href="/dashboard/jobs/@Model.GetDashContext()" title="Jobs"><i class="history icon"></i> Job History</a>
         <!-- end datasets list menu item-->
         <!-- templates library menu item-->
-        <a class="item @Model.AreaIsActive("library")" href="@Model.GetDashContext()/library" title="Templates"><i class="book icon"></i> Template Library</a>
+        <a class="item @Model.AreaIsActive("library")" href="/dashboard/library/@Model.GetDashContext()" title="Templates"><i class="book icon"></i> Template Library</a>
         <!-- end template library menu item-->
         <!-- settings menu item-->
-        <a class="item @Model.AreaIsActive("settings")" href="@Model.GetDashContext()/settings" title="Settings"><i class="cogs icon"></i> Settings</a>
+        <a class="item @Model.AreaIsActive("settings")" href="/dashboard/settings/@Model.GetDashContext()" title="Settings"><i class="cogs icon"></i> Settings</a>
         <!-- end settings menu item-->
 
 

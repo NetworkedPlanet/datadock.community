@@ -244,71 +244,70 @@ namespace DataDock.Web
             
             app.UseMvc(routes =>
             {
-
                 // {ownerId}
                 routes.MapRoute(
                 name: "OwnerProfile",
-                template: "{ownerId}",
+                template: "dashboard/profile/{ownerId}",
                 defaults: new { controller = "Owner", action = "Index" },
                 constraints: new { ownerId = new OwnerIdConstraint() });
 
                 routes.MapRoute(
                     name: "OwnerRepos",
-                    template: "{ownerId}/repositories",
+                    template: "dashboard/repositories/{ownerId}",
                     defaults: new { controller = "Owner", action = "Repositories" },
                     constraints: new { ownerId = new OwnerIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "OwnerDatasets",
-                    template: "{ownerId}/datasets",
+                    template: "dashboard/datasets/{ownerId}",
                     defaults: new { controller = "Owner", action = "Datasets" },
                     constraints: new { ownerId = new OwnerIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "OwnerJobs",
-                    template: "{ownerId}/jobs",
+                    template: "dashboard/jobs/{ownerId}",
                     defaults: new { controller = "Owner", action = "Jobs" },
                     constraints: new { ownerId = new OwnerIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "OwnerLibrary",
-                    template: "{ownerId}/library",
+                    template: "dashboard/library/{ownerId}",
                     defaults: new { controller = "Owner", action = "Library" },
                     constraints: new { ownerId = new OwnerIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "OwnerDeleteSchema",
-                    template: "{ownerId}/library/{schemaId}/delete",
+                    template: "dashboard/library/{ownerId}/{schemaId}/delete",
                     defaults: new { controller = "Owner", action = "DeleteSchema" },
                     constraints: new { ownerId = new OwnerIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "OwnerImport",
-                    template: "{ownerId}/import/{schemaId?}",
+                    template: "dashboard/import/{ownerId}",
                     defaults: new { controller = "Owner", action = "Import"},
                     constraints: new { ownerId = new OwnerIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "OwnerSettings",
-                    template: "{ownerId}/settings",
+                    template: "dashboard/settings/{ownerId}",
                     defaults: new { controller = "Owner", action = "Settings" },
                     constraints: new { ownerId = new OwnerIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "OwnerAccount",
-                    template: "{ownerId}/account",
+                    template: "dashboard/account/{ownerId}",
                     defaults: new { controller = "Owner", action = "Account" },
                     constraints: new { ownerId = new OwnerIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "OwnerAccountReset",
-                    template: "{ownerId}/account/reset",
+                    template: "dashboard/account/{ownerId}/reset",
                     defaults: new { controller = "Owner", action = "ResetToken" },
                     constraints: new { ownerId = new OwnerIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "OwnerAccountDelete",
-                    template: "{ownerId}/account/delete",
+                    template: "dashboard/account/{ownerId}/delete",
                     defaults: new { controller = "Owner", action = "DeleteAccount" },
                     constraints: new { ownerId = new OwnerIdConstraint() }
                 );
@@ -318,57 +317,69 @@ namespace DataDock.Web
 
                 routes.MapRoute(
                     name: "RepoSummary",
-                    template: "{ownerId}/{repoId}",
+                    template: "dashboard/repo/{ownerId}/{repoId}",
                     defaults: new { controller = "Repository", action = "Index" },
                     constraints: new { ownerId = new OwnerIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "RepoDatasets",
-                    template: "{ownerId}/{repoId}/datasets",
+                    template: "dashboard/datasets/{ownerId}/{repoId}",
                     defaults: new { controller = "Repository", action = "Datasets" },
                     constraints: new { ownerId = new OwnerIdConstraint(), repoId = new RepoIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "RepoJobs",
-                    template: "{ownerId}/{repoId}/jobs/{jobId?}",
+                    template: "dashboard/jobs/{ownerId}/{repoId}/{jobId?}",
                     defaults: new { controller = "Repository", action = "Jobs" },
                     constraints: new { ownerId = new OwnerIdConstraint(), repoId = new RepoIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "JobLog",
-                    template: "{ownerId}/{repoId}/job/{jobId}",
+                    template: "dashboard/logs/{ownerId}/{repoId}/{jobId}",
                     defaults: new { controller = "Repository", action = "Job" },
                     constraints: new { ownerId = new OwnerIdConstraint(), repoId = new RepoIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "RepoLibrary",
-                    template: "{ownerId}/{repoId}/library",
+                    template: "dashboard/library/{ownerId}/{repoId}",
                     defaults: new { controller = "Repository", action = "Library" },
                     constraints: new { ownerId = new OwnerIdConstraint(), repoId = new RepoIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "RepoImport",
-                    template: "{ownerId}/{repoId}/import/{schemaId?}",
+                    template: "dashboard/import/{ownerId}/{repoId}/{schemaId?}",
                     defaults: new { controller = "Repository", action = "Import"},
                     constraints: new { ownerId = new OwnerIdConstraint(), repoId = new RepoIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "RepoSettings",
-                    template: "{ownerId}/{repoId}/settings",
+                    template: "dashboard/settings/{ownerId}/{repoId}",
                     defaults: new { controller = "Repository", action = "Settings" },
                     constraints: new { ownerId = new OwnerIdConstraint(), repoId = new RepoIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "Dataset",
-                    template: "{ownerId}/{repoId}/{datasetId}",
+                    template: "dashboard/datasets/{ownerId}/{repoId}/{datasetId}",
                     defaults: new { controller = "Repository", action = "Dataset" },
                     constraints: new { ownerId = new OwnerIdConstraint(), repoId = new RepoIdConstraint() }
                 );
                 routes.MapRoute(
                     name: "DeleteDataset",
-                    template: "{ownerId}/{repoId}/{datasetId}/delete",
-                    defaults: new { controller = "Repository", action = "DeleteDataset" },
+                    template: "dashboard/datasets/{ownerId}/{repoId}/{datasetId}/delete",
+                    defaults: new { controller = "Dataset", action = "DeleteDataset" },
                     constraints: new { ownerId = new OwnerIdConstraint(), repoId = new RepoIdConstraint() }
+                );
+
+                // Loader
+                routes.MapRoute(
+                    "JobsLoader",
+                    "dashboard/loader/jobs",
+                    new {controller = "Loader", action = "Jobs"}
+                );
+                routes.MapRoute(
+                    "DatasetsLoader",
+                    "dashboard/loader/datasets",
+                    new { controller = "Loader", action = "Datasets" }
                 );
 
                 // account
@@ -376,6 +387,37 @@ namespace DataDock.Web
                     name: "SignUp",
                     template: "account/signup",
                     defaults: new { controller = "Account", action = "SignUp" });
+
+                // Linked Data routing
+                routes.MapRoute(
+                    name: "LinkedDataRepo",
+                    template: "{ownerId}/{repoId}",
+                    defaults: new {controller = "LinkedData", action = "Repository"});
+
+                routes.MapRoute(
+                    name: "LinkedDataPage",
+                    template: "{ownerId}/{repoId}/page/{*path}",
+                    defaults: new {controller = "LinkedData", action = "Page"});
+
+                routes.MapRoute(
+                    name: "LinkedDataData",
+                    template: "{ownerId}/{repoId}/data/{*path}",
+                    defaults: new { controller = "LinkedData", action = "Data" });
+
+                routes.MapRoute(
+                    name: "LinkedDataId",
+                    template: "{ownerId}/{repoId}/id/{*path}",
+                    defaults: new { controller = "LinkedData", action = "Identifier" });
+
+                routes.MapRoute(
+                    name: "LinkedDataCsv",
+                    template: "{ownerId}/{repoId}/csv/{datasetId}/{filename}.csv",
+                    defaults: new {controller = "LinkedData", action = "Csv"});
+
+                routes.MapRoute(
+                    name: "LinkedDataCsvMetadata",
+                    template: "{ownerId}/{repoId}/csv/{datasetId}/{filename}.json",
+                    defaults: new { controller = "LinkedData", action = "CsvMetadata" });
 
                 // default
                 routes.MapRoute(

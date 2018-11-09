@@ -6,11 +6,7 @@
 
 <div class="ui grid">
     <div class="sixteen wide column">
-        <div id="loadingDataset">
-            @await Html.PartialAsync("_SpinnerPartial")
-        </div>
-        <div id="dataset"></div>
-
+        @await Component.InvokeAsync("Dataset", new { ownerId=Model.SelectedOwnerId, repoId=Model.SelectedRepoId, datasetId=@Model.SelectedDatasetId})
     </div>
 </div>
 
@@ -18,18 +14,5 @@
 
 @section Scripts { 
     <script type="text/javascript">
-        $( document ).ready(function() {
-            get_dataset();
-        });
-    
-        function get_dataset() {
-            var datasets = $.ajax({
-                type: "GET",
-                url: 'loader/dataset?ownerId=@Model.SelectedOwnerId&repoId=@Model.SelectedRepoId&datasetId=@Model.SelectedDatasetId'
-            }).done(function (data) {
-                $('#dataset').html(data);
-                $('#loadingDataset').hide();
-            }).responseText;
-        }
     </script>
 }

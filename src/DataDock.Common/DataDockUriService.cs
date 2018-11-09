@@ -16,6 +16,8 @@ namespace DataDock.Common
             IdentifierRegex  = new Regex("^"  + Regex.Escape(publishSiteBaseUri) + "([^/]+)/([^/]+)/id/(.*)");
         }
 
+        public string GetBaseUri() => PublishSite;
+
         public string GetRepositoryUri(string ownerId, string repositoryId)
         {
             if (string.IsNullOrEmpty(ownerId)) throw new ArgumentException("Identifier must be a non-null non-empty string", nameof(ownerId));

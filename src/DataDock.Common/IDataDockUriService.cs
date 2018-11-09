@@ -10,6 +10,12 @@ namespace DataDock.Common
     public interface IDataDockUriService
     {
         /// <summary>
+        /// Returns the base URI used for all generated URIs for the DataDock service
+        /// </summary>
+        /// <returns></returns>
+        string GetBaseUri();
+
+        /// <summary>
         /// Returns the URL for a DataDock data repository
         /// </summary>
         /// <param name="ownerId">The GitHub owner ID</param>

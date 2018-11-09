@@ -43,6 +43,7 @@ namespace DataDock.Worker
                 _addVariables.Remove("parentDataset");
             }
             _addVariables.Add("parentDataset", parentDataset);
+            _addVariables.Add("baseUri", _uriService.GetBaseUri());
         }
 
 

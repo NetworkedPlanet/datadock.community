@@ -291,6 +291,7 @@ src/DataDock.Web/oauth.production.json
 src/DataDock.Web/oauth.staging.json
 src/DataDock.Web/appsettings.*.json
 src/DataDock.Web/wwwroot/css/*.min.css
+src/DataDock.Web/wwwroot/js/site.js
 src/DataDock.Web/wwwroot/js/*.min.js
 src/DataDock.Web/wwwroot/vendor/**/*
 src/DataDock.Web/files/**/*
@@ -301,4 +302,3 @@ docker/worker/app
 docker/docker-compose.*.yml
 src/DataDock.Worker/appsettings.development.json
 src/DataDock.Import/data/*.json
-src/DataDock.Web/wwwroot/js/site.js

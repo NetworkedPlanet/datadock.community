@@ -232,12 +232,12 @@ namespace DataDock.Worker
         /// Update or create the statically generated HTML and RDF for the DataDock repository
         /// </summary>
         /// <param name="graphFilter">An optional enumeration of the IRIs of the graphs to be published.</param>
-        /// <param name="portalInfo">Additional info for data portal page templates</param>
-        public void Publish(IEnumerable<Uri> graphFilter = null, PortalInfoDrop portalInfo = null)
+        /// <param name="templateVariables">Additional template variables for data portal pages</param>
+        public void Publish(IEnumerable<Uri> graphFilter = null, Dictionary<string, object> templateVariables = null)
         {
             GenerateRdf(graphFilter);
-            GenerateHtml(portalInfo);
-            GenerateVoidMetadata();
+            GenerateHtml(templateVariables);
+            GenerateVoidMetadata(templateVariables);
         }
 
         public void GenerateRdf(IEnumerable<Uri> graphFilter)
@@ -266,7 +266,7 @@ namespace DataDock.Worker
         }
 
 
-        private void GenerateHtml(PortalInfoDrop portalInfo)
+        private void GenerateHtml(Dictionary<string, object> templateVariables)
         {
             try
             {
@@ -284,15 +284,7 @@ namespace DataDock.Worker
                     RemoveDirectory(resourcePath);
                 }
 
-                var additionalVariables =
-                    new Dictionary<string, object>
-                    {
-                        {"ownerId", portalInfo?.OwnerId},
-                        {"repoName", portalInfo?.RepositoryName},
-                        {"portalInfo", portalInfo},
-                    };
-
-                var generator = _fileGeneratorFactory.MakeHtmlFileGenerator(_uriService, _htmlResourceFileMapper, templateEngine, _progressLog, HtmlFileGenerationReportInterval, additionalVariables);
+                var generator = _fileGeneratorFactory.MakeHtmlFileGenerator(_uriService, _htmlResourceFileMapper, templateEngine, _progressLog, HtmlFileGenerationReportInterval, templateVariables);
 
                 _quinceStore.EnumerateSubjects(generator);
             }
@@ -303,7 +295,7 @@ namespace DataDock.Worker
             }
         }
 
-        private void GenerateVoidMetadata()
+        private void GenerateVoidMetadata(Dictionary<string, object> templateVariables)
         {
             try
             {
@@ -311,7 +303,7 @@ namespace DataDock.Worker
                 var assemblyPath = Assembly.GetExecutingAssembly().Location;
                 var templatePath = Path.Combine(Path.GetDirectoryName(assemblyPath), "templates");
                 templateEngine.Initialize(templatePath, _quinceStore, "void.liquid");
-                var voidGenerator = new VoidFileGenerator(templateEngine, _quinceStore, _repositoryUri, _progressLog);
+                var voidGenerator = new VoidFileGenerator(templateEngine, _quinceStore, _repositoryUri, _progressLog, templateVariables);
                 var htmlPath = Path.Combine(_targetDirectory, "page", "index.html");
                 var nquadsPath = Path.Combine(_targetDirectory, "data", "void.nq");
                 voidGenerator.GenerateVoidHtml(htmlPath);

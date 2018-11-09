@@ -208,5 +208,7 @@ namespace DataDock.Web.Controllers
             DashboardViewModel.Title = string.Format("{0} Settings", DashboardViewModel.SelectedOwnerId, DashboardViewModel.SelectedRepoId);
             return View("Settings", this.DashboardViewModel);
         }
+
+        
     }
 }

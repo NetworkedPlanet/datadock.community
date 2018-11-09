@@ -22,22 +22,21 @@ namespace DataDock.Web.ViewComponents
             _uriService = uriService;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(string selectedOwnerId, string selectedRepoId,
-            string selectedDatasetId)
+        public async Task<IViewComponentResult> InvokeAsync(string ownerId, string repoId, string datasetId)
         {
             try
             {
-                if (string.IsNullOrEmpty(selectedOwnerId) || string.IsNullOrEmpty(selectedRepoId) ||
-                    string.IsNullOrEmpty(selectedDatasetId))
+                if (string.IsNullOrEmpty(ownerId) || string.IsNullOrEmpty(repoId) ||
+                    string.IsNullOrEmpty(datasetId))
                 {
                     return View("Empty");
                 }
 
                 var user = Request.HttpContext.User;
                 var isAdmin =  user?.Identity.Name != null && user.Identity.IsAuthenticated &&
-                                               ClaimsHelper.OwnerExistsInUserClaims(user.Identity as ClaimsIdentity, selectedOwnerId);
+                                               ClaimsHelper.OwnerExistsInUserClaims(user.Identity as ClaimsIdentity, ownerId);
                 var dataset =
-                    await _datasetStore.GetDatasetInfoAsync(selectedOwnerId, selectedRepoId, selectedDatasetId);
+                    await _datasetStore.GetDatasetInfoAsync(ownerId, repoId, datasetId);
                 return View("Default", new DatasetViewModel(_uriService, dataset, isOwner:isAdmin));
             }
             catch (Exception e)

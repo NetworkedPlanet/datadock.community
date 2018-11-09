@@ -59,7 +59,11 @@ namespace DataDock.Worker.Tests
             var viewEngine = new LiquidViewEngine();
             viewEngine.Initialize("templates", quince.Object, "void.liquid");
             var result = viewEngine.Render(repo.Uri, triples, new List<Triple>(),
-                new Dictionary<string, object> {{"nquads", "http://datadock.io/networkedplanet/sample/data/void.nq"}});
+                new Dictionary<string, object>
+                {
+                    {"nquads", "http://datadock.io/networkedplanet/sample/data/void.nq"},
+                    {"datadock-publish-url", "http://datadock.io" }
+                });
             result.Should().NotBeNullOrWhiteSpace();
             result.Should()
                 .MatchRegex(@"<title>\s*Repository: Test Repository\s*</title>",
@@ -104,29 +108,29 @@ namespace DataDock.Worker.Tests
                 .MatchRegex(@"<a href=""http://datadock.io/search\?tag=tag2"" class=""ui tag label""><span about=""http://datadock.io/networkedplanet/sample/id/dataset/dataset1"" property=""dcat:keyword"">tag2</span></a>",
                     because: "there should be a keyword tag2 for datatset 1");
             result.Should()
-                .MatchRegex(@"<td>Modified:</td>\s*<td>\s*<span property=""dc:modified"" datatype=""http://www.w3.org/2001/XMLSchema#date"">2017-01-02</span>\s*</td>",
+                .MatchRegex(@"<dt>Modified:</dt>\s*<dd>\s*<span property=""dc:modified"" datatype=""http://www.w3.org/2001/XMLSchema#date"">2017-01-02</span>\s*</dd>",
                     because: "there should be a modified date for dataset 1");
             result.Should()
                 .MatchRegex(
-                    @"<td>\s*Download:\s*</td>\s*<td>\s*<a property=""void:dataDump"" href=""https://github.com/kal/lodtest/releases/download/AT.csv_20170106_150624/AT.csv_20170106_150624.nt.gz"">AT.csv_20170106_150624.nt.gz</a><br/>\s*</td>",
+                    @"<a property=""void:dataDump""\s+class=""ui primary button mr""\s+href=""https://github.com/kal/lodtest/releases/download/AT.csv_20170106_150624/AT.csv_20170106_150624.nt.gz""><i class=""download icon""></i>N-QUADS</a>",
                     because: "there should be a download link for dataset 1");
 
 
             result.Should()
                 .MatchRegex(
-                    @"<div class=""row"" property=""void:subset"" resource=""http://datadock.io/networkedplanet/sample/id/dataset/dataset2"">");
+                    @"<div class=""card"" property=""void:subset"" resource=""http://datadock.io/networkedplanet/sample/id/dataset/dataset2"">");
             result.Should()
                 .MatchRegex(
-                    @"<div class=""panel panel-default"" about=""http://datadock.io/networkedplanet/sample/id/dataset/dataset2"">");
+                    @"<div class=""content"" about=""http://datadock.io/networkedplanet/sample/id/dataset/dataset2"">");
             result.Should()
                 .MatchRegex(@"<h3 property=""dc:title"">\s*<a href=""http://datadock.io/networkedplanet/sample/id/dataset/dataset2"">\s*http://datadock.io/networkedplanet/sample/id/dataset/dataset2\s*</a>\s*</h3>",
                     because: "there is no explicit title for dataset 2");
-            result.Should().MatchRegex(@"<td>Description:</td>\s+<td>\s*Not specified.\s*</td>", because: "there is no description for dataset 2");
+            result.Should().MatchRegex(@"<dt>Description:</dt>\s+<dd>\s*Not specified.\s*</dd>", because: "there is no description for dataset 2");
             result.Should()
-                .MatchRegex(@"<td>License:</td>\s+<td>\s+Not specified.\s+</td>",
+                .MatchRegex(@"<dt>License:</dt>\s+<dd>\s+Not specified.\s+</dd>",
                     because: "there is no license for dataset 2");
             result.Should()
-                .MatchRegex(@"<td>Triple Count:</td>\s+<td>\s+Not specified.\s+</td>",
+                .MatchRegex(@"<div class=""value"">\s+Not specified\.\s+</div>\s+<div class=""label"">\s+Triples\s+</div>",
                     because: "there is no triple count for dataset 2");
 
         }

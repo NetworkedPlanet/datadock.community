@@ -6,30 +6,32 @@
 
 
 <div class="ui grid">
-  <div class="sixteen wide column">
-    <div id="loadingDatasets">
-      @await Html.PartialAsync("_SpinnerPartial")
+    <div class="sixteen wide column">
+        <div class="data-loader"
+             data-endpoint="@Url.RouteUrl("DatasetsLoader", new {ownerId = @Model.SelectedOwnerId, repoId = @Model.SelectedRepoId})">
+            <div id="loadingJobs">
+                @await Html.PartialAsync("_SpinnerPartial")
+            </div>
+        </div>
     </div>
-    <div id="datasets"></div>
-
-  </div>
 </div>
 
 @section Scripts { 
   <script type="text/javascript">
-    $( document ).ready(function() {
-      get_datasets();
-    });
-    
-    function get_datasets() {
-      var datasets = $.ajax({
-        type: "GET",
-        url: 'loader/datasets?ownerId=@Model.SelectedOwnerId&repoId=@Model.SelectedRepoId'
-      }).done(function (data) {
-        $('#datasets').html(data);
-        $('#loadingDatasets').hide();
-        setTimeout(function () { get_datasets();}, 5000);
-      }).responseText;
-    }
+      $(document).ready(function() { refresh() });
+
+      function refresh() {
+          $('.data-loader').each(function() {
+              var endpoint = $(this).data('endpoint');
+              var container = this;
+              $.ajax({
+                  type: "GET",
+                  url: endpoint
+              }).done(function(data) {
+                  $(container).html(data);
+              });
+          });
+          setTimeout(function() { refresh(); }, 5000);
+      }
   </script>
 }

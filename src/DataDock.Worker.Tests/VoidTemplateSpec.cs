@@ -62,7 +62,7 @@ namespace DataDock.Worker.Tests
                 new Dictionary<string, object>
                 {
                     {"nquads", "http://datadock.io/networkedplanet/sample/data/void.nq"},
-                    {"baseUri", "http://datadock.io/" }
+                    {"datadock-publish-url", "http://datadock.io" }
                 });
             result.Should().NotBeNullOrWhiteSpace();
             result.Should()

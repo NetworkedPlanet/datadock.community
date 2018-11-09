@@ -11,7 +11,7 @@
   </Target>
 
   <Target Name="Up" DependsOnTargets="Build">
-	<Exec Command="docker-compose -f docker-compose.yml -f docker-compose.$(Environment).yml -p $(Environment) up"
+	<Exec Command="docker-compose -f docker-compose.yml -f docker-compose.$(Environment).yml -p $(Environment) up -d"
 	      WorkingDirectory="$(MSBuildProjectDirectory)/docker" />
   </Target>
   

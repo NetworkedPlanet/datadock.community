@@ -388,6 +388,12 @@ namespace DataDock.Web
                     template: "account/signup",
                     defaults: new { controller = "Account", action = "SignUp" });
 
+                // Info
+                routes.MapRoute(
+                    name: "Info",
+                    template: "info/{action}",
+                    defaults: new {controller = "Info"});
+
                 // Linked Data routing
                 routes.MapRoute(
                     name: "LinkedDataRepo",

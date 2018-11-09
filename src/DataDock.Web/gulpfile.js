@@ -12,7 +12,7 @@ var gulp = require("gulp"),
     concat = require("gulp-concat"),
     merge = require('merge-stream'),
     cssmin = require("gulp-cssmin"),
-    uglify = require("gulp-uglify");
+    uglify = require("gulp-uglify-es").default;
 
 
 var paths = {

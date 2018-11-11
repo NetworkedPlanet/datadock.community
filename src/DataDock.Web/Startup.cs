@@ -401,6 +401,12 @@ namespace DataDock.Web
                     defaults: new {controller = "Info"});
 
                 // Linked Data routing
+
+                routes.MapRoute(
+                    name: "LinkedDataPortal",
+                    template: "{ownerId}",
+                    defaults: new { controller = "LinkedData", action = "Owner" });
+
                 routes.MapRoute(
                     name: "LinkedDataRepo",
                     template: "{ownerId}/{repoId}",

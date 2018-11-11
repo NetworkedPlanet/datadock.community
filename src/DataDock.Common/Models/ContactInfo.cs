@@ -32,5 +32,10 @@ namespace DataDock.Common.Models
         /// </summary>
         [JsonProperty("website")]
         public string Website { get; set; }
+
+        public bool IsDisplayable()
+        {
+            return !string.IsNullOrEmpty(Label) || !string.IsNullOrEmpty(Email) || !string.IsNullOrEmpty(Website);
+        }
     }
 }

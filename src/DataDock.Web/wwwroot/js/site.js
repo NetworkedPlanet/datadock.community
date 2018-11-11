@@ -1159,7 +1159,10 @@ function clearErrors() {
 }
 
 function chooseFile() {
-    var restartLocation = "/" + ownerId + "/" + repoId + "/import";
+    var restartLocation = "/dashboard/import/" + ownerId + "/" + repoId;
+    if (schemaId) {
+        restartLocation = restartLocation + "/" + schemaId;
+    } 
     if (baseUrl) {
         window.location.href = baseUrl + restartLocation;
     }

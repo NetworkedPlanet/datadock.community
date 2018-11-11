@@ -30,8 +30,10 @@ namespace DataDock.Web.ViewComponents
                 switch (display)
                 {
                     case "link-list":
+                        // shown when selecting a repo during import process
                         return View("DividedList", repos);
                     default:
+                        // shown on repostories.cshtml in "add repo" dropdown selector
                         return View(repos);
                 }
             }

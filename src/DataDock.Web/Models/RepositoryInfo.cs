@@ -24,7 +24,7 @@ namespace DataDock.Web.Models
         {
             this.OwnerId = r.Owner?.Login;
             this.RepoId = r.Name;
-            this.DataDockImportUrl = $"/{OwnerId}/{RepoId}/import";
+            this.DataDockImportUrl = $"/dashboard/import/{OwnerId}/{RepoId}";
             if (!string.IsNullOrEmpty(schemaId))
             {
                 this.DataDockImportUrl += $"/{schemaId}";
@@ -36,7 +36,7 @@ namespace DataDock.Web.Models
         {
             this.OwnerId = s.OwnerId;
             this.RepoId = s.RepositoryId;
-            this.DataDockImportUrl = $"/{OwnerId}/{RepoId}/import";
+            this.DataDockImportUrl = $"/dashboard/import/{OwnerId}/{RepoId}";
             this.OwnerAvatar = s.OwnerAvatar;
         }
     }

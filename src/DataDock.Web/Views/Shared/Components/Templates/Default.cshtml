@@ -10,8 +10,8 @@
         <div class="content">
           <div class="right floated">
             <div class="ui vertical labeled icon buttons">
-              <a href="/@template.OwnerId/@template.RepositoryId/import/@template.SchemaId" title="Import Data Using This Template" id="useTemplate" class="ui small basic primary button"><i class="upload icon"></i>Use To Import</a>
-              <a href="/@template.OwnerId/library/@Html.Encode(template.SchemaId)/delete" id="deleteTemplate" class="ui small basic red button" title="Delete Template"><i class="trash icon"></i>Delete</a>
+              <a href="@Url.RouteUrl("OwnerUseSchema", new {ownerId = template.OwnerId, schemaId = template.SchemaId})" title="Import Data Using This Template" id="useTemplate" class="ui small basic primary button"><i class="upload icon"></i>Use To Import</a>
+              <a href="@Url.RouteUrl("OwnerDeleteSchema", new {ownerId = template.OwnerId, schemaId = template.SchemaId})" id="deleteTemplate" class="ui small basic red button" title="Delete Template"><i class="trash icon"></i>Delete</a>
             </div>
           </div>
           <div class="header">@template.Title</div>
@@ -60,5 +60,10 @@ else
 {
   <div class="ui warning message">
     None found.
+    @if (!string.IsNullOrEmpty(ViewBag.RepoId) && !string.IsNullOrEmpty(ViewBag.OwnerId))
+    {
+      <span>You can also try looking for templates across all repositories in <a href="@Url.RouteUrl("OwnerLibrary", new {ownerId = ViewBag.OwnerId})">@ViewBag.OwnerId</a>.</span>
+
+    }
   </div>
 }

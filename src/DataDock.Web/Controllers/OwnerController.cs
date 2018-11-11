@@ -81,6 +81,14 @@ namespace DataDock.Web.Controllers
             return View("Dashboard/Library", this.DashboardViewModel);
         }
 
+        [Authorize]
+        [ServiceFilter(typeof(AccountExistsFilter))]
+        [ServiceFilter(typeof(OwnerAdminAuthFilter))]
+        public async Task<IActionResult> UseSchema(string ownerId, string schemaId)
+        {
+            return RedirectToAction("Import", new {ownerId = ownerId, schemaId = schemaId});
+        }
+
         public async Task<ActionResult> DeleteSchema(string ownerId, string schemaId)
         {
             if (string.IsNullOrEmpty(ownerId)) return new NotFoundResult();

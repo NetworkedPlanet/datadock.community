@@ -28,7 +28,7 @@
         <div class="ui center aligned container">
           <div class="ui hidden divider"></div>
           <div class="ui buttons">
-            <a href="/@Model.SelectedOwnerId/library" class="ui button large">Cancel Deletion</a>
+            <a href="@Url.RouteUrl("OwnerLibrary", new {ownerId = Model.SelectedOwnerId})" class="ui button large">Cancel Deletion</a>
             <div class="or"></div>
             <input type="submit" class="ui primary button large" value="Confirm Deletion" />
           </div>
@@ -40,7 +40,7 @@
         <h3 class="text-danger">Invalid Template ID</h3>
         <p class="lead">We could not locate the metadata record for the template @Model.SchemaId. Please check the link you used to reach this page and try again.</p>
         <p>
-          <a href="/@Model.SelectedOwnerId/library" title="View All Templates" class="ui button primary">View All Templates</a>
+          <a href="@Url.RouteUrl("OwnerLibrary", new {ownerId = Model.SelectedOwnerId})" title="View All Templates" class="ui button primary">View All Templates</a>
         </p>
       }
 
@@ -51,7 +51,7 @@
     <h3 class="text-danger">Invalid Template ID</h3>
     <p class="lead">We could not locate the metadata record for the template @Model.SchemaId. Please check the link you used to reach this page and try again.</p>
     <p>
-      <a href="/@Model.SelectedOwnerId/library" title="View All Templates" class="ui button primary">View All Templates</a>
+      <a href="@Url.RouteUrl("OwnerLibrary", new {ownerId = Model.SelectedOwnerId})" title="View All Templates" class="ui button primary">View All Templates</a>
     </p>
 
     <div class="ui red message">

@@ -5,14 +5,21 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using DataDock.Common.Stores;
+using DataDock.Web.Models;
+using DataDock.Web.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nest;
+using Serilog;
 
 namespace DataDock.Web.Controllers
 {
     public class LinkedDataController : Controller
     {
+        private readonly IOwnerSettingsStore _ownerSettingsStore;
+        private readonly IRepoSettingsStore _repoSettingsStore;
+
         private static readonly string[] SupportedPageMediaTypes = { "text/html", "*/*" };
         private static readonly string[] SupportedDataMediaTypes = { "application/n-quads", "*/*" };
         private static readonly string[] SupportedMediaTypes = {"text/html", "application/n-quads", "*/*"};
@@ -20,6 +27,37 @@ namespace DataDock.Web.Controllers
 
         private static readonly string[] SupportedCsvMetadataMediaTypes =
             {"application/json", "application/csvm+json", "application/ld+json", "*/*"};
+
+        public LinkedDataController(IOwnerSettingsStore ownerSettingsStore, IRepoSettingsStore repoSettingsStore)
+        {
+            _ownerSettingsStore = ownerSettingsStore;
+            _repoSettingsStore = repoSettingsStore;
+        }
+
+        public async Task<ActionResult> Owner(string ownerId)
+        {
+            if (string.IsNullOrEmpty(ownerId))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            var ownerSettings = await _ownerSettingsStore.GetOwnerSettingsAsync(ownerId);
+
+            var portalViewModel = new PortalViewModel(ownerSettings);
+            
+
+            // repos
+            try
+            {
+                var repos = await _repoSettingsStore.GetRepoSettingsForOwnerAsync(ownerId);
+                portalViewModel.RepoIds = repos.Select(r => r.RepositoryId).ToList();
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Error getting repositories for {0}", ownerId);
+            }
+            
+            return View("Index", portalViewModel); ;
+        }
 
         /// <summary>
         /// Redirects a request for a repository identifier in the form {BASE_URL}/{ownerId}/{repoId} to either the

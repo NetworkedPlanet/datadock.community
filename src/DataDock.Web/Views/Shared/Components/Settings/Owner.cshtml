@@ -6,9 +6,12 @@
 
   @Html.HiddenFor(m => m.OwnerIsOrg)
   @Html.HiddenFor(m => m.OwnerId)
+  
+  <a href="/@Model.OwnerId" target="_blank" class="ui small basic right floated primary button" title="Explore"><i class="external icon"></i>View Portal</a>
+
 
   <h4 class="ui dividing header">Portal Front End</h4>
-
+  
   <div class="field">
     <div class="ui checkbox">
       @Html.CheckBoxFor(m => m.DisplayGitHubAvatar, new { @class = "" })
@@ -49,15 +52,6 @@
     </div>
   </div>
 
-
-  <div class="field">
-    <p>Encourage conversation and feedback by providing links to where interactions can take place:</p>
-    <div class="ui checkbox">
-      @Html.CheckBoxFor(m => m.DisplayGitHubIssuesLink, new { @class = "" })
-      @Html.LabelFor(m => m.DisplayGitHubIssuesLink, new { @class = "" })
-      @Html.ValidationMessageFor(m => m.DisplayGitHubIssuesLink)
-    </div>
-  </div>
 
   <div class="field">
     <div class="ui checkbox">

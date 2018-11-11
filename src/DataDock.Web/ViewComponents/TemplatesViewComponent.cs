@@ -22,6 +22,8 @@ namespace DataDock.Web.ViewComponents
         {
             try
             {
+                ViewBag.OwnerId = selectedOwnerId;
+                ViewBag.RepoId = selectedRepoId;
                 if (string.IsNullOrEmpty(selectedOwnerId)) return View("Empty");
 
                 if (string.IsNullOrEmpty(selectedRepoId))

@@ -32,17 +32,23 @@ namespace DataDock.Worker
 
         private void UpdateVariables(string nquads, string parentDataset)
         {
+            // nquads
             if (_addVariables.ContainsKey("nquads"))
             {
                 _addVariables.Remove("nquads");
             }
             _addVariables.Add("nquads", nquads);
-
+            // parentDataset
             if (_addVariables.ContainsKey("parentDataset"))
             {
                 _addVariables.Remove("parentDataset");
             }
             _addVariables.Add("parentDataset", parentDataset);
+            // baseUri
+            if (_addVariables.ContainsKey("baseUri"))
+            {
+                _addVariables.Remove("baseUri");
+            }
             _addVariables.Add("baseUri", _uriService.GetBaseUri());
         }
 

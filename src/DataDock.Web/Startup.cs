@@ -282,6 +282,12 @@ namespace DataDock.Web
                     constraints: new { ownerId = new OwnerIdConstraint() }
                 );
                 routes.MapRoute(
+                    name: "OwnerUseSchema",
+                    template: "dashboard/library/{ownerId}/{schemaId}/import",
+                    defaults: new { controller = "Owner", action = "UseSchema" },
+                    constraints: new { ownerId = new OwnerIdConstraint() }
+                );
+                routes.MapRoute(
                     name: "OwnerImport",
                     template: "dashboard/import/{ownerId}",
                     defaults: new { controller = "Owner", action = "Import"},
@@ -395,6 +401,12 @@ namespace DataDock.Web
                     defaults: new {controller = "Info"});
 
                 // Linked Data routing
+
+                routes.MapRoute(
+                    name: "LinkedDataPortal",
+                    template: "{ownerId}",
+                    defaults: new { controller = "LinkedData", action = "Owner" });
+
                 routes.MapRoute(
                     name: "LinkedDataRepo",
                     template: "{ownerId}/{repoId}",

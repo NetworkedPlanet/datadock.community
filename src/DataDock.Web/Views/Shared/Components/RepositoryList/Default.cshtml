@@ -3,12 +3,13 @@
 
 @if (Model != null & Model.Count > 0)
 {
-  <div class="">
+  <div class="dash-repo-list">
+
     @foreach (RepoSettingsViewModel repo in Model)
     {
       <div class="ui fluid raised card">
         <div class="content">
-          <div class="header"><a href="/@repo.OwnerId/@repo.RepoId">@repo.RepoId</a></div>
+          <div class="header"><a href="@Url.RouteUrl("RepoSummary", new {ownerId = repo.OwnerId, repoId = repo.RepoId})">@repo.RepoId</a></div>
         </div>
       </div>
     }

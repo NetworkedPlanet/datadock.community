@@ -244,7 +244,7 @@ function sendData(e){
 }
 
 function sendDataSuccess(response) {
-    var jobsUrl = "/" + ownerId + "/" + repoId + "/jobs";
+    var jobsUrl = "/dashboard/jobs/" + ownerId + "/" + repoId;
     if (baseUrl) {
         jobsUrl = baseUrl + jobsUrl;
     }
